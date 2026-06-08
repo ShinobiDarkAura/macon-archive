@@ -199,8 +199,9 @@
   <div class="inner">
     <h1 class="wordmark">MAÇON</h1>
     <p>Bureau of Provenance — for keepers of the archive.</p>
-    <input id="gateEmail" type="email" placeholder="your email" autocomplete="email">
-    <button class="btn" id="gateBtn" style="width:100%">Send sign-in link</button>
+    <input id="gateEmail" type="email" placeholder="email" autocomplete="username">
+    <input id="gatePass" type="password" placeholder="password" autocomplete="current-password">
+    <button class="btn" id="gateBtn" style="width:100%">Sign in</button>
     <div class="msg" id="gateMsg"></div>
   </div>
 </div>
@@ -422,13 +423,16 @@ function showGate(){ synced=false; setSync("","Sign in to sync"); document.getEl
 function hideGate(){ document.getElementById("gate").classList.remove("show"); }
 document.getElementById("scrim").onclick=e=>{ if(e.target.id==="scrim") closeScrim(); };
 document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeScrim(); });
-document.getElementById("gateBtn").onclick=async()=>{
+async function gateSignIn(){
   const email=document.getElementById("gateEmail").value.trim();
-  if(!email){ return; }
-  document.getElementById("gateMsg").textContent="Sending…";
-  const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.href.split('#')[0] } });
-  document.getElementById("gateMsg").textContent = error ? error.message : "Check your email for the sign-in link.";
-};
+  const password=document.getElementById("gatePass").value;
+  if(!email||!password){ document.getElementById("gateMsg").textContent="Enter your email and password."; return; }
+  document.getElementById("gateMsg").textContent="Signing in…";
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  document.getElementById("gateMsg").textContent = error ? error.message : "";
+}
+document.getElementById("gateBtn").onclick=gateSignIn;
+document.getElementById("gatePass").addEventListener("keydown",e=>{ if(e.key==="Enter") gateSignIn(); });
 
 /* ---------------- Toolbar ---------------- */
 document.getElementById("addBtn").onclick=()=>showForm(null);
