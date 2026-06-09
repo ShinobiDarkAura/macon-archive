@@ -57,14 +57,15 @@
   /* ---------- Dashboard strip ---------- */
   .dash{display:flex;flex-wrap:wrap;justify-content:center;gap:0;margin:30px 0 6px;
         border:1px solid var(--rule);background:transparent;border-radius:6px;overflow:hidden}
-  .stat{flex:1;min-width:120px;text-align:center;padding:16px 12px;border-right:1px solid var(--rule)}
+  .stat{flex:1;min-width:120px;text-align:center;padding:40px 12px;border-right:1px solid var(--rule)}
   .stat:last-child{border-right:none}
-  .stat .num{font-family:var(--sans);font-size:30px;font-weight:400;color:var(--bronze-deep);line-height:1}
+  .stat .num{font-family:var(--sans);font-size:30px;font-weight:400;color:#cfd1c9;line-height:1;transition:color .6s ease}
+  .stat .num.changed{color:#000}
   .stat .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);margin-top:8px}
   /* Floating progress card (sticky, above the footer) */
   .progress-card{position:fixed;left:50%;transform:translateX(-50%);bottom:78px;z-index:31;
         width:min(580px,calc(100% - 40px));background:var(--paper);border:1px solid var(--rule);border-radius:999px;
-        box-shadow:0 12px 34px rgba(40,37,35,.18);padding:15px 26px 17px;transition:border-color .3s}
+        box-shadow:0 12px 34px rgba(40,37,35,.18);padding:15px 26px 17px;transition:border-color .3s;border-radius:12px}
   .progress-card.started{border-color:var(--seal)}
   .progress-card .pc-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
   .progress-card .lbl,.progress-card .count{font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.1em;color:var(--slate)}
@@ -74,7 +75,7 @@
   .progress-card .bar i{display:block;height:100%;width:0;background:var(--seal);transition:width 1s cubic-bezier(.2,.8,.2,1)}
 
   /* ---------- Toolbar ---------- */
-  .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:34px 0 18px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0 18px}
   .toolbar .search{flex:1;min-width:200px}
   input,select,textarea{font-family:var(--sans);font-size:15px;color:var(--ink);
         background:rgba(255,255,255,.45);border:1px solid var(--rule);border-radius:0;outline:none}
@@ -110,7 +111,9 @@
   .sig.High .dot{background:var(--bronze)}
   .sig.Med .dot{background:var(--slate)}
   .sig.Low .dot{background:var(--rule)}
-  .star{color:var(--seal);margin-left:6px}
+  .fav{background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:0 0 0 9px;color:var(--rule);transition:color .15s;vertical-align:baseline}
+  .fav.on{color:var(--seal)}
+  .fav:hover{color:var(--seal)}
   .empty{text-align:center;padding:20px;color:var(--slate);font-family:var(--serif-soul);font-style:italic;font-size:16pt}
   .ledger.is-empty{flex:1;display:flex;align-items:center;justify-content:center}
 
@@ -142,7 +145,7 @@
   .form-grid .fg.full{grid-column:1/-1}
   .form-grid label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);margin-bottom:6px}
   .form-grid textarea{resize:vertical;min-height:54px}
-  .foot{position:fixed;left:0;right:0;bottom:0;z-index:30;text-align:center;padding:29px 13px 13px;
+  .foot{position:fixed;left:0;right:0;bottom:0;z-index:30;text-align:center;padding:21px 13px 13px;
         border-top:1px solid var(--rule);background:var(--paper);
         font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#a7a39c}
 
@@ -191,13 +194,6 @@
   <!-- Toolbar -->
   <div class="toolbar">
     <div class="search"><input class="search" id="q" placeholder="Search names, pieces, stories…"></div>
-    <div class="filters">
-      <button class="chip on" data-sig="all">All</button>
-      <button class="chip" data-sig="High">High</button>
-      <button class="chip" data-sig="Med">Med</button>
-      <button class="chip" data-sig="Low">Low</button>
-      <button class="chip" data-sig="firstlook">First Look ★</button>
-    </div>
     <button class="btn" id="addBtn">+ New Entry</button>
   </div>
 
@@ -329,19 +325,34 @@ function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;
 function setSync(cls,txt){ const el=document.getElementById("sync"); el.className="sync "+cls; document.getElementById("syncTxt").textContent=txt; }
 
 /* ---------- Render dashboard ---------- */
+let prevStats=null;
 function renderDash(){
   const total=data.length;
-  const high=data.filter(d=>d.signal==="High").length;
   const fl=data.filter(d=>d.first_look).length;
-  const gifts=data.filter(d=>d.gift_self==="Gift").length;
+  const repeat=data.filter(d=>countPieces(d.pieces)>=2).length;
+  const stories=data.filter(d=>d.story==="Yes").length;
   const pieces=data.reduce((s,d)=>s+countPieces(d.pieces),0);
+  const avg=total? (pieces/total).toFixed(1) : "0";
   const pct=Math.min(100, Math.round(total/200*100));
-  document.getElementById("dash").innerHTML = `
-    <div class="stat"><div class="num">${total}</div><div class="lbl">Collectors</div></div>
-    <div class="stat"><div class="num">${high}</div><div class="lbl">High Signal</div></div>
-    <div class="stat"><div class="num">${fl}</div><div class="lbl">First Look</div></div>
-    <div class="stat"><div class="num">${gifts}</div><div class="lbl">Gifts Given</div></div>
-    <div class="stat"><div class="num">${pieces}</div><div class="lbl">Pieces in the World</div></div>`;
+  const stats=[
+    {k:"collectors", v:total,  l:"Collectors"},
+    {k:"favorites",  v:fl,     l:"Favorites"},
+    {k:"repeat",     v:repeat,  l:"Repeat Collectors"},
+    {k:"stories",    v:stories, l:"Stories Captured"},
+    {k:"avg",        v:avg,     l:"Avg / Collector"},
+  ];
+  document.getElementById("dash").innerHTML = stats.map(s=>
+    `<div class="stat"><div class="num" data-k="${s.k}">${s.v}</div><div class="lbl">${s.l}</div></div>`).join("");
+  // highlight numbers that changed: flash to black, ease back to greige
+  if(prevStats){
+    stats.forEach(s=>{
+      if(String(prevStats[s.k])!==String(s.v)){
+        const el=document.querySelector(`.num[data-k="${s.k}"]`);
+        if(el){ requestAnimationFrame(()=>{ el.classList.add("changed"); setTimeout(()=>el.classList.remove("changed"),1500); }); }
+      }
+    });
+  }
+  prevStats={}; stats.forEach(s=>prevStats[s.k]=s.v);
   document.getElementById("goalLbl").textContent = "Toward 200 collectors who are genuinely in the world";
   document.getElementById("goalCount").textContent = `${total} / 200`;
   document.getElementById("goalBar").style.width = pct + "%";
@@ -365,13 +376,18 @@ function renderLedger(){
     const i=data.indexOf(d);
     return `<div class="entry" data-i="${i}">
       <div class="acc">${esc(d.acc)}</div>
-      <div class="who"><div class="nm">${esc(d.name||"—")}${d.first_look?'<span class="star">★</span>':''}</div>
+      <div class="who"><div class="nm">${esc(d.name||"—")}<button class="fav ${d.first_look?'on':''}" data-i="${i}" title="Favorite">★</button></div>
         <div class="pieces">${esc(d.pieces||"")}</div></div>
       <div class="lives">${esc(d.lives||"")}</div>
       <div class="sig ${d.signal||''}"><span class="dot"></span>${esc(d.signal||"")}</div>
     </div>`;
   }).join("");
   host.querySelectorAll(".entry").forEach(el=>el.onclick=()=>showCard(+el.dataset.i));
+  host.querySelectorAll(".fav").forEach(b=>b.onclick=e=>{ e.stopPropagation(); toggleFav(+b.dataset.i); });
+}
+function toggleFav(i){
+  const d=data[i]; if(!d) return;
+  persist({...d, first_look: !d.first_look}, false);
 }
 
 /* ---------- Detail card ---------- */
@@ -382,7 +398,7 @@ function showCard(i){
     <div class="seal">Maçon<br>Bureau of<br>Provenance</div>
     <div class="card-body">
       <h2>${esc(d.name||"—")}</h2>
-      <div class="acc-line">${esc(d.acc)} &nbsp;·&nbsp; ${esc(d.signal||"unrated")}${d.first_look?' &nbsp;·&nbsp; First Look ★':''}</div>
+      <div class="acc-line">${esc(d.acc)} &nbsp;·&nbsp; ${esc(d.signal||"unrated")}${d.first_look?' &nbsp;·&nbsp; Favorite ★':''}</div>
       <div class="fields">
         <div class="field"><label>Pieces Owned</label><div class="val">${esc(d.pieces)}</div></div>
         <div class="field"><label>Total Pieces</label><div class="val">${countPieces(d.pieces)||""}</div></div>
@@ -436,7 +452,7 @@ function showForm(i){
       <div class="fg full"><label>Where It Lives</label><textarea id="f_lives">${F('lives')}</textarea></div>
       <div class="fg full"><label>Personal Details (remember this)</label><textarea id="f_details">${F('details')}</textarea></div>
       <div class="fg"><label>Signal</label><select id="f_signal">${opt(['High','Med','Low'],d.signal)}</select></div>
-      <div class="fg"><label>First Look list?</label><select id="f_first_look">${opt(['Yes','No'], d.first_look?'Yes':'No')}</select></div>
+      <div class="fg"><label>Favorite?</label><select id="f_first_look">${opt(['Yes','No'], d.first_look?'Yes':'No')}</select></div>
       <div class="fg"><label>Last Contacted</label><input id="f_last_contact" value="${F('last_contact')}" placeholder="2026-06"></div>
       <div class="fg"><label>Story Usable?</label><select id="f_story">${opt(['Asked','Yes','No'],d.story)}</select></div>
       <div class="fg full"><label>Notes</label><textarea id="f_notes">${F('notes')}</textarea></div>
