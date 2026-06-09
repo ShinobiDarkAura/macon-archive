@@ -804,9 +804,9 @@ function showForm(i){
   const host=document.getElementById("cardHost");
   const F=(k)=>esc(d[k]!=null?d[k]:"");
   host.innerHTML = `
-    <div class="card-body">
+    <div class="card-body" style="padding-bottom:0">
       <h2>${isNew?"New Entry":"Edit"}</h2>
-      <div class="acc-line">${esc(d.acc)}</div>
+      <div class="acc-line">${isNew?("New collector · "+new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})):((fmtMoney(d.ltv)||"$0")+" · "+countPieces(d.pieces)+" "+(countPieces(d.pieces)===1?"piece":"pieces")+(d.first_look?" · VIP":""))}</div>
     </div>
     <div class="form-grid">
       <div class="fg full"><label>Name</label><input id="f_name" value="${F('name')}"></div>
