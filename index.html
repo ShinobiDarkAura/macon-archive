@@ -391,7 +391,7 @@ function renderLedger(){
   rows.sort((a,b)=>(SIG_ORDER[a.signal]??3)-(SIG_ORDER[b.signal]??3) || (a.acc||"").localeCompare(b.acc||""));
   const host=document.getElementById("ledger");
   host.classList.toggle("is-empty", rows.length===0);
-  if(!rows.length){ host.innerHTML=`<div class="empty"><div class="empty-mark">&#9884;&#xFE0E;</div><span class="empty-text">No entries yet.<br>The archive begins with the first name you add.</span></div>`; return; }
+  if(!rows.length){ host.innerHTML=`<div class="empty"><span class="empty-text">No entries yet.<br>The archive begins with the first name you add.</span></div>`; return; }
   host.innerHTML = rows.map(d=>{
     const i=data.indexOf(d);
     return `<div class="entry" data-i="${i}">
