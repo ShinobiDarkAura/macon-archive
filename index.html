@@ -173,7 +173,7 @@
 
   /* ---------- Follow-up drawer ---------- */
   body{transition:padding-right .28s ease;padding-right:404px}
-  body.drawer-collapsed{padding-right:28px}
+  body.drawer-collapsed{padding-right:20px}
   .drawer{position:fixed;top:0;right:0;height:100vh;width:404px;background:var(--paper);border-left:1px solid var(--rule);
         box-shadow:-14px 0 40px rgba(40,37,35,.10);z-index:45;display:flex;flex-direction:column;
         transform:translateX(0);transition:transform .28s ease}
@@ -203,12 +203,13 @@
   .fcard .facts .btn-draft:hover{color:var(--paper)}
   .fcard .facts .btn-done{flex:0 0 auto;width:46px;height:36px;font-size:15px;padding:0}
   /* collapsed rail */
-  .drawer-rail{position:fixed;top:0;right:0;height:100vh;width:28px;border:none;
-        background:#d96a2c;cursor:pointer;z-index:44;display:none;transition:width .2s ease;padding:0;
+  .drawer-rail{position:fixed;top:0;right:0;height:100vh;width:20px;border:none;
+        background:var(--seal);cursor:pointer;z-index:44;display:none;transition:width .2s ease;padding:0;
         box-shadow:-10px 0 26px rgba(40,37,35,.26)}
-  body.drawer-collapsed .drawer-rail{display:flex;align-items:center;justify-content:center}
-  .drawer-rail:hover{width:36px}
-  .drawer-rail #railLabel{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#fff}
+  body.drawer-collapsed .drawer-rail{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+  .rail-dot{width:6px;height:6px;border-radius:50%;background:#fff;flex:0 0 auto}
+  .drawer-rail:hover{width:28px}
+  .drawer-rail #railLabel{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--mono);font-weight:700;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#fff}
   @media(max-width:820px){
     body{padding-right:0}
     .drawer{width:min(380px,86vw)}
@@ -339,7 +340,7 @@
   </div>
   <div class="drawer-body" id="drawerBody"></div>
 </div>
-<button class="drawer-rail" id="drawerRail" title="Follow-ups"><span id="railLabel">Follow Up</span></button>
+<button class="drawer-rail" id="drawerRail" title="Follow-ups"><span class="rail-dot"></span><span id="railLabel">Follow Up</span></button>
 
 <!-- Floating progress card -->
 
@@ -575,7 +576,7 @@ function renderLedger(){
       <div class="cell loc">${esc(d.location||"")}</div>
       <div class="cell purchased">${esc(fmtDate(d.last_buy))}</div>
       <div class="right ltv">${esc(fmtMoney(d.ltv))}</div>
-      ${isDue(d)?`<button class="fu" data-i="${i}" title="Follow up — draft email">&#128276;&#xFE0E;</button>`:`<button class="fu none" tabindex="-1"></button>`}
+      ${isDue(d)?`<button class="fu" data-i="${i}" title="Follow up — draft email"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></button>`:`<button class="fu none" tabindex="-1"></button>`}
     </div>`;
   }).join("");
   host.querySelectorAll(".entry").forEach(el=>el.onclick=()=>showForm(+el.dataset.i));
