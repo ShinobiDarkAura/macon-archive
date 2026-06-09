@@ -725,13 +725,13 @@ function openDraft(i){
         <span class="dchip">${daysSince(d.last_buy)} days since last purchase</span>
       </div>
       <div style="margin-top:2px">
-        <label style="display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);margin-bottom:6px">Email draft</label>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><label style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--slate)">Email draft</label><button class="btn ghost tiny" id="dTone" title="Cycle tone" style="height:26px">Tone · Warm</button></div>
         <div class="dfield" style="margin-bottom:8px">
           <input id="dSubj" value="${esc(subject)}" style="width:100%;font-size:13.7px;padding-right:36px">
           <button class="dcopy" id="dCopySubj" title="Copy subject">${COPY_SVG}</button>
         </div>
         <div class="dfield">
-          <textarea id="dBody" style="width:100%;min-height:180px;line-height:1.5;font-size:13.7px;padding-right:36px">${esc(body)}</textarea>
+          <textarea id="dBody" rows="1" style="width:100%;line-height:1.5;font-size:13.7px;padding-right:36px;overflow:hidden;resize:none">${esc(body)}</textarea>
           <button class="dcopy" id="dCopyBody" title="Copy email">${COPY_SVG}</button>
         </div>
       </div>
@@ -745,6 +745,11 @@ function openDraft(i){
     </div>`;
   openScrim();
   const subjEl=host.querySelector("#dSubj"), bodyEl=host.querySelector("#dBody");
+  const autosize=()=>{ bodyEl.style.height="auto"; bodyEl.style.height=bodyEl.scrollHeight+"px"; };
+  requestAnimationFrame(autosize); bodyEl.addEventListener("input",autosize);
+  let toneIdx=0;
+  host.querySelector("#dTone").onclick=()=>{ toneIdx++; const r=draftEmail(d,toneIdx);
+    subjEl.value=r.subject; bodyEl.value=r.body; host.querySelector("#dTone").textContent="Tone · "+r.toneName; autosize(); };
   const flash=(btn)=>{ const o=btn.innerHTML; btn.innerHTML="✓"; setTimeout(()=>btn.innerHTML=o,1200); };
   const copy=async(text,btn)=>{ try{ await navigator.clipboard.writeText(text); flash(btn); }catch(e){ alert("Copy failed — select the text manually."); } };
   host.querySelector("#dCopySubj").onclick=e=>copy(subjEl.value, e.currentTarget);
