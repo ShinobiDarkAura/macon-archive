@@ -69,7 +69,7 @@
   .tagline{font-family:var(--serif-soul);font-style:italic;color:var(--slate);font-size:18px;margin:10px 0 0;letter-spacing:.02em}
 
   /* ---------- Dashboard strip ---------- */
-  .dash{display:grid;grid-template-columns:auto auto;gap:16px 12px;margin:40px 0 0;background:transparent;width:max-content}
+  .dash{display:grid;grid-template-columns:1fr 1fr;gap:16px 12px;margin:40px 0 0;background:transparent;width:100%}
   .stat{display:flex;flex-direction:column;align-items:center;text-align:center;width:auto;
         padding:14px 18px;border:none}
   .stat{border-bottom:1px solid var(--rule)}
@@ -122,6 +122,7 @@
   .btn.ghost{background:transparent;color:var(--ink)}
   .btn.ghost:hover{background:#000;border-color:#000;color:var(--paper)}
   .btn.tiny{font-size:10px;padding:0 14px;letter-spacing:.1em}
+  .btn.iconbtn{width:40px;padding:0;flex:0 0 auto}
 
   /* ---------- Ledger ---------- */
   .ledger-head{display:grid;grid-template-columns:46px 1.4fr 1.1fr 1fr 0.72fr 92px 44px;gap:18px;padding:0 6px 9px;
@@ -174,7 +175,7 @@
 
   /* ---------- Follow-up drawer ---------- */
   body{transition:padding-right .28s ease;padding-right:404px}
-  body.drawer-collapsed{padding-right:20px}
+  body.drawer-collapsed{padding-right:18px}
   .drawer{position:fixed;top:0;right:0;height:100vh;width:404px;background:var(--paper);border-left:1px solid var(--rule);
         box-shadow:-14px 0 40px rgba(40,37,35,.10);z-index:45;display:flex;flex-direction:column;
         transform:translateX(0);transition:transform .28s ease}
@@ -207,7 +208,10 @@
   .drawer-rail{position:fixed;top:0;right:0;height:100vh;width:20px;border:none;
         background:var(--seal);cursor:pointer;z-index:44;display:none;transition:width .2s ease;padding:0;
         box-shadow:-10px 0 26px rgba(40,37,35,.26)}
-  body.drawer-collapsed .drawer-rail{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+  body.drawer-collapsed .drawer-rail{display:none}
+  .rail-handle{position:fixed;right:8px;top:50%;transform:translateY(-50%);width:4px;height:24px;border-radius:2px;background:var(--rule);z-index:44;cursor:pointer;display:none;transition:background .15s}
+  .rail-handle:hover{background:var(--slate)}
+  body.drawer-collapsed .rail-handle{display:block}
   .rail-dot{width:6px;height:6px;border-radius:50%;background:#fff;flex:0 0 auto}
   .drawer-rail:hover{width:28px}
   .drawer-rail #railLabel{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--mono);font-weight:700;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#fff}
@@ -313,6 +317,7 @@
       </div>
       <button class="btn ghost" id="importBtn">Import CSV</button>
       <button class="btn" id="addBtn">+ New Entry</button>
+      <button class="btn iconbtn" id="bellBtn" title="Follow-ups"><svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path d="M10 2a6 6 0 0 0-6 6c0 1.886-.454 3.665-1.257 5.234a.75.75 0 0 0 .515 1.076 32.9 32.9 0 0 0 3.256.508 3.5 3.5 0 0 0 6.972 0 32.9 32.9 0 0 0 3.256-.508.75.75 0 0 0 .515-1.076A11.45 11.45 0 0 1 16 8a6 6 0 0 0-6-6ZM8.05 14.943a33.5 33.5 0 0 0 3.9 0 2 2 0 0 1-3.9 0Z"/></svg></button>
       <input type="file" id="importFile" accept=".csv,text/csv" style="display:none">
     </div>
     <div class="ledger-head" id="ledgerHead">
@@ -342,6 +347,7 @@
   <div class="drawer-body" id="drawerBody"></div>
 </div>
 <button class="drawer-rail" id="drawerRail" title="Follow-ups"><span class="rail-dot"></span><span id="railLabel">Follow Up</span></button>
+<div class="rail-handle" id="railHandle" title="Follow-ups"></div>
 
 <!-- Floating progress card -->
 
@@ -577,7 +583,7 @@ function renderLedger(){
       <div class="cell loc">${esc(d.location||"")}</div>
       <div class="cell purchased">${esc(fmtDate(d.last_buy))}</div>
       <div class="right ltv">${esc(fmtMoney(d.ltv))}</div>
-      ${isDue(d)?`<button class="fu" data-i="${i}" title="Follow up — draft email"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></button>`:`<button class="fu none" tabindex="-1"></button>`}
+      ${isDue(d)?`<button class="fu" data-i="${i}" title="Follow up — draft email"><svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path d="M10 2a6 6 0 0 0-6 6c0 1.886-.454 3.665-1.257 5.234a.75.75 0 0 0 .515 1.076 32.9 32.9 0 0 0 3.256.508 3.5 3.5 0 0 0 6.972 0 32.9 32.9 0 0 0 3.256-.508.75.75 0 0 0 .515-1.076A11.45 11.45 0 0 1 16 8a6 6 0 0 0-6-6ZM8.05 14.943a33.5 33.5 0 0 0 3.9 0 2 2 0 0 1-3.9 0Z"/></svg></button>`:`<button class="fu none" tabindex="-1"></button>`}
     </div>`;
   }).join("");
   host.querySelectorAll(".entry").forEach(el=>el.onclick=()=>showForm(+el.dataset.i));
@@ -945,6 +951,8 @@ function renderAll(){ renderDash(); renderLedger(); renderDrawer(); }
   const open=()=>{ document.body.classList.remove("drawer-collapsed"); localStorage.setItem("macon_drawer","open"); };
   const c=document.getElementById("drawerClose"); if(c) c.onclick=collapse;
   const r=document.getElementById("drawerRail"); if(r) r.onclick=open;
+  const bb=document.getElementById("bellBtn"); if(bb) bb.onclick=open;
+  const rh=document.getElementById("railHandle"); if(rh) rh.onclick=open;
 })();
 
 boot();
