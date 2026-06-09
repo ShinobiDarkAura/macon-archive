@@ -105,29 +105,23 @@
 
   /* ---------- Ledger ---------- */
   .ledger{border-top:1px solid var(--rule)}
-  .entry{border-bottom:1px solid var(--rule);padding:16px 6px;display:grid;
-         grid-template-columns:auto 1fr auto;gap:16px;align-items:center;cursor:pointer;transition:.12s}
+  .entry{border-bottom:1px solid var(--rule);padding:16px 6px;display:grid;gap:18px;
+         align-items:center;cursor:pointer;transition:.12s}
+  .ledger.regular .entry{grid-template-columns:auto 1.6fr 1.3fr 1.1fr auto}
+  .ledger.compact .entry{grid-template-columns:auto 1fr auto;padding:8px 6px}
   .entry:hover{background:rgba(255,255,255,.4)}
-  .avatar{width:46px;height:46px;flex:0 0 auto;border-radius:50%;background:var(--paper-2);border:1px solid var(--rule);
-          display:flex;align-items:center;justify-content:center;font-family:"Cormorant Garamond",serif;font-weight:600;
-          font-size:18px;color:var(--bronze-deep);letter-spacing:.02em}
+  .avatar{width:46px;height:46px;flex:0 0 auto;border-radius:50%;background:var(--paper-2);
+          display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:600;
+          font-size:16px;color:var(--bronze-deep);letter-spacing:.02em}
+  .ledger.compact .avatar{width:32px;height:32px;font-size:12px}
   .entry .who{min-width:0}
-  .entry .who .nm{font-family:"Cormorant Garamond",serif;font-size:23px;font-weight:500;line-height:1.15}
-  .entry .who .sub{font-size:12px;color:var(--slate);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .entry .who .pieces{font-style:normal;color:var(--slate);font-size:14px;margin-top:5px}
-  .entry .who .loc{display:none;font-size:12px;color:var(--slate);margin-top:4px;font-style:normal}
+  .entry .who .nm{font-family:"Louize",Georgia,serif;font-size:22px;font-weight:400;line-height:1.15}
+  .ledger.compact .who .nm{font-size:17px}
+  .entry .who .sub{font-size:12px;color:#bcb6aa;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .entry .cell{font-size:13px;color:var(--slate);font-style:italic;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ledger.compact .cell{display:none}
   .entry .right{justify-self:end;text-align:right}
-  .entry .right .ltv{font-family:var(--sans);font-size:14px;color:var(--ink)}
-  /* view: compact */
-  .ledger.compact .entry{padding:8px 6px}
-  .ledger.compact .avatar{width:30px;height:30px;font-size:13px}
-  .ledger.compact .who .nm{font-size:18px}
-  .ledger.compact .who .pieces,.ledger.compact .who .loc{display:none}
-  /* view: generous */
-  .ledger.generous .entry{padding:26px 6px}
-  .ledger.generous .avatar{width:58px;height:58px;font-size:24px}
-  .ledger.generous .who .nm{font-size:27px}
-  .ledger.generous .who .loc{display:block}
+  .entry .right.ltv{font-family:var(--sans);font-size:15px;color:var(--ink);font-weight:600}
   .fav{background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:0 0 0 9px;color:var(--rule);transition:color .15s;vertical-align:baseline}
   .fav.on{color:var(--seal)}
   .fav:hover{color:var(--seal)}
@@ -242,7 +236,6 @@
     <div class="viewseg" id="viewSeg">
       <button data-v="compact" title="Compact">≡</button>
       <button data-v="regular" title="Regular">≣</button>
-      <button data-v="generous" title="Generous">⊟</button>
     </div>
     <button class="btn ghost" id="importBtn">Import CSV</button>
     <button class="btn" id="addBtn">+ New Entry</button>
@@ -301,8 +294,9 @@ const COLS = ["acc","name","email","first_contact","pieces","ltv","gift_self","f
 const PRODUCTS = ["Ren","Pip","Rebi","Ori","Zuma","Ibi","Milo","Yael","Eleph",
   "Caldera Arc","Sietch Ring","Lunar Canyon","Zuma Ring","Eclipse Ring"];
 let viewMode = localStorage.getItem("macon_view") || "regular";
+if(viewMode==="generous") viewMode="regular";
 let page = 1;
-const PAGE_SIZE = {compact:25, regular:15, generous:10};
+const PAGE_SIZE = {compact:25, regular:15};
 
 const SEED = [
   {acc:"M-001", name:"Nick Bryciewicz", email:"nick@example.com", first_contact:"Commission / word of mouth",
@@ -427,7 +421,7 @@ function renderLedger(){
   let rows = data.slice();
   if(query){ const q=query.toLowerCase();
     rows = rows.filter(d=>[d.name,d.email,d.pieces,d.location,d.notes,d.acc].some(v=>(v||"").toLowerCase().includes(q))); }
-  rows.sort((a,b)=>(a.acc||"").localeCompare(b.acc||""));
+  rows.sort((a,b)=>(b.first_look?1:0)-(a.first_look?1:0) || (a.acc||"").localeCompare(b.acc||""));
   const host=document.getElementById("ledger");
   host.className="ledger "+viewMode;
   host.classList.toggle("is-empty", rows.length===0);
@@ -444,10 +438,10 @@ function renderLedger(){
       <div class="who">
         <div class="nm">${esc(d.name||"—")}<button class="fav ${d.first_look?'on':''}" data-i="${i}" title="VIP">★</button></div>
         <div class="sub">${esc(d.email||d.acc||"")}</div>
-        <div class="pieces">${esc(d.pieces||"")}</div>
-        <div class="loc">${esc(d.location||"")}</div>
       </div>
-      <div class="right"><span class="ltv">${esc(fmtMoney(d.ltv))}</span></div>
+      <div class="cell pieces">${esc(d.pieces||"")}</div>
+      <div class="cell loc">${esc(d.location||"")}</div>
+      <div class="right ltv">${esc(fmtMoney(d.ltv))}</div>
     </div>`;
   }).join("");
   host.querySelectorAll(".entry").forEach(el=>el.onclick=()=>showForm(+el.dataset.i));
