@@ -397,7 +397,7 @@ function renderDash(){
   const pct=Math.min(100, Math.round(total/200*100));
   const stats=[
     {k:"collectors", v:total,  l:"Collectors"},
-    {k:"favorites",  v:fl,     l:"Favorites"},
+    {k:"favorites",  v:fl,     l:"VIPs"},
     {k:"repeat",     v:repeat,  l:"Repeat Collectors"},
     {k:"stories",    v:stories, l:"Stories Captured"},
     {k:"avgval",     v:avgVal,  l:"Avg. Value"},
@@ -442,7 +442,7 @@ function renderLedger(){
     return `<div class="entry" data-i="${i}">
       <div class="avatar">${esc(initials(d.name))}</div>
       <div class="who">
-        <div class="nm">${esc(d.name||"—")}<button class="fav ${d.first_look?'on':''}" data-i="${i}" title="Favorite">★</button></div>
+        <div class="nm">${esc(d.name||"—")}<button class="fav ${d.first_look?'on':''}" data-i="${i}" title="VIP">★</button></div>
         <div class="sub">${esc(d.email||d.acc||"")}</div>
         <div class="pieces">${esc(d.pieces||"")}</div>
         <div class="loc">${esc(d.location||"")}</div>
@@ -480,7 +480,7 @@ function showCard(i){
     <div class="seal">Maçon<br>Bureau of<br>Provenance</div>
     <div class="card-body">
       <h2>${esc(d.name||"—")}</h2>
-      <div class="acc-line">${esc(d.acc)} &nbsp;·&nbsp; ${esc(d.signal||"unrated")}${d.first_look?' &nbsp;·&nbsp; Favorite ★':''}</div>
+      <div class="acc-line">${esc(d.acc)} &nbsp;·&nbsp; ${esc(d.signal||"unrated")}${d.first_look?' &nbsp;·&nbsp; VIP ★':''}</div>
       <div class="fields">
         <div class="field"><label>Lifetime Value</label><div class="val">${esc(fmtMoney(d.ltv))}</div></div>
         <div class="field"><label>Total Pieces</label><div class="val">${countPieces(d.pieces)||""}</div></div>
@@ -523,7 +523,7 @@ function showForm(i){
       <div class="fg"><label>Location</label><input id="f_location" value="${F('location')}" placeholder="City, Country"></div>
       <div class="fg"><label>Lifetime Value</label><div class="money-wrap"><span class="pfx">$</span><input id="f_ltv" value="${esc(String(d.ltv!=null?d.ltv:'').replace(/[^0-9.]/g,''))}" placeholder="0"></div></div>
       <div class="fg full"><label>Pieces Owned</label><div class="pbuild" id="pbuild"></div></div>
-      <div class="fg"><label>Favorite?</label><select id="f_first_look">${opt(['Yes','No'], d.first_look?'Yes':'No')}</select></div>
+      <div class="fg"><label>VIP?</label><select id="f_first_look">${opt(['Yes','No'], d.first_look?'Yes':'No')}</select></div>
       <div class="fg"><label>Story Usable?</label><select id="f_story">${opt(['Asked','Yes','No'],d.story)}</select></div>
       <div class="fg full"><label>Story Photos</label>
         <div class="photos" id="photoZone"></div>
