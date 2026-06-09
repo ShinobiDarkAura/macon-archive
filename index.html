@@ -566,8 +566,7 @@ const TONES=[
       :`Where's it ended up living? On you, a shelf, somewhere it can keep an eye on things?`,"",
       `Even a one-line reply would make our week. Truly no pressure.`,"",
       `Warmly,`,`Alex & Hannah`
-    ].join("
-")
+    ].join("\n")
   })},
   {name:"Casual", build:c=>({
     subject:`Quick q about your ${c.piece}`,
@@ -579,8 +578,7 @@ const TONES=[
       :`Where'd it end up? Did it find a little spot yet?`,"",
       `No need to write much, I'm just nosy in the best way.`,"",
       `x Alex`
-    ].join("
-")
+    ].join("\n")
   })},
   {name:"Heartfelt", build:c=>({
     subject:`A little note about your ${c.piece}`,
@@ -591,8 +589,7 @@ const TONES=[
       :`I'd love to know where it lives now, and what it's come to mean to you, if anything at all.`,"",
       `Whatever you feel like sharing, we'd hold onto it.`,"",
       `With love,`,`Alex & Hannah`
-    ].join("
-")
+    ].join("\n")
   })},
   {name:"Brief", build:c=>({
     subject:`${c.piece} :)`,
@@ -600,8 +597,7 @@ const TONES=[
       `Hi ${c.first},`,"",
       `Alex & Hannah from Maçon here. Quick one: ${c.gift?`did your gift land okay?`:`where's ${c.piece} ended up living?`}`,"",
       `Thank you, really.`,`Alex & Hannah`
-    ].join("
-")
+    ].join("\n")
   })}
 ];
 function draftEmail(d, tone){
