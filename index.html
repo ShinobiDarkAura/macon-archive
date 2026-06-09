@@ -124,7 +124,7 @@
   .btn.ghost:hover{background:#000;border-color:#000;color:var(--paper)}
   .btn.tiny{font-size:10px;padding:0 14px;letter-spacing:.1em}
   .btn.iconbtn{width:56px;padding:0;flex:0 0 auto;position:relative;overflow:visible}
-  .bell-badge{position:absolute;top:3px;right:3px;min-width:14px;height:14px;padding:0 3px;border-radius:999px;background:#d96a2c;color:#fff;font-family:var(--sans);font-size:8px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(217,106,44,.5)}
+  .bell-badge{position:absolute;top:3px;right:5px;min-width:14px;height:14px;padding:0 3px;border-radius:999px;background:#d96a2c;color:#fff;font-family:var(--sans);font-size:8px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(217,106,44,.5)}
   .bell-badge.zero{display:none}
 
   /* ---------- Ledger ---------- */
@@ -253,7 +253,7 @@
   .dpri{position:absolute;top:30px;right:34px;width:34px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#fffbf0;font-size:20px;font-weight:700;line-height:1;z-index:1}
   .dpri.High{background:#d96a2c} .dpri.Medium{background:#c79a3f} .dpri.Low{background:#b3ad9f}
   .dchips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
-  .dchip{display:inline-flex;align-items:center;border:.75px solid #bcb6aa;color:#bcb6aa;border-radius:999px;padding:2px 12px;font-family:var(--sans);font-size:7pt;letter-spacing:.12em;text-transform:uppercase;background:transparent;white-space:nowrap}
+  .dchip{display:inline-flex;align-items:center;border:.75px solid #a09b91;color:#a09b91;border-radius:999px;padding:2px 12px;font-family:var(--sans);font-size:7pt;letter-spacing:.12em;text-transform:uppercase;background:transparent;white-space:nowrap}
   .dfield{position:relative}
   .dfield .dcopy{position:absolute;top:10px;right:8px;border:none;background:none;cursor:pointer;color:#9c948a;line-height:1;padding:2px;transition:color .15s;display:flex}
   .dfield .dcopy:hover{color:#000}
@@ -557,47 +557,51 @@ function emailCtx(d){
 }
 const TONES=[
   {name:"Warm", build:c=>({
-    subject:`thinking of you & your ${c.piece}`,
+    subject:`Thinking of you & your ${c.piece}`,
     body:[
       `Hi ${c.first},`,"",
-      `it's Alex and Hannah from Maçon. we were just thinking about you and wondering how ${c.piece} is settling in${c.city?` over in ${c.city}`:""}.`,"",
-      c.gift?`did it land the way you hoped with the person you gave it to?`
-      :c.repeat?`you've quietly built a little collection now, which honestly makes us so happy. what keeps pulling you back?`
-      :`where's it ended up living? on you, a shelf, somewhere it can keep an eye on things?`,"",
-      `even a one-line reply would make our week. truly no pressure.`,"",
-      `warmly,`,`Alex & Hannah`
-    ].join("\n")
+      `It's Alex and Hannah from Maçon. We were just thinking about you and wondering how ${c.piece} is settling in${c.city?` over in ${c.city}`:""}.`,"",
+      c.gift?`Did it land the way you hoped with the person you gave it to?`
+      :c.repeat?`You've quietly built a little collection now, which honestly makes us so happy. What keeps pulling you back?`
+      :`Where's it ended up living? On you, a shelf, somewhere it can keep an eye on things?`,"",
+      `Even a one-line reply would make our week. Truly no pressure.`,"",
+      `Warmly,`,`Alex & Hannah`
+    ].join("
+")
   })},
   {name:"Casual", build:c=>({
-    subject:`quick q about your ${c.piece}`,
+    subject:`Quick q about your ${c.piece}`,
     body:[
-      `hey ${c.first},`,"",
-      `hope you're doing well! it's Alex from Maçon. ${c.piece} popped into my head today and i got curious.`,"",
-      c.gift?`did the person you gave it to take to it?`
-      :c.vip?`where's it living these days? and is there anyone in your world you think would fall for these the way you did?`
-      :`where'd it end up? did it find a little spot yet?`,"",
-      `no need to write much, i'm just nosy in the best way.`,"",
+      `Hey ${c.first},`,"",
+      `Hope you're doing well! It's Alex from Maçon. ${c.piece} popped into my head today and I got curious.`,"",
+      c.gift?`Did the person you gave it to take to it?`
+      :c.vip?`Where's it living these days? And is there anyone in your world you think would fall for these the way you did?`
+      :`Where'd it end up? Did it find a little spot yet?`,"",
+      `No need to write much, I'm just nosy in the best way.`,"",
       `x Alex`
-    ].join("\n")
+    ].join("
+")
   })},
   {name:"Heartfelt", build:c=>({
-    subject:`a little note about your ${c.piece}`,
+    subject:`A little note about your ${c.piece}`,
     body:[
       `Dear ${c.first},`,"",
-      `it's Hannah, from Maçon. making ${c.piece} for you meant a lot to us, and we love knowing where our little objects end up in people's lives.`,"",
-      c.gift?`i've been wondering how it was received by the person you chose it for.`
-      :`i'd love to know where it lives now, and what it's come to mean to you, if anything at all.`,"",
-      `whatever you feel like sharing, we'd hold onto it.`,"",
-      `with love,`,`Alex & Hannah`
-    ].join("\n")
+      `It's Hannah, from Maçon. Making ${c.piece} for you meant a lot to us, and we love knowing where our little objects end up in people's lives.`,"",
+      c.gift?`I've been wondering how it was received by the person you chose it for.`
+      :`I'd love to know where it lives now, and what it's come to mean to you, if anything at all.`,"",
+      `Whatever you feel like sharing, we'd hold onto it.`,"",
+      `With love,`,`Alex & Hannah`
+    ].join("
+")
   })},
   {name:"Brief", build:c=>({
     subject:`${c.piece} :)`,
     body:[
-      `hi ${c.first},`,"",
-      `Alex & Hannah from Maçon here. quick one: ${c.gift?`did your gift land okay?`:`where's ${c.piece} ended up living?`}`,"",
-      `thank you, really.`,`Alex & Hannah`
-    ].join("\n")
+      `Hi ${c.first},`,"",
+      `Alex & Hannah from Maçon here. Quick one: ${c.gift?`did your gift land okay?`:`where's ${c.piece} ended up living?`}`,"",
+      `Thank you, really.`,`Alex & Hannah`
+    ].join("
+")
   })}
 ];
 function draftEmail(d, tone){
@@ -725,7 +729,7 @@ function openDraft(i){
         <span class="dchip">${daysSince(d.last_buy)} days since last purchase</span>
       </div>
       <div style="margin-top:2px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><label style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--slate)">Email draft</label><button class="btn ghost tiny" id="dTone" title="Cycle tone" style="height:26px">Tone · Warm</button></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><label style="font-size:11px;letter-spacing:0;text-transform:none;color:var(--ink)">Email draft</label><button class="btn ghost tiny" id="dTone" title="Cycle tone" style="height:26px">Tone · Warm</button></div>
         <div class="dfield" style="margin-bottom:8px">
           <input id="dSubj" value="${esc(subject)}" style="width:100%;font-size:13.7px;padding-right:36px">
           <button class="dcopy" id="dCopySubj" title="Copy subject">${COPY_SVG}</button>
