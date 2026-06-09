@@ -72,11 +72,11 @@
   /* ---------- Dashboard strip ---------- */
   .dash{display:grid;grid-template-columns:1fr 1fr;gap:16px 12px;margin:40px 0 0;background:transparent;width:75%}
   .stat{display:flex;flex-direction:column;align-items:center;text-align:center;width:auto;
-        padding:14px 18px;border:none}
+        padding:14px 18px 22px;border:none}
   .stat{border-bottom:1px solid var(--rule)}
   .stat .num{font-family:var(--sans);font-size:34px;font-weight:400;color:#d2cbbc;line-height:1;transition:color .6s ease}
   .stat .num.changed{color:#000}
-  .stat .lbl{font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.1em;color:var(--slate);margin-top:5px}
+  .stat .lbl{font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.1em;color:var(--slate);margin-top:5px;white-space:nowrap}
   @media(max-width:820px){
     .dash{flex-direction:row;flex-wrap:wrap;border-top:none}
     .stat{flex:1;min-width:120px;width:auto;align-items:center;border-bottom:none;border-right:1px solid var(--rule)}
@@ -88,7 +88,8 @@
         box-shadow:0 12px 34px rgba(40,37,35,.18);padding:16px 18px 18px;transition:width .28s ease,border-color .3s;border-radius:15px}
   .progress-card.started{border-color:var(--rule)}
   .progress-card .pc-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
-  .progress-card .lbl,.progress-card .count{font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.1em;color:var(--slate)}
+  .progress-card .lbl,.progress-card .count{font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.1em;color:var(--slate);white-space:nowrap}
+  .progress-card .lbl{overflow:hidden;text-overflow:ellipsis;min-width:0}
   .progress-card .count{white-space:nowrap;letter-spacing:.06em}
   .progress-card .bar{height:10px;background:rgba(40,37,35,.06);border:1px solid var(--rule);border-radius:999px;margin:4px 0 0;overflow:hidden}
   .progress-card.started .bar{border-color:var(--rule)}
@@ -544,16 +545,66 @@ function followType(d){
   if(num(d.ltv)>1000) return "High-value welcome";
   return "First story request";
 }
-function draftEmail(d){
-  const piece=firstPiece(d.pieces)||"your piece";
-  const body=[
-    `Hi ${firstName(d.name)},`,"",
-    `It's Alex & Hannah from Maçon. We hope ${piece} has settled in since it arrived${d.location?` in ${d.location}`:""}.`,"",
-    followAsk(d),"",
-    "No need to write much — a sentence is plenty. It would mean a lot to hear.","",
-    "Warmly,","Alex & Hannah","Maçon · Artifacts of Love"
-  ].join("\n");
-  return {subject:"A small question from Maçon", body};
+function emailCtx(d){
+  return {
+    first:firstName(d.name),
+    piece:firstPiece(d.pieces)||"your piece",
+    city:(d.location||"").split(",")[0].trim(),
+    gift:d.gift_self==="Gift",
+    repeat:countPieces(d.pieces)>=2,
+    vip:!!d.first_look
+  };
+}
+const TONES=[
+  {name:"Warm", build:c=>({
+    subject:`thinking of you & your ${c.piece}`,
+    body:[
+      `Hi ${c.first},`,"",
+      `it's Alex and Hannah from Maçon. we were just thinking about you and wondering how ${c.piece} is settling in${c.city?` over in ${c.city}`:""}.`,"",
+      c.gift?`did it land the way you hoped with the person you gave it to?`
+      :c.repeat?`you've quietly built a little collection now, which honestly makes us so happy. what keeps pulling you back?`
+      :`where's it ended up living? on you, a shelf, somewhere it can keep an eye on things?`,"",
+      `even a one-line reply would make our week. truly no pressure.`,"",
+      `warmly,`,`Alex & Hannah`
+    ].join("\n")
+  })},
+  {name:"Casual", build:c=>({
+    subject:`quick q about your ${c.piece}`,
+    body:[
+      `hey ${c.first},`,"",
+      `hope you're doing well! it's Alex from Maçon. ${c.piece} popped into my head today and i got curious.`,"",
+      c.gift?`did the person you gave it to take to it?`
+      :c.vip?`where's it living these days? and is there anyone in your world you think would fall for these the way you did?`
+      :`where'd it end up? did it find a little spot yet?`,"",
+      `no need to write much, i'm just nosy in the best way.`,"",
+      `x Alex`
+    ].join("\n")
+  })},
+  {name:"Heartfelt", build:c=>({
+    subject:`a little note about your ${c.piece}`,
+    body:[
+      `Dear ${c.first},`,"",
+      `it's Hannah, from Maçon. making ${c.piece} for you meant a lot to us, and we love knowing where our little objects end up in people's lives.`,"",
+      c.gift?`i've been wondering how it was received by the person you chose it for.`
+      :`i'd love to know where it lives now, and what it's come to mean to you, if anything at all.`,"",
+      `whatever you feel like sharing, we'd hold onto it.`,"",
+      `with love,`,`Alex & Hannah`
+    ].join("\n")
+  })},
+  {name:"Brief", build:c=>({
+    subject:`${c.piece} :)`,
+    body:[
+      `hi ${c.first},`,"",
+      `Alex & Hannah from Maçon here. quick one: ${c.gift?`did your gift land okay?`:`where's ${c.piece} ended up living?`}`,"",
+      `thank you, really.`,`Alex & Hannah`
+    ].join("\n")
+  })}
+];
+function draftEmail(d, tone){
+  const c=emailCtx(d);
+  const n=TONES.length, idx=((tone|0)%n+n)%n;
+  const r=TONES[idx].build(c);
+  return {subject:r.subject, body:r.body, toneName:TONES[idx].name, toneIdx:idx};
 }
 function followUps(){
   const P={High:0,Medium:1,Low:2};
