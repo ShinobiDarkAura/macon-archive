@@ -15,7 +15,7 @@
     --bronze:#8c6a47;
     --bronze-deep:#6f5235;
     --slate:#5b5a55;
-    --rule:#d8dad3;
+    --rule:#dad5c9;
     --seal:#9c4a3a;
     --high:#e9d9c2;
     --shadow:rgba(43,38,34,.10);
@@ -57,20 +57,21 @@
   /* ---------- Dashboard strip ---------- */
   .dash{display:flex;flex-wrap:wrap;justify-content:center;gap:0;margin:30px 0 6px;
         border:1px solid var(--rule);background:transparent;border-radius:6px;overflow:hidden}
-  .stat{flex:1;min-width:120px;text-align:center;padding:40px 12px;border-right:1px solid var(--rule)}
+  .stat{flex:1;min-width:120px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+        min-height:84px;padding:18px 12px 12px;border-right:1px solid var(--rule)}
   .stat:last-child{border-right:none}
-  .stat .num{font-family:var(--sans);font-size:30px;font-weight:400;color:#cfd1c9;line-height:1;transition:color .6s ease}
+  .stat .num{font-family:var(--sans);font-size:38px;font-weight:400;color:#d2cbbc;line-height:1;transition:color .6s ease}
   .stat .num.changed{color:#000}
-  .stat .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);margin-top:8px}
+  .stat .lbl{font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.1em;color:var(--slate)}
   /* Floating progress card (sticky, above the footer) */
   .progress-card{position:fixed;left:50%;transform:translateX(-50%);bottom:54px;z-index:31;
-        width:min(580px,calc(100% - 40px));background:var(--paper);border:1px solid var(--rule);border-radius:999px;
+        width:min(783px,calc(100% - 40px));background:var(--paper);border:1px solid var(--rule);border-radius:999px;
         box-shadow:0 12px 34px rgba(40,37,35,.18);padding:15px 26px 17px;transition:border-color .3s;border-radius:12px}
   .progress-card.started{border-color:var(--seal)}
   .progress-card .pc-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
   .progress-card .lbl,.progress-card .count{font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.1em;color:var(--slate)}
   .progress-card .count{white-space:nowrap;letter-spacing:.06em}
-  .progress-card .bar{height:6px;background:rgba(40,37,35,.06);border:1px solid var(--rule);border-radius:999px;margin:3px 0 0;overflow:hidden}
+  .progress-card .bar{height:8px;background:rgba(40,37,35,.06);border:1px solid var(--rule);border-radius:999px;margin:3px 0 0;overflow:hidden}
   .progress-card.started .bar{border-color:var(--seal)}
   .progress-card .bar i{display:block;height:100%;width:0;background:var(--seal);transition:width 1s cubic-bezier(.2,.8,.2,1)}
 
