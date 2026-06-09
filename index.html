@@ -729,7 +729,7 @@ function renderDrawer(){
     const d=x.d;
     const piece=(d.pieces||"").split(",")[0].trim();
     const slug=piece.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
-    const img= piece ? `<div class="fcard-img"><img src="pieces/${slug}.avif" alt="" loading="lazy" onerror="this.closest('.fcard-img').style.display='none'"></div>` : "";
+    const img= piece ? `<div class="fcard-img"><img src="pieces/${slug}.avif" alt="" loading="lazy" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='pieces/custom.jpeg'}else{this.closest('.fcard-img').style.display='none'}"></div>` : "";
     return `<div class="fcard">
       ${img}
       <div class="fcard-body">
