@@ -39,12 +39,11 @@
   .sync .led{width:7px;height:7px;border-radius:50%;background:var(--rule)}
   .sync.on .led{background:#6f9a5f} .sync.local .led{background:var(--tan)}
 
-  /* ---------- Masthead ---------- */
-  header.mast{text-align:center;padding:26px 0 34px}
-  header.mast .logotype{width:300px;max-width:74%;height:auto;display:block;margin:0 auto 16px}
-  header.mast .crest{font-family:var(--sans);font-size:10px;letter-spacing:.42em;text-transform:uppercase;
-        color:var(--tan);margin:0;padding-left:.42em}
-  header.mast .tagline{font-style:italic;font-size:19px;color:var(--slate);margin:16px 0 0}
+  /* ---------- Masthead (placeholder for future header image) ---------- */
+  header.mast{padding:18px 0 30px}
+  .banner-ph{height:150px;border:1px dashed var(--rule);display:flex;align-items:center;justify-content:center;
+        font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--tan);
+        background:repeating-linear-gradient(45deg,transparent,transparent 11px,rgba(207,168,134,.05) 11px,rgba(207,168,134,.05) 22px)}
 
   /* ---------- Dashboard (light) ---------- */
   .dash{display:flex;flex-wrap:wrap;border:1px solid var(--rule);background:var(--paper)}
@@ -175,9 +174,9 @@
 <div class="wrap">
 
   <header class="mast">
-    <img class="logotype" src="logos/logotype.png" alt="Maçon">
-    <p class="crest">Bureau of Provenance</p>
-    <p class="tagline">An archive of every object, and every life it entered.</p>
+    <!-- TOP SECTION PLACEHOLDER — replace this whole <header> with your header image, e.g.:
+         <header class="mast"><img src="logos/header.png" alt="Maçon" style="width:100%;display:block"></header> -->
+    <div class="banner-ph">Header image</div>
   </header>
 
   <!-- Dashboard -->
