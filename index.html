@@ -46,7 +46,8 @@
   .sync.on .led{background:#6f8a5a} .sync.local .led{background:var(--bronze)}
 
   /* ---------- Masthead ---------- */
-  header.mast{text-align:center;padding-bottom:28px;border-bottom:1px solid var(--rule);margin-bottom:8px}
+  header.mast{text-align:center;padding:8px 0 28px;border-bottom:1px solid var(--rule);margin-bottom:8px}
+  .crest-img{display:block;margin:0 auto;width:330px;max-width:72%;height:auto}
   .crest{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:13px;letter-spacing:.5em;
           color:var(--bronze);text-transform:uppercase;margin:0 0 14px;padding-left:.5em}
   .wordmark{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:54px;letter-spacing:.18em;
@@ -61,6 +62,7 @@
   .stat .num{font-family:"Cormorant Garamond",serif;font-size:34px;font-weight:600;color:var(--bronze-deep);line-height:1}
   .stat .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);margin-top:8px}
   .goal{flex-basis:100%;border-right:none;border-top:1px solid var(--rule);background:var(--high);padding:14px}
+  .goal .lbl{text-align:center;font-variant:small-caps;text-transform:none;font-size:10pt;letter-spacing:.04em;color:var(--slate)}
   .goal .bar{height:6px;background:var(--paper);border:1px solid var(--rule);margin:10px auto 0;max-width:520px;position:relative}
   .goal .bar i{display:block;height:100%;background:var(--bronze)}
 
@@ -68,20 +70,23 @@
   .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:34px 0 18px}
   .toolbar .search{flex:1;min-width:200px}
   input,select,textarea{font-family:var(--sans);font-size:15px;color:var(--ink);
-        background:rgba(255,255,255,.45);border:1px solid var(--rule);padding:10px 12px;border-radius:0;outline:none}
+        background:rgba(255,255,255,.45);border:1px solid var(--rule);border-radius:0;outline:none}
+  input,select{height:40px;padding:0 14px}
+  textarea{padding:9px 12px}
   input:focus,select:focus,textarea:focus{border-color:var(--bronze)}
   input.search{width:100%}
+  input.search::placeholder{font-family:var(--serif-soul);font-style:italic;font-size:14px;color:var(--tan)}
   .filters{display:flex;gap:6px}
-  .chip{font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:8px 14px;border:1px solid var(--rule);
+  .chip{height:40px;display:inline-flex;align-items:center;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:0 16px;border:1px solid var(--rule);
         background:transparent;color:var(--slate);cursor:pointer;transition:.15s}
   .chip:hover{border-color:var(--bronze);color:var(--bronze)}
   .chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-  .btn{font-family:var(--sans);font-size:11px;letter-spacing:.13em;text-transform:uppercase;font-weight:500;
-       padding:11px 20px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer;transition:.15s}
+  .btn{height:40px;display:inline-flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:11px;letter-spacing:.13em;text-transform:uppercase;font-weight:500;
+       padding:0 20px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer;transition:.15s}
   .btn:hover{background:var(--bronze-deep);border-color:var(--bronze-deep)}
   .btn.ghost{background:transparent;color:var(--ink)}
   .btn.ghost:hover{color:var(--bronze);border-color:var(--bronze)}
-  .btn.tiny{font-size:10px;padding:8px 13px;letter-spacing:.1em}
+  .btn.tiny{font-size:10px;padding:0 14px;letter-spacing:.1em}
 
   /* ---------- Ledger ---------- */
   .ledger{border-top:1px solid var(--rule)}
@@ -99,7 +104,7 @@
   .sig.Med .dot{background:var(--slate)}
   .sig.Low .dot{background:var(--rule)}
   .star{color:var(--seal);margin-left:6px}
-  .empty{text-align:center;padding:70px 20px;color:var(--slate);font-style:italic}
+  .empty{text-align:center;padding:70px 20px;color:var(--slate);font-family:var(--serif-soul);font-style:italic;font-size:14pt}
 
   /* ---------- Detail / provenance card ---------- */
   .scrim{position:fixed;inset:0;background:rgba(43,38,34,.45);display:none;align-items:flex-start;
@@ -168,9 +173,7 @@
 <div class="wrap">
 
   <header class="mast">
-    <p class="crest">Bureau of Provenance</p>
-    <h1 class="wordmark">MAÇON</h1>
-    <p class="tagline">An archive of every object, and every life it entered.</p>
+    <img class="crest-img" src="logos/crest.jpg" alt="Maçon · Bureau of Provenance">
   </header>
 
   <!-- Dashboard -->
@@ -320,7 +323,7 @@ function renderDash(){
     <div class="stat"><div class="num">${gifts}</div><div class="lbl">Gifts Given</div></div>
     <div class="stat"><div class="num">${pieces}</div><div class="lbl">Pieces in the World</div></div>
     <div class="goal">
-      <div class="lbl" style="letter-spacing:.2em">Toward 200 collectors who are genuinely in the world — ${total} / 200</div>
+      <div class="lbl">Toward 200 collectors who are genuinely in the world — ${total} / 200</div>
       <div class="bar"><i style="width:${pct}%"></i></div>
     </div>`;
 }
