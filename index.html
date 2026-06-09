@@ -62,7 +62,7 @@
   header.mast{text-align:center;padding:0 0 6px;margin:0}
   .crest-wrap{position:relative;display:inline-block}
   .crest-img{display:block;width:296px;max-width:100%;height:auto}
-  .stamp{position:absolute;top:0;left:0;transform:translate(-50%,-50%) rotate(-20deg);height:169px;width:auto;z-index:2;pointer-events:none}
+  .stamp{position:fixed;top:-89.6px;left:-89.6px;height:337.5px;width:auto;z-index:-1;pointer-events:none;transform:rotate(-20deg)}
   .crest{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:13px;letter-spacing:.5em;
           color:var(--bronze);text-transform:uppercase;margin:0 0 14px;padding-left:.5em}
   .wordmark{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:54px;letter-spacing:.18em;
@@ -311,13 +311,14 @@
   };
 </script>
 
+<img class="stamp" src="logos/STAMP.png" alt="">
 <div class="sync" id="sync"><span class="led"></span><span id="syncTxt">Local mode</span></div>
 
 <div class="wrap">
 
   <aside class="col-left">
     <header class="mast">
-      <span class="crest-wrap"><img class="crest-img" src="logos/crest.png" alt="Maçon · Bureau of Provenance"><img class="stamp" src="logos/STAMP.png" alt=""></span>
+      <span class="crest-wrap"><img class="crest-img" src="logos/crest.png" alt="Maçon · Bureau of Provenance"></span>
     </header>
     <section class="dash" id="dash"></section>
   </aside>
