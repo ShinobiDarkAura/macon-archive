@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maçon · Bureau of Provenance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   /* ---------- Brand fonts ---------- */
   @font-face{font-family:"Louize";src:url("fonts/louize.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
@@ -15,6 +18,7 @@
     --tan:#CFA886; --sienna:#9F551B; --verm:#DF3131; --gold:#C7A24E;
     --slate:#8a7f6f; --rule:#ddd2bd; --shadow:rgba(40,37,35,.13);
     --serif:"Louize",Georgia,"Times New Roman",serif;
+    --sans:"Inter",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
     --mono:"DM Mono",ui-monospace,"SF Mono",Menlo,monospace;
   }
   *{box-sizing:border-box}
@@ -29,7 +33,7 @@
   .wrap{max-width:1120px;margin:0 auto;padding:34px 34px 110px}
 
   /* ---------- Sync badge ---------- */
-  .sync{position:fixed;top:14px;right:18px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+  .sync{position:fixed;top:14px;right:18px;font-family:var(--sans);font-size:10px;letter-spacing:.16em;
         text-transform:uppercase;color:var(--slate);display:flex;align-items:center;gap:7px;z-index:40;
         background:rgba(246,240,227,.8);padding:6px 11px;border:1px solid var(--rule);backdrop-filter:blur(4px)}
   .sync .led{width:7px;height:7px;border-radius:50%;background:var(--rule)}
@@ -38,7 +42,7 @@
   /* ---------- Masthead ---------- */
   header.mast{text-align:center;padding:26px 0 34px}
   header.mast .logotype{width:300px;max-width:74%;height:auto;display:block;margin:0 auto 16px}
-  header.mast .crest{font-family:var(--mono);font-size:10px;letter-spacing:.42em;text-transform:uppercase;
+  header.mast .crest{font-family:var(--sans);font-size:10px;letter-spacing:.42em;text-transform:uppercase;
         color:var(--tan);margin:0;padding-left:.42em}
   header.mast .tagline{font-style:italic;font-size:19px;color:var(--slate);margin:16px 0 0}
 
@@ -61,12 +65,12 @@
   .search input::placeholder{color:var(--tan);font-style:italic}
   .search input:focus{border-color:var(--sienna)}
   .filters{display:flex;gap:0;border:1px solid var(--rule)}
-  .chip{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:10px 14px;
+  .chip{font-family:var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:10px 14px;
         background:transparent;color:var(--slate);cursor:pointer;border:none;border-right:1px solid var(--rule);transition:.15s}
   .chip:last-child{border-right:none}
   .chip:hover{color:var(--sienna)}
   .chip.on{background:var(--ink);color:var(--ivory)}
-  .add{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 22px;
+  .add{font-family:var(--sans);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 22px;
        border:1px solid var(--ink);background:var(--ink);color:var(--ivory);cursor:pointer;transition:.18s}
   .add:hover{background:var(--sienna);border-color:var(--sienna)}
 
@@ -77,13 +81,13 @@
   .entry{border-bottom:1px solid var(--rule);padding:22px 4px;display:grid;
          grid-template-columns:96px 1fr 200px 96px;gap:22px;align-items:center;cursor:pointer;transition:.16s}
   .entry:hover{background:var(--paper);padding-left:14px;padding-right:14px}
-  .entry .acc{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--tan)}
+  .entry .acc{font-family:var(--sans);font-size:12px;letter-spacing:.08em;color:var(--tan)}
   .entry .who .nm{font-family:var(--serif);font-size:31px;line-height:1.05;transition:.16s}
   .entry:hover .who .nm{color:var(--sienna)}
   .entry .who .nm .star{color:var(--verm);font-size:18px;margin-left:9px;vertical-align:2px}
-  .entry .who .pieces{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--slate);margin-top:6px}
+  .entry .who .pieces{font-family:var(--sans);font-size:11px;letter-spacing:.04em;color:var(--slate);margin-top:6px}
   .entry .lives{font-style:italic;font-size:16px;color:var(--slate)}
-  .entry .sig{text-align:right;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+  .entry .sig{text-align:right;font-family:var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
   .sig .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:8px;vertical-align:middle}
   .sig.High{color:var(--sienna)} .sig.High .dot{background:var(--sienna)}
   .sig.Med .dot{background:var(--tan)} .sig.Low .dot{background:var(--rule)}
@@ -91,7 +95,7 @@
 
   /* ---------- Bottom actions ---------- */
   .actions{margin-top:26px;display:flex;gap:0;justify-content:flex-end;border:1px solid var(--rule);width:fit-content;margin-left:auto}
-  .actions button{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  .actions button{font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
         padding:9px 15px;background:transparent;border:none;border-right:1px solid var(--rule);color:var(--slate);cursor:pointer}
   .actions button:last-child{border-right:none}
   .actions button:hover{color:var(--sienna);background:var(--paper)}
@@ -99,7 +103,7 @@
   /* ---------- Footer (the only logomark on the page) ---------- */
   .foot{text-align:center;margin-top:80px;padding-top:28px;border-top:1px solid var(--rule)}
   .foot img{width:30px;opacity:.5;margin-bottom:13px}
-  .foot .line{font-family:var(--mono);font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--tan)}
+  .foot .line{font-family:var(--sans);font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--tan)}
 
   /* ---------- Modal ---------- */
   .scrim{position:fixed;inset:0;background:rgba(40,37,35,.5);display:none;align-items:flex-start;justify-content:center;
@@ -108,7 +112,7 @@
   .card{background:var(--ivory);max-width:700px;width:100%;border:1px solid var(--rule);box-shadow:0 30px 70px var(--shadow);position:relative}
   .card-body{padding:46px 50px 30px}
   .card h2{font-family:var(--serif);font-size:54px;line-height:1;letter-spacing:.01em;margin:0 0 8px;max-width:80%}
-  .card .acc-line{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--tan);margin-bottom:30px}
+  .card .acc-line{font-family:var(--sans);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--tan);margin-bottom:30px}
   .fields{display:grid;grid-template-columns:1fr 1fr;gap:0 34px}
   .field{padding:13px 0;border-bottom:1px solid var(--rule)}
   .field.full{grid-column:1/-1}
@@ -127,7 +131,7 @@
   .fg textarea{font-style:italic;resize:vertical;min-height:46px;line-height:1.4}
   .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--sienna)}
 
-  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;padding:11px 22px;
+  .btn{font-family:var(--sans);font-size:11px;letter-spacing:.13em;text-transform:uppercase;padding:11px 22px;
        border:1px solid var(--ink);background:var(--ink);color:var(--ivory);cursor:pointer;transition:.18s}
   .btn:hover{background:var(--sienna);border-color:var(--sienna)}
   .btn.ghost{background:transparent;color:var(--ink)}
@@ -138,13 +142,13 @@
   .gate.show{display:flex}
   .gate .inner{position:relative;text-align:center;max-width:340px;padding:30px}
   .gate img.logo{width:230px;max-width:80%;margin-bottom:14px}
-  .gate .crest{font-family:var(--mono);font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:var(--tan);margin-bottom:30px}
+  .gate .crest{font-family:var(--sans);font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:var(--tan);margin-bottom:30px}
   .gate input{width:100%;text-align:center;font-family:var(--serif);font-size:18px;font-style:italic;color:var(--ink);
         background:transparent;border:none;border-bottom:1px solid var(--rule);padding:11px;margin-bottom:16px;outline:none}
   .gate input::placeholder{color:var(--tan)}
   .gate input:focus{border-color:var(--sienna)}
   .gate .btn{width:100%}
-  .gate .msg{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--sienna);min-height:20px;margin-top:16px}
+  .gate .msg{font-family:var(--sans);font-size:11px;letter-spacing:.04em;color:var(--sienna);min-height:20px;margin-top:16px}
 
   @media(max-width:720px){
     .entry{grid-template-columns:1fr;gap:6px} .entry .acc,.entry .sig{text-align:left}
