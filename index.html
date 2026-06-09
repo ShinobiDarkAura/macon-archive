@@ -86,7 +86,7 @@
   input,select{height:40px;padding:0 14px}
   select{appearance:none;-webkit-appearance:none;background-color:rgba(255,255,255,.45);
         background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%235b5a55' stroke-width='1.3'/%3E%3C/svg%3E");
-        background-repeat:no-repeat;background-position:right 24px center;padding-right:46px}
+        background-repeat:no-repeat;background-position:right 16px center;padding-right:38px}
   textarea{padding:9px 12px}
   input:focus,select:focus,textarea:focus{border-color:var(--bronze)}
   input.search{width:100%}
@@ -210,11 +210,19 @@
   <!-- Toolbar -->
   <div class="toolbar">
     <div class="search"><input class="search" id="q" placeholder="Search names, pieces, stories…"></div>
+    <div class="viewseg" id="viewSeg">
+      <button data-v="compact" title="Compact">≡</button>
+      <button data-v="regular" title="Regular">≣</button>
+      <button data-v="generous" title="Generous">⊟</button>
+    </div>
+    <button class="btn ghost" id="importBtn">Import CSV</button>
     <button class="btn" id="addBtn">+ New Entry</button>
+    <input type="file" id="importFile" accept=".csv,text/csv" style="display:none">
   </div>
 
   <!-- Ledger -->
   <section class="ledger" id="ledger"></section>
+  <div class="pager" id="pager"></div>
 
   <!-- Export / Import (temporarily hidden)
   <div style="margin-top:24px;display:flex;gap:10px;justify-content:flex-end">
@@ -260,9 +268,12 @@
 const STORE = "macon_archive_v1";
 const SIG_ORDER = {High:0, Med:1, Low:2, "":3};
 const COLS = ["acc","name","email","first_contact","pieces","ltv","gift_self","first_buy",
-  "last_buy","why","lives","details","signal","first_look","last_contact","story","notes"];
+  "last_buy","why","lives","details","signal","first_look","last_contact","story","notes","location","phone"];
 const PRODUCTS = ["Ren","Pip","Rebi","Ori","Zuma","Ibi","Milo","Yael","Eleph",
   "Caldera Arc","Sietch Ring","Lunar Canyon","Zuma Ring","Eclipse Ring"];
+let viewMode = localStorage.getItem("macon_view") || "regular";
+let page = 1;
+const PAGE_SIZE = {compact:25, regular:15, generous:10};
 
 const SEED = [
   {acc:"M-001", name:"Nick Bryciewicz", email:"nick@example.com", first_contact:"Commission / word of mouth",
@@ -481,7 +492,7 @@ function opt(arr,sel){ return arr.map(v=>`<option ${v===sel?'selected':''}>${v}<
 function pieceSelect(val){
   const opts=PRODUCTS.slice();
   if(val && !opts.includes(val)) opts.unshift(val);
-  return `<select class="psel"><option value="">— piece —</option>${opts.map(p=>`<option ${p===val?'selected':''}>${esc(p)}</option>`).join("")}</select>`;
+  return `<select class="psel"><option value="">Piece name</option>${opts.map(p=>`<option ${p===val?'selected':''}>${esc(p)}</option>`).join("")}</select>`;
 }
 function renderPieces(piecesStr){
   const host=document.getElementById("pbuild"); if(!host) return;
