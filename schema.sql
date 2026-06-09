@@ -11,6 +11,7 @@ create table if not exists public.collectors (
   email         text,
   first_contact text,
   pieces        text,
+  ltv           numeric,
   gift_self     text,
   first_buy     text,
   last_buy      text,

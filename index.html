@@ -83,6 +83,9 @@
   input,select,textarea{font-family:var(--sans);font-size:15px;color:var(--ink);
         background:rgba(255,255,255,.45);border:1px solid var(--rule);border-radius:0;outline:none}
   input,select{height:40px;padding:0 14px}
+  select{appearance:none;-webkit-appearance:none;background-color:rgba(255,255,255,.45);
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%235b5a55' stroke-width='1.3'/%3E%3C/svg%3E");
+        background-repeat:no-repeat;background-position:right 24px center;padding-right:46px}
   textarea{padding:9px 12px}
   input:focus,select:focus,textarea:focus{border-color:var(--bronze)}
   input.search{width:100%}
@@ -248,24 +251,24 @@
 <script>
 const STORE = "macon_archive_v1";
 const SIG_ORDER = {High:0, Med:1, Low:2, "":3};
-const COLS = ["acc","name","email","first_contact","pieces","gift_self","first_buy",
+const COLS = ["acc","name","email","first_contact","pieces","ltv","gift_self","first_buy",
   "last_buy","why","lives","details","signal","first_look","last_contact","story","notes"];
 
 const SEED = [
   {acc:"M-001", name:"Nick Bryciewicz", email:"nick@example.com", first_contact:"Commission / word of mouth",
-   pieces:"Custom totems (~100)", first_buy:"2024-09", last_buy:"2025-03", gift_self:"Gift",
+   pieces:"Custom totems (~100)", ltv:4200, first_buy:"2024-09", last_buy:"2025-03", gift_self:"Gift",
    why:"Wanted connection symbols to give to people in his life",
    lives:"Distributed to ~100 friends & collaborators",
    details:"Commissioned the original ~100 totems as connection symbols. The proof the collector model works.",
    signal:"High", first_look:true, last_contact:"2026-06-02", story:"Yes", notes:"Anchor case study. Treat as patron."},
   {acc:"M-014", name:"Maya", email:"maya@example.com", first_contact:"Instagram",
-   pieces:"Ren, Pip", first_buy:"2025-01", last_buy:"2025-08", gift_self:"Self",
+   pieces:"Ren, Pip", ltv:440, first_buy:"2025-01", last_buy:"2025-08", gift_self:"Self",
    why:"Drawn to the horse — said it felt like a steward",
    lives:"On her studio windowsill, morning light",
    details:"Ceramicist in Oregon. Bought a second piece after a hard year. Said Ren 'holds magic.'",
    signal:"High", first_look:true, last_contact:"2026-06-05", story:"Yes", notes:"Repeat buyer + emotional signal. Prime First Look."},
   {acc:"M-022", name:"James", email:"james@example.com", first_contact:"Friend referral (Maya)",
-   pieces:"Lunar Canyon", first_buy:"2025-05", last_buy:"2025-05", gift_self:"Gift",
+   pieces:"Lunar Canyon", ltv:370, first_buy:"2025-05", last_buy:"2025-05", gift_self:"Gift",
    why:"Engagement gift for his partner", lives:"Worn daily by his fiancée",
    details:"Getting married autumn 2026. Referred by Maya.",
    signal:"Med", first_look:false, last_contact:"2026-05-28", story:"Asked", notes:"Follow up after the wedding — provenance potential."},
@@ -327,6 +330,8 @@ function nextAcc(){
   return "M-"+String(max+1).padStart(3,"0");
 }
 function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function num(v){ const n=parseFloat(String(v==null?"":v).replace(/[^0-9.\-]/g,"")); return isNaN(n)?0:n; }
+function fmtMoney(v){ const n=num(v); return v==null||v===""?"" : "$"+n.toLocaleString("en-US",{maximumFractionDigits:0}); }
 function setSync(cls,txt){ const el=document.getElementById("sync"); el.className="sync "+cls; document.getElementById("syncTxt").textContent=txt; }
 
 /* ---------- Render dashboard ---------- */
@@ -336,15 +341,15 @@ function renderDash(){
   const fl=data.filter(d=>d.first_look).length;
   const repeat=data.filter(d=>countPieces(d.pieces)>=2).length;
   const stories=data.filter(d=>d.story==="Yes").length;
-  const pieces=data.reduce((s,d)=>s+countPieces(d.pieces),0);
-  const avg=total? (pieces/total).toFixed(1) : "0";
+  const ltvSum=data.reduce((s,d)=>s+num(d.ltv),0);
+  const avgVal=total? "$"+Math.round(ltvSum/total).toLocaleString("en-US") : "$0";
   const pct=Math.min(100, Math.round(total/200*100));
   const stats=[
     {k:"collectors", v:total,  l:"Collectors"},
     {k:"favorites",  v:fl,     l:"Favorites"},
     {k:"repeat",     v:repeat,  l:"Repeat Collectors"},
     {k:"stories",    v:stories, l:"Stories Captured"},
-    {k:"avg",        v:avg,     l:"Avg / Collector"},
+    {k:"avgval",     v:avgVal,  l:"Avg. Value"},
   ];
   document.getElementById("dash").innerHTML = stats.map(s=>
     `<div class="stat"><div class="num" data-k="${s.k}">${s.v}</div><div class="lbl">${s.l}</div></div>`).join("");
@@ -405,19 +410,11 @@ function showCard(i){
       <h2>${esc(d.name||"—")}</h2>
       <div class="acc-line">${esc(d.acc)} &nbsp;·&nbsp; ${esc(d.signal||"unrated")}${d.first_look?' &nbsp;·&nbsp; Favorite ★':''}</div>
       <div class="fields">
-        <div class="field"><label>Pieces Owned</label><div class="val">${esc(d.pieces)}</div></div>
+        <div class="field"><label>Lifetime Value</label><div class="val">${esc(fmtMoney(d.ltv))}</div></div>
         <div class="field"><label>Total Pieces</label><div class="val">${countPieces(d.pieces)||""}</div></div>
-        <div class="field"><label>Gift or Self</label><div class="val">${esc(d.gift_self)}</div></div>
-        <div class="field"><label>First Contact</label><div class="val">${esc(d.first_contact)}</div></div>
-        <div class="field"><label>First Purchase</label><div class="val">${esc(d.first_buy)}</div></div>
-        <div class="field"><label>Last Purchase</label><div class="val">${esc(d.last_buy)}</div></div>
-        <div class="field full"><label>Why They Chose It</label><div class="val script">${esc(d.why)}</div></div>
-        <div class="field full"><label>Where It Lives</label><div class="val script">${esc(d.lives)}</div></div>
-        <div class="field full"><label>Personal Details — remember this</label><div class="val">${esc(d.details)}</div></div>
+        <div class="field full"><label>Pieces Owned</label><div class="val">${esc(d.pieces)}</div></div>
         <div class="field"><label>Email</label><div class="val">${esc(d.email)}</div></div>
-        <div class="field"><label>Last Contacted</label><div class="val">${esc(d.last_contact)}</div></div>
         <div class="field"><label>Story Usable?</label><div class="val">${esc(d.story)}</div></div>
-        <div class="field"><label>&nbsp;</label><div class="val"></div></div>
         <div class="field full"><label>Notes</label><div class="val">${esc(d.notes)}</div></div>
       </div>
     </div>
@@ -446,19 +443,11 @@ function showForm(i){
       <div class="acc-line">${esc(d.acc)}</div>
     </div>
     <div class="form-grid">
-      <div class="fg"><label>Name</label><input id="f_name" value="${F('name')}"></div>
+      <div class="fg full"><label>Name</label><input id="f_name" value="${F('name')}"></div>
       <div class="fg"><label>Email</label><input id="f_email" value="${F('email')}"></div>
+      <div class="fg"><label>Lifetime Value</label><input id="f_ltv" value="${F('ltv')}" placeholder="$0"></div>
       <div class="fg full"><label>Pieces Owned (comma separated)</label><input id="f_pieces" value="${F('pieces')}"></div>
-      <div class="fg"><label>First Contact</label><input id="f_first_contact" value="${F('first_contact')}"></div>
-      <div class="fg"><label>Gift or Self</label><select id="f_gift_self">${opt(['Self','Gift'],d.gift_self)}</select></div>
-      <div class="fg"><label>First Purchase</label><input id="f_first_buy" value="${F('first_buy')}" placeholder="2025-01"></div>
-      <div class="fg"><label>Last Purchase</label><input id="f_last_buy" value="${F('last_buy')}" placeholder="2025-08"></div>
-      <div class="fg full"><label>Why They Chose It</label><textarea id="f_why">${F('why')}</textarea></div>
-      <div class="fg full"><label>Where It Lives</label><textarea id="f_lives">${F('lives')}</textarea></div>
-      <div class="fg full"><label>Personal Details (remember this)</label><textarea id="f_details">${F('details')}</textarea></div>
-      <div class="fg"><label>Signal</label><select id="f_signal">${opt(['High','Med','Low'],d.signal)}</select></div>
       <div class="fg"><label>Favorite?</label><select id="f_first_look">${opt(['Yes','No'], d.first_look?'Yes':'No')}</select></div>
-      <div class="fg"><label>Last Contacted</label><input id="f_last_contact" value="${F('last_contact')}" placeholder="2026-06"></div>
       <div class="fg"><label>Story Usable?</label><select id="f_story">${opt(['Asked','Yes','No'],d.story)}</select></div>
       <div class="fg full"><label>Notes</label><textarea id="f_notes">${F('notes')}</textarea></div>
     </div>
@@ -470,11 +459,8 @@ function showForm(i){
   host.querySelector("#cancelBtn").onclick=()=> isNew?closeScrim():showCard(i);
   host.querySelector("#saveBtn").onclick=()=>{
     const g=id=>host.querySelector("#"+id).value.trim();
-    const rec={acc:d.acc, id:d.id, name:g("f_name"), email:g("f_email"), pieces:g("f_pieces"),
-      first_contact:g("f_first_contact"), gift_self:g("f_gift_self"), first_buy:g("f_first_buy"),
-      last_buy:g("f_last_buy"), why:g("f_why"), lives:g("f_lives"), details:g("f_details"),
-      signal:g("f_signal"), first_look:g("f_first_look")==="Yes", last_contact:g("f_last_contact"),
-      story:g("f_story"), notes:g("f_notes")};
+    const rec={...d, acc:d.acc, id:d.id, name:g("f_name"), email:g("f_email"), ltv:g("f_ltv"),
+      pieces:g("f_pieces"), first_look:g("f_first_look")==="Yes", story:g("f_story"), notes:g("f_notes")};
     persist(rec, isNew); closeScrim();
   };
 }
