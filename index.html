@@ -63,14 +63,14 @@
   .stat .num.changed{color:#000}
   .stat .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);margin-top:8px}
   /* Floating progress card (sticky, above the footer) */
-  .progress-card{position:fixed;left:50%;transform:translateX(-50%);bottom:78px;z-index:31;
+  .progress-card{position:fixed;left:50%;transform:translateX(-50%);bottom:54px;z-index:31;
         width:min(580px,calc(100% - 40px));background:var(--paper);border:1px solid var(--rule);border-radius:999px;
         box-shadow:0 12px 34px rgba(40,37,35,.18);padding:15px 26px 17px;transition:border-color .3s;border-radius:12px}
   .progress-card.started{border-color:var(--seal)}
   .progress-card .pc-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
   .progress-card .lbl,.progress-card .count{font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.1em;color:var(--slate)}
   .progress-card .count{white-space:nowrap;letter-spacing:.06em}
-  .progress-card .bar{height:6px;background:rgba(40,37,35,.06);border:1px solid var(--rule);border-radius:999px;margin:11px 0 0;overflow:hidden}
+  .progress-card .bar{height:6px;background:rgba(40,37,35,.06);border:1px solid var(--rule);border-radius:999px;margin:3px 0 0;overflow:hidden}
   .progress-card.started .bar{border-color:var(--seal)}
   .progress-card .bar i{display:block;height:100%;width:0;background:var(--seal);transition:width 1s cubic-bezier(.2,.8,.2,1)}
 
@@ -353,7 +353,7 @@ function renderDash(){
     });
   }
   prevStats={}; stats.forEach(s=>prevStats[s.k]=s.v);
-  document.getElementById("goalLbl").textContent = "Toward 200 collectors who are genuinely in the world";
+  document.getElementById("goalLbl").textContent = "No. of True Collectors";
   document.getElementById("goalCount").textContent = `${total} / 200`;
   document.getElementById("goalBar").style.width = pct + "%";
   document.getElementById("progressCard").classList.toggle("started", total > 0);
