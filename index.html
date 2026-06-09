@@ -506,6 +506,13 @@ function followAsk(d){
   if(d.first_look) return `Where does ${piece} live now — and who else in your life would understand these objects the way you do?`;
   return `Where does ${piece} live now — on you, on a shelf, somewhere specific?`;
 }
+function followType(d){
+  if(d.gift_self==="Gift") return "Gift recipient story";
+  if(d.first_look) return "VIP cultivation";
+  if(countPieces(d.pieces)>=2) return "Repeat collector check-in";
+  if(num(d.ltv)>1000) return "High-value welcome";
+  return "First story request";
+}
 function draftEmail(d){
   const piece=firstPiece(d.pieces)||"your piece";
   const body=[
@@ -591,25 +598,26 @@ function toggleFav(i){
 function renderDrawer(){
   const list=followUps();
   const body=document.getElementById("drawerBody");
-  const title=document.getElementById("drawerTitle");
+  const badge=document.getElementById("drawerBadge");
   const rail=document.getElementById("drawerRail");
-  if(title) title.textContent = list.length? `Follow-ups · ${list.length} due` : "Follow-ups";
+  if(badge){ badge.textContent=list.length; badge.classList.toggle("zero", list.length===0); }
   if(rail) rail.classList.toggle("has-due", list.length>0);
   if(!body) return;
   if(!list.length){ body.innerHTML=`<div class="drawer-empty">No one's due for a follow-up right now.<br>New purchases appear here ~2 weeks on.</div>`; return; }
+  const PRI_ICON={High:"↑",Medium:"→",Low:"↓"};
   body.innerHTML=list.map(x=>{
-    const d=x.d, piece=firstPiece(d.pieces)||"a piece";
+    const d=x.d;
     return `<div class="fcard">
       <div class="fcard-top">
         <div class="fav-av">${esc(initials(d.name))}</div>
         <div class="fn">${esc(d.name||"—")}</div>
-        <span class="pri ${x.priority}">${x.priority}</span>
+        <span class="pri ${x.priority}" title="${x.priority} priority">${PRI_ICON[x.priority]}</span>
       </div>
-      <div class="fmeta">Bought ${esc(piece)} · ${x.days}d ago${d.location?" · "+esc(d.location):""}</div>
-      <div class="fask">“${esc(x.ask)}”</div>
+      <div class="fmeta">${x.days} days ago</div>
+      <div class="ftype">${esc(followType(d))}</div>
       <div class="facts">
-        <button class="btn" data-act="draft" data-i="${x.i}">Draft email</button>
-        <button class="btn ghost" data-act="done" data-i="${x.i}">Mark contacted</button>
+        <button class="btn btn-draft" data-act="draft" data-i="${x.i}">Draft email</button>
+        <button class="btn ghost btn-done" data-act="done" data-i="${x.i}" title="Mark contacted">✓</button>
       </div>
     </div>`;
   }).join("");
