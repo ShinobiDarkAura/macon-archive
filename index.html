@@ -135,17 +135,18 @@
   .ledger-head .rp{justify-self:end;text-align:right}
   .ledger-head .lv{justify-self:end;text-align:right}
   .ledger-head.hidden{display:none}
-  .ledger{border-top:1px solid var(--rule);flex:1;overflow:hidden;display:flex;flex-direction:column}
+  .ledger{border-top:1px solid var(--rule);flex:1;overflow:hidden;display:flex;flex-direction:column;transition:opacity .16s ease}
+  .ledger.switching{opacity:0}
   .entry{border-bottom:1px solid var(--rule);padding:6px 6px;display:grid;gap:18px;flex:1 1 0;min-height:0;
-         grid-template-columns:46px minmax(200px,0.9fr) minmax(0,1.1fr) minmax(0,1fr) 100px 150px 44px;align-items:center;align-content:center;cursor:pointer;transition:.12s}
+         grid-template-columns:46px minmax(200px,0.9fr) minmax(0,1.1fr) minmax(0,1fr) 100px 150px 44px;align-items:center;align-content:center;cursor:pointer;transition:padding .22s ease,background .12s ease}
   .ledger.compact .entry{padding:9px 6px}
   .entry:hover{background:rgba(255,255,255,.4)}
   .avatar{width:46px;height:46px;flex:0 0 auto;border-radius:50%;background:var(--paper-2);
           display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:600;
-          font-size:16px;color:var(--bronze-deep);letter-spacing:.02em}
+          font-size:16px;color:var(--bronze-deep);letter-spacing:.02em;transition:width .22s ease,height .22s ease,font-size .22s ease}
   .ledger.compact .avatar{width:32px;height:32px;font-size:12px}
   .entry .who{min-width:0}
-  .entry .who .nm{font-family:"Louize",Georgia,serif;font-size:22px;font-weight:400;line-height:1.15;white-space:nowrap}
+  .entry .who .nm{font-family:"Louize",Georgia,serif;font-size:22px;font-weight:400;line-height:1.15;white-space:nowrap;transition:font-size .22s ease}
   .ledger.compact .who .nm{font-size:17px}
   .entry .who .sub{font-size:12px;color:#bcb6aa;margin-top:-2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ledger.compact .who .sub{margin-top:-4px}
@@ -198,16 +199,17 @@
   .drawer-close:hover{color:var(--ink)}
   .drawer-body{flex:1;overflow:auto;padding:20px 24px 124px;display:flex;flex-direction:column;gap:16px}
   .drawer-empty{color:var(--slate);font-family:var(--serif-soul);font-style:italic;font-size:15px;text-align:center;margin-top:30px}
-  .fcard{display:flex;gap:0;flex:0 0 auto;border:none;border-radius:12px;background:#fff;box-shadow:0 4px 15px rgba(40,37,35,.11);overflow:hidden}
-  .fcard-img{flex:0 0 30%;align-self:stretch;background:var(--paper-2);min-height:96px}
+  .fcard{display:flex;flex-direction:column;gap:0;flex:0 0 auto;border:none;border-radius:12px;background:#fff;box-shadow:0 4px 15px rgba(40,37,35,.11);overflow:hidden}
+  .fcard-img{flex:0 0 auto;width:100%;height:130px;background:var(--paper-2)}
   .fcard-img img{width:100%;height:100%;object-fit:cover;display:block}
   .fcard-body{flex:1;min-width:0;padding:16px 18px}
   .fcard-top{display:flex;align-items:flex-start;gap:11px}
   .fcard .fav-av{width:40px;height:40px;flex:0 0 auto;border-radius:50%;background:var(--paper-2);display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:600;font-size:12px;color:var(--bronze-deep)}
   .fcard .ftitle{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
-  .fcard .fn{font-family:"Louize",Georgia,serif;font-size:16px;line-height:1.1;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .fcard .ftype{font-family:"Louize",Georgia,serif;font-style:italic;font-size:14px;line-height:1.2;color:var(--slate);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .daychip{flex:0 0 auto;display:inline-flex;align-items:center;border-radius:7px;padding:6px 11px;color:#fffbf0;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.03em;line-height:1}
+  .fcard .fn{font-family:var(--sans);font-variant-caps:all-small-caps;font-size:9pt;font-weight:500;letter-spacing:.08em;line-height:1.1;color:#8f897e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:24pt;line-height:1.08;color:var(--ink);margin-top:3px}
+  .daychip{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;border-radius:7px;padding:6px 11px;color:#fffbf0;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.02em;line-height:1}
+  .daychip .dc-ico{font-weight:700;font-size:11px;line-height:1}
   .daychip.High{background:#d96a2c}
   .daychip.Medium{background:#c79a3f}
   .daychip.Low{background:#b3ad9f}
@@ -526,11 +528,18 @@ function firstName(n){ return (n||"").trim().split(/\s+/)[0]||"there"; }
 function firstPiece(p){ return ((p||"").split(",")[0]||"").trim().replace(/\s*[×x]\d+$/,""); }
 function isDue(d){
   const days=daysSince(d.last_buy);
-  if(days==null||days<14||days>400) return false;
-  if(d.story==="Yes") return false;
-  if(d.last_contact){ const lc=Date.parse(d.last_contact), lb=Date.parse(d.last_buy);
-    if(!isNaN(lc)&&!isNaN(lb)&&lc>=lb) return false; }
-  return true;
+  if(days==null||days<28) return false;          // let the piece arrive + settle
+  if(d.story==="Yes") return false;              // story already captured
+  if(d.last_contact){ const c=daysSince(d.last_contact);
+    if(c!=null && c<21) return false; }          // snooze: resurface ~3 weeks after a no-reply
+  return true;                                   // no upper cap — long-time collectors stay reachable
+}
+// Gone-quiet inner circle: a no-ask "thinking of you" presence ping
+function isReconnectDue(d){
+  if(!d.first_look) return false;                // VIPs / inner circle only
+  if(isDue(d)) return false;                     // a live story ask takes precedence
+  const last = d.last_contact ? daysSince(d.last_contact) : daysSince(d.last_buy);
+  return last!=null && last>=90;
 }
 function followScore(d){ let s=0; if(d.first_look)s+=3; if(num(d.ltv)>1000)s+=2; if(countPieces(d.pieces)>=2)s+=1; if(d.gift_self==="Gift")s+=1; return s; }
 function followPriority(d){ const s=followScore(d); return s>=3?"High":s>=1?"Medium":"Low"; }
@@ -538,10 +547,11 @@ function followAsk(d){
   const piece=firstPiece(d.pieces)||"your piece";
   if(d.gift_self==="Gift") return `Did the person you gave ${piece} to understand what it was without being told?`;
   if(countPieces(d.pieces)>=2) return `What made you choose ${piece} over the others?`;
-  if(d.first_look) return `Where does ${piece} live now — and who else in your life would understand these objects the way you do?`;
+  if(d.first_look) return `Where does ${piece} live now — and what's it come to mean to you?`;
   return `Where does ${piece} live now — on you, on a shelf, somewhere specific?`;
 }
-function followType(d){
+function followType(d, kind){
+  if(kind==="reconnect") return "Reconnect";
   if(d.gift_self==="Gift") return "Gift recipient story";
   if(d.first_look) return "VIP cultivation";
   if(countPieces(d.pieces)>=2) return "Repeat collector check-in";
@@ -577,7 +587,7 @@ const TONES=[
       `Hey ${c.first},`,"",
       `Hope you're doing well! It's Alex from Maçon. ${c.piece} popped into my head today and I got curious.`,"",
       c.gift?`Did the person you gave it to take to it?`
-      :c.vip?`Where's it living these days? And is there anyone in your world you think would fall for these the way you did?`
+      :c.vip?`Where's it living these days? I keep wondering where it ended up.`
       :`Where'd it end up? Did it find a little spot yet?`,"",
       `No need to write much, I'm just nosy in the best way.`,"",
       `x Alex`
@@ -603,17 +613,40 @@ const TONES=[
     ].join("\n")
   })}
 ];
-function draftEmail(d, tone){
+// Reconnect: presence only, no ask — just "you're on our minds"
+const RECON_TONES=[
+  {name:"Warm", build:c=>({
+    subject:`Thinking of you, ${c.first}`,
+    body:[
+      `Hi ${c.first},`,"",
+      `It's Alex and Hannah from Maçon. No news, no ask — you just crossed our minds today and we wanted to say hello${c.city?` over in ${c.city}`:""}.`,"",
+      `We hope ${c.piece} is still keeping good company, and that you're well.`,"",
+      `Warmly,`,`Alex & Hannah`
+    ].join("\n")
+  })},
+  {name:"Brief", build:c=>({
+    subject:`Hello from Maçon`,
+    body:[
+      `Hi ${c.first},`,"",
+      `Just a quiet hello from Alex & Hannah — you've been on our minds. No need to reply, we only wanted you to know.`,"",
+      `Warmly,`,`Alex & Hannah`
+    ].join("\n")
+  })}
+];
+function draftEmail(d, tone, kind){
   const c=emailCtx(d);
-  const n=TONES.length, idx=((tone|0)%n+n)%n;
-  const r=TONES[idx].build(c);
-  return {subject:r.subject, body:r.body, toneName:TONES[idx].name, toneIdx:idx};
+  const set = kind==="reconnect" ? RECON_TONES : TONES;
+  const n=set.length, idx=((tone|0)%n+n)%n;
+  const r=set[idx].build(c);
+  return {subject:r.subject, body:r.body, toneName:set[idx].name, toneIdx:idx};
 }
 function followUps(){
   const P={High:0,Medium:1,Low:2};
-  return data.map((d,i)=>({d,i})).filter(x=>isDue(x.d))
-    .map(x=>({...x, days:daysSince(x.d.last_buy), priority:followPriority(x.d), ask:followAsk(x.d)}))
-    .sort((a,b)=> P[a.priority]-P[b.priority] || a.days-b.days);
+  const story=data.map((d,i)=>({d,i})).filter(x=>isDue(x.d))
+    .map(x=>({...x, kind:"story", days:daysSince(x.d.last_buy), priority:followPriority(x.d), ask:followAsk(x.d)}));
+  const recon=data.map((d,i)=>({d,i})).filter(x=>isReconnectDue(x.d))
+    .map(x=>({...x, kind:"reconnect", days:(x.d.last_contact?daysSince(x.d.last_contact):daysSince(x.d.last_buy)), priority:"High", ask:""}));
+  return story.concat(recon).sort((a,b)=> P[a.priority]-P[b.priority] || a.days-b.days);
 }
 
 /* ---------- Render ledger ---------- */
@@ -704,38 +737,40 @@ function renderDrawer(){
           <div class="fav-av">${esc(initials(d.name))}</div>
           <div class="ftitle">
             <div class="fn">${esc(d.name||"—")}</div>
-            <div class="ftype">${esc(followType(d))}</div>
+            <div class="ftype">${esc(followType(d, x.kind))}</div>
           </div>
-          <span class="daychip ${x.priority}">${x.days}D</span>
+          <span class="daychip ${x.priority}"><span class="dc-ico">${PRI_ICON[x.priority]}</span>${x.days}D</span>
         </div>
         <div class="facts">
-          <button class="btn btn-draft" data-act="draft" data-i="${x.i}">Draft email</button>
+          <button class="btn btn-draft" data-act="draft" data-i="${x.i}" data-kind="${x.kind}">${x.kind==="reconnect"?"Reconnect":"Draft email"}</button>
           <button class="btn ghost btn-done" data-act="done" data-i="${x.i}" title="Mark contacted">✓</button>
         </div>
       </div>
     </div>`;
   }).join("");
   body.querySelectorAll("button[data-act]").forEach(b=>b.onclick=()=>{
-    const i=+b.dataset.i; if(b.dataset.act==="draft") openDraft(i); else markContacted(i);
+    const i=+b.dataset.i; if(b.dataset.act==="draft") openDraft(i, b.dataset.kind); else markContacted(i);
   });
 }
 function priIcon(p){ return {High:"!",Medium:"=",Low:"−"}[p]||""; }
 const COPY_SVG=`<svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="6.5" y="6.5" width="9" height="9" rx="1.5"/><path d="M12.5 4.5h-7a1 1 0 0 0-1 1v7"/></svg>`;
-function openDraft(i){
+function openDraft(i, kind){
   const d=data[i]; if(!d) return;
-  const {subject, body}=draftEmail(d);
-  const pri=followPriority(d);
+  const {subject, body, toneName}=draftEmail(d, 0, kind);
+  const pri=kind==="reconnect"?"High":followPriority(d);
+  const dayLbl=kind==="reconnect"?"days since last contact":"days since last purchase";
+  const daysN=kind==="reconnect"?(d.last_contact?daysSince(d.last_contact):daysSince(d.last_buy)):daysSince(d.last_buy);
   const host=document.getElementById("cardHost");
   host.innerHTML=`
     <span class="dpri ${pri}" title="${pri} priority">${priIcon(pri)}</span>
     <div class="card-body">
-      <h2>Follow up with ${esc(d.name||"")}</h2>
+      <h2>${kind==="reconnect"?"Reconnect with":"Follow up with"} ${esc(d.name||"")}</h2>
       <div class="dchips">
         <span class="dchip">${esc(d.email||"—")}</span>
-        <span class="dchip">${daysSince(d.last_buy)} days since last purchase</span>
+        <span class="dchip">${daysN} ${dayLbl}</span>
       </div>
       <div style="margin-top:2px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><label style="font-size:11px;letter-spacing:0;text-transform:none;color:var(--ink)">Email draft</label><button class="btn ghost tiny" id="dTone" title="Cycle tone" style="height:26px">Tone · Warm</button></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><label style="font-size:11px;letter-spacing:0;text-transform:none;color:var(--ink)">Email draft</label><button class="btn ghost tiny" id="dTone" title="Cycle tone" style="height:26px">Tone · ${esc(toneName)}</button></div>
         <div class="dfield" style="margin-bottom:8px">
           <input id="dSubj" value="${esc(subject)}" style="width:100%;font-size:13.7px;padding-right:36px">
           <button class="dcopy" id="dCopySubj" title="Copy subject">${COPY_SVG}</button>
@@ -758,7 +793,7 @@ function openDraft(i){
   const autosize=()=>{ bodyEl.style.height="auto"; bodyEl.style.height=bodyEl.scrollHeight+"px"; };
   requestAnimationFrame(autosize); bodyEl.addEventListener("input",autosize);
   let toneIdx=0;
-  host.querySelector("#dTone").onclick=()=>{ toneIdx++; const r=draftEmail(d,toneIdx);
+  host.querySelector("#dTone").onclick=()=>{ toneIdx++; const r=draftEmail(d,toneIdx,kind);
     subjEl.value=r.subject; bodyEl.value=r.body; host.querySelector("#dTone").textContent="Tone · "+r.toneName; autosize(); };
   const flash=(btn)=>{ const o=btn.innerHTML; btn.innerHTML="✓"; setTimeout(()=>btn.innerHTML=o,1200); };
   const copy=async(text,btn)=>{ try{ await navigator.clipboard.writeText(text); flash(btn); }catch(e){ alert("Copy failed — select the text manually."); } };
@@ -928,9 +963,13 @@ document.getElementById("q").oninput=e=>{ query=e.target.value; page=1; renderLe
 (function(){ const seg=document.getElementById("viewSeg"); if(!seg) return;
   seg.querySelectorAll("button").forEach(b=>{
     b.classList.toggle("on", b.dataset.v===viewMode);
-    b.onclick=()=>{ viewMode=b.dataset.v; localStorage.setItem("macon_view",viewMode); page=1;
+    b.onclick=()=>{ if(b.dataset.v===viewMode) return;
+      viewMode=b.dataset.v; localStorage.setItem("macon_view",viewMode); page=1;
       seg.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x.dataset.v===viewMode));
-      renderLedger(); };
+      const host=document.getElementById("ledger");
+      if(host){ host.classList.add("switching");
+        setTimeout(()=>{ renderLedger(); host.classList.add("switching"); requestAnimationFrame(()=>host.classList.remove("switching")); },150);
+      } else renderLedger(); };
   });
 })();
 
