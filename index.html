@@ -142,11 +142,12 @@
   .pager button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   .pager button:disabled{opacity:.35;cursor:default}
   /* View-mode segmented control */
-  .viewseg{display:flex;height:40px;border:1px solid var(--rule);flex:0 0 auto}
-  .viewseg button{width:40px;border:none;border-right:1px solid var(--rule);background:transparent;color:var(--slate);
-        cursor:pointer;font-size:15px;line-height:1;transition:.15s}
+  .viewseg{display:flex;height:40px;border:1px solid var(--rule);flex:0 0 auto;background:transparent}
+  .viewseg button{width:44px;height:100%;display:flex;align-items:center;justify-content:center;
+        border:none;border-right:1px solid var(--rule);background:transparent;color:var(--slate);
+        cursor:pointer;font-size:15px;transition:.15s}
   .viewseg button:last-child{border-right:none}
-  .viewseg button:hover{color:var(--bronze)}
+  .viewseg button:hover{background:#000;color:var(--paper)}
   .viewseg button.on{background:var(--ink);color:var(--paper)}
 
   /* ---------- Detail / provenance card ---------- */
@@ -181,7 +182,7 @@
   .money-wrap .pfx{position:absolute;left:14px;top:0;height:40px;display:flex;align-items:center;color:#bdb8ac;pointer-events:none;font-size:15px}
   .money-wrap input{padding-left:26px;width:100%}
   .pbuild{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-  .pbuild .psel{flex:0 0 calc(20% - 7px);min-width:120px}
+  .pbuild .psel,.pbuild .pcustom{flex:0 0 calc(25% - 6px);min-width:120px}
   .pbuild .padd{height:40px;width:40px;flex:0 0 40px;border:1px solid var(--rule);background:transparent;color:var(--slate);font-size:18px;cursor:pointer;transition:.15s}
   .pbuild .padd:hover{background:#000;border-color:#000;color:var(--paper)}
   .photos{display:flex;flex-wrap:wrap;gap:8px}
@@ -575,24 +576,27 @@ function showForm(i){
   };
 }
 function opt(arr,sel){ return arr.map(v=>`<option ${v===sel?'selected':''}>${v}</option>`).join(""); }
-function pieceSelect(val){
-  const opts=PRODUCTS.slice();
-  if(val && !opts.includes(val)) opts.unshift(val);
-  return `<select class="psel"><option value="">Piece name</option>${opts.map(p=>`<option ${p===val?'selected':''}>${esc(p)}</option>`).join("")}</select>`;
+function pieceItem(val){
+  if(val && !PRODUCTS.includes(val)) return `<input class="pcustom" placeholder="Custom piece name" value="${esc(val)}">`;
+  const opts=PRODUCTS.map(p=>`<option ${p===val?'selected':''}>${esc(p)}</option>`).join("");
+  return `<select class="psel"><option value="">Piece name</option>${opts}<option value="__custom__">Custom…</option></select>`;
+}
+function collectPieces(host){
+  return Array.from(host.querySelectorAll(".psel,.pcustom")).map(el=>el.value.trim()).filter(v=>v&&v!=="__custom__");
 }
 function renderPieces(piecesStr){
   const host=document.getElementById("pbuild"); if(!host) return;
   let list=(piecesStr||"").split(",").map(s=>s.trim()).filter(Boolean);
   if(!list.length) list=[""];
-  host.innerHTML=list.map(pieceSelect).join("")+`<button type="button" class="padd" id="paddBtn" title="Add piece">+</button>`;
-  host.querySelector("#paddBtn").onclick=()=>{
-    const vals=Array.from(host.querySelectorAll(".psel")).map(s=>s.value);
-    vals.push(""); renderPieces(vals.join(","));
-  };
+  host.innerHTML=list.map(pieceItem).join("")+`<button type="button" class="padd" id="paddBtn" title="Add piece">+</button>`;
+  host.querySelector("#paddBtn").onclick=()=>{ const vals=collectPieces(host); vals.push(""); renderPieces(vals.join(",")); };
+  host.querySelectorAll(".psel").forEach(sel=>sel.onchange=()=>{
+    if(sel.value==="__custom__"){ const inp=document.createElement("input"); inp.className="pcustom"; inp.placeholder="Custom piece name"; sel.replaceWith(inp); inp.focus(); }
+  });
 }
 function readPieces(){
   const host=document.getElementById("pbuild"); if(!host) return "";
-  return Array.from(host.querySelectorAll(".psel")).map(s=>s.value.trim()).filter(Boolean).join(", ");
+  return collectPieces(host).join(", ");
 }
 
 /* ---------- Scrim & gate ---------- */
