@@ -184,6 +184,10 @@
   .pbuild .psel{flex:0 0 calc(20% - 7px);min-width:120px}
   .pbuild .padd{height:40px;width:40px;flex:0 0 40px;border:1px solid var(--rule);background:transparent;color:var(--slate);font-size:18px;cursor:pointer;transition:.15s}
   .pbuild .padd:hover{background:#000;border-color:#000;color:var(--paper)}
+  .photos{display:flex;flex-wrap:wrap;gap:8px}
+  .thumb{position:relative;width:66px;height:66px;border:1px solid var(--rule);overflow:hidden}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .thumb-x{position:absolute;top:0;right:0;width:18px;height:18px;border:none;background:rgba(43,38,34,.72);color:#fff;cursor:pointer;font-size:12px;line-height:18px;padding:0}
   .foot{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:21px 0 13px;
         border-top:1px solid var(--rule);background:var(--paper);
         font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#a7a39c}
@@ -292,7 +296,7 @@
 const STORE = "macon_archive_v1";
 const SIG_ORDER = {High:0, Med:1, Low:2, "":3};
 const COLS = ["acc","name","email","first_contact","pieces","ltv","gift_self","first_buy",
-  "last_buy","why","lives","details","signal","first_look","last_contact","story","notes","location","phone"];
+  "last_buy","why","lives","details","signal","first_look","last_contact","story","notes","location","phone","photos"];
 const PRODUCTS = ["Ren","Pip","Rebi","Ori","Zuma","Ibi","Milo","Yael","Eleph",
   "Caldera Arc","Sietch Ring","Lunar Canyon","Zuma Ring","Eclipse Ring"];
 let viewMode = localStorage.getItem("macon_view") || "regular";
@@ -353,6 +357,7 @@ async function refresh(){
   data = rows || []; renderAll();
 }
 async function persist(rec, isNew){
+  if(num(rec.ltv)>1000) rec.first_look=true;
   if(!synced){
     if(isNew) data.push(rec); else { const i=data.findIndex(d=>d.acc===rec.acc); if(i>=0) data[i]=rec; }
     local.save(); renderAll(); return;
@@ -519,6 +524,11 @@ function showForm(i){
       <div class="fg full"><label>Pieces Owned</label><div class="pbuild" id="pbuild"></div></div>
       <div class="fg"><label>Favorite?</label><select id="f_first_look">${opt(['Yes','No'], d.first_look?'Yes':'No')}</select></div>
       <div class="fg"><label>Story Usable?</label><select id="f_story">${opt(['Asked','Yes','No'],d.story)}</select></div>
+      <div class="fg full"><label>Story Photos</label>
+        <div class="photos" id="photoZone"></div>
+        <input type="file" id="photoInput" accept="image/*" multiple style="display:none">
+        <button type="button" class="btn ghost tiny" id="photoAdd" style="align-self:flex-start;margin-top:8px">+ Add Photos</button>
+      </div>
       <div class="fg full"><label>Notes</label><textarea id="f_notes">${F('notes')}</textarea></div>
     </div>
     <div class="card-actions">
@@ -528,13 +538,39 @@ function showForm(i){
     </div>`;
   openScrim();
   renderPieces(d.pieces);
+  // ---- Story photos ----
+  let formPhotos=[]; try{ const pp=JSON.parse(d.photos||"[]"); if(Array.isArray(pp)) formPhotos=pp; }catch(e){}
+  const photoZone=host.querySelector("#photoZone");
+  const photoAdd=host.querySelector("#photoAdd");
+  const photoUrl=p=> (synced&&sb)? sb.storage.from("collector-photos").getPublicUrl(p).data.publicUrl : p;
+  function renderPhotos(){
+    photoZone.innerHTML=formPhotos.map((p,idx)=>`<div class="thumb"><a href="${photoUrl(p)}" target="_blank" rel="noopener"><img src="${photoUrl(p)}" alt=""></a><button type="button" class="thumb-x" data-idx="${idx}" title="Remove">×</button></div>`).join("");
+    photoZone.querySelectorAll(".thumb-x").forEach(b=>b.onclick=async()=>{ const idx=+b.dataset.idx, p=formPhotos[idx]; formPhotos.splice(idx,1); renderPhotos(); if(synced&&sb){ try{ await sb.storage.from("collector-photos").remove([p]); }catch(e){} } });
+  }
+  renderPhotos();
+  if(!synced){ photoAdd.disabled=true; photoAdd.textContent="Sign in to attach photos"; }
+  else{
+    photoAdd.onclick=()=>host.querySelector("#photoInput").click();
+    host.querySelector("#photoInput").onchange=async e=>{
+      const files=Array.from(e.target.files||[]); if(!files.length) return;
+      photoAdd.disabled=true; photoAdd.textContent="Uploading…";
+      for(const f of files){
+        const safe=f.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+        const path=`${d.acc}/${Date.now()}_${safe}`;
+        const { error }=await sb.storage.from("collector-photos").upload(path,f,{cacheControl:"3600",upsert:false});
+        if(error){ alert("Upload failed: "+error.message); } else { formPhotos.push(path); }
+      }
+      e.target.value=""; photoAdd.disabled=false; photoAdd.textContent="+ Add Photos"; renderPhotos();
+    };
+  }
   host.querySelector("#cancelBtn").onclick=closeScrim;
   if(host.querySelector("#delBtn")) host.querySelector("#delBtn").onclick=()=>{ if(confirm("Remove "+(d.name||d.acc)+" from the archive?")){ removeRec(d); closeScrim(); } };
   host.querySelector("#saveBtn").onclick=()=>{
     const g=id=>host.querySelector("#"+id).value.trim();
     const rec={...d, acc:d.acc, id:d.id, name:g("f_name"), email:g("f_email"), phone:g("f_phone"),
       location:g("f_location"), ltv:g("f_ltv"),
-      pieces:readPieces(), first_look:g("f_first_look")==="Yes", story:g("f_story"), notes:g("f_notes")};
+      pieces:readPieces(), first_look:g("f_first_look")==="Yes", story:g("f_story"), notes:g("f_notes"),
+      photos:JSON.stringify(formPhotos)};
     persist(rec, isNew); closeScrim();
   };
 }
@@ -640,6 +676,7 @@ async function importOrdersCSV(text){
     const acc=existing?existing.acc:("M-"+String(++maxAcc).padStart(3,"0"));
     const rec=Object.assign({}, existing||{}, {acc, email:g.email, name:g.name||(existing&&existing.name)||"",
       ltv:Math.round(g.total), pieces, location:loc, phone:g.phone,
+      first_look:(existing&&existing.first_look)||Math.round(g.total)>1000,
       first_buy:ds.length?ds[0].s:(existing&&existing.first_buy)||"",
       last_buy:ds.length?ds[ds.length-1].s:(existing&&existing.last_buy)||""});
     const p={}; COLS.forEach(c=>p[c]=rec[c]!=null?rec[c]:null); if(existing&&existing.id)p.id=existing.id;

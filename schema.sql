@@ -25,6 +25,7 @@ create table if not exists public.collectors (
   last_contact  text,
   story         text,
   notes         text,
+  photos        text,
   updated_at    timestamptz default now()
 );
 
