@@ -81,16 +81,17 @@
     .stat:last-child{border-right:none}
   }
   /* Floating progress card (sticky, above the footer) */
-  .progress-card{position:fixed;left:50%;transform:translateX(-50%);bottom:27px;z-index:31;
-        width:min(685px,calc(100% - 300px));background:var(--paper);border:1px solid var(--rule);border-radius:999px;
-        box-shadow:0 12px 34px rgba(40,37,35,.18);padding:19px 33px 21px;transition:border-color .3s;border-radius:15px}
+  .progress-card{position:fixed;left:calc(2vw + 38px);bottom:27px;z-index:31;
+        width:calc(16vw - 13px);background:var(--paper);border:1px solid var(--rule);border-radius:999px;
+        box-shadow:0 12px 34px rgba(40,37,35,.18);padding:16px 18px 18px;transition:border-color .3s;border-radius:15px}
   .progress-card.started{border-color:var(--rule)}
   .progress-card .pc-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
-  .progress-card .lbl,.progress-card .count{font-variant-caps:all-small-caps;text-transform:none;font-size:12pt;font-weight:600;letter-spacing:.1em;color:var(--slate)}
+  .progress-card .lbl,.progress-card .count{font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.1em;color:var(--slate)}
   .progress-card .count{white-space:nowrap;letter-spacing:.06em}
   .progress-card .bar{height:10px;background:rgba(40,37,35,.06);border:1px solid var(--rule);border-radius:999px;margin:4px 0 0;overflow:hidden}
   .progress-card.started .bar{border-color:var(--rule)}
   .progress-card .bar i{display:block;height:100%;width:0;background:var(--seal);transition:width 1s cubic-bezier(.2,.8,.2,1)}
+  @media(max-width:820px){.progress-card{left:50%;transform:translateX(-50%);width:min(685px,calc(100% - 40px))}}
 
   /* ---------- Toolbar ---------- */
   .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0 66px}
