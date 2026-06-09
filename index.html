@@ -396,7 +396,7 @@ const SIG_ORDER = {High:0, Med:1, Low:2, "":3};
 const COLS = ["acc","name","email","first_contact","pieces","ltv","gift_self","first_buy",
   "last_buy","why","lives","details","signal","first_look","last_contact","story","notes","location","phone","photos"];
 const PRODUCTS = ["Ren","Pip","Rebi","Ori","Zuma","Ibi","Milo","Yael","Eleph",
-  "Caldera Arc","Sietch Ring","Lunar Canyon","Zuma Ring","Eclipse Ring"];
+  "Caldera Arc","Sietch Ring","Lunar Canyon","Zuma Ring","Eclipse Ring","Meridian Egg","Ida's Wonder Horn","Starship Key"];
 let viewMode = localStorage.getItem("macon_view") || "regular";
 if(viewMode==="generous") viewMode="regular";
 let page = 1;
@@ -696,7 +696,7 @@ function renderDrawer(){
     const d=x.d;
     const piece=(d.pieces||"").split(",")[0].trim();
     const slug=piece.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
-    const img= piece ? `<div class="fcard-img"><img src="pieces/${slug}.jpg" alt="" loading="lazy" onerror="this.closest('.fcard-img').style.display='none'"></div>` : "";
+    const img= piece ? `<div class="fcard-img"><img src="pieces/${slug}.avif" alt="" loading="lazy" onerror="this.closest('.fcard-img').style.display='none'"></div>` : "";
     return `<div class="fcard">
       ${img}
       <div class="fcard-body">
