@@ -168,7 +168,7 @@
 
   /* ---------- Follow-up drawer ---------- */
   body{transition:padding-right .28s ease;padding-right:404px}
-  body.drawer-collapsed{padding-right:16px}
+  body.drawer-collapsed{padding-right:28px}
   .drawer{position:fixed;top:0;right:0;height:100vh;width:404px;background:var(--paper);border-left:1px solid var(--rule);
         box-shadow:-14px 0 40px rgba(40,37,35,.10);z-index:45;display:flex;flex-direction:column;
         transform:translateX(0);transition:transform .28s ease}
@@ -179,31 +179,31 @@
   .dt-badge{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:0;color:#fff;background:#d96a2c;border-radius:999px;
         min-width:24px;height:22px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 9px rgba(217,106,44,.5)}
   .dt-badge.zero{display:none}
-  .drawer-close{width:30px;height:30px;border:1px solid var(--rule);background:transparent;color:var(--slate);cursor:pointer;font-size:16px;transition:.15s}
-  .drawer-close:hover{background:#000;border-color:#000;color:var(--paper)}
+  .drawer-close{width:30px;height:30px;border:none;background:transparent;color:var(--slate);cursor:pointer;font-size:18px;transition:.15s}
+  .drawer-close:hover{color:var(--ink)}
   .drawer-body{flex:1;overflow:auto;padding:20px 24px 124px;display:flex;flex-direction:column;gap:16px}
   .drawer-empty{color:var(--slate);font-family:var(--serif-soul);font-style:italic;font-size:15px;text-align:center;margin-top:30px}
-  .fcard{border:none;border-radius:12px;padding:17px 22px;background:var(--paper);box-shadow:0 4px 15px rgba(40,37,35,.11)}
+  .fcard{border:none;border-radius:12px;padding:17px 22px;background:#fff;box-shadow:0 4px 15px rgba(40,37,35,.11)}
   .fcard-top{display:flex;align-items:center;gap:9px}
   .fcard .fav-av{width:22px;height:22px;flex:0 0 auto;border-radius:50%;background:var(--paper-2);display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:600;font-size:9px;color:var(--bronze-deep)}
-  .fcard .fn{font-family:"Louize",Georgia,serif;font-size:19px;line-height:1.1;flex:1;min-width:0}
-  .pri{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;flex:0 0 auto;border-radius:999px;background:var(--paper-2);font-size:15px;line-height:1;font-weight:700}
-  .pri.High{color:#d96a2c}
-  .pri.Medium{color:var(--tan)}
-  .pri.Low{color:#b9b3a7}
+  .fcard .fn{font-family:"Louize",Georgia,serif;font-size:16px;line-height:1.1;flex:1;min-width:0;color:#7a746a}
+  .pri{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;flex:0 0 auto;border-radius:999px;color:#fffbf0;font-size:15px;line-height:1;font-weight:700}
+  .pri.High{background:#d96a2c}
+  .pri.Medium{background:#c79a3f}
+  .pri.Low{background:#b3ad9f}
   .fcard .fmeta{font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--slate);margin:11px 0 5px}
-  .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:19px;line-height:1.2;color:var(--ink)}
+  .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:22px;line-height:1.2;color:var(--ink)}
   .fcard .facts{display:flex;gap:8px;margin-top:14px}
-  .fcard .facts .btn-draft{flex:1;height:36px;font-size:9px;padding:0 10px}
+  .fcard .facts .btn-draft{flex:1;height:36px;font-size:9px;padding:0 10px;color:#9a948b}
+  .fcard .facts .btn-draft:hover{color:var(--paper)}
   .fcard .facts .btn-done{flex:0 0 auto;width:46px;height:36px;font-size:15px;padding:0}
   /* collapsed rail */
-  .drawer-rail{position:fixed;top:0;right:0;height:100vh;width:16px;border:none;border-left:1px solid var(--rule);
-        background:#f9f5ec;cursor:pointer;z-index:44;display:none;transition:transform .2s ease;padding:0}
+  .drawer-rail{position:fixed;top:0;right:0;height:100vh;width:28px;border:none;
+        background:#d96a2c;cursor:pointer;z-index:44;display:none;transition:transform .2s ease;padding:0;
+        box-shadow:-10px 0 26px rgba(40,37,35,.26)}
   body.drawer-collapsed .drawer-rail{display:flex;align-items:center;justify-content:center}
   .drawer-rail:hover{transform:translateX(-8px)}
-  .drawer-rail #railLabel{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--slate)}
-  .drawer-rail .raildot{position:absolute;top:18px;left:50%;transform:translateX(-50%);width:7px;height:7px;border-radius:50%;background:var(--seal);display:none}
-  .drawer-rail.has-due .raildot{display:block}
+  .drawer-rail #railLabel{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#fffbf0}
   @media(max-width:820px){
     body{padding-right:0}
     .drawer{width:min(380px,86vw)}
@@ -327,12 +327,12 @@
 <!-- Follow-up notifications drawer + collapsed rail -->
 <div class="drawer" id="drawer">
   <div class="drawer-head">
-    <span class="drawer-title"><span class="dt-ico">&#9993;&#xFE0E;</span>Follow-ups<span class="dt-badge zero" id="drawerBadge">0</span></span>
+    <span class="drawer-title">Follow-ups<span class="dt-badge zero" id="drawerBadge">0</span></span>
     <button class="drawer-close" id="drawerClose" title="Collapse">›</button>
   </div>
   <div class="drawer-body" id="drawerBody"></div>
 </div>
-<button class="drawer-rail" id="drawerRail" title="Follow-ups"><span class="raildot"></span><span id="railLabel">Follow-ups</span></button>
+<button class="drawer-rail" id="drawerRail" title="Follow-ups"><span id="railLabel">Follow-ups</span></button>
 
 <!-- Floating progress card -->
 
