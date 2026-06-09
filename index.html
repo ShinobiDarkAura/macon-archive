@@ -784,7 +784,7 @@ function renderProvenance(){
   if(!rows.length){ host.innerHTML=intro+`<div class="prov-empty">No stories captured yet. When a collector replies and you mark their story usable, it will be enshrined here.</div>`; return; }
   host.innerHTML=intro+`<div class="stories">`+rows.map(d=>{
     const piece=firstPiece(d.pieces)||"";
-    const slug=piece.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+    const slug=piece.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
     const photo=firstPhoto(d);
     const src= photo || (piece?`pieces/${slug}.avif`:"");
     const img= src
@@ -1064,7 +1064,19 @@ document.getElementById("gatePass").addEventListener("keydown",e=>{ if(e.key==="
 
 /* ---------- Toolbar wiring ---------- */
 document.getElementById("addBtn").onclick=()=>showForm(null);
-document.getElementById("q").oninput=e=>{ query=e.target.value; page=1; renderLedger(); };
+document.getElementById("q").oninput=e=>{ query=e.target.value; page=1; if(tab==="provenance") renderProvenance(); else renderLedger(); };
+
+/* Ledger / Provenance tabs */
+(function(){ const tabsEl=document.getElementById("tabs"); if(!tabsEl) return;
+  tabsEl.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    if(b.dataset.tab===tab) return;
+    tab=b.dataset.tab; localStorage.setItem("macon_tab",tab);
+    applyTab();
+    const tgt=document.getElementById(tab==="provenance"?"provenance":"ledger");
+    if(tgt){ tgt.classList.add("switching"); requestAnimationFrame(()=>tgt.classList.remove("switching")); }
+  });
+  applyTab();
+})();
 
 /* View modes */
 (function(){ const seg=document.getElementById("viewSeg"); if(!seg) return;
@@ -1179,7 +1191,7 @@ function download(name,content,type){
   const a=document.createElement("a"); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u);
 }
 
-function renderAll(){ renderDash(); renderLedger(); renderDrawer(); }
+function renderAll(){ renderDash(); if(tab==="provenance") renderProvenance(); else renderLedger(); renderDrawer(); }
 
 /* ---------- Drawer open/collapse ---------- */
 (function(){
