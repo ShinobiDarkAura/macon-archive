@@ -43,7 +43,7 @@
   }
   .wrap{margin:0;padding:0 40px 150px;min-height:100vh;display:grid;grid-template-columns:20% 1fr;gap:44px;align-items:start}
   .col-left{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
-  .col-right{min-width:0;padding-top:40px;height:100vh;display:flex;flex-direction:column;overflow:hidden;padding-bottom:112px}
+  .col-right{min-width:0;padding-top:40px;height:100vh;display:flex;flex-direction:column;overflow:hidden;padding-bottom:28px}
   @media(max-width:820px){
     .wrap{grid-template-columns:1fr;gap:24px}
     .col-left{position:static;height:auto}
@@ -136,12 +136,13 @@
   .entry .who .nm{font-family:"Louize",Georgia,serif;font-size:22px;font-weight:400;line-height:1.15}
   .ledger.compact .who .nm{font-size:17px}
   .entry .who .sub{font-size:12px;color:#bcb6aa;margin-top:-2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ledger.compact .who .sub{margin-top:-10px}
   .entry .cell{font-size:13px;color:var(--slate);font-style:normal;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .entry .right{justify-self:end;text-align:right}
   .entry .right.ltv{font-family:var(--sans);font-size:13px;color:var(--ink);font-weight:300}
   .entry .fu{justify-self:center;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:none;
-        background:none;cursor:pointer;color:var(--seal);font-size:15px;border-radius:50%;transition:.15s;opacity:.85}
-  .entry .fu:hover{background:var(--seal);color:var(--paper);opacity:1}
+        background:none;cursor:pointer;color:var(--seal);font-size:20px;transition:.15s;opacity:.85}
+  .entry .fu:hover{color:#000;opacity:1}
   .entry .fu.none{visibility:hidden;cursor:default}
   .fav{background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:0 0 0 9px;color:var(--rule);transition:color .15s;vertical-align:baseline}
   .fav.on{color:var(--seal)}
@@ -313,7 +314,6 @@
     <div class="pager" id="pager"></div>
   </main>
 
-  <div class="foot"><div class="foot-inner"><span>Made by Hand&nbsp;&nbsp;•&nbsp;&nbsp;Artifacts of Love</span></div></div>
 </div>
 
 <div class="progress-card" id="progressCard">
