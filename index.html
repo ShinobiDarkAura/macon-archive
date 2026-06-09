@@ -195,9 +195,13 @@
   /* ---------- Provenance editorial gallery ---------- */
   .ledger[hidden],.ledger-head[hidden],.pager[hidden],.provenance[hidden]{display:none}
   .provenance{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;border-top:1px solid var(--rule);
-    padding:46px 6px 64px;transition:opacity .16s ease}
+    padding:46px 6px 64px;transition:opacity .16s ease;display:flex;flex-direction:column}
+  .provenance.is-empty{justify-content:center;padding-bottom:46px}
   .provenance.switching{opacity:0}
   .prov-intro{max-width:720px;margin:0 auto 70px;text-align:center}
+  .provenance.is-empty .prov-intro{margin-bottom:0}
+  .prov-intro .btn{margin-top:30px}
+  .story{cursor:pointer}
   .prov-intro .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--bronze)}
   .prov-intro h2{font-family:"Louize",Georgia,serif;font-weight:400;font-size:46px;line-height:1.04;margin:16px 0 0;color:var(--ink)}
   .prov-intro p{font-family:var(--serif-soul);font-style:italic;color:var(--slate);font-size:18px;margin:14px 0 0}
@@ -786,8 +790,10 @@ function renderProvenance(){
   rows.sort((a,b)=> (Date.parse(b.last_buy)||0)-(Date.parse(a.last_buy)||0));
   const intro=`<div class="prov-intro"><div class="eyebrow">Bureau of Provenance</div>
     <h2>Where the work lives now</h2>
-    <p>The stories our collectors have shared, kept in their own words.</p></div>`;
-  if(!rows.length){ host.innerHTML=intro+`<div class="prov-empty">No stories captured yet. When a collector replies and you mark their story usable, it will be enshrined here.</div>`; return; }
+    <button class="btn" id="addStoryBtn">Add New Story</button></div>`;
+  host.classList.toggle("is-empty", rows.length===0);
+  const bindAdd=()=>{ const b=host.querySelector("#addStoryBtn"); if(b) b.onclick=()=>openStoryForm(); };
+  if(!rows.length){ host.innerHTML=intro; bindAdd(); return; }
   host.innerHTML=intro+`<div class="stories">`+rows.map(d=>{
     const piece=firstPiece(d.pieces)||"";
     const slug=piece.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
@@ -798,7 +804,7 @@ function renderProvenance(){
       : `<div class="story-img"><span class="noimg">${esc(initials(d.name))}</span></div>`;
     const quote=storyQuote(d);
     const meta=[piece,(d.location||"").trim(),fmtDate(d.last_buy)].filter(Boolean).join("  ·  ");
-    return `<article class="story">
+    return `<article class="story" data-i="${data.indexOf(d)}">
       ${img}
       <div class="story-txt">
         <div class="eyebrow">${esc(piece||"Maçon")}</div>
@@ -808,6 +814,8 @@ function renderProvenance(){
       </div>
     </article>`;
   }).join("")+`</div>`;
+  bindAdd();
+  host.querySelectorAll(".story").forEach(el=>el.onclick=()=>openStoryForm(+el.dataset.i));
 }
 let tab=localStorage.getItem("macon_tab")||"ledger";
 function positionTabInk(){
@@ -1028,6 +1036,74 @@ function showForm(i){
       location:g("f_location"), ltv:g("f_ltv"), last_buy:g("f_last_buy"),
       pieces:readPieces(), first_look:g("f_first_look")==="Yes", story:g("f_story"), notes:g("f_notes"),
       photos:JSON.stringify(formPhotos)};
+    persist(rec, isNew); closeScrim();
+  };
+}
+/* ---------- New / edit Story (Provenance) ---------- */
+function openStoryForm(i){
+  const isNew = i==null;
+  const d = isNew ? {acc:nextAcc(), story:"Yes", first_look:false} : data[i];
+  const host=document.getElementById("cardHost");
+  const F=(k)=>esc(d[k]!=null?d[k]:"");
+  const piece0=isNew?"":(firstPiece(d.pieces)||"");
+  host.innerHTML = `
+    <div class="card-body" style="padding-bottom:0">
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--bronze);margin-bottom:8px">Bureau of Provenance</div>
+      <h2>${isNew?"New Story":"Edit Story"}</h2>
+    </div>
+    <div class="form-grid">
+      <div class="fg full"><label>Collector</label><input id="s_name" value="${F('name')}" placeholder="Name as it should read"></div>
+      <div class="fg"><label>Piece</label><input id="s_piece" value="${esc(piece0)}" placeholder="e.g. Ren"></div>
+      <div class="fg"><label>Location</label><input id="s_location" value="${F('location')}" placeholder="City, Country"></div>
+      <div class="fg"><label>Date</label><input id="s_last_buy" value="${F('last_buy')}" placeholder="2026-06-01"></div>
+      <div class="fg"><label>Email</label><input id="s_email" value="${F('email')}"></div>
+      <div class="fg full"><label>Story — in their words</label><textarea id="s_notes" rows="4" placeholder="Where it lives now, what it's come to mean…">${F('notes')}</textarea></div>
+      <div class="fg full"><label>Images</label>
+        <div class="photos" id="photoZone"></div>
+        <input type="file" id="photoInput" accept="image/*" multiple style="display:none">
+        <button type="button" class="btn ghost tiny" id="photoAdd" style="align-self:flex-start;margin-top:8px">+ Add Images</button>
+      </div>
+    </div>
+    <div class="card-actions">
+      ${isNew?'<span></span>':'<button class="btn ghost" id="delBtn">Remove</button>'}
+      <div><button class="btn ghost" id="cancelBtn">Cancel</button>
+      <button class="btn" id="saveBtn">Save Story</button></div>
+    </div>`;
+  openScrim();
+  // ---- Images (same store as collector photos) ----
+  let formPhotos=[]; try{ const pp=JSON.parse(d.photos||"[]"); if(Array.isArray(pp)) formPhotos=pp; }catch(e){}
+  const photoZone=host.querySelector("#photoZone");
+  const photoAdd=host.querySelector("#photoAdd");
+  const photoUrl=p=> (synced&&sb)? sb.storage.from("collector-photos").getPublicUrl(p).data.publicUrl : p;
+  function renderPhotos(){
+    photoZone.innerHTML=formPhotos.map((p,idx)=>`<div class="thumb"><a href="${photoUrl(p)}" target="_blank" rel="noopener"><img src="${photoUrl(p)}" alt=""></a><button type="button" class="thumb-x" data-idx="${idx}" title="Remove">×</button></div>`).join("");
+    photoZone.querySelectorAll(".thumb-x").forEach(b=>b.onclick=async()=>{ const idx=+b.dataset.idx, p=formPhotos[idx]; formPhotos.splice(idx,1); renderPhotos(); if(synced&&sb){ try{ await sb.storage.from("collector-photos").remove([p]); }catch(e){} } });
+  }
+  renderPhotos();
+  if(!synced){ photoAdd.disabled=true; photoAdd.textContent="Sign in to attach images"; }
+  else{
+    photoAdd.onclick=()=>host.querySelector("#photoInput").click();
+    host.querySelector("#photoInput").onchange=async e=>{
+      const files=Array.from(e.target.files||[]); if(!files.length) return;
+      photoAdd.disabled=true; photoAdd.textContent="Uploading…";
+      for(const f of files){
+        const safe=f.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+        const path=`${d.acc}/${Date.now()}_${safe}`;
+        const { error }=await sb.storage.from("collector-photos").upload(path,f,{cacheControl:"3600",upsert:false});
+        if(error){ alert("Upload failed: "+error.message); } else { formPhotos.push(path); }
+      }
+      e.target.value=""; photoAdd.disabled=false; photoAdd.textContent="+ Add Images"; renderPhotos();
+    };
+  }
+  host.querySelector("#cancelBtn").onclick=closeScrim;
+  if(host.querySelector("#delBtn")) host.querySelector("#delBtn").onclick=()=>{ if(confirm("Remove this story from the archive?")){ removeRec(d); closeScrim(); } };
+  host.querySelector("#saveBtn").onclick=()=>{
+    const g=id=>host.querySelector("#"+id).value.trim();
+    const pieceVal=g("s_piece");
+    const pieces=(!isNew && pieceVal===piece0 && d.pieces) ? d.pieces : pieceVal;
+    const rec={...d, acc:d.acc, id:d.id, story:"Yes",
+      name:g("s_name"), email:g("s_email"), location:g("s_location"), last_buy:g("s_last_buy"),
+      pieces, notes:g("s_notes"), photos:JSON.stringify(formPhotos)};
     persist(rec, isNew); closeScrim();
   };
 }
