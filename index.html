@@ -36,40 +36,28 @@
   .sync.on .led{background:#6f9a5f} .sync.local .led{background:var(--tan)}
 
   /* ---------- Masthead ---------- */
-  header.mast{text-align:center;padding:18px 0 30px}
-  header.mast .mark{width:62px;height:auto;margin-bottom:14px;opacity:.92}
-  header.mast .logotype{width:230px;max-width:62%;height:auto;display:block;margin:0 auto}
+  header.mast{text-align:center;padding:26px 0 34px}
+  header.mast .logotype{width:300px;max-width:74%;height:auto;display:block;margin:0 auto 16px}
   header.mast .crest{font-family:var(--mono);font-size:10px;letter-spacing:.42em;text-transform:uppercase;
-        color:var(--tan);margin:0 0 16px;padding-left:.42em}
-  header.mast .tagline{font-style:italic;font-size:19px;color:var(--slate);margin:18px 0 0}
+        color:var(--tan);margin:0;padding-left:.42em}
+  header.mast .tagline{font-style:italic;font-size:19px;color:var(--slate);margin:16px 0 0}
 
-  /* ---------- Hero (the archive goal) ---------- */
-  .hero{position:relative;background:var(--ink);color:var(--ivory);overflow:hidden;
-        border:1px solid #1c1a18;margin-top:8px;min-height:340px;display:flex;align-items:center;justify-content:center}
-  .hero .art{position:absolute;inset:0;background:url("illustrations/botanical-gold.png") center bottom/contain no-repeat;
-        opacity:.9;pointer-events:none}
-  .hero .art.top{transform:scaleY(-1);top:-46%;opacity:.16}
-  .hero-inner{position:relative;text-align:center;padding:54px 20px}
-  .hero .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;padding-left:.4em}
-  .hero .count{font-family:var(--serif);font-size:128px;line-height:.92;letter-spacing:.01em;
-        font-feature-settings:"lnum";display:inline-block}
-  .hero .of{font-size:40px;color:var(--gold);font-style:italic;margin-left:6px}
-  .hero .label{font-style:italic;font-size:19px;color:rgba(255,251,240,.72);margin-top:10px}
-  .hero .track{height:2px;background:rgba(199,162,78,.25);max-width:360px;margin:26px auto 0;position:relative}
-  .hero .track i{display:block;height:100%;background:var(--gold);transition:width 1s cubic-bezier(.2,.8,.2,1)}
-
-  /* ---------- Stat strip ---------- */
-  .stats{display:flex;flex-wrap:wrap;border:1px solid var(--rule);border-top:none;background:var(--paper)}
-  .stat{flex:1;min-width:140px;text-align:center;padding:22px 14px;border-right:1px solid var(--rule);position:relative}
+  /* ---------- Dashboard (light) ---------- */
+  .dash{display:flex;flex-wrap:wrap;border:1px solid var(--rule);background:var(--paper)}
+  .stat{flex:1;min-width:130px;text-align:center;padding:24px 14px;border-right:1px solid var(--rule)}
   .stat:last-child{border-right:none}
-  .stat .n{font-family:var(--serif);font-size:50px;line-height:1;color:var(--sienna)}
-  .stat .k{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);margin-top:9px}
+  .stat .n{font-family:var(--serif);font-size:52px;line-height:1;color:var(--sienna)}
+  .stat .k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--slate);margin-top:9px}
+  .goal{flex-basis:100%;border-right:none;border-top:1px solid var(--rule);background:#e7dcc4;padding:18px 22px}
+  .goal .k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--sienna)}
+  .goal .bar{height:3px;background:rgba(159,85,27,.18);margin-top:12px;max-width:560px}
+  .goal .bar i{display:block;height:100%;background:var(--sienna);transition:width 1s cubic-bezier(.2,.8,.2,1)}
 
   /* ---------- Toolbar ---------- */
   .toolbar{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin:42px 0 10px}
   .toolbar .search{flex:1;min-width:220px;position:relative}
-  .search input{width:100%;font-family:var(--serif);font-size:21px;font-style:italic;color:var(--ink);
-        background:transparent;border:none;border-bottom:1px solid var(--rule);padding:8px 2px;outline:none}
+  .search input{width:100%;font-family:var(--serif);font-size:18px;font-style:italic;color:var(--ink);
+        background:var(--ivory);border:1px solid var(--rule);padding:13px 16px;outline:none;border-radius:0}
   .search input::placeholder{color:var(--tan);font-style:italic}
   .search input:focus{border-color:var(--sienna)}
   .filters{display:flex;gap:0;border:1px solid var(--rule)}
@@ -79,10 +67,8 @@
   .chip:hover{color:var(--sienna)}
   .chip.on{background:var(--ink);color:var(--ivory)}
   .add{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 22px;
-       border:1px solid var(--ink);background:var(--ink);color:var(--ivory);cursor:pointer;transition:.18s;display:flex;align-items:center;gap:9px}
+       border:1px solid var(--ink);background:var(--ink);color:var(--ivory);cursor:pointer;transition:.18s}
   .add:hover{background:var(--sienna);border-color:var(--sienna)}
-  .add img{width:16px;height:16px;filter:invert(1);transition:transform .4s ease}
-  .add:hover img{transform:rotate(20deg) scale(1.15)}
 
   /* ---------- Ledger ---------- */
   .ledger-head{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--tan);
@@ -94,15 +80,14 @@
   .entry .acc{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--tan)}
   .entry .who .nm{font-family:var(--serif);font-size:31px;line-height:1.05;transition:.16s}
   .entry:hover .who .nm{color:var(--sienna)}
-  .entry .who .nm .mk{display:inline-block;width:15px;vertical-align:-1px;margin-left:8px;opacity:.85}
+  .entry .who .nm .star{color:var(--verm);font-size:18px;margin-left:9px;vertical-align:2px}
   .entry .who .pieces{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--slate);margin-top:6px}
   .entry .lives{font-style:italic;font-size:16px;color:var(--slate)}
   .entry .sig{text-align:right;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
   .sig .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:8px;vertical-align:middle}
   .sig.High{color:var(--sienna)} .sig.High .dot{background:var(--sienna)}
   .sig.Med .dot{background:var(--tan)} .sig.Low .dot{background:var(--rule)}
-  .empty{text-align:center;padding:80px 20px;color:var(--slate);font-style:italic;font-size:21px}
-  .empty img{width:120px;opacity:.5;display:block;margin:0 auto 22px}
+  .empty{text-align:center;padding:90px 20px;color:var(--slate);font-style:italic;font-size:21px}
 
   /* ---------- Bottom actions ---------- */
   .actions{margin-top:26px;display:flex;gap:0;justify-content:flex-end;border:1px solid var(--rule);width:fit-content;margin-left:auto}
@@ -111,9 +96,9 @@
   .actions button:last-child{border-right:none}
   .actions button:hover{color:var(--sienna);background:var(--paper)}
 
-  /* ---------- Footer ---------- */
-  .foot{text-align:center;margin-top:70px;padding-top:26px;border-top:1px solid var(--rule)}
-  .foot img{width:38px;opacity:.55;margin-bottom:12px}
+  /* ---------- Footer (the only logomark on the page) ---------- */
+  .foot{text-align:center;margin-top:80px;padding-top:28px;border-top:1px solid var(--rule)}
+  .foot img{width:30px;opacity:.5;margin-bottom:13px}
   .foot .line{font-family:var(--mono);font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--tan)}
 
   /* ---------- Modal ---------- */
@@ -121,7 +106,6 @@
          padding:44px 20px;overflow:auto;z-index:50;backdrop-filter:blur(2px)}
   .scrim.show{display:flex}
   .card{background:var(--ivory);max-width:700px;width:100%;border:1px solid var(--rule);box-shadow:0 30px 70px var(--shadow);position:relative}
-  .card .emblem{position:absolute;right:30px;top:26px;width:58px;opacity:.9}
   .card-body{padding:46px 50px 30px}
   .card h2{font-family:var(--serif);font-size:54px;line-height:1;letter-spacing:.01em;margin:0 0 8px;max-width:80%}
   .card .acc-line{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--tan);margin-bottom:30px}
@@ -149,25 +133,23 @@
   .btn.ghost{background:transparent;color:var(--ink)}
   .btn.ghost:hover{color:var(--sienna);border-color:var(--sienna);background:transparent}
 
-  /* ---------- Gate ---------- */
-  .gate{position:fixed;inset:0;background:var(--ink);display:none;align-items:center;justify-content:center;z-index:80;overflow:hidden}
+  /* ---------- Gate (light) ---------- */
+  .gate{position:fixed;inset:0;background:var(--ivory);display:none;align-items:center;justify-content:center;z-index:80}
   .gate.show{display:flex}
-  .gate .art{position:absolute;inset:0;background:url("illustrations/botanical-gold.png") center bottom/contain no-repeat;opacity:.5}
-  .gate .inner{position:relative;text-align:center;max-width:360px;padding:30px}
-  .gate img.logo{width:200px;filter:invert(1) sepia(1) saturate(0) brightness(1.6);margin-bottom:6px}
-  .gate .crest{font-family:var(--mono);font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:28px}
-  .gate input{width:100%;text-align:center;font-family:var(--serif);font-size:18px;font-style:italic;color:var(--ivory);
-        background:transparent;border:none;border-bottom:1px solid rgba(199,162,78,.4);padding:11px;margin-bottom:16px;outline:none}
-  .gate input::placeholder{color:rgba(255,251,240,.4)}
-  .gate input:focus{border-color:var(--gold)}
-  .gate .btn{width:100%;background:var(--gold);border-color:var(--gold);color:var(--ink)}
-  .gate .btn:hover{background:var(--ivory);border-color:var(--ivory)}
-  .gate .msg{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--gold);min-height:20px;margin-top:16px}
+  .gate .inner{position:relative;text-align:center;max-width:340px;padding:30px}
+  .gate img.logo{width:230px;max-width:80%;margin-bottom:14px}
+  .gate .crest{font-family:var(--mono);font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:var(--tan);margin-bottom:30px}
+  .gate input{width:100%;text-align:center;font-family:var(--serif);font-size:18px;font-style:italic;color:var(--ink);
+        background:transparent;border:none;border-bottom:1px solid var(--rule);padding:11px;margin-bottom:16px;outline:none}
+  .gate input::placeholder{color:var(--tan)}
+  .gate input:focus{border-color:var(--sienna)}
+  .gate .btn{width:100%}
+  .gate .msg{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--sienna);min-height:20px;margin-top:16px}
 
   @media(max-width:720px){
     .entry{grid-template-columns:1fr;gap:6px} .entry .acc,.entry .sig{text-align:left}
     .fields,.form-grid{grid-template-columns:1fr}
-    .hero .count{font-size:88px} .card h2{font-size:38px}
+    .card h2{font-size:38px}
     .ledger-head{display:none}
   }
 </style>
@@ -189,26 +171,13 @@
 <div class="wrap">
 
   <header class="mast">
-    <p class="crest">Bureau of Provenance</p>
-    <img class="mark" src="logos/mark-animated.gif" alt="Maçon mark" onerror="this.src='logos/mark.png'">
     <img class="logotype" src="logos/logotype.png" alt="Maçon">
+    <p class="crest">Bureau of Provenance</p>
     <p class="tagline">An archive of every object, and every life it entered.</p>
   </header>
 
-  <!-- Hero: the archive's purpose -->
-  <section class="hero">
-    <div class="art top"></div>
-    <div class="art"></div>
-    <div class="hero-inner">
-      <div class="kicker">Toward Two Hundred</div>
-      <div><span class="count" id="hCount">0</span><span class="of" id="hOf">/ 200</span></div>
-      <div class="label">collectors who are genuinely in the world</div>
-      <div class="track"><i id="hBar" style="width:0%"></i></div>
-    </div>
-  </section>
-
-  <!-- Stat strip -->
-  <section class="stats" id="stats"></section>
+  <!-- Dashboard -->
+  <section class="dash" id="dash"></section>
 
   <!-- Toolbar -->
   <div class="toolbar">
@@ -220,7 +189,7 @@
       <button class="chip" data-sig="Low">Low</button>
       <button class="chip" data-sig="firstlook">First Look ★</button>
     </div>
-    <button class="add" id="addBtn"><img src="logos/mark.png" alt="">New Entry</button>
+    <button class="add" id="addBtn">+ New Entry</button>
   </div>
 
   <div class="ledger-head"><span>Accession · Name</span><span>Where it lives · Signal</span></div>
@@ -242,7 +211,6 @@
 <div class="scrim" id="scrim"><div class="card" id="cardHost"></div></div>
 
 <div class="gate" id="gate">
-  <div class="art"></div>
   <div class="inner">
     <img class="logo" src="logos/logotype.png" alt="Maçon">
     <div class="crest">Bureau of Provenance</div>
@@ -346,16 +314,8 @@ function countPieces(p){ if(!p||!p.trim()) return 0; return p.split(",").map(s=>
 function nextAcc(){ let max=0; data.forEach(d=>{ const m=/M-(\d+)/.exec(d.acc||""); if(m) max=Math.max(max,+m[1]); }); return "M-"+String(max+1).padStart(3,"0"); }
 function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function setSync(cls,txt){ const el=document.getElementById("sync"); el.className="sync "+cls; document.getElementById("syncTxt").textContent=txt; }
-const MARK="logos/mark.png";
 
 /* ---------------- Dashboard ---------------- */
-let _lastTotal=0;
-function animateCount(el,to){
-  const from=_lastTotal||0; const dur=700; const t0=performance.now();
-  function step(now){ const p=Math.min(1,(now-t0)/dur); const e=1-Math.pow(1-p,3);
-    el.textContent=Math.round(from+(to-from)*e); if(p<1) requestAnimationFrame(step); }
-  requestAnimationFrame(step); _lastTotal=to;
-}
 function renderDash(){
   const total=data.length;
   const high=data.filter(d=>d.signal==="High").length;
@@ -363,13 +323,14 @@ function renderDash(){
   const gifts=data.filter(d=>d.gift_self==="Gift").length;
   const pieces=data.reduce((s,d)=>s+countPieces(d.pieces),0);
   const pct=Math.min(100, Math.round(total/200*100));
-  animateCount(document.getElementById("hCount"), total);
-  document.getElementById("hBar").style.width=pct+"%";
-  document.getElementById("stats").innerHTML=`
+  document.getElementById("dash").innerHTML=`
+    <div class="stat"><div class="n">${total}</div><div class="k">Collectors</div></div>
     <div class="stat"><div class="n">${high}</div><div class="k">High Signal</div></div>
     <div class="stat"><div class="n">${fl}</div><div class="k">First Look</div></div>
     <div class="stat"><div class="n">${gifts}</div><div class="k">Gifts Given</div></div>
-    <div class="stat"><div class="n">${pieces}</div><div class="k">Pieces in the World</div></div>`;
+    <div class="stat"><div class="n">${pieces}</div><div class="k">Pieces in the World</div></div>
+    <div class="goal"><div class="k">Toward 200 collectors who are genuinely in the world — ${total} / 200</div>
+      <div class="bar"><i style="width:${pct}%"></i></div></div>`;
 }
 
 /* ---------------- Ledger ---------------- */
@@ -381,11 +342,11 @@ function renderLedger(){
     rows=rows.filter(d=>[d.name,d.pieces,d.lives,d.details,d.why,d.notes,d.acc].some(v=>(v||"").toLowerCase().includes(q))); }
   rows.sort((a,b)=>(SIG_ORDER[a.signal]??3)-(SIG_ORDER[b.signal]??3)||(a.acc||"").localeCompare(b.acc||""));
   const host=document.getElementById("ledger");
-  if(!rows.length){ host.innerHTML=`<div class="empty"><img src="${MARK}" alt="">The archive begins with the first name you add.</div>`; return; }
+  if(!rows.length){ host.innerHTML=`<div class="empty">No entries yet. The archive begins with the first name you add.</div>`; return; }
   host.innerHTML=rows.map(d=>{ const i=data.indexOf(d);
     return `<div class="entry" data-i="${i}">
       <div class="acc">${esc(d.acc)}</div>
-      <div class="who"><div class="nm">${esc(d.name||"—")}${d.first_look?`<img class="mk" src="${MARK}" alt="First Look">`:''}</div>
+      <div class="who"><div class="nm">${esc(d.name||"—")}${d.first_look?'<span class="star">★</span>':''}</div>
         <div class="pieces">${esc(d.pieces||"—")}</div></div>
       <div class="lives">${esc(d.lives||"")}</div>
       <div class="sig ${d.signal||''}">${esc(d.signal||"")}<span class="dot"></span></div>
@@ -397,7 +358,6 @@ function renderLedger(){
 function showCard(i){
   const d=data[i]; const host=document.getElementById("cardHost");
   host.innerHTML=`
-    <img class="emblem" src="${MARK}" alt="">
     <div class="card-body">
       <h2>${esc(d.name||"—")}</h2>
       <div class="acc-line">${esc(d.acc)} &nbsp;·&nbsp; ${esc(d.signal||"unrated")}${d.first_look?' &nbsp;·&nbsp; First Look ★':''}</div>
