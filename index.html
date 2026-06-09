@@ -4,151 +4,178 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maçon · Bureau of Provenance</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* ---------- Brand fonts ---------- */
+  @font-face{font-family:"Louize";src:url("fonts/louize.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+  @font-face{font-family:"Louize";src:url("fonts/louize-italic.woff2") format("woff2");font-weight:400;font-style:italic;font-display:swap}
+  @font-face{font-family:"DM Mono";src:url("fonts/dm-mono-300.woff2") format("woff2");font-weight:300;font-style:normal;font-display:swap}
+
   :root{
-    --ink:#2b2622;
-    --paper:#f4efe4;
-    --bronze:#8c6a47;
-    --bronze-deep:#6f5235;
-    --slate:#6c6a63;
-    --rule:#c9bba6;
-    --seal:#9c4a3a;
-    --high:#e9d9c2;
-    --shadow:rgba(43,38,34,.10);
+    --ink:#282523; --ivory:#FFFBF0; --paper:#F6F0E3;
+    --tan:#CFA886; --sienna:#9F551B; --verm:#DF3131; --gold:#C7A24E;
+    --slate:#8a7f6f; --rule:#ddd2bd; --shadow:rgba(40,37,35,.13);
+    --serif:"Louize",Georgia,"Times New Roman",serif;
+    --mono:"DM Mono",ui-monospace,"SF Mono",Menlo,monospace;
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
   body{
-    background:var(--paper);
-    color:var(--ink);
-    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
-    font-size:15px;
-    line-height:1.55;
-    font-weight:400;
-    background-image:radial-gradient(circle at 20% 10%, rgba(0,0,0,.012) 0, transparent 60%),
-                     radial-gradient(circle at 80% 80%, rgba(0,0,0,.012) 0, transparent 60%);
-    -webkit-font-smoothing:antialiased;
+    background:var(--ivory); color:var(--ink); font-family:var(--serif);
+    font-size:17px; line-height:1.5; -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 15% 0%,rgba(0,0,0,.015) 0,transparent 55%),
+                     radial-gradient(circle at 85% 100%,rgba(0,0,0,.015) 0,transparent 55%);
   }
-  .wrap{max-width:1080px;margin:0 auto;padding:48px 32px 96px}
-  .serif{font-family:"Cormorant Garamond",Georgia,serif}
-
-  /* ---------- Masthead ---------- */
-  header.mast{text-align:center;padding-bottom:28px;border-bottom:1px solid var(--rule);margin-bottom:8px}
-  .crest{font-size:11px;letter-spacing:.34em;color:var(--bronze);text-transform:uppercase;margin:0 0 14px;font-weight:500;padding-left:.34em}
-  .wordmark{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:54px;letter-spacing:.18em;margin:0;line-height:1;padding-left:.18em}
-  .tagline{font-style:italic;color:var(--slate);font-size:15px;margin:12px 0 0;letter-spacing:.01em;font-family:"Cormorant Garamond",serif}
+  .mono{font-family:var(--mono)}
+  .wrap{max-width:1120px;margin:0 auto;padding:34px 34px 110px}
 
   /* ---------- Sync badge ---------- */
-  .sync{position:fixed;top:14px;right:16px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
-        color:var(--slate);display:flex;align-items:center;gap:7px;z-index:40}
-  .sync .led{width:8px;height:8px;border-radius:50%;background:var(--rule)}
-  .sync.on .led{background:#5a8a5a}
-  .sync.local .led{background:var(--bronze)}
-  .sync a{color:var(--slate);cursor:pointer;border-bottom:1px solid var(--rule)}
+  .sync{position:fixed;top:14px;right:18px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+        text-transform:uppercase;color:var(--slate);display:flex;align-items:center;gap:7px;z-index:40;
+        background:rgba(246,240,227,.8);padding:6px 11px;border:1px solid var(--rule);backdrop-filter:blur(4px)}
+  .sync .led{width:7px;height:7px;border-radius:50%;background:var(--rule)}
+  .sync.on .led{background:#6f9a5f} .sync.local .led{background:var(--tan)}
 
-  /* ---------- Dashboard ---------- */
-  .dash{display:flex;flex-wrap:wrap;justify-content:center;gap:0;margin:30px 0 6px;border:1px solid var(--rule);background:rgba(255,255,255,.25)}
-  .stat{flex:1;min-width:120px;text-align:center;padding:16px 12px;border-right:1px solid var(--rule)}
+  /* ---------- Masthead ---------- */
+  header.mast{text-align:center;padding:18px 0 30px}
+  header.mast .mark{width:62px;height:auto;margin-bottom:14px;opacity:.92}
+  header.mast .logotype{width:230px;max-width:62%;height:auto;display:block;margin:0 auto}
+  header.mast .crest{font-family:var(--mono);font-size:10px;letter-spacing:.42em;text-transform:uppercase;
+        color:var(--tan);margin:0 0 16px;padding-left:.42em}
+  header.mast .tagline{font-style:italic;font-size:19px;color:var(--slate);margin:18px 0 0}
+
+  /* ---------- Hero (the archive goal) ---------- */
+  .hero{position:relative;background:var(--ink);color:var(--ivory);overflow:hidden;
+        border:1px solid #1c1a18;margin-top:8px;min-height:340px;display:flex;align-items:center;justify-content:center}
+  .hero .art{position:absolute;inset:0;background:url("illustrations/botanical-gold.png") center bottom/contain no-repeat;
+        opacity:.9;pointer-events:none}
+  .hero .art.top{transform:scaleY(-1);top:-46%;opacity:.16}
+  .hero-inner{position:relative;text-align:center;padding:54px 20px}
+  .hero .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;padding-left:.4em}
+  .hero .count{font-family:var(--serif);font-size:128px;line-height:.92;letter-spacing:.01em;
+        font-feature-settings:"lnum";display:inline-block}
+  .hero .of{font-size:40px;color:var(--gold);font-style:italic;margin-left:6px}
+  .hero .label{font-style:italic;font-size:19px;color:rgba(255,251,240,.72);margin-top:10px}
+  .hero .track{height:2px;background:rgba(199,162,78,.25);max-width:360px;margin:26px auto 0;position:relative}
+  .hero .track i{display:block;height:100%;background:var(--gold);transition:width 1s cubic-bezier(.2,.8,.2,1)}
+
+  /* ---------- Stat strip ---------- */
+  .stats{display:flex;flex-wrap:wrap;border:1px solid var(--rule);border-top:none;background:var(--paper)}
+  .stat{flex:1;min-width:140px;text-align:center;padding:22px 14px;border-right:1px solid var(--rule);position:relative}
   .stat:last-child{border-right:none}
-  .stat .num{font-family:"Cormorant Garamond",serif;font-size:36px;font-weight:600;color:var(--bronze-deep);line-height:1}
-  .stat .lbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--slate);margin-top:8px;font-weight:500}
-  .goal{flex-basis:100%;border-right:none;border-top:1px solid var(--rule);background:var(--high);padding:14px}
-  .goal .lbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--bronze-deep);font-weight:500}
-  .goal .bar{height:6px;background:var(--paper);border:1px solid var(--rule);margin:10px auto 0;max-width:520px}
-  .goal .bar i{display:block;height:100%;background:var(--bronze)}
+  .stat .n{font-family:var(--serif);font-size:50px;line-height:1;color:var(--sienna)}
+  .stat .k{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);margin-top:9px}
 
   /* ---------- Toolbar ---------- */
-  .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:34px 0 18px}
-  .toolbar .search{flex:1;min-width:200px}
-  input,select,textarea{font-family:"Inter",sans-serif;font-size:14px;color:var(--ink);background:rgba(255,255,255,.5);
-        border:1px solid var(--rule);padding:9px 12px;border-radius:0;outline:none}
-  input:focus,select:focus,textarea:focus{border-color:var(--bronze)}
-  input.search{width:100%}
-  .filters{display:flex;gap:6px}
-  .chip{font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:8px 14px;border:1px solid var(--rule);
-        background:transparent;color:var(--slate);cursor:pointer;transition:.15s;font-weight:500}
-  .chip:hover{border-color:var(--bronze);color:var(--bronze)}
-  .chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-  .btn{font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:10px 20px;border:1px solid var(--ink);
-       background:var(--ink);color:var(--paper);cursor:pointer;transition:.15s;font-weight:500}
-  .btn:hover{background:var(--bronze-deep);border-color:var(--bronze-deep)}
-  .btn.ghost{background:transparent;color:var(--ink)}
-  .btn.ghost:hover{color:var(--bronze);border-color:var(--bronze)}
-  .btn.tiny{font-size:11px;padding:7px 13px;letter-spacing:.08em}
+  .toolbar{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin:42px 0 10px}
+  .toolbar .search{flex:1;min-width:220px;position:relative}
+  .search input{width:100%;font-family:var(--serif);font-size:21px;font-style:italic;color:var(--ink);
+        background:transparent;border:none;border-bottom:1px solid var(--rule);padding:8px 2px;outline:none}
+  .search input::placeholder{color:var(--tan);font-style:italic}
+  .search input:focus{border-color:var(--sienna)}
+  .filters{display:flex;gap:0;border:1px solid var(--rule)}
+  .chip{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:10px 14px;
+        background:transparent;color:var(--slate);cursor:pointer;border:none;border-right:1px solid var(--rule);transition:.15s}
+  .chip:last-child{border-right:none}
+  .chip:hover{color:var(--sienna)}
+  .chip.on{background:var(--ink);color:var(--ivory)}
+  .add{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 22px;
+       border:1px solid var(--ink);background:var(--ink);color:var(--ivory);cursor:pointer;transition:.18s;display:flex;align-items:center;gap:9px}
+  .add:hover{background:var(--sienna);border-color:var(--sienna)}
+  .add img{width:16px;height:16px;filter:invert(1);transition:transform .4s ease}
+  .add:hover img{transform:rotate(20deg) scale(1.15)}
 
   /* ---------- Ledger ---------- */
-  .ledger{border-top:1px solid var(--rule)}
-  .entry{border-bottom:1px solid var(--rule);padding:18px 6px;display:grid;
-         grid-template-columns:88px 1fr 150px 90px;gap:18px;align-items:baseline;cursor:pointer;transition:.12s}
-  .entry:hover{background:rgba(255,255,255,.45)}
-  .entry .acc{font-family:"Cormorant Garamond",serif;font-size:15px;letter-spacing:.08em;color:var(--bronze)}
-  .entry .who .nm{font-family:"Cormorant Garamond",serif;font-size:24px;font-weight:500;line-height:1.1}
-  .entry .who .pieces{color:var(--slate);font-size:13px;margin-top:4px}
-  .entry .lives{font-size:13px;color:var(--slate);font-style:italic;font-family:"Cormorant Garamond",serif}
-  .entry .sig{text-align:right;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:500}
-  .sig .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle}
-  .sig.High{color:var(--bronze-deep);font-weight:600}
-  .sig.High .dot{background:var(--bronze)}
-  .sig.Med .dot{background:var(--slate)}
-  .sig.Low .dot{background:var(--rule)}
-  .star{color:var(--seal);margin-left:6px}
-  .empty{text-align:center;padding:70px 20px;color:var(--slate);font-style:italic;font-family:"Cormorant Garamond",serif;font-size:18px}
+  .ledger-head{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--tan);
+        display:flex;justify-content:space-between;padding:0 4px 10px;border-bottom:1px solid var(--ink);margin-top:6px}
+  .ledger{border-top:none}
+  .entry{border-bottom:1px solid var(--rule);padding:22px 4px;display:grid;
+         grid-template-columns:96px 1fr 200px 96px;gap:22px;align-items:center;cursor:pointer;transition:.16s}
+  .entry:hover{background:var(--paper);padding-left:14px;padding-right:14px}
+  .entry .acc{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--tan)}
+  .entry .who .nm{font-family:var(--serif);font-size:31px;line-height:1.05;transition:.16s}
+  .entry:hover .who .nm{color:var(--sienna)}
+  .entry .who .nm .mk{display:inline-block;width:15px;vertical-align:-1px;margin-left:8px;opacity:.85}
+  .entry .who .pieces{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--slate);margin-top:6px}
+  .entry .lives{font-style:italic;font-size:16px;color:var(--slate)}
+  .entry .sig{text-align:right;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+  .sig .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:8px;vertical-align:middle}
+  .sig.High{color:var(--sienna)} .sig.High .dot{background:var(--sienna)}
+  .sig.Med .dot{background:var(--tan)} .sig.Low .dot{background:var(--rule)}
+  .empty{text-align:center;padding:80px 20px;color:var(--slate);font-style:italic;font-size:21px}
+  .empty img{width:120px;opacity:.5;display:block;margin:0 auto 22px}
+
+  /* ---------- Bottom actions ---------- */
+  .actions{margin-top:26px;display:flex;gap:0;justify-content:flex-end;border:1px solid var(--rule);width:fit-content;margin-left:auto}
+  .actions button{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+        padding:9px 15px;background:transparent;border:none;border-right:1px solid var(--rule);color:var(--slate);cursor:pointer}
+  .actions button:last-child{border-right:none}
+  .actions button:hover{color:var(--sienna);background:var(--paper)}
+
+  /* ---------- Footer ---------- */
+  .foot{text-align:center;margin-top:70px;padding-top:26px;border-top:1px solid var(--rule)}
+  .foot img{width:38px;opacity:.55;margin-bottom:12px}
+  .foot .line{font-family:var(--mono);font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--tan)}
 
   /* ---------- Modal ---------- */
-  .scrim{position:fixed;inset:0;background:rgba(43,38,34,.45);display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow:auto;z-index:50}
+  .scrim{position:fixed;inset:0;background:rgba(40,37,35,.5);display:none;align-items:flex-start;justify-content:center;
+         padding:44px 20px;overflow:auto;z-index:50;backdrop-filter:blur(2px)}
   .scrim.show{display:flex}
-  .card{background:var(--paper);max-width:680px;width:100%;border:1px solid var(--rule);box-shadow:0 24px 60px var(--shadow);position:relative}
-  .card .seal{position:absolute;right:24px;top:22px;width:74px;height:74px;border:2px solid var(--seal);border-radius:50%;
-        color:var(--seal);display:flex;align-items:center;justify-content:center;text-align:center;
-        font-family:"Cormorant Garamond",serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;line-height:1.25;opacity:.7;transform:rotate(-8deg)}
-  .card-body{padding:40px 44px 32px}
-  .card h2{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:40px;letter-spacing:.04em;margin:0 0 4px}
-  .card .acc-line{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--bronze);margin-bottom:26px;font-weight:500}
-  .fields{display:grid;grid-template-columns:1fr 1fr;gap:2px 28px}
-  .field{padding:11px 0;border-bottom:1px solid var(--rule)}
+  .card{background:var(--ivory);max-width:700px;width:100%;border:1px solid var(--rule);box-shadow:0 30px 70px var(--shadow);position:relative}
+  .card .emblem{position:absolute;right:30px;top:26px;width:58px;opacity:.9}
+  .card-body{padding:46px 50px 30px}
+  .card h2{font-family:var(--serif);font-size:54px;line-height:1;letter-spacing:.01em;margin:0 0 8px;max-width:80%}
+  .card .acc-line{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--tan);margin-bottom:30px}
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:0 34px}
+  .field{padding:13px 0;border-bottom:1px solid var(--rule)}
   .field.full{grid-column:1/-1}
-  .field label{display:block;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);margin-bottom:5px;font-weight:600}
-  .field .val{font-size:15px;min-height:21px}
+  .field label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);margin-bottom:6px}
+  .field .val{font-size:18px;min-height:23px}
   .field .val:empty::before{content:"—";color:var(--rule)}
-  .field .val.script{font-style:italic;font-size:17px;font-family:"Cormorant Garamond",serif}
-  .card-actions{display:flex;justify-content:space-between;gap:10px;padding:20px 44px 34px}
+  .field .val.script{font-style:italic;font-size:21px;line-height:1.35}
+  .card-actions{display:flex;justify-content:space-between;gap:10px;padding:18px 50px 38px}
 
   /* ---------- Form ---------- */
-  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 24px;padding:8px 44px 10px}
-  .form-grid .fg{display:flex;flex-direction:column}
-  .form-grid .fg.full{grid-column:1/-1}
-  .form-grid label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);margin-bottom:6px;font-weight:600}
-  .form-grid textarea{resize:vertical;min-height:54px;font-family:"Inter",sans-serif}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px 34px;padding:6px 50px 12px}
+  .fg{display:flex;flex-direction:column} .fg.full{grid-column:1/-1}
+  .fg label{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);margin-bottom:7px}
+  .fg input,.fg select,.fg textarea{font-family:var(--serif);font-size:18px;color:var(--ink);background:transparent;
+        border:none;border-bottom:1px solid var(--rule);padding:7px 2px;outline:none;border-radius:0}
+  .fg textarea{font-style:italic;resize:vertical;min-height:46px;line-height:1.4}
+  .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--sienna)}
 
-  /* ---------- Sign-in gate ---------- */
-  .gate{position:fixed;inset:0;background:var(--paper);display:none;align-items:center;justify-content:center;z-index:80}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;padding:11px 22px;
+       border:1px solid var(--ink);background:var(--ink);color:var(--ivory);cursor:pointer;transition:.18s}
+  .btn:hover{background:var(--sienna);border-color:var(--sienna)}
+  .btn.ghost{background:transparent;color:var(--ink)}
+  .btn.ghost:hover{color:var(--sienna);border-color:var(--sienna);background:transparent}
+
+  /* ---------- Gate ---------- */
+  .gate{position:fixed;inset:0;background:var(--ink);display:none;align-items:center;justify-content:center;z-index:80;overflow:hidden}
   .gate.show{display:flex}
-  .gate .inner{text-align:center;max-width:380px;padding:30px}
-  .gate .wordmark{font-size:44px;margin-bottom:8px}
-  .gate p{color:var(--slate);font-family:"Cormorant Garamond",serif;font-style:italic;font-size:17px;margin:0 0 26px}
-  .gate input{width:100%;text-align:center;margin-bottom:14px;padding:12px}
-  .gate .msg{font-size:13px;color:var(--bronze-deep);min-height:20px;margin-top:14px}
+  .gate .art{position:absolute;inset:0;background:url("illustrations/botanical-gold.png") center bottom/contain no-repeat;opacity:.5}
+  .gate .inner{position:relative;text-align:center;max-width:360px;padding:30px}
+  .gate img.logo{width:200px;filter:invert(1) sepia(1) saturate(0) brightness(1.6);margin-bottom:6px}
+  .gate .crest{font-family:var(--mono);font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:28px}
+  .gate input{width:100%;text-align:center;font-family:var(--serif);font-size:18px;font-style:italic;color:var(--ivory);
+        background:transparent;border:none;border-bottom:1px solid rgba(199,162,78,.4);padding:11px;margin-bottom:16px;outline:none}
+  .gate input::placeholder{color:rgba(255,251,240,.4)}
+  .gate input:focus{border-color:var(--gold)}
+  .gate .btn{width:100%;background:var(--gold);border-color:var(--gold);color:var(--ink)}
+  .gate .btn:hover{background:var(--ivory);border-color:var(--ivory)}
+  .gate .msg{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--gold);min-height:20px;margin-top:16px}
 
-  .foot{text-align:center;margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--bronze);font-weight:500}
-
-  @media(max-width:680px){
-    .entry{grid-template-columns:1fr;gap:4px}
-    .entry .acc,.entry .sig{text-align:left}
+  @media(max-width:720px){
+    .entry{grid-template-columns:1fr;gap:6px} .entry .acc,.entry .sig{text-align:left}
     .fields,.form-grid{grid-template-columns:1fr}
-    .wordmark{font-size:38px}
-    .sync{position:static;justify-content:center;margin-bottom:10px}
+    .hero .count{font-size:88px} .card h2{font-size:38px}
+    .ledger-head{display:none}
   }
 </style>
 </head>
 <body>
 
-<!-- ====================================================================
-     CONFIG — paste your Supabase project values here to enable sync.
-     Leave blank to run in local-only mode (data stays in this browser).
-     Setup instructions are in SETUP.md alongside this file.
+<!-- =====================================================================
+     CONFIG — Supabase project values for cross-device sync.
 ==================================================================== -->
 <script>
   const CONFIG = {
@@ -160,16 +187,32 @@
 <div class="sync" id="sync"><span class="led"></span><span id="syncTxt">Local mode</span></div>
 
 <div class="wrap">
+
   <header class="mast">
     <p class="crest">Bureau of Provenance</p>
-    <h1 class="wordmark">MAÇON</h1>
+    <img class="mark" src="logos/mark-animated.gif" alt="Maçon mark" onerror="this.src='logos/mark.png'">
+    <img class="logotype" src="logos/logotype.png" alt="Maçon">
     <p class="tagline">An archive of every object, and every life it entered.</p>
   </header>
 
-  <section class="dash" id="dash"></section>
+  <!-- Hero: the archive's purpose -->
+  <section class="hero">
+    <div class="art top"></div>
+    <div class="art"></div>
+    <div class="hero-inner">
+      <div class="kicker">Toward Two Hundred</div>
+      <div><span class="count" id="hCount">0</span><span class="of" id="hOf">/ 200</span></div>
+      <div class="label">collectors who are genuinely in the world</div>
+      <div class="track"><i id="hBar" style="width:0%"></i></div>
+    </div>
+  </section>
 
+  <!-- Stat strip -->
+  <section class="stats" id="stats"></section>
+
+  <!-- Toolbar -->
   <div class="toolbar">
-    <div class="search"><input class="search" id="q" placeholder="Search names, pieces, stories…"></div>
+    <div class="search"><input id="q" placeholder="Search the archive — names, pieces, stories…"></div>
     <div class="filters">
       <button class="chip on" data-sig="all">All</button>
       <button class="chip" data-sig="High">High</button>
@@ -177,31 +220,35 @@
       <button class="chip" data-sig="Low">Low</button>
       <button class="chip" data-sig="firstlook">First Look ★</button>
     </div>
-    <button class="btn" id="addBtn">+ New Entry</button>
+    <button class="add" id="addBtn"><img src="logos/mark.png" alt="">New Entry</button>
   </div>
 
+  <div class="ledger-head"><span>Accession · Name</span><span>Where it lives · Signal</span></div>
   <section class="ledger" id="ledger"></section>
 
-  <div style="margin-top:24px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">
-    <button class="btn ghost tiny" id="exportJson">Export (JSON)</button>
-    <button class="btn ghost tiny" id="exportCsv">Export (CSV)</button>
-    <button class="btn ghost tiny" id="importBtn">Import JSON</button>
+  <div class="actions">
+    <button id="exportJson">Export · JSON</button>
+    <button id="exportCsv">Export · CSV</button>
+    <button id="importBtn">Import</button>
     <input type="file" id="importFile" accept="application/json" style="display:none">
   </div>
 
-  <p class="foot">Made by Hand · Artifacts of Love</p>
+  <footer class="foot">
+    <img src="logos/mark.png" alt="">
+    <div class="line">Made by Hand · Artifacts of Love</div>
+  </footer>
 </div>
 
 <div class="scrim" id="scrim"><div class="card" id="cardHost"></div></div>
 
-<!-- Sign-in gate (only used when sync is configured) -->
 <div class="gate" id="gate">
+  <div class="art"></div>
   <div class="inner">
-    <h1 class="wordmark">MAÇON</h1>
-    <p>Bureau of Provenance — for keepers of the archive.</p>
+    <img class="logo" src="logos/logotype.png" alt="Maçon">
+    <div class="crest">Bureau of Provenance</div>
     <input id="gateEmail" type="email" placeholder="email" autocomplete="username">
     <input id="gatePass" type="password" placeholder="password" autocomplete="current-password">
-    <button class="btn" id="gateBtn" style="width:100%">Sign in</button>
+    <button class="btn" id="gateBtn">Enter the Archive</button>
     <div class="msg" id="gateMsg"></div>
   </div>
 </div>
@@ -236,7 +283,7 @@ const SEED = [
 let data = [];
 let filter = "all";
 let query = "";
-let sb = null;           // supabase client
+let sb = null;
 let synced = false;
 
 /* ---------------- Storage layer ---------------- */
@@ -299,8 +346,16 @@ function countPieces(p){ if(!p||!p.trim()) return 0; return p.split(",").map(s=>
 function nextAcc(){ let max=0; data.forEach(d=>{ const m=/M-(\d+)/.exec(d.acc||""); if(m) max=Math.max(max,+m[1]); }); return "M-"+String(max+1).padStart(3,"0"); }
 function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function setSync(cls,txt){ const el=document.getElementById("sync"); el.className="sync "+cls; document.getElementById("syncTxt").textContent=txt; }
+const MARK="logos/mark.png";
 
 /* ---------------- Dashboard ---------------- */
+let _lastTotal=0;
+function animateCount(el,to){
+  const from=_lastTotal||0; const dur=700; const t0=performance.now();
+  function step(now){ const p=Math.min(1,(now-t0)/dur); const e=1-Math.pow(1-p,3);
+    el.textContent=Math.round(from+(to-from)*e); if(p<1) requestAnimationFrame(step); }
+  requestAnimationFrame(step); _lastTotal=to;
+}
 function renderDash(){
   const total=data.length;
   const high=data.filter(d=>d.signal==="High").length;
@@ -308,14 +363,13 @@ function renderDash(){
   const gifts=data.filter(d=>d.gift_self==="Gift").length;
   const pieces=data.reduce((s,d)=>s+countPieces(d.pieces),0);
   const pct=Math.min(100, Math.round(total/200*100));
-  document.getElementById("dash").innerHTML=`
-    <div class="stat"><div class="num">${total}</div><div class="lbl">Collectors</div></div>
-    <div class="stat"><div class="num">${high}</div><div class="lbl">High Signal</div></div>
-    <div class="stat"><div class="num">${fl}</div><div class="lbl">First Look</div></div>
-    <div class="stat"><div class="num">${gifts}</div><div class="lbl">Gifts Given</div></div>
-    <div class="stat"><div class="num">${pieces}</div><div class="lbl">Pieces in the World</div></div>
-    <div class="goal"><div class="lbl">Toward 200 collectors who are genuinely in the world — ${total} / 200</div>
-      <div class="bar"><i style="width:${pct}%"></i></div></div>`;
+  animateCount(document.getElementById("hCount"), total);
+  document.getElementById("hBar").style.width=pct+"%";
+  document.getElementById("stats").innerHTML=`
+    <div class="stat"><div class="n">${high}</div><div class="k">High Signal</div></div>
+    <div class="stat"><div class="n">${fl}</div><div class="k">First Look</div></div>
+    <div class="stat"><div class="n">${gifts}</div><div class="k">Gifts Given</div></div>
+    <div class="stat"><div class="n">${pieces}</div><div class="k">Pieces in the World</div></div>`;
 }
 
 /* ---------------- Ledger ---------------- */
@@ -327,14 +381,14 @@ function renderLedger(){
     rows=rows.filter(d=>[d.name,d.pieces,d.lives,d.details,d.why,d.notes,d.acc].some(v=>(v||"").toLowerCase().includes(q))); }
   rows.sort((a,b)=>(SIG_ORDER[a.signal]??3)-(SIG_ORDER[b.signal]??3)||(a.acc||"").localeCompare(b.acc||""));
   const host=document.getElementById("ledger");
-  if(!rows.length){ host.innerHTML=`<div class="empty">No entries yet. The archive begins with the first name you add.</div>`; return; }
+  if(!rows.length){ host.innerHTML=`<div class="empty"><img src="${MARK}" alt="">The archive begins with the first name you add.</div>`; return; }
   host.innerHTML=rows.map(d=>{ const i=data.indexOf(d);
     return `<div class="entry" data-i="${i}">
       <div class="acc">${esc(d.acc)}</div>
-      <div class="who"><div class="nm">${esc(d.name||"—")}${d.first_look?'<span class="star">★</span>':''}</div>
-        <div class="pieces">${esc(d.pieces||"")}</div></div>
+      <div class="who"><div class="nm">${esc(d.name||"—")}${d.first_look?`<img class="mk" src="${MARK}" alt="First Look">`:''}</div>
+        <div class="pieces">${esc(d.pieces||"—")}</div></div>
       <div class="lives">${esc(d.lives||"")}</div>
-      <div class="sig ${d.signal||''}"><span class="dot"></span>${esc(d.signal||"")}</div>
+      <div class="sig ${d.signal||''}">${esc(d.signal||"")}<span class="dot"></span></div>
     </div>`; }).join("");
   host.querySelectorAll(".entry").forEach(el=>el.onclick=()=>showCard(+el.dataset.i));
 }
@@ -343,7 +397,7 @@ function renderLedger(){
 function showCard(i){
   const d=data[i]; const host=document.getElementById("cardHost");
   host.innerHTML=`
-    <div class="seal">Maçon<br>Bureau of<br>Provenance</div>
+    <img class="emblem" src="${MARK}" alt="">
     <div class="card-body">
       <h2>${esc(d.name||"—")}</h2>
       <div class="acc-line">${esc(d.acc)} &nbsp;·&nbsp; ${esc(d.signal||"unrated")}${d.first_look?' &nbsp;·&nbsp; First Look ★':''}</div>
@@ -427,7 +481,7 @@ async function gateSignIn(){
   const email=document.getElementById("gateEmail").value.trim();
   const password=document.getElementById("gatePass").value;
   if(!email||!password){ document.getElementById("gateMsg").textContent="Enter your email and password."; return; }
-  document.getElementById("gateMsg").textContent="Signing in…";
+  document.getElementById("gateMsg").textContent="Opening…";
   const { error } = await sb.auth.signInWithPassword({ email, password });
   document.getElementById("gateMsg").textContent = error ? error.message : "";
 }
