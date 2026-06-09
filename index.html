@@ -200,6 +200,7 @@
   .provenance.switching{opacity:0}
   .prov-intro{max-width:720px;margin:0 auto 70px;text-align:center}
   .provenance.is-empty .prov-intro{margin-bottom:0}
+  .provenance.is-empty .prov-intro h2{font-size:40px}
   .prov-intro .btn{margin-top:30px}
   .story{cursor:pointer}
   .prov-intro .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--bronze)}
@@ -249,16 +250,16 @@
   .fcard-img img{width:100%;height:100%;object-fit:cover;display:block}
   .fcard-img::after{content:"";position:absolute;left:0;right:0;bottom:0;height:58%;background:linear-gradient(to top,#fff,rgba(255,255,255,0));pointer-events:none;z-index:1}
   .fcard-body{position:relative;flex:1;min-width:0;padding:16px 18px}
-  .fcard-top{display:flex;align-items:stretch;gap:13px}
-  .fcard .fav-av{align-self:stretch;aspect-ratio:1;flex:0 0 auto;position:relative;border-radius:8px;overflow:hidden;background:var(--paper-2)}
+  .fcard-top{display:flex;align-items:center;gap:13px}
+  .fcard .fav-av{width:46px;height:46px;flex:0 0 auto;position:relative;border-radius:8px;overflow:hidden;background:var(--paper-2)}
   .fcard .fav-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .fcard .ftitle{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
   .fcard .fn{font-family:var(--sans);font-variant-caps:all-small-caps;font-size:10pt;font-weight:500;letter-spacing:.08em;line-height:1.1;color:#8f897e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:16pt;line-height:1.15;color:var(--ink);margin-top:6px}
-  .daychip{position:absolute;top:14px;right:16px;display:inline-flex;align-items:center;border-radius:999px;padding:5px 11px;color:#fff;border:none;background:#6b665a;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.02em;line-height:1;z-index:3}
-  .daychip.High{background:#a04a1a}
-  .daychip.Medium{background:#806326}
-  .daychip.Low{background:#6b665a}
+  .daychip{position:absolute;top:14px;right:16px;display:inline-flex;align-items:center;border-radius:999px;padding:5px 12px;color:#fff;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.04em;line-height:1;z-index:3;border:1px solid rgba(255,255,255,.22);box-shadow:0 2px 5px rgba(40,37,35,.28),inset 0 1px 0 rgba(255,255,255,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);background:linear-gradient(180deg,#7a7463,#5b5648)}
+  .daychip.High{background:linear-gradient(180deg,#c64a3b,#9e2e22)}
+  .daychip.Medium{background:linear-gradient(180deg,#8f7029,#6f561d)}
+  .daychip.Low{background:linear-gradient(180deg,#7a7463,#5b5648)}
   .fcard .facts{display:flex;gap:8px;margin-top:14px}
   .fcard .facts .btn-draft{flex:1;height:36px;font-size:9px;padding:0 10px;color:#9a948b}
   .fcard .facts .btn-draft:hover{color:var(--paper)}
@@ -877,7 +878,7 @@ function renderDrawer(){
     const src= slug ? `pieces/${slug}.avif` : "pieces/custom.jpeg";
     return `<div class="fcard">
       <div class="fcard-body">
-        <span class="daychip ${x.priority}">${x.days}D</span>
+        <span class="daychip ${x.priority}">${x.days} DAYS</span>
         <div class="fcard-top">
           <div class="fav-av"><img src="${src}" alt="" loading="lazy" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='pieces/custom.jpeg'}"></div>
           <div class="ftitle">
