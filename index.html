@@ -181,6 +181,45 @@
   .viewseg button:hover{background:#000;color:var(--paper)}
   .viewseg button.on{background:var(--ink);color:var(--paper)}
 
+  /* ---------- Ledger / Provenance tabs ---------- */
+  .tabs{display:flex;gap:24px;flex:0 0 auto;align-items:center;margin-right:4px}
+  .tabs button{border:none;background:transparent;cursor:pointer;font-family:var(--mono);
+    font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#b3ab9c;padding:0 0 7px;
+    border-bottom:1.5px solid transparent;transition:color .18s,border-color .18s}
+  .tabs button:hover{color:var(--ink)}
+  .tabs button.on{color:var(--ink);border-bottom-color:var(--seal)}
+
+  /* ---------- Provenance editorial gallery ---------- */
+  .ledger[hidden],.ledger-head[hidden],.pager[hidden],.provenance[hidden]{display:none}
+  .provenance{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;border-top:1px solid var(--rule);
+    padding:46px 6px 64px;transition:opacity .16s ease}
+  .provenance.switching{opacity:0}
+  .prov-intro{max-width:720px;margin:0 auto 70px;text-align:center}
+  .prov-intro .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--bronze)}
+  .prov-intro h2{font-family:"Louize",Georgia,serif;font-weight:400;font-size:46px;line-height:1.04;margin:16px 0 0;color:var(--ink)}
+  .prov-intro p{font-family:var(--serif-soul);font-style:italic;color:var(--slate);font-size:18px;margin:14px 0 0}
+  .stories{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:92px}
+  .story{display:grid;grid-template-columns:1fr 1fr;gap:54px;align-items:center}
+  .story:nth-child(even){direction:rtl}
+  .story:nth-child(even)>*{direction:ltr}
+  .story-img{position:relative;aspect-ratio:4/5;background:var(--paper-2);overflow:hidden}
+  .story-img img{width:100%;height:100%;object-fit:cover;display:block}
+  .story-img .noimg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-family:"Louize",Georgia,serif;font-size:64px;color:#cfc7b6}
+  .story-txt{min-width:0}
+  .story-txt .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--bronze);margin-bottom:14px}
+  .story-txt h3{font-family:"Louize",Georgia,serif;font-weight:400;font-size:42px;line-height:1.02;margin:0;color:var(--ink)}
+  .story-txt .quote{font-family:var(--serif-soul);font-style:italic;font-size:21px;line-height:1.5;color:var(--ink);
+    margin:26px 0 0;padding-left:18px;border-left:2px solid var(--seal)}
+  .story-txt .meta{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#a9a094;margin-top:26px}
+  .prov-empty{max-width:520px;margin:90px auto;text-align:center;font-family:var(--serif-soul);font-style:italic;
+    font-size:19px;color:var(--slate);line-height:1.6}
+  @media(max-width:860px){
+    .story,.story:nth-child(even){grid-template-columns:1fr;direction:ltr;gap:24px}
+    .story:nth-child(even)>*{direction:ltr}
+    .prov-intro h2{font-size:34px}
+  }
+
   /* ---------- Follow-up drawer ---------- */
   body{transition:padding-right .28s ease;padding-right:404px}
   body.drawer-collapsed{padding-right:18px}
@@ -201,13 +240,14 @@
   .fcard{display:flex;flex-direction:column;gap:0;flex:0 0 auto;border:none;border-radius:12px;background:#fff;box-shadow:0 4px 15px rgba(40,37,35,.11);overflow:hidden}
   .fcard-img{position:relative;flex:0 0 auto;width:100%;height:91px;background:var(--paper-2)}
   .fcard-img img{width:100%;height:100%;object-fit:cover;display:block}
+  .fcard-img::after{content:"";position:absolute;left:0;right:0;bottom:0;height:58%;background:linear-gradient(to top,#fff,rgba(255,255,255,0));pointer-events:none;z-index:1}
   .fcard-body{flex:1;min-width:0;padding:16px 18px}
   .fcard-top{display:flex;align-items:stretch;gap:11px}
-  .fcard .fav-av{align-self:stretch;aspect-ratio:1;height:auto;flex:0 0 auto;border-radius:50%;background:var(--paper-2);display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:600;font-size:11px;color:var(--bronze-deep)}
+  .fcard .fav-av{align-self:stretch;aspect-ratio:1;width:auto;flex:0 0 auto;border-radius:50%;background:var(--paper-2);display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:600;font-size:11px;color:var(--bronze-deep)}
   .fcard .ftitle{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
   .fcard .fn{font-family:var(--sans);font-variant-caps:all-small-caps;font-size:9pt;font-weight:500;letter-spacing:.08em;line-height:1.1;color:#8f897e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:16pt;line-height:1.15;color:var(--ink);margin-top:6px}
-  .daychip{position:absolute;top:8px;right:8px;display:inline-flex;align-items:center;border-radius:999px;padding:5px 11px;color:#fff;border:1px solid rgba(255,255,255,.9);background:transparent;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.02em;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+  .daychip{position:absolute;top:8px;right:8px;display:inline-flex;align-items:center;border-radius:999px;padding:5px 11px;color:#fff;border:1px solid rgba(255,255,255,.9);background:transparent;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.02em;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.35);z-index:3}
   .fcard .facts{display:flex;gap:8px;margin-top:14px}
   .fcard .facts .btn-draft{flex:1;height:36px;font-size:9px;padding:0 10px;color:#9a948b}
   .fcard .facts .btn-draft:hover{color:var(--paper)}
@@ -326,6 +366,10 @@
 
   <main class="col-right">
     <div class="toolbar">
+      <div class="tabs" id="tabs">
+        <button data-tab="ledger" class="on">Ledger</button>
+        <button data-tab="provenance">Provenance</button>
+      </div>
       <div class="search"><input class="search" id="q" placeholder="Search names, pieces, stories…"></div>
       <div class="viewseg" id="viewSeg">
         <button data-v="compact" title="Compact">≣</button>
@@ -341,6 +385,7 @@
     </div>
     <section class="ledger" id="ledger"></section>
     <div class="pager" id="pager"></div>
+    <section class="provenance" id="provenance" hidden></section>
   </main>
 
 </div>
@@ -721,6 +766,55 @@ function renderPager(pages){
 function toggleFav(i){
   const d=data[i]; if(!d) return;
   persist({...d, first_look: !d.first_look}, false);
+}
+
+/* ---------- Provenance (captured stories) ---------- */
+function photoUrlOf(p){ try{ return (synced&&sb)? sb.storage.from("collector-photos").getPublicUrl(p).data.publicUrl : p; }catch(e){ return p; } }
+function firstPhoto(d){ try{ const a=JSON.parse(d.photos||"[]"); if(Array.isArray(a)&&a.length) return photoUrlOf(a[0]); }catch(e){} return ""; }
+function storyQuote(d){ for(const k of ["notes","details","why","lives"]){ const v=(d[k]||"").trim(); if(v) return v; } return ""; }
+function renderProvenance(){
+  const host=document.getElementById("provenance"); if(!host) return;
+  let rows=data.filter(d=>d.story==="Yes");
+  if(query){ const q=query.toLowerCase();
+    rows=rows.filter(d=>[d.name,d.pieces,d.location,d.notes,d.why,d.lives,d.details].some(v=>(v||"").toLowerCase().includes(q))); }
+  rows.sort((a,b)=> (Date.parse(b.last_buy)||0)-(Date.parse(a.last_buy)||0));
+  const intro=`<div class="prov-intro"><div class="eyebrow">Bureau of Provenance</div>
+    <h2>Where the work lives now</h2>
+    <p>The stories our collectors have shared, kept in their own words.</p></div>`;
+  if(!rows.length){ host.innerHTML=intro+`<div class="prov-empty">No stories captured yet. When a collector replies and you mark their story usable, it will be enshrined here.</div>`; return; }
+  host.innerHTML=intro+`<div class="stories">`+rows.map(d=>{
+    const piece=firstPiece(d.pieces)||"";
+    const slug=piece.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+    const photo=firstPhoto(d);
+    const src= photo || (piece?`pieces/${slug}.avif`:"");
+    const img= src
+      ? `<div class="story-img"><img src="${esc(src)}" alt="${esc(piece)}" loading="lazy" onerror="this.parentNode.innerHTML='<span class=\\'noimg\\'>${esc(initials(d.name))}</span>'"></div>`
+      : `<div class="story-img"><span class="noimg">${esc(initials(d.name))}</span></div>`;
+    const quote=storyQuote(d);
+    const meta=[piece,(d.location||"").trim(),fmtDate(d.last_buy)].filter(Boolean).join("  ·  ");
+    return `<article class="story">
+      ${img}
+      <div class="story-txt">
+        <div class="eyebrow">${esc(piece||"Maçon")}</div>
+        <h3>${esc(d.name||"—")}</h3>
+        ${quote?`<p class="quote">${esc(quote)}</p>`:""}
+        <div class="meta">${esc(meta)}</div>
+      </div>
+    </article>`;
+  }).join("")+`</div>`;
+}
+let tab=localStorage.getItem("macon_tab")||"ledger";
+function applyTab(){
+  const tabsEl=document.getElementById("tabs");
+  if(tabsEl) tabsEl.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
+  const isProv=tab==="provenance";
+  const lh=document.getElementById("ledgerHead"), led=document.getElementById("ledger"),
+        pg=document.getElementById("pager"), prov=document.getElementById("provenance"),
+        seg=document.getElementById("viewSeg");
+  if(lh) lh.hidden=isProv; if(led) led.hidden=isProv; if(pg) pg.hidden=isProv;
+  if(prov) prov.hidden=!isProv;
+  if(seg) seg.style.display=isProv?"none":"";
+  if(isProv) renderProvenance(); else renderLedger();
 }
 
 /* ---------- Follow-up drawer + draft ---------- */
