@@ -81,8 +81,8 @@
     .stat:last-child{border-right:none}
   }
   /* Floating progress card (sticky, above the footer) */
-  .progress-card{position:fixed;left:calc(2vw + 38px);bottom:27px;z-index:31;
-        width:calc(16vw - 13px);background:var(--paper);border:1px solid var(--rule);border-radius:999px;
+  .progress-card{position:fixed;left:calc(0.5vw + 40px);bottom:27px;z-index:31;
+        width:calc(19vw - 15px);background:var(--paper);border:1px solid var(--rule);border-radius:999px;
         box-shadow:0 12px 34px rgba(40,37,35,.18);padding:16px 18px 18px;transition:border-color .3s;border-radius:15px}
   .progress-card.started{border-color:var(--rule)}
   .progress-card .pc-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
@@ -119,13 +119,13 @@
   .btn.tiny{font-size:10px;padding:0 14px;letter-spacing:.1em}
 
   /* ---------- Ledger ---------- */
-  .ledger-head{display:grid;grid-template-columns:46px 0.64fr 1.3fr 1.1fr 120px;gap:18px;padding:0 6px 9px;
+  .ledger-head{display:grid;grid-template-columns:46px 1.4fr 1.1fr 1fr 0.72fr auto 44px;gap:18px;padding:0 6px 9px;
         font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--slate)}
   .ledger-head .r{justify-self:end;text-align:right}
   .ledger-head.hidden{display:none}
-  .ledger{border-top:1px solid var(--rule);flex:1;overflow:hidden}
-  .entry{border-bottom:1px solid var(--rule);padding:16px 6px;display:grid;gap:18px;
-         grid-template-columns:46px 0.64fr 1.3fr 1.1fr 120px;align-items:center;cursor:pointer;transition:.12s}
+  .ledger{border-top:1px solid var(--rule);flex:1;overflow:hidden;display:flex;flex-direction:column}
+  .entry{border-bottom:1px solid var(--rule);padding:6px 6px;display:grid;gap:18px;flex:1 1 0;min-height:0;
+         grid-template-columns:46px 1.4fr 1.1fr 1fr 0.72fr auto 44px;align-items:center;cursor:pointer;transition:.12s}
   .ledger.compact .entry{padding:8px 6px}
   .entry:hover{background:rgba(255,255,255,.4)}
   .avatar{width:46px;height:46px;flex:0 0 auto;border-radius:50%;background:var(--paper-2);
@@ -139,6 +139,10 @@
   .entry .cell{font-size:13px;color:var(--slate);font-style:normal;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .entry .right{justify-self:end;text-align:right}
   .entry .right.ltv{font-family:var(--sans);font-size:15px;color:var(--ink);font-weight:300}
+  .entry .fu{justify-self:center;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:none;
+        background:none;cursor:pointer;color:var(--seal);font-size:15px;border-radius:50%;transition:.15s;opacity:.85}
+  .entry .fu:hover{background:var(--seal);color:var(--paper);opacity:1}
+  .entry .fu.none{visibility:hidden;cursor:default}
   .fav{background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:0 0 0 9px;color:var(--rule);transition:color .15s;vertical-align:baseline}
   .fav.on{color:var(--seal)}
   .fav:hover{color:var(--seal)}
@@ -160,6 +164,44 @@
   .viewseg button:last-child{border-right:none}
   .viewseg button:hover{background:#000;color:var(--paper)}
   .viewseg button.on{background:var(--ink);color:var(--paper)}
+
+  /* ---------- Follow-up drawer ---------- */
+  body{transition:padding-right .28s ease;padding-right:380px}
+  body.drawer-collapsed{padding-right:16px}
+  .drawer{position:fixed;top:0;right:0;height:100vh;width:380px;background:var(--paper);border-left:1px solid var(--rule);
+        box-shadow:-14px 0 40px rgba(40,37,35,.10);z-index:45;display:flex;flex-direction:column;
+        transform:translateX(0);transition:transform .28s ease}
+  body.drawer-collapsed .drawer{transform:translateX(100%)}
+  .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 16px;border-bottom:1px solid var(--rule)}
+  .drawer-title{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--slate)}
+  .drawer-close{width:30px;height:30px;border:1px solid var(--rule);background:transparent;color:var(--slate);cursor:pointer;font-size:16px;transition:.15s}
+  .drawer-close:hover{background:#000;border-color:#000;color:var(--paper)}
+  .drawer-body{flex:1;overflow:auto;padding:16px 16px 120px;display:flex;flex-direction:column;gap:12px}
+  .drawer-empty{color:var(--slate);font-family:var(--serif-soul);font-style:italic;font-size:15px;text-align:center;margin-top:30px}
+  .fcard{border:1px solid var(--rule);border-radius:10px;padding:13px 14px;background:rgba(255,255,255,.4)}
+  .fcard-top{display:flex;align-items:center;gap:10px}
+  .fcard .fav-av{width:34px;height:34px;flex:0 0 auto;border-radius:50%;background:var(--paper-2);display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:600;font-size:12px;color:var(--bronze-deep)}
+  .fcard .fn{font-family:"Louize",Georgia,serif;font-size:19px;line-height:1.1;flex:1;min-width:0}
+  .pri{font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:999px;white-space:nowrap}
+  .pri.High{background:var(--seal);color:var(--paper)}
+  .pri.Medium{background:var(--tan);color:#3a2f25}
+  .pri.Low{background:var(--rule);color:var(--slate)}
+  .fcard .fmeta{font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--slate);margin:9px 0 6px}
+  .fcard .fask{font-family:var(--serif-soul);font-style:italic;font-size:15px;line-height:1.35;color:var(--ink)}
+  .fcard .facts{display:flex;gap:8px;margin-top:12px}
+  .fcard .facts .btn{flex:1;height:34px;font-size:9px;padding:0 8px}
+  /* collapsed rail */
+  .drawer-rail{position:fixed;top:0;right:0;height:100vh;width:16px;border:none;border-left:1px solid var(--rule);
+        background:#f9f5ec;cursor:pointer;z-index:44;display:none;transition:transform .2s ease;padding:0}
+  body.drawer-collapsed .drawer-rail{display:flex;align-items:center;justify-content:center}
+  .drawer-rail:hover{transform:translateX(-8px)}
+  .drawer-rail #railLabel{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--slate)}
+  .drawer-rail .raildot{position:absolute;top:18px;left:50%;transform:translateX(-50%);width:7px;height:7px;border-radius:50%;background:var(--seal);display:none}
+  .drawer-rail.has-due .raildot{display:block}
+  @media(max-width:820px){
+    body{padding-right:0}
+    .drawer{width:min(380px,86vw)}
+  }
 
   /* ---------- Detail / provenance card ---------- */
   .scrim{position:fixed;inset:0;background:rgba(43,38,34,.45);display:none;align-items:center;
@@ -203,7 +245,7 @@
   .foot{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:21px 0 13px;
         border-top:1px solid var(--rule);background:var(--paper);
         font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#a7a39c}
-  .foot-inner{max-width:none;margin:0;padding:0 40px;display:flex;justify-content:space-between;align-items:center}
+  .foot-inner{max-width:none;margin:0;padding:0 40px;display:flex;justify-content:center;align-items:center}
 
   /* ---------- Sign-in gate ---------- */
   .gate{position:fixed;inset:0;background:var(--paper);display:none;align-items:center;justify-content:center;z-index:80}
@@ -260,14 +302,24 @@
       <input type="file" id="importFile" accept=".csv,text/csv" style="display:none">
     </div>
     <div class="ledger-head" id="ledgerHead">
-      <span></span><span>Name</span><span>Pieces</span><span>Location</span><span class="r">Value</span>
+      <span></span><span>Name</span><span>Pieces</span><span>Location</span><span>Purchased</span><span class="r">Value</span><span></span>
     </div>
     <section class="ledger" id="ledger"></section>
     <div class="pager" id="pager"></div>
   </main>
 
-  <div class="foot"><div class="foot-inner"><span>Made by Hand</span><span>Artifacts of Love</span></div></div>
+  <div class="foot"><div class="foot-inner"><span>Made by Hand&nbsp;&nbsp;•&nbsp;&nbsp;Artifacts of Love</span></div></div>
 </div>
+
+<!-- Follow-up notifications drawer + collapsed rail -->
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <span class="drawer-title" id="drawerTitle">Follow-ups</span>
+    <button class="drawer-close" id="drawerClose" title="Collapse">›</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</div>
+<button class="drawer-rail" id="drawerRail" title="Follow-ups"><span class="raildot"></span><span id="railLabel">Follow-ups</span></button>
 
 <!-- Floating progress card -->
 <div class="progress-card" id="progressCard">
@@ -307,7 +359,7 @@ const PRODUCTS = ["Ren","Pip","Rebi","Ori","Zuma","Ibi","Milo","Yael","Eleph",
 let viewMode = localStorage.getItem("macon_view") || "regular";
 if(viewMode==="generous") viewMode="regular";
 let page = 1;
-const PAGE_SIZE = {compact:25, regular:15};
+const PAGE_SIZE = {compact:16, regular:9};
 
 const SEED = [
   {acc:"M-001", name:"Nick Bryciewicz", email:"nick@example.com", first_contact:"Commission / word of mouth",
@@ -424,6 +476,47 @@ function renderDash(){
   document.getElementById("progressCard").classList.toggle("started", total > 0);
 }
 
+/* ---------- Follow-up cultivation ---------- */
+function daysSince(str){ const t=Date.parse(str); return isNaN(t)?null:Math.floor((Date.now()-t)/86400000); }
+function fmtDate(str){ const t=Date.parse(str); if(isNaN(t)) return str||""; const d=new Date(t);
+  return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); }
+function firstName(n){ return (n||"").trim().split(/\s+/)[0]||"there"; }
+function firstPiece(p){ return ((p||"").split(",")[0]||"").trim().replace(/\s*[×x]\d+$/,""); }
+function isDue(d){
+  const days=daysSince(d.last_buy);
+  if(days==null||days<14||days>400) return false;
+  if(d.story==="Yes") return false;
+  if(d.last_contact){ const lc=Date.parse(d.last_contact), lb=Date.parse(d.last_buy);
+    if(!isNaN(lc)&&!isNaN(lb)&&lc>=lb) return false; }
+  return true;
+}
+function followScore(d){ let s=0; if(d.first_look)s+=3; if(num(d.ltv)>1000)s+=2; if(countPieces(d.pieces)>=2)s+=1; if(d.gift_self==="Gift")s+=1; return s; }
+function followPriority(d){ const s=followScore(d); return s>=3?"High":s>=1?"Medium":"Low"; }
+function followAsk(d){
+  const piece=firstPiece(d.pieces)||"your piece";
+  if(d.gift_self==="Gift") return `Did the person you gave ${piece} to understand what it was without being told?`;
+  if(countPieces(d.pieces)>=2) return `What made you choose ${piece} over the others?`;
+  if(d.first_look) return `Where does ${piece} live now — and who else in your life would understand these objects the way you do?`;
+  return `Where does ${piece} live now — on you, on a shelf, somewhere specific?`;
+}
+function draftEmail(d){
+  const piece=firstPiece(d.pieces)||"your piece";
+  const body=[
+    `Hi ${firstName(d.name)},`,"",
+    `It's Alex & Hannah from Maçon. We hope ${piece} has settled in since it arrived${d.location?` in ${d.location}`:""}.`,"",
+    followAsk(d),"",
+    "No need to write much — a sentence is plenty. It would mean a lot to hear.","",
+    "Warmly,","Alex & Hannah","Maçon · Artifacts of Love"
+  ].join("\n");
+  return {subject:"A small question from Maçon", body};
+}
+function followUps(){
+  const P={High:0,Medium:1,Low:2};
+  return data.map((d,i)=>({d,i})).filter(x=>isDue(x.d))
+    .map(x=>({...x, days:daysSince(x.d.last_buy), priority:followPriority(x.d), ask:followAsk(x.d)}))
+    .sort((a,b)=> P[a.priority]-P[b.priority] || a.days-b.days);
+}
+
 /* ---------- Render ledger ---------- */
 function initials(n){ if(!n||!n.trim()) return "·"; const p=n.trim().split(/\s+/);
   return ((p[0][0]||"")+(p.length>1?p[p.length-1][0]:"")).toUpperCase(); }
@@ -459,11 +552,14 @@ function renderLedger(){
       </div>
       <div class="cell pieces">${esc(d.pieces||"")}</div>
       <div class="cell loc">${esc(d.location||"")}</div>
+      <div class="cell purchased">${esc(fmtDate(d.last_buy))}</div>
       <div class="right ltv">${esc(fmtMoney(d.ltv))}</div>
+      ${isDue(d)?`<button class="fu" data-i="${i}" title="Follow up — draft email">&#9993;&#xFE0E;</button>`:`<button class="fu none" tabindex="-1"></button>`}
     </div>`;
   }).join("");
   host.querySelectorAll(".entry").forEach(el=>el.onclick=()=>showForm(+el.dataset.i));
   host.querySelectorAll(".fav").forEach(b=>b.onclick=e=>{ e.stopPropagation(); toggleFav(+b.dataset.i); });
+  host.querySelectorAll(".fu:not(.none)").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openDraft(+b.dataset.i); });
   renderPager(pages);
 }
 function renderPager(pages){
@@ -482,6 +578,76 @@ function renderPager(pages){
 function toggleFav(i){
   const d=data[i]; if(!d) return;
   persist({...d, first_look: !d.first_look}, false);
+}
+
+/* ---------- Follow-up drawer + draft ---------- */
+function renderDrawer(){
+  const list=followUps();
+  const body=document.getElementById("drawerBody");
+  const title=document.getElementById("drawerTitle");
+  const rail=document.getElementById("drawerRail");
+  if(title) title.textContent = list.length? `Follow-ups · ${list.length} due` : "Follow-ups";
+  if(rail) rail.classList.toggle("has-due", list.length>0);
+  if(!body) return;
+  if(!list.length){ body.innerHTML=`<div class="drawer-empty">No one's due for a follow-up right now.<br>New purchases appear here ~2 weeks on.</div>`; return; }
+  body.innerHTML=list.map(x=>{
+    const d=x.d, piece=firstPiece(d.pieces)||"a piece";
+    return `<div class="fcard">
+      <div class="fcard-top">
+        <div class="fav-av">${esc(initials(d.name))}</div>
+        <div class="fn">${esc(d.name||"—")}</div>
+        <span class="pri ${x.priority}">${x.priority}</span>
+      </div>
+      <div class="fmeta">Bought ${esc(piece)} · ${x.days}d ago${d.location?" · "+esc(d.location):""}</div>
+      <div class="fask">“${esc(x.ask)}”</div>
+      <div class="facts">
+        <button class="btn" data-act="draft" data-i="${x.i}">Draft email</button>
+        <button class="btn ghost" data-act="done" data-i="${x.i}">Mark contacted</button>
+      </div>
+    </div>`;
+  }).join("");
+  body.querySelectorAll("button[data-act]").forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i; if(b.dataset.act==="draft") openDraft(i); else markContacted(i);
+  });
+}
+function openDraft(i){
+  const d=data[i]; if(!d) return;
+  const {subject, body}=draftEmail(d);
+  const host=document.getElementById("cardHost");
+  host.innerHTML=`
+    <div class="card-body">
+      <h2>Follow up</h2>
+      <div class="acc-line">${esc(d.name||"—")} &nbsp;·&nbsp; <span class="pri ${followPriority(d)}">${followPriority(d)}</span> &nbsp;·&nbsp; ${daysSince(d.last_buy)}d since purchase</div>
+      <div class="fields" style="grid-template-columns:1fr">
+        <div class="field"><label>The ask</label><div class="val script">${esc(followAsk(d))}</div></div>
+        <div class="field"><label>To</label><div class="val">${esc(d.email||"—")}</div></div>
+      </div>
+      <div style="margin-top:14px">
+        <label style="display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);margin-bottom:6px">Email draft (editable)</label>
+        <input id="dSubj" value="${esc(subject)}" style="width:100%;margin-bottom:8px">
+        <textarea id="dBody" style="width:100%;min-height:180px;line-height:1.5">${esc(body)}</textarea>
+      </div>
+    </div>
+    <div class="card-actions">
+      <button class="btn ghost" id="dDone">Mark contacted</button>
+      <div>
+        <button class="btn ghost" id="dCopy">Copy</button>
+        <button class="btn ghost" id="dClose">Close</button>
+        <button class="btn" id="dMail">Open in Mail</button>
+      </div>
+    </div>`;
+  openScrim();
+  const subjEl=host.querySelector("#dSubj"), bodyEl=host.querySelector("#dBody");
+  host.querySelector("#dClose").onclick=closeScrim;
+  host.querySelector("#dCopy").onclick=async()=>{ const t=subjEl.value+"\n\n"+bodyEl.value;
+    try{ await navigator.clipboard.writeText(t); const b=host.querySelector("#dCopy"); b.textContent="Copied ✓"; setTimeout(()=>b.textContent="Copy",1400);}catch(e){ alert("Copy failed — select the text manually."); } };
+  host.querySelector("#dMail").onclick=()=>{ const url=`mailto:${encodeURIComponent(d.email||"")}?subject=${encodeURIComponent(subjEl.value)}&body=${encodeURIComponent(bodyEl.value)}`; window.location.href=url; };
+  host.querySelector("#dDone").onclick=()=>{ markContacted(i); closeScrim(); };
+}
+function markContacted(i){
+  const d=data[i]; if(!d) return;
+  const today=new Date().toISOString().slice(0,10);
+  persist({...d, last_contact:today, story: d.story==="Yes"?d.story:"Asked"}, false);
 }
 
 /* ---------- Detail card ---------- */
@@ -534,6 +700,7 @@ function showForm(i){
       <div class="fg"><label>Phone</label><input id="f_phone" value="${F('phone')}"></div>
       <div class="fg"><label>Location</label><input id="f_location" value="${F('location')}" placeholder="City, Country"></div>
       <div class="fg"><label>Lifetime Value</label><div class="money-wrap"><span class="pfx">$</span><input id="f_ltv" value="${esc(String(d.ltv!=null?d.ltv:'').replace(/[^0-9.]/g,''))}" placeholder="0"></div></div>
+      <div class="fg"><label>Last Purchase</label><input id="f_last_buy" value="${F('last_buy')}" placeholder="2026-06-01"></div>
       <div class="fg full"><label>Pieces Owned</label><div class="pbuild" id="pbuild"></div></div>
       <div class="fg"><label>VIP?</label><select id="f_first_look">${opt(['Yes','No'], d.first_look?'Yes':'No')}</select></div>
       <div class="fg"><label>Story Usable?</label><select id="f_story">${opt(['Asked','Yes','No'],d.story)}</select></div>
@@ -581,7 +748,7 @@ function showForm(i){
   host.querySelector("#saveBtn").onclick=()=>{
     const g=id=>host.querySelector("#"+id).value.trim();
     const rec={...d, acc:d.acc, id:d.id, name:g("f_name"), email:g("f_email"), phone:g("f_phone"),
-      location:g("f_location"), ltv:g("f_ltv"),
+      location:g("f_location"), ltv:g("f_ltv"), last_buy:g("f_last_buy"),
       pieces:readPieces(), first_look:g("f_first_look")==="Yes", story:g("f_story"), notes:g("f_notes"),
       photos:JSON.stringify(formPhotos)};
     persist(rec, isNew); closeScrim();
@@ -745,7 +912,17 @@ function download(name,content,type){
   const a=document.createElement("a"); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u);
 }
 
-function renderAll(){ renderDash(); renderLedger(); }
+function renderAll(){ renderDash(); renderLedger(); renderDrawer(); }
+
+/* ---------- Drawer open/collapse ---------- */
+(function(){
+  if(localStorage.getItem("macon_drawer")==="collapsed") document.body.classList.add("drawer-collapsed");
+  const collapse=()=>{ document.body.classList.add("drawer-collapsed"); localStorage.setItem("macon_drawer","collapsed"); };
+  const open=()=>{ document.body.classList.remove("drawer-collapsed"); localStorage.setItem("macon_drawer","open"); };
+  const c=document.getElementById("drawerClose"); if(c) c.onclick=collapse;
+  const r=document.getElementById("drawerRail"); if(r) r.onclick=open;
+})();
+
 boot();
 </script>
 </body>
