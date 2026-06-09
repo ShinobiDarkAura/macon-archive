@@ -72,7 +72,7 @@
   .dash{display:grid;grid-template-columns:auto auto;gap:16px 12px;margin:40px 0 0;background:transparent;width:max-content}
   .stat{display:flex;flex-direction:column;align-items:center;text-align:center;width:auto;
         padding:14px 18px;border:none}
-  .stat:nth-child(1),.stat:nth-child(2){border-bottom:1px solid var(--rule)}
+  .stat{border-bottom:1px solid var(--rule)}
   .stat:last-child{border-bottom:none}
   .stat .num{font-family:var(--sans);font-size:34px;font-weight:400;color:#d2cbbc;line-height:1;transition:color .6s ease}
   .stat .num.changed{color:#000}
@@ -575,7 +575,7 @@ function renderLedger(){
       <div class="cell loc">${esc(d.location||"")}</div>
       <div class="cell purchased">${esc(fmtDate(d.last_buy))}</div>
       <div class="right ltv">${esc(fmtMoney(d.ltv))}</div>
-      ${isDue(d)?`<button class="fu" data-i="${i}" title="Follow up — draft email">&#9993;&#xFE0E;</button>`:`<button class="fu none" tabindex="-1"></button>`}
+      ${isDue(d)?`<button class="fu" data-i="${i}" title="Follow up — draft email">&#128276;&#xFE0E;</button>`:`<button class="fu none" tabindex="-1"></button>`}
     </div>`;
   }).join("");
   host.querySelectorAll(".entry").forEach(el=>el.onclick=()=>showForm(+el.dataset.i));
