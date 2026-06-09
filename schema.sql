@@ -12,6 +12,8 @@ create table if not exists public.collectors (
   first_contact text,
   pieces        text,
   ltv           numeric,
+  location      text,
+  phone         text,
   gift_self     text,
   first_buy     text,
   last_buy      text,
