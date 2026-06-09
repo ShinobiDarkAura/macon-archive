@@ -120,6 +120,7 @@
   .ledger-head{display:grid;grid-template-columns:46px 1.6fr 1.3fr 1.1fr auto;gap:18px;padding:0 6px 9px;
         font-family:var(--mono);font-size:9px;letter-spacing:.01em;text-transform:uppercase;color:#bcb6aa}
   .ledger-head .r{justify-self:end;text-align:right}
+  .ledger-head.hidden{display:none}
   .ledger{border-top:1px solid var(--rule)}
   .entry{border-bottom:1px solid var(--rule);padding:16px 6px;display:grid;gap:18px;
          grid-template-columns:46px 1.6fr 1.3fr 1.1fr auto;align-items:center;cursor:pointer;transition:.12s}
@@ -133,10 +134,9 @@
   .entry .who .nm{font-family:"Louize",Georgia,serif;font-size:22px;font-weight:400;line-height:1.15}
   .ledger.compact .who .nm{font-size:17px}
   .entry .who .sub{font-size:12px;color:#bcb6aa;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .entry .cell{font-size:13px;color:var(--slate);font-style:italic;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .ledger.compact .cell{display:none}
+  .entry .cell{font-size:13px;color:var(--slate);font-style:normal;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .entry .right{justify-self:end;text-align:right}
-  .entry .right.ltv{font-family:var(--sans);font-size:15px;color:var(--ink);font-weight:600}
+  .entry .right.ltv{font-family:var(--sans);font-size:15px;color:var(--ink);font-weight:400}
   .fav{background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:0 0 0 9px;color:var(--rule);transition:color .15s;vertical-align:baseline}
   .fav.on{color:var(--seal)}
   .fav:hover{color:var(--seal)}
@@ -201,7 +201,7 @@
   .foot{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:21px 0 13px;
         border-top:1px solid var(--rule);background:var(--paper);
         font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#a7a39c}
-  .foot-inner{max-width:1080px;margin:0 auto;padding:0 32px;display:flex;justify-content:space-between;align-items:center}
+  .foot-inner{max-width:none;margin:0;padding:0 40px;display:flex;justify-content:space-between;align-items:center}
 
   /* ---------- Sign-in gate ---------- */
   .gate{position:fixed;inset:0;background:var(--paper);display:none;align-items:center;justify-content:center;z-index:80}
@@ -215,8 +215,9 @@
   .gate .msg{font-size:13px;color:var(--seal);min-height:20px;margin-top:14px;font-style:italic}
 
   @media(max-width:680px){
-    .entry{grid-template-columns:1fr;gap:4px}
-    .entry .acc,.entry .sig{text-align:left}
+    .ledger-head{display:none}
+    .ledger.regular .entry,.ledger.compact .entry{grid-template-columns:auto 1fr auto}
+    .entry .cell{display:none}
     .fields,.form-grid{grid-template-columns:1fr}
     .wordmark{font-size:38px}
   }
@@ -432,6 +433,7 @@ function renderLedger(){
   const host=document.getElementById("ledger");
   host.className="ledger "+viewMode;
   host.classList.toggle("is-empty", rows.length===0);
+  const lh=document.getElementById("ledgerHead"); if(lh) lh.classList.toggle("hidden", rows.length===0);
   const pager=document.getElementById("pager");
   if(!rows.length){ host.innerHTML=`<div class="empty"><span class="empty-text">No entries yet.<br>The archive begins with the first name you add.</span></div>`; if(pager)pager.innerHTML=""; return; }
   const size=PAGE_SIZE[viewMode]||15;
