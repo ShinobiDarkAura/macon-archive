@@ -42,7 +42,7 @@
     -webkit-font-smoothing:antialiased;
   }
   .wrap{margin:0;padding:0 40px 150px;min-height:100vh;display:grid;grid-template-columns:25% 1fr;gap:44px;align-items:start}
-  .col-left{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .col-left{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0}
   .col-right{min-width:0;padding-top:40px;height:100vh;display:flex;flex-direction:column;overflow:hidden;padding-bottom:28px}
   @media(max-width:820px){
     .wrap{grid-template-columns:1fr;gap:24px}
@@ -71,7 +71,7 @@
 
   /* ---------- Dashboard strip ---------- */
   .dash{display:grid;grid-template-columns:1fr 1fr;gap:16px 12px;margin:40px 0 0;background:transparent;width:100%}
-  .stat{display:flex;flex-direction:column;align-items:center;text-align:center;width:auto;
+  .stat{display:flex;flex-direction:column;align-items:center;text-align:center;width:auto;min-width:0;
         padding:14px 10px 22px;border:none}
   .stat{border-bottom:1px solid var(--rule)}
   .stat .num{font-family:var(--sans);font-size:34px;font-weight:400;color:#d2cbbc;line-height:1;transition:color .6s ease}
@@ -838,7 +838,7 @@ function showForm(i){
     <div class="card-actions">
       ${isNew?'<span></span>':'<button class="btn ghost" id="delBtn">Remove</button>'}
       <div><button class="btn ghost" id="cancelBtn">Cancel</button>
-      <button class="btn" id="saveBtn">${isNew?'Save to Archive':'Save'}</button></div>
+      <button class="btn" id="saveBtn">Save</button></div>
     </div>`;
   openScrim();
   renderPieces(d.pieces);
