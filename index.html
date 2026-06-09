@@ -197,12 +197,14 @@
   <!-- Ledger -->
   <section class="ledger" id="ledger"></section>
 
+  <!-- Export / Import (temporarily hidden)
   <div style="margin-top:24px;display:flex;gap:10px;justify-content:flex-end">
     <button class="btn ghost tiny" id="exportJson">Export Archive (JSON)</button>
     <button class="btn ghost tiny" id="exportCsv">Export (CSV)</button>
     <button class="btn ghost tiny" id="importBtn">Import JSON</button>
     <input type="file" id="importFile" accept="application/json" style="display:none">
   </div>
+  -->
 
   <p class="foot">Made by Hand · Artifacts of Love</p>
 </div>
@@ -467,7 +469,8 @@ document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{
   c.classList.add("on"); filter=c.dataset.sig; renderLedger();
 });
 
-/* ---------- Import / Export ---------- */
+/* ---------- Import / Export (buttons currently hidden) ---------- */
+if(document.getElementById("exportJson")){
 document.getElementById("exportJson").onclick=()=>download("macon_archive.json", JSON.stringify(data,null,2),"application/json");
 document.getElementById("exportCsv").onclick=()=>{
   const head=COLS.join(",");
@@ -489,6 +492,7 @@ document.getElementById("importFile").onchange=e=>{
   }catch(err){ alert("Could not read that file."); } };
   r.readAsText(f);
 };
+}
 function download(name,content,type){
   const b=new Blob([content],{type}); const u=URL.createObjectURL(b);
   const a=document.createElement("a"); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u);
