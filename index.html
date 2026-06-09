@@ -15,7 +15,7 @@
     --bronze:#8c6a47;
     --bronze-deep:#6f5235;
     --slate:#5b5a55;
-    --rule:#e4ddce;
+    --rule:#d8dad3;
     --seal:#9c4a3a;
     --high:#e9d9c2;
     --shadow:rgba(43,38,34,.10);
@@ -36,7 +36,7 @@
                      radial-gradient(circle at 80% 80%, rgba(0,0,0,.012) 0, transparent 60%);
     -webkit-font-smoothing:antialiased;
   }
-  .wrap{max-width:1080px;margin:0 auto;padding:48px 32px 30px;min-height:100vh;display:flex;flex-direction:column}
+  .wrap{max-width:1080px;margin:0 auto;padding:48px 32px 74px;min-height:100vh;display:flex;flex-direction:column}
 
   /* ---------- Sync badge ---------- */
   .sync{position:fixed;top:14px;right:18px;font-family:var(--sans);font-size:10px;
@@ -56,12 +56,12 @@
 
   /* ---------- Dashboard strip ---------- */
   .dash{display:flex;flex-wrap:wrap;justify-content:center;gap:0;margin:30px 0 6px;
-        border:1px solid var(--rule);background:rgba(255,255,255,.25)}
+        border:1px solid var(--rule);background:rgba(255,255,255,.25);border-radius:6px;overflow:hidden}
   .stat{flex:1;min-width:120px;text-align:center;padding:16px 12px;border-right:1px solid var(--rule)}
   .stat:last-child{border-right:none}
   .stat .num{font-family:var(--sans);font-size:34px;font-weight:500;color:var(--bronze-deep);line-height:1}
   .stat .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);margin-top:8px}
-  .goal{flex-basis:100%;border-right:none;border-top:1px solid var(--rule);background:var(--high);padding:14px}
+  .goal{flex-basis:100%;border-right:none;border-top:1px solid var(--rule);background:transparent;padding:14px}
   .goal .lbl{text-align:center;font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.1em;color:var(--slate)}
   .goal .bar{height:6px;background:var(--paper);border:1px solid var(--rule);margin:10px auto 0;max-width:520px;position:relative}
   .goal .bar i{display:block;height:100%;background:var(--bronze)}
@@ -82,10 +82,10 @@
   .chip:hover{border-color:var(--bronze);color:var(--bronze)}
   .chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   .btn{height:40px;display:inline-flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:11px;letter-spacing:.13em;text-transform:uppercase;font-weight:500;
-       padding:0 20px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer;transition:.15s}
-  .btn:hover{background:var(--bronze-deep);border-color:var(--bronze-deep)}
+       padding:0 20px;border:1px solid var(--rule);background:transparent;color:var(--ink);cursor:pointer;transition:.15s}
+  .btn:hover{background:var(--ink);border-color:var(--ink);color:var(--paper)}
   .btn.ghost{background:transparent;color:var(--ink)}
-  .btn.ghost:hover{color:var(--bronze);border-color:var(--bronze)}
+  .btn.ghost:hover{background:var(--ink);border-color:var(--ink);color:var(--paper)}
   .btn.tiny{font-size:10px;padding:0 14px;letter-spacing:.1em}
 
   /* ---------- Ledger ---------- */
@@ -104,8 +104,8 @@
   .sig.Med .dot{background:var(--slate)}
   .sig.Low .dot{background:var(--rule)}
   .star{color:var(--seal);margin-left:6px}
-  .empty{text-align:center;padding:20px;color:var(--slate);font-family:var(--serif-soul);font-style:italic;font-size:14pt;
-        min-height:46vh;display:flex;align-items:center;justify-content:center}
+  .empty{text-align:center;padding:20px;color:var(--slate);font-family:var(--serif-soul);font-style:italic;font-size:14pt}
+  .ledger.is-empty{flex:1;display:flex;align-items:center;justify-content:center}
 
   /* ---------- Detail / provenance card ---------- */
   .scrim{position:fixed;inset:0;background:rgba(43,38,34,.45);display:none;align-items:flex-start;
@@ -135,7 +135,8 @@
   .form-grid .fg.full{grid-column:1/-1}
   .form-grid label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);margin-bottom:6px}
   .form-grid textarea{resize:vertical;min-height:54px}
-  .foot{text-align:center;margin-top:auto;padding-top:22px;border-top:1px solid var(--rule);
+  .foot{position:fixed;left:0;right:0;bottom:0;z-index:30;text-align:center;padding:13px;
+        border-top:1px solid var(--rule);background:var(--paper);
         font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#a7a39c}
 
   /* ---------- Sign-in gate ---------- */
@@ -340,6 +341,7 @@ function renderLedger(){
   }
   rows.sort((a,b)=>(SIG_ORDER[a.signal]??3)-(SIG_ORDER[b.signal]??3) || (a.acc||"").localeCompare(b.acc||""));
   const host=document.getElementById("ledger");
+  host.classList.toggle("is-empty", rows.length===0);
   if(!rows.length){ host.innerHTML=`<div class="empty">No entries yet. The archive begins with the first name you add.</div>`; return; }
   host.innerHTML = rows.map(d=>{
     const i=data.indexOf(d);
