@@ -36,7 +36,7 @@
                      radial-gradient(circle at 80% 80%, rgba(0,0,0,.012) 0, transparent 60%);
     -webkit-font-smoothing:antialiased;
   }
-  .wrap{max-width:1080px;margin:0 auto;padding:48px 32px 74px;min-height:100vh;display:flex;flex-direction:column}
+  .wrap{max-width:1080px;margin:0 auto;padding:48px 32px 150px;min-height:100vh;display:flex;flex-direction:column}
 
   /* ---------- Sync badge ---------- */
   .sync{position:fixed;top:14px;right:18px;font-family:var(--sans);font-size:10px;
@@ -61,10 +61,15 @@
   .stat:last-child{border-right:none}
   .stat .num{font-family:var(--sans);font-size:34px;font-weight:500;color:var(--bronze-deep);line-height:1}
   .stat .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);margin-top:8px}
-  .goal{flex-basis:100%;border-right:none;border-top:1px solid var(--rule);background:transparent;padding:14px}
-  .goal .lbl{text-align:center;font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.1em;color:var(--slate)}
-  .goal .bar{height:6px;background:var(--paper);border:1px solid var(--rule);margin:10px auto 0;max-width:520px;position:relative}
-  .goal .bar i{display:block;height:100%;background:var(--bronze)}
+  /* Floating progress card (sticky, above the footer) */
+  .progress-card{position:fixed;left:50%;transform:translateX(-50%);bottom:54px;z-index:31;
+        width:min(680px,calc(100% - 44px));background:var(--paper);border:1px solid var(--rule);border-radius:8px;
+        box-shadow:0 12px 34px rgba(40,37,35,.18);padding:13px 24px 16px;transition:border-color .3s}
+  .progress-card.started{border-color:var(--seal)}
+  .progress-card .lbl{text-align:center;font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.1em;color:var(--slate)}
+  .progress-card .bar{height:6px;background:rgba(40,37,35,.06);border:1px solid var(--rule);border-radius:4px;margin:11px auto 0;max-width:560px;overflow:hidden}
+  .progress-card.started .bar{border-color:var(--seal)}
+  .progress-card .bar i{display:block;height:100%;width:0;background:var(--seal);transition:width 1s cubic-bezier(.2,.8,.2,1)}
 
   /* ---------- Toolbar ---------- */
   .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:34px 0 18px}
@@ -209,6 +214,12 @@
   <p class="foot">Made by Hand · Artifacts of Love</p>
 </div>
 
+<!-- Floating progress card -->
+<div class="progress-card" id="progressCard">
+  <div class="lbl" id="goalLbl"></div>
+  <div class="bar"><i id="goalBar"></i></div>
+</div>
+
 <!-- Detail / Edit modal -->
 <div class="scrim" id="scrim">
   <div class="card" id="cardHost"></div>
@@ -325,11 +336,10 @@ function renderDash(){
     <div class="stat"><div class="num">${high}</div><div class="lbl">High Signal</div></div>
     <div class="stat"><div class="num">${fl}</div><div class="lbl">First Look</div></div>
     <div class="stat"><div class="num">${gifts}</div><div class="lbl">Gifts Given</div></div>
-    <div class="stat"><div class="num">${pieces}</div><div class="lbl">Pieces in the World</div></div>
-    <div class="goal">
-      <div class="lbl">Toward 200 collectors who are genuinely in the world — ${total} / 200</div>
-      <div class="bar"><i style="width:${pct}%"></i></div>
-    </div>`;
+    <div class="stat"><div class="num">${pieces}</div><div class="lbl">Pieces in the World</div></div>`;
+  document.getElementById("goalLbl").textContent = `Toward 200 collectors who are genuinely in the world — ${total} / 200`;
+  document.getElementById("goalBar").style.width = pct + "%";
+  document.getElementById("progressCard").classList.toggle("started", total > 0);
 }
 
 /* ---------- Render ledger ---------- */
