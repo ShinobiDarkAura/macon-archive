@@ -135,8 +135,7 @@
   .ledger-head .rp{justify-self:end;text-align:right}
   .ledger-head .lv{justify-self:end;text-align:right}
   .ledger-head.hidden{display:none}
-  .ledger{border-top:1px solid var(--rule);flex:1;overflow:hidden;display:flex;flex-direction:column;transition:opacity .16s ease}
-  .ledger.switching{opacity:0}
+  .ledger{border-top:1px solid var(--rule);flex:1;overflow:hidden;display:flex;flex-direction:column}
   .entry{border-bottom:1px solid var(--rule);padding:6px 6px;display:grid;gap:18px;flex:1 1 0;min-height:0;
          grid-template-columns:46px minmax(200px,0.9fr) minmax(0,1.1fr) minmax(0,1fr) 100px 150px 44px;align-items:center;align-content:center;cursor:pointer;transition:padding .22s ease,background .12s ease}
   .ledger.compact .entry{padding:9px 6px}
@@ -690,6 +689,22 @@ function renderLedger(){
   host.querySelectorAll(".fu:not(.none)").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openDraft(+b.dataset.i); });
   renderPager(pages);
 }
+function flipLedger(render){
+  const host=document.getElementById("ledger");
+  if(!host){ render(); return; }
+  const first={};
+  host.querySelectorAll(".entry").forEach(el=>{ first[el.dataset.i]=el.getBoundingClientRect().top; });
+  render();
+  if(typeof Element==="undefined" || !Element.prototype.animate){ return; }
+  host.querySelectorAll(".entry").forEach(el=>{
+    const ft=first[el.dataset.i], lt=el.getBoundingClientRect().top;
+    if(ft!=null){ const dy=ft-lt;
+      if(Math.abs(dy)>0.5) el.animate([{transform:`translateY(${dy}px)`},{transform:"translateY(0)"}],{duration:340,easing:"cubic-bezier(.2,.8,.2,1)"});
+    } else {
+      el.animate([{opacity:0,transform:"translateY(10px)"},{opacity:1,transform:"translateY(0)"}],{duration:300,easing:"ease"});
+    }
+  });
+}
 function renderPager(pages){
   const el=document.getElementById("pager"); if(!el) return;
   if(pages<=1){ el.innerHTML=""; return; }
@@ -700,7 +715,7 @@ function renderPager(pages){
   el.querySelectorAll("button[data-p]").forEach(b=>b.onclick=()=>{
     const v=b.dataset.p;
     if(v==="prev"&&page>1)page--; else if(v==="next"&&page<pages)page++; else if(/^\d+$/.test(v))page=+v;
-    renderLedger(); window.scrollTo({top:0,behavior:"smooth"});
+    flipLedger(renderLedger); window.scrollTo({top:0,behavior:"smooth"});
   });
 }
 function toggleFav(i){
@@ -964,10 +979,7 @@ document.getElementById("q").oninput=e=>{ query=e.target.value; page=1; renderLe
     b.onclick=()=>{ if(b.dataset.v===viewMode) return;
       viewMode=b.dataset.v; localStorage.setItem("macon_view",viewMode); page=1;
       seg.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x.dataset.v===viewMode));
-      const host=document.getElementById("ledger");
-      if(host){ host.classList.add("switching");
-        setTimeout(()=>{ renderLedger(); host.classList.add("switching"); requestAnimationFrame(()=>host.classList.remove("switching")); },150);
-      } else renderLedger(); };
+      flipLedger(renderLedger); };
   });
 })();
 
