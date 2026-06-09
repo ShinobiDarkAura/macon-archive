@@ -36,7 +36,7 @@
                      radial-gradient(circle at 80% 80%, rgba(0,0,0,.012) 0, transparent 60%);
     -webkit-font-smoothing:antialiased;
   }
-  .wrap{max-width:1080px;margin:0 auto;padding:48px 32px 96px}
+  .wrap{max-width:1080px;margin:0 auto;padding:48px 32px 30px;min-height:100vh;display:flex;flex-direction:column}
 
   /* ---------- Sync badge ---------- */
   .sync{position:fixed;top:14px;right:18px;font-family:var(--sans);font-size:10px;
@@ -135,8 +135,8 @@
   .form-grid .fg.full{grid-column:1/-1}
   .form-grid label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);margin-bottom:6px}
   .form-grid textarea{resize:vertical;min-height:54px}
-  .foot{text-align:center;margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
-        font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--bronze)}
+  .foot{text-align:center;margin-top:auto;padding-top:22px;border-top:1px solid var(--rule);
+        font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#a7a39c}
 
   /* ---------- Sign-in gate ---------- */
   .gate{position:fixed;inset:0;background:var(--paper);display:none;align-items:center;justify-content:center;z-index:80}
