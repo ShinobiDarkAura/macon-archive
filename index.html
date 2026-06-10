@@ -91,10 +91,10 @@
   .col-left{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0}
   @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
   .mast{animation:rise .45s ease both .04s}
-  .dash .stat:nth-child(1){animation:rise .45s ease both .12s}
-  .dash .stat:nth-child(2){animation:rise .45s ease both .17s}
-  .dash .stat:nth-child(3){animation:rise .45s ease both .22s}
-  .dash .stat:nth-child(4){animation:rise .45s ease both .27s}
+  body:not(.booted) .dash .stat:nth-child(1){animation:rise .45s ease both .12s}
+  body:not(.booted) .dash .stat:nth-child(2){animation:rise .45s ease both .17s}
+  body:not(.booted) .dash .stat:nth-child(3){animation:rise .45s ease both .22s}
+  body:not(.booted) .dash .stat:nth-child(4){animation:rise .45s ease both .27s}
   .progress-card{animation:rise .45s ease both .34s}
   .tabsbar{animation:rise .45s ease both .4s}
   .toolbar{animation:rise .45s ease both .08s}
@@ -460,7 +460,8 @@
 <body>
 <script>try{if(localStorage.getItem("macon_drawer")==="collapsed")document.body.classList.add("drawer-collapsed")}catch(e){}
 document.body.classList.add("preload");
-requestAnimationFrame(()=>requestAnimationFrame(()=>document.body.classList.remove("preload")));</script>
+requestAnimationFrame(()=>requestAnimationFrame(()=>document.body.classList.remove("preload")));
+setTimeout(()=>document.body.classList.add("booted"),1400);</script>
 
 <!-- =====================================================================
      CONFIG — Supabase project values for cross-device sync.
