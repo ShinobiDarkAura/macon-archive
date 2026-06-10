@@ -73,6 +73,10 @@
   .daybrief ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;width:100%}
   .daybrief li{position:relative;display:flex;gap:13px;align-items:baseline;width:100%;font-family:var(--sans);font-size:13px;color:var(--ink);line-height:1.35;cursor:pointer;padding-right:24px;transition:color .15s}
   .daybrief li .db-check{position:absolute;right:0;top:50%;transform:translateY(-50%);opacity:0;color:#a09b91;transition:opacity .15s;pointer-events:none}
+  .daybrief li .db-go{position:absolute;right:24px;top:50%;transform:translateY(-50%);opacity:0;color:#a09b91;transition:opacity .15s,color .12s;cursor:pointer;border:none;background:transparent;padding:2px;line-height:0;display:flex}
+  .daybrief li:hover .db-go{opacity:1}
+  .daybrief li .db-go:hover{color:var(--ink)}
+  .daybrief li.has-go{padding-right:46px}
   .daybrief li:hover .db-check{opacity:1}
   .daybrief li.done{color:#a09b91}
   .daybrief li.done .db-text{text-decoration:line-through;text-decoration-thickness:.75px}
@@ -207,7 +211,9 @@
           font-size:16px;color:var(--bronze-deep);letter-spacing:.02em;overflow:hidden;transition:width .22s ease,height .22s ease,font-size .22s ease}
   .avatar img{width:100%;height:100%;object-fit:cover;display:block;
     filter:grayscale(1) sepia(.32) saturate(.78) brightness(1.04);transition:filter .25s ease}
+  .avatar::after{content:"";position:absolute;inset:0;background:rgba(216,208,193,.45);pointer-events:none;transition:opacity .25s ease}
   .entry:hover .avatar img{filter:none}
+  .entry:hover .avatar::after{opacity:0}
   .ledger.compact .avatar{width:32px;height:32px;font-size:12px}
   .entry .who{min-width:0}
   .entry .who .nm{font-family:"Louize",Georgia,serif;font-size:22px;font-weight:400;line-height:1.15;white-space:nowrap;transition:font-size .22s ease}
@@ -1436,9 +1442,38 @@ function readPieces(){
 function openScrim(){ const host=document.getElementById("cardHost"); if(host&&!host.querySelector(".modal-x")){ const b=document.createElement("button"); b.type="button"; b.className="modal-x"; b.title="Close"; b.setAttribute("aria-label","Close"); b.innerHTML="&times;"; b.onclick=closeScrim; host.insertBefore(b, host.firstChild); } document.getElementById("scrim").classList.add("show"); }
 function closeScrim(){ document.getElementById("scrim").classList.remove("show"); }
 
+/* ---------- Bureau-generated to-dos ---------- */
+// A year of maker's letters — jumping-off themes, one per month. Edit freely.
+const BUREAU_LETTERS=[
+  {date:"2026-07-06", title:"Maker's Letter — The London Letters: what the Thames taught us"},
+  {date:"2026-08-03", title:"Maker's Letter — Where Objects Live: a photo essay from collectors' homes"},
+  {date:"2026-09-07", title:"Maker's Letter — The Foundry Letter: how a totem is cast"},
+  {date:"2026-10-05", title:"Maker's Letter — Patina: on bronze aging alongside you"},
+  {date:"2026-11-02", title:"Maker's Letter — The Gift Letter: choosing an artifact for someone else"},
+  {date:"2026-12-07", title:"Maker's Letter — Artifacts of Love: the year in the studio, a thank-you"},
+  {date:"2027-01-04", title:"Maker's Letter — Beginnings: first sketches of the new collection"},
+  {date:"2027-02-01", title:"Maker's Letter — Love Letters: pieces given, stories received"},
+  {date:"2027-03-01", title:"Maker's Letter — The Ephemeral Collection: objects that exist only once"},
+  {date:"2027-04-05", title:"Maker's Letter — Tools: the hands and instruments behind each piece"},
+  {date:"2027-05-03", title:"Maker's Letter — The Collector's Shelf: conversations with true collectors"},
+  {date:"2027-06-07", title:"Maker's Letter — One Year of the Bureau: the archive, by the numbers"},
+];
+const ORDER_TODO_CUTOFF="2026-06-10"; // orders entered after this date also surface as to-dos
+function bureauTodos(){
+  const today=new Date().toLocaleDateString("en-CA");
+  const out=[];
+  BUREAU_LETTERS.forEach(t=>{ if(t.date===today) out.push({time:"", title:t.title, act:{type:"compose"}}); });
+  data.forEach((d,i)=>{
+    if(isDue(d) && (d.last_buy||"")>=ORDER_TODO_CUTOFF)
+      out.push({time:"", title:`Follow up with ${d.name||d.acc}`, act:{type:"draft", i}});
+  });
+  return out;
+}
+
 /* ---------- Calendar ticker ---------- */
 function showDayBrief(events){
-  if(!events||!events.length) return;
+  const items=(events||[]).map(e=>({time:e.allDay?"ALL DAY":e.start, title:e.title, act:null})).concat(bureauTodos());
+  if(!items.length) return;
   const today=new Date().toLocaleDateString("en-CA");
   if(document.querySelector(".daybrief")) return;
   const startMin = localStorage.getItem("macon_brief")===today;
@@ -1449,7 +1484,7 @@ function showDayBrief(events){
     <div class="db-kicker">${new Date().toLocaleDateString("en-US",{weekday:"short",month:"long",day:"numeric"}).replace(",","")}</div>
     <h3>Today <i>at the</i> Bureau</h3>
     <hr class="db-rule">
-    <ul>${events.map((e,k)=>`<li data-k="${k}"><span class="db-time">${e.allDay?"ALL DAY":e.start}</span><span class="db-text">${esc(e.title)}</span><svg class="db-check" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></li>`).join("")}</ul>`;
+    <ul>${items.map((e,k)=>`<li data-k="${k}" class="${e.act?'has-go':''}">${e.time?`<span class="db-time">${e.time}</span>`:`<span class="db-time">—</span>`}<span class="db-text">${esc(e.title)}</span>${e.act?`<button class="db-go" data-k="${k}" title="Open in the Bureau"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`:''}<svg class="db-check" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></li>`).join("")}</ul>`;
   let fullW=0, fullH=0;
   const collapse=(animate)=>{
     localStorage.setItem("macon_brief",today);
@@ -1484,12 +1519,19 @@ function showDayBrief(events){
       done = li.classList.contains("done") ? [...new Set([...done,k])] : done.filter(x=>x!==k);
       localStorage.setItem("macon_brief_done", JSON.stringify({date:today, done})); };
   });
+  el.querySelectorAll(".db-go").forEach(b=>{
+    b.onclick=e=>{ e.stopPropagation();
+      const act=items[+b.dataset.k].act; if(!act) return;
+      if(act.type==="draft") openDraft(act.i);
+      else if(act.type==="compose"){ const cb=document.getElementById("composeBtn"); if(cb) cb.click(); }
+    };
+  });
   if(startMin) collapse(false);
   document.body.appendChild(el);
 }
 function renderTicker(events){
   const bar=document.getElementById("ticker"); if(!bar) return;
-  if(!events||!events.length){ bar.classList.remove("show"); document.body.classList.remove("has-ticker"); return; }
+  if(!events||!events.length){ bar.classList.remove("show"); document.body.classList.remove("has-ticker"); showDayBrief([]); return; }
   /* Ticker bar paused — the daily brief popup replaces it. Uncomment to bring it back.
   const items=`<span class="tk-item tk-lead">Today at the Bureau<span class="tk-dot">·</span></span>`+
     events.map(e=>`<span class="tk-item">${e.allDay?"":`<span class="tk-time">${e.start}</span>`}${esc(e.title)}<span class="tk-dot">·</span></span>`).join("");
