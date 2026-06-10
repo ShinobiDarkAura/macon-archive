@@ -59,7 +59,12 @@
   .daybrief{position:fixed;top:54px;left:24px;z-index:55;width:373px;background:rgba(252,250,245,.33);border:1px solid var(--rule);
     border-radius:12px;box-shadow:0 18px 44px rgba(40,37,35,.22);padding:22px 24px 28px 30px;
     -webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);
-    animation:db-in .35s cubic-bezier(.2,.8,.2,1)}
+    animation:db-in .35s cubic-bezier(.2,.8,.2,1);box-sizing:border-box;
+    transition:width .38s cubic-bezier(.2,.8,.2,1),height .38s cubic-bezier(.2,.8,.2,1),padding .38s cubic-bezier(.2,.8,.2,1)}
+  .daybrief.min{width:48px;height:48px;padding:0;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .daybrief.min>*:not(.db-icon){display:none}
+  .daybrief .db-icon{display:none;border:none;background:transparent;padding:0;margin:0;color:#000;cursor:pointer;line-height:0}
+  .daybrief.min .db-icon{display:block}
   @keyframes db-in{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
   .daybrief .db-kicker{display:inline-flex;align-items:center;font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#4f7d57;background:rgba(79,125,87,.13);border:none;border-radius:999px;padding:3px 11px;margin-bottom:9px}
   .daybrief h3{font-family:"Louize",Georgia,serif;font-weight:400;font-size:29px;margin:0;color:var(--ink)}
@@ -1421,16 +1426,34 @@ function closeScrim(){ document.getElementById("scrim").classList.remove("show")
 function showDayBrief(events){
   if(!events||!events.length) return;
   const today=new Date().toLocaleDateString("en-CA");
-  if(localStorage.getItem("macon_brief")===today) return;
   if(document.querySelector(".daybrief")) return;
+  const startMin = localStorage.getItem("macon_brief")===today;
   const el=document.createElement("div");
   el.className="daybrief";
-  el.innerHTML=`<button class="db-x" title="Dismiss" aria-label="Dismiss">&times;</button>
+  el.innerHTML=`<button class="db-icon" title="Today at the Bureau" aria-label="Expand todolist"><svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg></button>
+    <button class="db-x" title="Minimize" aria-label="Minimize">&times;</button>
     <div class="db-kicker">${new Date().toLocaleDateString("en-US",{weekday:"short",month:"long",day:"numeric"}).replace(",","")}</div>
     <h3>Today <i>at the</i> Bureau</h3>
     <hr class="db-rule">
     <ul>${events.map((e,k)=>`<li data-k="${k}"><span class="db-time">${e.allDay?"ALL DAY":e.start}</span><span class="db-text">${esc(e.title)}</span><svg class="db-check" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></li>`).join("")}</ul>`;
-  el.querySelector(".db-x").onclick=()=>{ localStorage.setItem("macon_brief",today); el.remove(); };
+  let fullW=0, fullH=0;
+  const collapse=(animate)=>{
+    localStorage.setItem("macon_brief",today);
+    if(!animate){ el.classList.add("min"); el.style.width="48px"; el.style.height="48px"; return; }
+    fullW=el.offsetWidth; fullH=el.offsetHeight;
+    el.style.width=fullW+"px"; el.style.height=fullH+"px";
+    void el.offsetHeight;
+    el.classList.add("min"); el.style.width="48px"; el.style.height="48px";
+  };
+  const expand=()=>{
+    localStorage.removeItem("macon_brief");
+    el.classList.remove("min");
+    if(fullW){ void el.offsetHeight; el.style.width=fullW+"px"; el.style.height=fullH+"px";
+      setTimeout(()=>{ el.style.width=""; el.style.height=""; },400);
+    } else { el.style.width=""; el.style.height=""; }
+  };
+  el.querySelector(".db-x").onclick=e=>{ e.stopPropagation(); collapse(true); };
+  el.onclick=()=>{ if(el.classList.contains("min")) expand(); };
   let done=[]; try{ const dd=JSON.parse(localStorage.getItem("macon_brief_done")||"null"); if(dd&&dd.date===today) done=dd.done||[]; }catch(e){}
   el.querySelectorAll("li").forEach(li=>{
     const k=+li.dataset.k;
@@ -1439,6 +1462,7 @@ function showDayBrief(events){
       done = li.classList.contains("done") ? [...new Set([...done,k])] : done.filter(x=>x!==k);
       localStorage.setItem("macon_brief_done", JSON.stringify({date:today, done})); };
   });
+  if(startMin) collapse(false);
   document.body.appendChild(el);
 }
 function renderTicker(events){
