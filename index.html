@@ -105,6 +105,10 @@
   .progress-card .bar{height:10px;background:rgba(40,37,35,.06);border:1px solid var(--rule);border-radius:999px;margin:4px 0 0;overflow:hidden}
   .progress-card.started .bar{border-color:var(--rule)}
   .progress-card .bar i{display:block;height:100%;width:0;background:var(--seal);transition:width 1s cubic-bezier(.2,.8,.2,1)}
+  .pc-funnel{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:9px;
+    font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#a7a39c;white-space:nowrap}
+  .pc-funnel i{font-style:normal;color:#d2cbbc}
+  .pc-funnel span:first-child{color:var(--seal)}
     .copyright{position:fixed;left:calc(0.625vw + 38px);width:calc(23.75vw - 115px);bottom:28px;z-index:31;text-align:center;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#a7a39c;transition:width .28s ease}
   body.drawer-collapsed .progress-card{width:calc(20.19vw - 22.1px);left:calc(2.406vw + 36.05px)}
   body.drawer-collapsed .copyright{width:calc(23.75vw - 26px)}
@@ -443,6 +447,7 @@
     <span class="count" id="goalCount"></span>
   </div>
   <div class="bar"><i id="goalBar"></i></div>
+  <div class="pc-funnel" id="goalFunnel"></div>
 </div>
 <div class="copyright tabsbar">
   <div class="tabs" id="tabs">
@@ -597,6 +602,13 @@ function setSync(cls,txt){ const el=document.getElementById("sync"); el.classNam
 
 /* ---------- Render dashboard ---------- */
 let prevStats=null;
+// True collector: repeat (2+ pieces) AND bought within the last 18 months.
+// One-time recent buyers are prospects (the cultivation pool); repeat-but-quiet are lapsed.
+const RECENT_DAYS = 548; // ~18 months
+function isRecent(d){ const n=daysSince(d.last_buy); return n!=null && n<=RECENT_DAYS; }
+function isTrueCollector(d){ return countPieces(d.pieces)>=2 && isRecent(d); }
+function isProspect(d){ return countPieces(d.pieces)<2 && isRecent(d); }
+function isLapsed(d){ return countPieces(d.pieces)>=2 && !isRecent(d); }
 function renderDash(){
   const total=data.length;
   const fl=data.filter(d=>d.first_look).length;
@@ -604,7 +616,10 @@ function renderDash(){
   const stories=data.filter(d=>d.story==="Yes").length;
   const ltvSum=data.reduce((s,d)=>s+num(d.ltv),0);
   const avgVal=total? "$"+Math.round(ltvSum/total).toLocaleString("en-US") : "$0";
-  const pct=Math.min(100, Math.round(total/200*100));
+  const trueN=data.filter(isTrueCollector).length;
+  const prospects=data.filter(isProspect).length;
+  const lapsed=data.filter(isLapsed).length;
+  const pct=Math.min(100, Math.round(trueN/200*100));
   const stats=[
     {k:"collectors", v:total,  l:"Collectors"},
     {k:"favorites",  v:fl,     l:"VIPs"},
@@ -624,8 +639,10 @@ function renderDash(){
   }
   prevStats={}; stats.forEach(s=>prevStats[s.k]=s.v);
   document.getElementById("goalLbl").textContent = "No. of True Collectors";
-  document.getElementById("goalCount").textContent = `${total} / 200`;
+  document.getElementById("goalCount").textContent = `${trueN} / 200`;
   document.getElementById("goalBar").style.width = pct + "%";
+  const fn=document.getElementById("goalFunnel");
+  if(fn) fn.innerHTML = `<span title="2+ pieces, bought within 18 months">${trueN} true</span><i>·</i><span title="1 piece, bought within 18 months — the conversion pool">${prospects} prospects</span><i>·</i><span title="Repeat collectors gone quiet 18+ months">${lapsed} lapsed</span>`;
   document.getElementById("progressCard").classList.toggle("started", total > 0);
 }
 
