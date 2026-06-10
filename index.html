@@ -221,8 +221,8 @@
   .entry .who .sub{font-size:12px;color:#bcb6aa;margin-top:-2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ledger.compact .who .sub{margin-top:-4px}
   .entry .cell{font-size:13px;color:var(--slate);font-style:normal;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .entry .cell.loc{color:#bcb6aa}
-  .entry .cell.pieces{font-family:var(--mono);font-size:12px;color:#000;font-weight:400;letter-spacing:.06em}
+  .entry .cell.loc{font-family:var(--mono);font-size:12px;color:#bcb6aa;font-weight:400;letter-spacing:.06em}
+  .entry .cell.pieces{font-family:var(--mono);font-size:12px;color:#bcb6aa;font-weight:400;letter-spacing:.06em}
   .entry .cell.purchased{text-align:right;justify-self:end;font-family:var(--mono);font-size:12px;color:#000;font-weight:400;letter-spacing:.06em}
   .entry .right{justify-self:end;text-align:right}
   .entry .right.ltv{font-family:var(--mono);font-size:12px;color:#000;font-weight:400;letter-spacing:.06em;justify-self:end;text-align:right}
@@ -673,7 +673,7 @@ function nextAcc(){
 function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function num(v){ const n=parseFloat(String(v==null?"":v).replace(/[^0-9.\-]/g,"")); return isNaN(n)?0:n; }
 function fmtMoney(v){ const n=num(v); return v==null||v===""?"" : "$"+n.toLocaleString("en-US",{maximumFractionDigits:0}); }
-function capPieces(s){ s=s||""; return s.length>36 ? s.slice(0,36).replace(/[ ,]+$/,"")+"…" : s; }
+function capPieces(s){ s=s||""; return s.length>28 ? s.slice(0,28).replace(/[ ,]+$/,"")+"…" : s; }
 function setSync(cls,txt){ const el=document.getElementById("sync"); el.className="sync "+cls; document.getElementById("syncTxt").textContent=txt; }
 
 /* ---------- Render dashboard ---------- */
