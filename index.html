@@ -237,7 +237,8 @@
   .entry .fu{justify-self:center;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:none;
         background:none;cursor:pointer;color:#c3bdb0;font-size:20px;transition:.15s;opacity:1}
   .entry .fu:hover{color:#d96a2c;opacity:1}
-  .entry .fu.none{visibility:hidden;cursor:default}
+  .entry .fu.idle{color:#ddd8cc}
+  .fu.idle:hover{color:var(--ink);opacity:1}
   .fav{background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:0 0 0 9px;color:var(--rule);transition:color .15s;vertical-align:baseline}
   .fav.on{color:var(--seal)}
   .fav:hover{color:var(--seal)}
@@ -968,7 +969,7 @@ function renderLedger(){
       <div class="cell loc">${esc(d.location||"")}</div>
       <div class="cell purchased">${esc(fmtDate(d.last_buy))}</div>
       <div class="right ltv">${esc(fmtMoney(d.ltv))}</div>
-      ${isDue(d)?`<button class="fu" data-i="${i}" title="Follow up — draft email"><svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path d="M10 2a6 6 0 0 0-6 6c0 1.886-.454 3.665-1.257 5.234a.75.75 0 0 0 .515 1.076 32.9 32.9 0 0 0 3.256.508 3.5 3.5 0 0 0 6.972 0 32.9 32.9 0 0 0 3.256-.508.75.75 0 0 0 .515-1.076A11.45 11.45 0 0 1 16 8a6 6 0 0 0-6-6ZM8.05 14.943a33.5 33.5 0 0 0 3.9 0 2 2 0 0 1-3.9 0Z"/></svg></button>`:`<button class="fu none" tabindex="-1"></button>`}
+      <button class="fu ${isDue(d)?"due":"idle"}" data-i="${i}" title="Follow up — draft email"><svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path d="M10 2a6 6 0 0 0-6 6c0 1.886-.454 3.665-1.257 5.234a.75.75 0 0 0 .515 1.076 32.9 32.9 0 0 0 3.256.508 3.5 3.5 0 0 0 6.972 0 32.9 32.9 0 0 0 3.256-.508.75.75 0 0 0 .515-1.076A11.45 11.45 0 0 1 16 8a6 6 0 0 0-6-6ZM8.05 14.943a33.5 33.5 0 0 0 3.9 0 2 2 0 0 1-3.9 0Z"/></svg></button>
     </div>`;
   }).join("");
   if(!window._introPlayed && slice.length && Element.prototype.animate){
