@@ -312,10 +312,10 @@
   }
 
   /* ---------- Follow-up drawer ---------- */
-  body{transition:padding-right .28s ease;padding-right:404px}
+  body{transition:padding-right .28s ease;padding-right:420px}
   body.drawer-collapsed{padding-right:18px}
   body.preload, body.preload *{transition:none!important}
-  .drawer{position:fixed;top:0;right:0;height:100vh;width:404px;background:rgba(252,250,245,.41);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);
+  .drawer{position:fixed;top:0;right:0;height:100vh;width:420px;background:rgba(252,250,245,.41);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);
         box-shadow:-14px 0 40px rgba(40,37,35,.10);z-index:45;display:flex;flex-direction:column;
         transform:translateX(0);transition:transform .28s ease}
   body.drawer-collapsed .drawer{transform:translateX(100%)}
@@ -329,6 +329,9 @@
   .drawer-close:hover{color:var(--ink)}
   .drawer-body{flex:1;overflow:auto;padding:20px 24px 124px;display:flex;flex-direction:column;gap:22px}
   .drawer-empty{color:var(--slate);font-family:var(--serif-soul);font-style:italic;font-size:15px;text-align:center;margin-top:30px}
+  .frow{position:relative;flex:0 0 auto;transition:height .38s ease,margin .38s ease}
+  .frow.unseen::before{content:"";position:absolute;left:-14px;top:50%;transform:translateY(-50%);
+    width:4px;height:4px;border-radius:50%;background:#3a6ea5}
   .fcard{display:flex;flex-direction:row;gap:0;flex:0 0 auto;border:none;border-radius:12px;background:rgba(255,253,249,.72);box-shadow:none;overflow:hidden;cursor:pointer;
     transition:box-shadow .18s ease,transform .2s ease}
   .fcard:hover{box-shadow:0 4px 15px rgba(40,37,35,.11);transform:translateY(-4px)}
@@ -337,11 +340,11 @@
   .fcard-img{position:relative;flex:0 0 auto;width:100%;height:91px;background:var(--paper-2)}
   .fcard-img img{width:100%;height:100%;object-fit:cover;display:block}
   .fcard-img::after{content:"";position:absolute;left:0;right:0;bottom:0;height:58%;background:linear-gradient(to top,#fff,rgba(255,255,255,0));pointer-events:none;z-index:1}
-  .fcard-body{position:relative;flex:1;min-width:0;padding:22px 18px 28px 26px}
+  .fcard-body{position:relative;flex:1;min-width:0;padding:22px 34px 28px 26px}
   .fcard-top{display:flex;align-items:center;gap:13px}
   .fcard .fav-av{width:25.9%;flex:0 0 25.9%;align-self:stretch;position:relative;border-radius:0;overflow:hidden;background:var(--paper-2)}
   .fcard .fav-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-    filter:grayscale(1) sepia(.48) saturate(.82) brightness(.97);opacity:.4;transition:filter .25s ease,opacity .25s ease}
+    filter:grayscale(1) sepia(.48) saturate(.82) brightness(.97);opacity:.5;transition:filter .25s ease,opacity .25s ease}
   .fcard:hover .fav-av img{filter:none;opacity:1}
   .fcard .ftitle{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
   .fcard .fn{align-self:flex-start;display:inline-flex;align-items:center;padding:3px 9px 4px;border-radius:999px;background:#ede8dc;
@@ -377,7 +380,7 @@
   .drawer-rail #railLabel{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--mono);font-weight:700;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#fff}
   @media(max-width:820px){
     body{padding-right:0}
-    .drawer{width:min(380px,86vw)}
+    .drawer{width:min(396px,86vw)}
   }
 
   /* ---------- Detail / provenance card ---------- */
@@ -1091,6 +1094,12 @@ function applyTab(){
 }
 
 /* ---------- Follow-up drawer + draft ---------- */
+function fuSeen(){ try{ const a=JSON.parse(localStorage.getItem("macon_fu_seen")||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function markFuSeen(row){
+  if(!row||!row.dataset.sid) return;
+  row.classList.remove("unseen");
+  const a=fuSeen(); if(!a.includes(row.dataset.sid)){ a.push(row.dataset.sid); localStorage.setItem("macon_fu_seen", JSON.stringify(a.slice(-300))); }
+}
 function renderDrawer(){
   const list=followUps();
   const body=document.getElementById("drawerBody");
@@ -1107,7 +1116,8 @@ function renderDrawer(){
     const d=x.d;
     const slug=pieceSlug(d.pieces);
     const src=pieceImg(d.pieces);
-    return `<div class="fcard" data-i="${x.i}" data-kind="${x.kind}" role="button" tabindex="0" title="Draft email">
+    const seenId=x.kind+"|"+(d.acc||x.i)+"|"+(d.last_buy||"");
+    return `<div class="frow ${fuSeen().includes(seenId)?"":"unseen"}" data-sid="${esc(seenId)}"><div class="fcard" data-i="${x.i}" data-kind="${x.kind}" role="button" tabindex="0" title="Draft email">
       <div class="fav-av"><img src="${src}" alt="" loading="lazy" data-slug="${slug}" onerror="if(!this.dataset.fb){this.dataset.fb=1;PIECE_404.add(this.dataset.slug);this.src='pieces/custom.jpeg'}"></div>
       <div class="fcard-body">
         <!-- priority badge paused for now:
@@ -1121,11 +1131,12 @@ function renderDrawer(){
         </div>
         <div class="fsum">${followSummary(d, x.kind)}</div>
       </div>
-    </div>`;
+    </div></div>`;
   }).join("");
   body.querySelectorAll(".fcard").forEach(c=>{
-    c.onclick=()=>openDraft(+c.dataset.i, c.dataset.kind);
-    c.onkeydown=e=>{ if(e.key==="Enter") openDraft(+c.dataset.i, c.dataset.kind); };
+    const go=()=>{ markFuSeen(c.parentElement); openDraft(+c.dataset.i, c.dataset.kind); };
+    c.onclick=go;
+    c.onkeydown=e=>{ if(e.key==="Enter") go(); };
   });
   body.querySelectorAll(".donechip").forEach(b=>b.onclick=e=>{
     e.stopPropagation();
@@ -1136,8 +1147,9 @@ function renderDrawer(){
     body.style.pointerEvents="none";
     setTimeout(()=>{ const db=document.getElementById("drawerBody"); if(db) db.style.pointerEvents=""; }, 850);
     setTimeout(()=>{
-      card.style.height=card.offsetHeight+"px";
-      requestAnimationFrame(()=>{ card.classList.add("leaving"); card.style.height="0px"; card.style.marginTop="-22px"; });
+      const row=card.closest(".frow")||card;
+      row.style.height=row.offsetHeight+"px"; row.style.overflow="hidden";
+      requestAnimationFrame(()=>{ card.classList.add("leaving"); row.style.height="0px"; row.style.marginTop="-22px"; });
       setTimeout(()=>markContacted(i), 400);
     }, 320);
   });
