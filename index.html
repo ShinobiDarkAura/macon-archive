@@ -281,19 +281,20 @@
   .fcard-img::after{content:"";position:absolute;left:0;right:0;bottom:0;height:58%;background:linear-gradient(to top,#fff,rgba(255,255,255,0));pointer-events:none;z-index:1}
   .fcard-body{position:relative;flex:1;min-width:0;padding:16px 18px}
   .fcard-top{display:flex;align-items:center;gap:13px}
-  .fcard .fav-av{width:25%;flex:0 0 25%;align-self:stretch;position:relative;border-radius:0;overflow:hidden;background:var(--paper-2)}
+  .fcard .fav-av{width:27.5%;flex:0 0 27.5%;align-self:stretch;position:relative;border-radius:0;overflow:hidden;background:var(--paper-2)}
   .fcard .fav-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .fcard .ftitle{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
   .fcard .fn{align-self:flex-start;display:inline-flex;align-items:center;padding:3px 9px 4px;border-radius:999px;background:#ede8dc;
     font-family:var(--sans);font-variant-caps:all-small-caps;font-size:8.5pt;font-weight:500;letter-spacing:.08em;line-height:1.1;color:#8f897e;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-  .fn.t-vip{background:#f0e4cf}
-  .fn.t-reconnect{background:#e2e8ee}
-  .fn.t-repeat{background:#e4ecdc}
-  .fn.t-gift{background:#f2e2dd}
-  .fn.t-value{background:#f1ead0}
-  .fn.t-first{background:#ede8dc}
-  .fcard .fsum{font-family:var(--sans);font-size:14px;line-height:1.45;color:var(--slate);margin-top:16px}
+  .fn.t-vip{background:#f0e4cf;color:#8c6a3f}
+  .fn.t-reconnect{background:#e2e8ee;color:#56708a}
+  .fn.t-repeat{background:#e4ecdc;color:#5f7a4e}
+  .fn.t-gift{background:#f2e2dd;color:#9c5a4a}
+  .fn.t-value{background:#f1ead0;color:#8c7d3a}
+  .fn.t-first{background:#ede8dc;color:#75716a}
+  .fcard .fsum{font-family:var(--sans);font-size:14px;line-height:1.45;color:#75746e;margin-top:4px}
+  .fcard .fsum b{font-weight:600}
   .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:16pt;line-height:1.15;color:var(--ink);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .daychip{position:absolute;top:14px;right:43px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;padding:0;color:#fff;border:none;font-family:var(--sans);font-size:12px;font-weight:700;line-height:1;z-index:3;background:#3a6ea5}
   .donechip{position:absolute;top:14px;right:16px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;
@@ -718,8 +719,9 @@ function followKey(d, kind){
   return "first";
 }
 function followSummary(d, kind){
-  const piece=firstPiece(d.pieces)||"their piece";
-  const jewel=isJewelry(piece);
+  // returns HTML: the piece name is escaped, then slightly bolded
+  const piece=`<b>${esc(firstPiece(d.pieces)||"their piece")}</b>`;
+  const jewel=isJewelry(firstPiece(d.pieces));
   switch(followKey(d, kind)){
     case "reconnect": return "Gone quiet for a while. Send a no-ask hello so they know they're still on your mind.";
     case "gift":      return `They gave ${piece} as a gift. Ask how it was received.`;
@@ -1024,7 +1026,7 @@ function renderDrawer(){
             <div class="ftype">${esc(d.name||"—")}</div>
           </div>
         </div>
-        <div class="fsum">${esc(followSummary(d, x.kind))}</div>
+        <div class="fsum">${followSummary(d, x.kind)}</div>
       </div>
     </div>`;
   }).join("");
