@@ -55,15 +55,15 @@
   .ticker .tk-time{color:#d8a868;margin-right:10px}
   .ticker .tk-dot{margin:0 0 0 28px;color:var(--bronze,#a8845c)}
   @keyframes tk-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-  .daybrief{position:fixed;top:54px;left:24px;z-index:55;width:324px;background:rgba(252,250,245,.72);border:1px solid var(--rule);
-    border-radius:12px;box-shadow:0 18px 44px rgba(40,37,35,.22);padding:22px 24px 28px;
+  .daybrief{position:fixed;top:54px;left:24px;z-index:55;width:324px;background:rgba(252,250,245,.55);border:1px solid var(--rule);
+    border-radius:12px;box-shadow:0 18px 44px rgba(40,37,35,.22);padding:22px 24px 28px 30px;
     -webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);
     animation:db-in .35s cubic-bezier(.2,.8,.2,1)}
   @keyframes db-in{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-  .daybrief .db-kicker{display:inline-flex;align-items:center;font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#4f7d57;background:rgba(79,125,87,.13);border:.75px solid rgba(79,125,87,.3);border-radius:999px;padding:3px 11px;margin-bottom:9px}
+  .daybrief .db-kicker{display:inline-flex;align-items:center;font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#4f7d57;background:rgba(79,125,87,.13);border:none;border-radius:999px;padding:3px 11px;margin-bottom:9px}
   .daybrief h3{font-family:"Louize",Georgia,serif;font-weight:400;font-size:25px;margin:0 0 14px;color:var(--ink)}
-  .daybrief ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
-  .daybrief li{position:relative;display:flex;gap:10px;align-items:baseline;font-family:var(--sans);font-size:13px;color:var(--ink);line-height:1.35;cursor:pointer;padding-right:24px;transition:color .15s}
+  .daybrief ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;width:100%}
+  .daybrief li{position:relative;display:flex;gap:13px;align-items:baseline;width:100%;font-family:var(--sans);font-size:13px;color:var(--ink);line-height:1.35;cursor:pointer;padding-right:24px;transition:color .15s}
   .daybrief li .db-check{position:absolute;right:0;top:50%;transform:translateY(-50%);opacity:0;color:#a09b91;transition:opacity .15s;pointer-events:none}
   .daybrief li:hover .db-check{opacity:1}
   .daybrief li.done{color:#a09b91}
@@ -71,6 +71,7 @@
   .daybrief li.done .db-time{color:#bcb5a6}
   .daybrief li.done .db-check{opacity:1;color:#4f7d57}
   .daybrief li .db-time{flex:0 0 auto;font-family:var(--mono);font-size:10px;color:var(--bronze);letter-spacing:.06em}
+  .daybrief li .db-text{flex:1;min-width:0}
   .daybrief .db-x{position:absolute;top:10px;right:12px;width:28px;height:28px;border:none;background:transparent;color:var(--slate);
     font-size:20px;line-height:1;cursor:pointer;border-radius:8px;display:flex;align-items:center;justify-content:center}
   .daybrief .db-x:hover{background:var(--paper-2);color:var(--ink)}
@@ -117,7 +118,7 @@
   }
   /* Floating progress card (sticky, above the footer) */
   .progress-card{position:fixed;left:calc(0.891vw + 36.7px);bottom:82px;z-index:31;
-        width:calc(23.22vw - 112.4px);background:var(--paper);border:1px solid var(--rule);border-radius:999px;
+        width:calc(23.22vw - 112.4px);background:rgba(252,250,245,.55);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);border:1px solid var(--rule);border-radius:999px;
         box-shadow:0 12px 34px rgba(40,37,35,.18);padding:16px 18px 18px;transition:width .28s ease,border-color .3s;border-radius:15px}
   .progress-card.started{border-color:var(--rule)}
   .progress-card .pc-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
@@ -281,7 +282,7 @@
   /* ---------- Follow-up drawer ---------- */
   body{transition:padding-right .28s ease;padding-right:404px}
   body.drawer-collapsed{padding-right:18px}
-  .drawer{position:fixed;top:0;right:0;height:100vh;width:404px;background:var(--paper);
+  .drawer{position:fixed;top:0;right:0;height:100vh;width:404px;background:rgba(252,250,245,.55);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);
         box-shadow:-14px 0 40px rgba(40,37,35,.10);z-index:45;display:flex;flex-direction:column;
         transform:translateX(0);transition:transform .28s ease}
   body.drawer-collapsed .drawer{transform:translateX(100%)}
@@ -1414,7 +1415,7 @@ function showDayBrief(events){
   const el=document.createElement("div");
   el.className="daybrief";
   el.innerHTML=`<button class="db-x" title="Dismiss" aria-label="Dismiss">&times;</button>
-    <div class="db-kicker">${new Date().toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})}</div>
+    <div class="db-kicker">${new Date().toLocaleDateString("en-US",{weekday:"short",month:"long",day:"numeric"}).replace(",","")}</div>
     <h3>Today at the Bureau</h3>
     <ul>${events.map((e,k)=>`<li data-k="${k}"><span class="db-time">${e.allDay?"ALL DAY":e.start}</span><span class="db-text">${esc(e.title)}</span><svg class="db-check" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></li>`).join("")}</ul>`;
   el.querySelector(".db-x").onclick=()=>{ localStorage.setItem("macon_brief",today); el.remove(); };
