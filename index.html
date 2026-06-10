@@ -1370,10 +1370,79 @@ const BROADCASTS={
   blank:{label:"Blank", subject:"",
     body:["Hi there,","","","Warmly,","Alex & Hannah"].join("\n")},
 };
+const LETTER_EDITIONS={
+  makers:{
+    "2026-07":{label:"July — The London Letters", subject:"The London Letters — what the Thames taught us",
+      body:["Hi there,","","It's Alex and Hannah. We've spent the summer working from London, and the river has been teaching us things — about patience, about what survives, about objects that outlast their owners.","","[What we found on the foreshore, what we made because of it, how London changed the work.]","","Thank you for being part of this.","","Warmly,","Alex & Hannah"].join("\n")},
+    "2026-08":{label:"August — Where Objects Live", subject:"Where your artifacts live",
+      body:["Hi there,","","We asked a few collectors to show us where their pieces ended up — a windowsill in Lisbon, a desk in Brooklyn, a pocket that crosses the Atlantic twice a year.","","[The photo essay — three or four homes, in the collectors' own words.]","","If your piece has found its spot, we'd love to see it.","","Warmly,","Alex & Hannah"].join("\n")},
+    "2026-09":{label:"September — The Foundry Letter", subject:"How a totem is cast",
+      body:["Hi there,","","This month, the whole process — wax to investment to bronze pour to patina — for one single piece, start to finish.","","[The casting story, with process photos. Where it almost went wrong. Why we still do it this way.]","","Warmly,","Alex & Hannah"].join("\n")},
+    "2026-10":{label:"October — Patina", subject:"On bronze aging alongside you",
+      body:["Hi there,","","Bronze doesn't stay the way we ship it. It darkens where you hold it, brightens where it rubs, and slowly becomes a record of its keeper.","","[Patina stories — before/after photos from older pieces, how to care (or deliberately not care) for yours.]","","Warmly,","Alex & Hannah"].join("\n")},
+    "2026-11":{label:"November — The Gift Letter", subject:"Choosing an artifact for someone else",
+      body:["Hi there,","","Most of our favorite stories start with someone choosing a piece for someone else. This month: how to choose well.","","[Gift guidance by person, not product — plus ordering deadlines for the holidays.]","","Warmly,","Alex & Hannah"].join("\n")},
+    "2026-12":{label:"December — Artifacts of Love", subject:"The year in the studio — thank you",
+      body:["Hi there,","","A year ago this letter didn't exist. Here's what you made possible: every piece, every story, every place our objects now live.","","[Year in review — numbers, favorite moments, one collector story. A genuine thank-you.]","","With love,","Alex & Hannah"].join("\n")},
+    "2027-01":{label:"January — Beginnings", subject:"First sketches of the new collection",
+      body:["Hi there,","","Every piece starts ugly — a thumbnail sketch, a lump of wax. This month we're showing you the very beginnings of what's coming this year.","","[Sketchbook pages, early waxes, the ideas that probably won't survive.]","","Warmly,","Alex & Hannah"].join("\n")},
+    "2027-02":{label:"February — Love Letters", subject:"Pieces given, stories received",
+      body:["Hi there,","","February belongs to the givers. These are the stories that came back to us after pieces were given away — proposals, apologies, long-distance anchors.","","[Two or three gift stories, shared with permission.]","","With love,","Alex & Hannah"].join("\n")},
+    "2027-03":{label:"March — The Ephemeral Collection", subject:"Objects that exist only once",
+      body:["Hi there,","","Some things we make once and never again. This month we're introducing the Ephemeral Collection — pieces with no editions, no remakes, no second chances.","","[The concept, the first pieces, how they'll be released.]","","Warmly,","Alex & Hannah"].join("\n")},
+    "2027-04":{label:"April — Tools", subject:"The hands and instruments behind each piece",
+      body:["Hi there,","","Our tools are older than we are, mostly. This month: the files, the burnishers, the dental tools and the one hammer Hannah won't let anyone else touch.","","[Tool portraits and what each one does.]","","Warmly,","Alex & Hannah"].join("\n")},
+    "2027-05":{label:"May — The Collector's Shelf", subject:"Conversations with true collectors",
+      body:["Hi there,","","Some of you now live with three, four, five of our pieces. We asked what that's like — why they come back, how the pieces talk to each other on the shelf.","","[Interview with one or two repeat collectors.]","","Warmly,","Alex & Hannah"].join("\n")},
+    "2027-06":{label:"June — One Year of the Bureau", subject:"The archive, by the numbers",
+      body:["Hi there,","","One year of keeping records: where every piece went, the stories that came back, the map our objects have quietly drawn across the world.","","[The numbers, the map, what's next for year two.]","","Warmly,","Alex & Hannah"].join("\n")},
+  },
+  firstlook:{
+    "2026-07":{label:"July — Thames Finds", subject:"First look: what the river gave us",
+      body:["Hi there,","","Before anyone else hears about it — the London foreshore work is becoming pieces. You're seeing them first.","","[The river-marked pieces, how many exist, how to claim one.]","","With love,","Alex & Hannah"].join("\n")},
+    "2026-08":{label:"August — Home Edition", subject:"First look: pieces made for the places they'll live",
+      body:["Hi there,","","A small run designed around where they'll live — shelf pieces, pocket pieces, windowsill pieces. First look is yours.","","[The edition, the thinking, the count.]","","With love,","Alex & Hannah"].join("\n")},
+    "2026-09":{label:"September — Foundry Firsts", subject:"First look: fresh from the pour",
+      body:["Hi there,","","The autumn casting is out of the investment and still warm. Before these reach the shop, you choose first.","","[What came out of the kiln, the one-offs, the seconds we love anyway.]","","With love,","Alex & Hannah"].join("\n")},
+    "2026-10":{label:"October — Dark Patinas", subject:"First look: the dark editions",
+      body:["Hi there,","","October pieces, patinated almost black. A small run, and you're at the front of the line.","","[The dark edition — process, count, claiming.]","","With love,","Alex & Hannah"].join("\n")},
+    "2026-11":{label:"November — Before the Rush", subject:"First look: the holiday pieces, early",
+      body:["Hi there,","","The holiday pieces are done early this year, and before the rush begins, our inner circle picks first.","","[The pieces, guaranteed-by dates, how to reserve.]","","With love,","Alex & Hannah"].join("\n")},
+    "2026-12":{label:"December — The Vault", subject:"First look: one of each, from the archive",
+      body:["Hi there,","","We kept one of almost everything this year. This December, the keepers' copies go to keepers — you.","","[The archive pieces, their stories, first-come basis.]","","With love,","Alex & Hannah"].join("\n")},
+    "2027-01":{label:"January — Prototypes", subject:"First look: pieces that aren't finished yet",
+      body:["Hi there,","","This one isn't even an edition — it's the prototypes. See the new collection before it exists, and tell us what you think.","","[Early photos, an invitation to respond.]","","With love,","Alex & Hannah"].join("\n")},
+    "2027-02":{label:"February — The Pair Edition", subject:"First look: pieces made in pairs",
+      body:["Hi there,","","For February: pieces cast in pairs — one to keep, one to give. You see them before anyone.","","[The pairs, the idea, the count.]","","With love,","Alex & Hannah"].join("\n")},
+    "2027-03":{label:"March — Ephemeral, First", subject:"First look: once, and never again",
+      body:["Hi there,","","The Ephemeral Collection launches this month. Each piece exists once. Inner circle sees the catalogue 48 hours early.","","[The pieces, the rules, the early window.]","","With love,","Alex & Hannah"].join("\n")},
+    "2027-04":{label:"April — Toolmarks", subject:"First look: pieces that show their making",
+      body:["Hi there,","","An edition where we left every toolmark visible — file strokes, fingerprints in the wax, honest making. First look is yours.","","[The toolmark edition.]","","With love,","Alex & Hannah"].join("\n")},
+    "2027-05":{label:"May — Collector Requests", subject:"First look: the pieces you asked for",
+      body:["Hi there,","","All year, collectors have asked for things — sizes, rings, a darker this, a smaller that. We made some of them. Requesters and inner circle first.","","[The request pieces.]","","With love,","Alex & Hannah"].join("\n")},
+    "2027-06":{label:"June — Year Two Opens", subject:"First look: where Maçon goes next",
+      body:["Hi there,","","Year two begins. The first pieces of the new direction are ready, and as ever, you see them before the world does.","","[The new direction, the opening pieces.]","","With love,","Alex & Hannah"].join("\n")},
+  },
+};
+function editionGet(tmpl, ed){
+  const base=LETTER_EDITIONS[tmpl] && LETTER_EDITIONS[tmpl][ed]; if(!base) return null;
+  try{ const o=JSON.parse(localStorage.getItem("macon_ed_"+tmpl+"_"+ed)||"null"); if(o) return {...base, ...o}; }catch(e){}
+  return base;
+}
+function editionSave(tmpl, ed, subject, body){
+  const base=LETTER_EDITIONS[tmpl] && LETTER_EDITIONS[tmpl][ed]; if(!base) return;
+  if(subject===base.subject && body===base.body) localStorage.removeItem("macon_ed_"+tmpl+"_"+ed);
+  else localStorage.setItem("macon_ed_"+tmpl+"_"+ed, JSON.stringify({subject, body}));
+}
 function openCompose(){
   const host=document.getElementById("cardHost");
   let seg="all", tmpl="makers";
-  let subj=BROADCASTS[tmpl].subject, body=BROADCASTS[tmpl].body;
+  const thisMonth=new Date().toLocaleDateString("en-CA").slice(0,7);
+  const defEd=t=> LETTER_EDITIONS[t] ? (LETTER_EDITIONS[t][thisMonth]?thisMonth:Object.keys(LETTER_EDITIONS[t])[0]) : "";
+  let ed=defEd(tmpl);
+  let subj, body;
+  const loadTmpl=()=>{ const e=ed&&editionGet(tmpl,ed); subj=e?e.subject:BROADCASTS[tmpl].subject; body=e?e.body:BROADCASTS[tmpl].body; };
+  loadTmpl();
   const recipients=()=>{ const seen=new Set(), out=[];
     data.filter(SEGMENTS[seg].fn).forEach(d=>{ const e=(d.email||"").trim();
       if(e && !seen.has(e.toLowerCase())){ seen.add(e.toLowerCase()); out.push(e); } });
@@ -1388,6 +1457,7 @@ function openCompose(){
       <div class="form-grid">
         <div class="fg"><label>Audience</label><select id="c_seg">${Object.entries(SEGMENTS).map(([k,v])=>`<option value="${k}" ${k===seg?'selected':''}>${esc(v.label)}</option>`).join("")}</select></div>
         <div class="fg"><label>Template</label><select id="c_tmpl">${Object.entries(BROADCASTS).map(([k,v])=>`<option value="${k}" ${k===tmpl?'selected':''}>${esc(v.label)}</option>`).join("")}</select></div>
+        ${LETTER_EDITIONS[tmpl]?`<div class="fg full"><label>Edition</label><select id="c_ed">${Object.entries(LETTER_EDITIONS[tmpl]).map(([k,v])=>`<option value="${k}" ${k===ed?'selected':''}>${esc(v.label)}</option>`).join("")}</select></div>`:""}
         <div class="fg full"><label>Subject</label><div class="dfield"><input id="c_subj" value="${esc(subj)}" style="width:100%;padding-right:36px"><button class="dcopy" id="c_copysubj" title="Copy subject">${COPY_SVG}</button></div></div>
         <div class="fg full"><label>Message</label><div class="dfield"><textarea id="c_body" rows="9" style="width:100%;line-height:1.5;padding-right:36px;resize:vertical">${esc(body)}</textarea><button class="dcopy" id="c_copybody" title="Copy message">${COPY_SVG}</button></div></div>
         <div class="fg full"><label>Recipients · ${recs.length}</label>
@@ -1400,9 +1470,13 @@ function openCompose(){
         <div><button class="btn ghost" id="c_close">Close</button>
         <button class="btn" id="c_mail">Open in Mail</button></div>
       </div>`;
-    const grab=()=>{ subj=host.querySelector("#c_subj").value; body=host.querySelector("#c_body").value; };
+    const grab=()=>{ subj=host.querySelector("#c_subj").value; body=host.querySelector("#c_body").value; if(ed) editionSave(tmpl, ed, subj, body); };
+    host.querySelector("#c_subj").oninput=grab;
+    host.querySelector("#c_body").oninput=grab;
     host.querySelector("#c_seg").onchange=e=>{ grab(); seg=e.target.value; render(); };
-    host.querySelector("#c_tmpl").onchange=e=>{ tmpl=e.target.value; subj=BROADCASTS[tmpl].subject; body=BROADCASTS[tmpl].body; render(); };
+    host.querySelector("#c_tmpl").onchange=e=>{ grab(); tmpl=e.target.value; ed=defEd(tmpl); loadTmpl(); render(); };
+    const edSel=host.querySelector("#c_ed");
+    if(edSel) edSel.onchange=e=>{ grab(); ed=e.target.value; loadTmpl(); render(); };
     const flash=btn=>{ const o=btn.innerHTML; btn.innerHTML="✓"; setTimeout(()=>btn.innerHTML=o,1200); };
     const copy=async(text,btn)=>{ try{ await navigator.clipboard.writeText(text); flash(btn); }catch(e){ alert("Copy failed — select the text manually."); } };
     host.querySelector("#c_copysubj").onclick=e=>copy(host.querySelector("#c_subj").value, e.currentTarget);
