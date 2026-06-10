@@ -1539,7 +1539,7 @@ function opt(arr,sel){ return arr.map(v=>`<option ${v===sel?'selected':''}>${v}<
 function pieceItem(val, idx){
   const inner = (val && !PRODUCTS.includes(val))
     ? `<input class="pcustom" placeholder="Custom piece name" value="${esc(val)}">`
-    : `<select class="psel"><option value="">Piece name</option>${PRODUCTS.map(p=>`<option ${p===val?'selected':''}>${esc(p)}</option>`).join("")}<option value="__custom__">Custom…</option></select>`;
+    : `<select class="psel"><option value="">Piece</option>${PRODUCTS.map(p=>`<option ${p===val?'selected':''}>${esc(p)}</option>`).join("")}<option value="__custom__">Custom…</option></select>`;
   return `<span class="prow">${inner}<button type="button" class="pdel" data-idx="${idx}" title="Remove piece">&times;</button></span>`;
 }
 function collectPieces(host){
