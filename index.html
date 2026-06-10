@@ -822,13 +822,24 @@ function flipLedger(render){
   host.querySelectorAll(".entry").forEach(el=>{ first[el.dataset.i]=el.getBoundingClientRect().top; });
   render();
   if(typeof Element==="undefined" || !Element.prototype.animate){ return; }
+  const MOVE_DUR=340, incoming=[]; let hasMoved=false;
   host.querySelectorAll(".entry").forEach(el=>{
     const ft=first[el.dataset.i], lt=el.getBoundingClientRect().top;
     if(ft!=null){ const dy=ft-lt;
-      if(Math.abs(dy)>0.5) el.animate([{transform:`translateY(${dy}px)`},{transform:"translateY(0)"}],{duration:340,easing:"cubic-bezier(.2,.8,.2,1)"});
-    } else {
-      el.animate([{opacity:0,transform:"translateY(10px)"},{opacity:1,transform:"translateY(0)"}],{duration:300,easing:"ease"});
-    }
+      if(Math.abs(dy)>0.5){ hasMoved=true; el.animate([{transform:`translateY(${dy}px)`},{transform:"translateY(0)"}],{duration:MOVE_DUR,easing:"cubic-bezier(.2,.8,.2,1)"}); }
+    } else { incoming.push(el); }
+  });
+  if(!incoming.length) return;
+  // Hold new rows hidden until the reposition settles, then stagger them up from
+  // below, one at a time, very quickly — ~1s for the whole run.
+  incoming.forEach(el=>{ el.style.visibility="hidden"; });
+  const base=hasMoved?MOVE_DUR:0, RUN=1000, DUR=280;
+  const step=incoming.length>1 ? Math.max(45,(RUN-DUR)/(incoming.length-1)) : 0;
+  incoming.forEach((el,k)=>{
+    setTimeout(()=>{
+      el.style.visibility="";
+      el.animate([{opacity:0,transform:"translateY(26px)"},{opacity:1,transform:"translateY(0)"}],{duration:DUR,easing:"cubic-bezier(.2,.8,.2,1)"});
+    }, base + k*step);
   });
 }
 function renderPager(pages){
