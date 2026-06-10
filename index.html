@@ -1548,22 +1548,37 @@ const BUREAU_LETTERS=[
   {date:"2027-06-07", title:"Maker's Letter — One Year of the Bureau: the archive, by the numbers"},
 ];
 const ORDER_TODO_CUTOFF="2026-06-10"; // orders entered after this date also surface as to-dos
+// Persistent completion: letters and follow-ups stay on the list, day after day,
+// until someone checks them off. Done ids: {"letter|2026-07-06":"2026-07-08", ...}
+function briefDone(){ try{ return JSON.parse(localStorage.getItem("macon_brief_done_v2")||"{}"); }catch(e){ return {}; } }
+function setBriefDone(m){
+  const cutoff=new Date(Date.now()-7*86400000).toLocaleDateString("en-CA");
+  Object.keys(m).forEach(k=>{ if(k.startsWith("cal|") && (m[k]||"")<cutoff) delete m[k]; });
+  localStorage.setItem("macon_brief_done_v2", JSON.stringify(m));
+}
 function bureauTodos(){
   const today=new Date().toLocaleDateString("en-CA");
+  const done=briefDone();
   const out=[];
-  BUREAU_LETTERS.forEach(t=>{ if(t.date===today) out.push({time:"", title:t.title, act:{type:"compose"}}); });
+  BUREAU_LETTERS.forEach(t=>{
+    const id="letter|"+t.date;
+    if(t.date<=today && !done[id]) out.push({id,
+      time:t.date<today ? new Date(Date.parse(t.date)+43200000).toLocaleDateString("en-US",{month:"short",day:"numeric"}).toUpperCase() : "",
+      title:t.title, act:{type:"compose"}});
+  });
   data.forEach((d,i)=>{
-    if(isDue(d) && (d.last_buy||"")>=ORDER_TODO_CUTOFF)
-      out.push({time:"", title:`Follow up with ${d.name||d.acc}`, act:{type:"draft", i}});
+    const id="fu|"+(d.acc||i)+"|"+(d.last_buy||"");
+    if(isDue(d) && (d.last_buy||"")>=ORDER_TODO_CUTOFF && !done[id])
+      out.push({id, time:"", title:`Follow up with ${d.name||d.acc}`, act:{type:"draft", i}});
   });
   return out;
 }
 
 /* ---------- Calendar ticker ---------- */
 function showDayBrief(events){
-  const items=(events||[]).map(e=>({time:e.allDay?"ALL DAY":e.start, title:e.title, act:null})).concat(bureauTodos());
-  if(!items.length) return;
   const today=new Date().toLocaleDateString("en-CA");
+  const items=(events||[]).map(e=>({id:"cal|"+today+"|"+e.title, time:e.allDay?"ALL DAY":e.start, title:e.title, act:null})).concat(bureauTodos());
+  if(!items.length) return;
   if(document.querySelector(".daybrief")) return;
   const startMin = localStorage.getItem("macon_brief")===today;
   const el=document.createElement("div");
@@ -1573,7 +1588,7 @@ function showDayBrief(events){
     <div class="db-kicker">${new Date().toLocaleDateString("en-US",{weekday:"short",month:"long",day:"numeric"}).replace(",","")}</div>
     <h3>Today <i>at the</i> Bureau</h3>
     <hr class="db-rule">
-    <ul>${items.map((e,k)=>`<li data-k="${k}" class="${e.act?'has-go':''}">${e.time?`<span class="db-time">${e.time}</span>`:`<span class="db-time">—</span>`}<span class="db-text">${esc(e.title)}</span>${e.act?`<button class="db-go" data-k="${k}" title="Open in the Bureau"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`:''}<svg class="db-check" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></li>`).join("")}</ul>`;
+    <ul>${items.map((e,k)=>`<li data-k="${k}" data-id="${esc(e.id)}" class="${e.act?'has-go':''}">${e.time?`<span class="db-time">${e.time}</span>`:`<span class="db-time">—</span>`}<span class="db-text">${esc(e.title)}</span>${e.act?`<button class="db-go" data-k="${k}" title="Open in the Bureau"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`:''}<svg class="db-check" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></li>`).join("")}</ul>`;
   let fullW=0, fullH=0;
   const collapse=(animate)=>{
     localStorage.setItem("macon_brief",today);
@@ -1600,13 +1615,13 @@ function showDayBrief(events){
   };
   el.querySelector(".db-x").onclick=e=>{ e.stopPropagation(); collapse(true); };
   el.onclick=()=>{ if(el.classList.contains("min")) expand(); };
-  let done=[]; try{ const dd=JSON.parse(localStorage.getItem("macon_brief_done")||"null"); if(dd&&dd.date===today) done=dd.done||[]; }catch(e){}
+  const doneMap=briefDone();
   el.querySelectorAll("li").forEach(li=>{
-    const k=+li.dataset.k;
-    if(done.includes(k)) li.classList.add("done");
+    if(doneMap[li.dataset.id]) li.classList.add("done");
     li.onclick=()=>{ li.classList.toggle("done");
-      done = li.classList.contains("done") ? [...new Set([...done,k])] : done.filter(x=>x!==k);
-      localStorage.setItem("macon_brief_done", JSON.stringify({date:today, done})); };
+      const m=briefDone();
+      if(li.classList.contains("done")) m[li.dataset.id]=today; else delete m[li.dataset.id];
+      setBriefDone(m); };
   });
   el.querySelectorAll(".db-go").forEach(b=>{
     b.onclick=e=>{ e.stopPropagation();
