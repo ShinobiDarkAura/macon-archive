@@ -150,10 +150,10 @@
   .progress-card .bar{height:10px;background:rgba(40,37,35,.06);border:1px solid var(--rule);border-radius:999px;margin:4px 0 0;overflow:hidden}
   .progress-card.started .bar{border-color:var(--rule)}
   .progress-card .bar i{display:block;height:100%;width:0;background:var(--seal);transition:width 1s cubic-bezier(.2,.8,.2,1)}
-  .pc-funnel{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:9px;
+  .pc-funnel{display:flex;align-items:center;justify-content:flex-start;gap:7px;margin-top:9px;
     font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#a7a39c;white-space:nowrap}
   .pc-funnel i{font-style:normal;font-weight:700;color:#b8b0a0}
-  .pc-funnel span:first-child{color:var(--seal);font-weight:700}
+  
     .copyright{position:fixed;left:calc(0.625vw + 38px);width:calc(23.75vw - 115px);bottom:28px;z-index:31;text-align:center;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#a7a39c;transition:width .28s ease}
   body.drawer-collapsed .progress-card{width:calc(23.22vw - 25.4px);left:calc(0.891vw + 37.7px)}
   body.drawer-collapsed .copyright{width:calc(23.75vw - 26px)}
@@ -739,7 +739,7 @@ function renderDash(){
   document.getElementById("goalCount").textContent = `${trueN} / 200`;
   document.getElementById("goalBar").style.width = pct + "%";
   const fn=document.getElementById("goalFunnel");
-  if(fn) fn.innerHTML = `<span title="2+ pieces, bought within 18 months">${trueN} true</span><i>·</i><span title="1 piece, bought within 18 months — the conversion pool">${prospects} prospects</span>`;
+  if(fn) fn.innerHTML = `<span title="1 piece, bought within 18 months — the conversion pool">${prospects} prospects</span>`;
   document.getElementById("progressCard").classList.toggle("started", total > 0);
 }
 
