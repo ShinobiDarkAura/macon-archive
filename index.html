@@ -257,7 +257,7 @@
   .drawer-close:hover{color:var(--ink)}
   .drawer-body{flex:1;overflow:auto;padding:20px 24px 124px;display:flex;flex-direction:column;gap:16px}
   .drawer-empty{color:var(--slate);font-family:var(--serif-soul);font-style:italic;font-size:15px;text-align:center;margin-top:30px}
-  .fcard{display:flex;flex-direction:column;gap:0;flex:0 0 auto;border:none;border-radius:12px;background:#f5f3ee;box-shadow:none;overflow:hidden;cursor:pointer;
+  .fcard{display:flex;flex-direction:row;gap:0;flex:0 0 auto;border:1px solid #e4ded1;border-radius:12px;background:#f5f3ee;box-shadow:none;overflow:hidden;cursor:pointer;
     transition:box-shadow .18s ease,transform .38s cubic-bezier(.4,0,.7,1),opacity .38s ease,height .38s ease,margin .38s ease}
   .fcard:hover{box-shadow:0 4px 15px rgba(40,37,35,.11)}
   .fcard.leaving{transform:translateX(80px);opacity:0}
@@ -266,14 +266,14 @@
   .fcard-img::after{content:"";position:absolute;left:0;right:0;bottom:0;height:58%;background:linear-gradient(to top,#fff,rgba(255,255,255,0));pointer-events:none;z-index:1}
   .fcard-body{position:relative;flex:1;min-width:0;padding:16px 18px}
   .fcard-top{display:flex;align-items:center;gap:13px}
-  .fcard .fav-av{width:46px;height:46px;flex:0 0 auto;position:relative;border-radius:8px;overflow:hidden;background:var(--paper-2)}
+  .fcard .fav-av{width:25%;flex:0 0 25%;align-self:stretch;position:relative;border-radius:0;overflow:hidden;background:var(--paper-2)}
   .fcard .fav-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .fcard .ftitle{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
   .fcard .fn{font-family:var(--sans);font-variant-caps:all-small-caps;font-size:10pt;font-weight:500;letter-spacing:.08em;line-height:1.1;color:#8f897e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:16pt;line-height:1.15;color:var(--ink);margin-top:6px}
-  .daychip{position:absolute;top:14px;right:46px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;padding:0;color:#fff;border:none;font-family:var(--sans);font-size:12px;font-weight:700;line-height:1;z-index:3;background:#3a6ea5}
+  .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:19pt;line-height:1.15;color:var(--ink);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .daychip{position:absolute;top:14px;right:43px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;padding:0;color:#fff;border:none;font-family:var(--sans);font-size:12px;font-weight:700;line-height:1;z-index:3;background:#3a6ea5}
   .donechip{position:absolute;top:14px;right:16px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;
-    border:1.5px solid #c9c2b4;background:transparent;color:#8f897e;font-size:11px;line-height:1;cursor:pointer;z-index:3;
+    border:1.5px solid #c9c2b4;background:transparent;color:#c9c2b4;line-height:1;cursor:pointer;z-index:3;
     transition:background .18s ease,border-color .18s ease,color .18s ease}
   .donechip:hover{border-color:#4f7d57;color:#4f7d57}
   .donechip.done{background:#4f7d57;border-color:#4f7d57;color:#fff}
@@ -656,8 +656,8 @@ function followAsk(d){
 function followType(d, kind){
   if(kind==="reconnect") return "Reconnect";
   if(d.gift_self==="Gift") return "Gift recipient story";
-  if(d.first_look) return "VIP cultivation";
-  if(countPieces(d.pieces)>=2) return "Repeat collector check-in";
+  if(d.first_look) return "VIP check-in";
+  if(countPieces(d.pieces)>=2) return "Collector check-in";
   if(num(d.ltv)>1000) return "High-value welcome";
   return "First story request";
 }
@@ -822,7 +822,7 @@ function flipLedger(render){
   host.querySelectorAll(".entry").forEach(el=>{ first[el.dataset.i]=el.getBoundingClientRect().top; });
   render();
   if(typeof Element==="undefined" || !Element.prototype.animate){ return; }
-  const MOVE_DUR=340, incoming=[]; let hasMoved=false;
+  const MOVE_DUR=240, incoming=[]; let hasMoved=false;
   host.querySelectorAll(".entry").forEach(el=>{
     const ft=first[el.dataset.i], lt=el.getBoundingClientRect().top;
     if(ft!=null){ const dy=ft-lt;
@@ -830,15 +830,15 @@ function flipLedger(render){
     } else { incoming.push(el); }
   });
   if(!incoming.length) return;
-  // Hold new rows hidden until the reposition settles, then stagger them up from
-  // below, one at a time, very quickly — ~1s for the whole run.
+  // Stagger new rows up from below, overlapping the reposition slightly so the
+  // whole page settles within ~0.5s.
   incoming.forEach(el=>{ el.style.visibility="hidden"; });
-  const base=hasMoved?MOVE_DUR:0, RUN=1000, DUR=280;
-  const step=incoming.length>1 ? Math.max(45,(RUN-DUR)/(incoming.length-1)) : 0;
+  const base=hasMoved?120:0, DUR=180, RUN=500-base-DUR;
+  const step=incoming.length>1 ? Math.max(20,RUN/(incoming.length-1)) : 0;
   incoming.forEach((el,k)=>{
     setTimeout(()=>{
       el.style.visibility="";
-      el.animate([{opacity:0,transform:"translateY(26px)"},{opacity:1,transform:"translateY(0)"}],{duration:DUR,easing:"cubic-bezier(.2,.8,.2,1)"});
+      el.animate([{opacity:0,transform:"translateY(22px)"},{opacity:1,transform:"translateY(0)"}],{duration:DUR,easing:"cubic-bezier(.2,.8,.2,1)"});
     }, base + k*step);
   });
 }
@@ -940,11 +940,11 @@ function renderDrawer(){
     const slug=piece.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
     const src= slug ? `pieces/${slug}.avif` : "pieces/custom.jpeg";
     return `<div class="fcard" data-i="${x.i}" data-kind="${x.kind}" role="button" tabindex="0" title="Draft email">
+      <div class="fav-av"><img src="${src}" alt="" loading="lazy" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='pieces/custom.jpeg'}"></div>
       <div class="fcard-body">
         <span class="daychip ${x.priority}" title="${x.priority} priority">${PRI_ICON[x.priority]||""}</span>
-        <button class="donechip" data-i="${x.i}" title="Mark contacted">✓</button>
+        <button class="donechip" data-i="${x.i}" title="Mark contacted"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
         <div class="fcard-top">
-          <div class="fav-av"><img src="${src}" alt="" loading="lazy" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='pieces/custom.jpeg'}"></div>
           <div class="ftitle">
             <div class="fn">${esc(followType(d, x.kind))}</div>
             <div class="ftype">${esc(d.name||"—")}</div>
@@ -1412,7 +1412,7 @@ async function importOrdersCSV(text){
       first_look:(existing&&existing.first_look)||Math.round(g.total)>1000,
       first_buy:ds.length?ds[0].s:(existing&&existing.first_buy)||"",
       last_buy:ds.length?ds[ds.length-1].s:(existing&&existing.last_buy)||""});
-    const p={}; COLS.forEach(c=>p[c]=rec[c]!=null?rec[c]:null); if(existing&&existing.id)p.id=existing.id;
+    const p={}; COLS.forEach(c=>p[c]=rec[c]!=null?rec[c]:null);
     return p;
   });
   if(synced){
