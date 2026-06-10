@@ -196,7 +196,7 @@
   .bell-badge.zero{display:none}
 
   /* ---------- Ledger ---------- */
-  .ledger-head{display:grid;grid-template-columns:52px minmax(200px,0.9fr) minmax(0,1.1fr) minmax(0,1fr) 100px 150px 44px;gap:18px;padding:0 6px 9px;padding-left:14px;
+  .ledger-head{display:grid;grid-template-columns:52px 1fr 150px 150px 100px 150px 44px;gap:18px;padding:0 6px 9px;padding-left:14px;
         font-family:var(--mono);font-size:9.7px;letter-spacing:.14em;text-transform:uppercase;color:#a39d8f}
   .ledger-head span{white-space:nowrap}
   .ledger-head .r{justify-self:end;text-align:right}
@@ -211,7 +211,7 @@
   .ledger-head .rp[data-k],.ledger-head .lv[data-k]{justify-self:end}
   .ledger{border-top:1px solid var(--rule);flex:1;overflow:hidden;display:flex;flex-direction:column}
   .entry{border-bottom:1px solid #e7e2d7;padding:6px 6px 6px 14px;display:grid;gap:18px;flex:1 1 0;min-height:0;
-         grid-template-columns:52px minmax(200px,0.9fr) minmax(0,1.1fr) minmax(0,1fr) 100px 150px 44px;align-items:center;align-content:center;cursor:pointer;max-height:88px;transition:padding .22s ease,background .12s ease}
+         grid-template-columns:52px 1fr 150px 150px 100px 150px 44px;align-items:center;align-content:center;cursor:pointer;max-height:88px;transition:padding .22s ease,background .12s ease}
   .ledger.compact .entry{padding:9px 6px 9px 14px;max-height:52px}
   .entry:hover{background:rgba(255,255,255,.4)}
   .avatar{position:relative;width:46px;height:46px;flex:0 0 auto;border-radius:6px;background:var(--paper-2);
