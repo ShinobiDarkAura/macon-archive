@@ -61,7 +61,8 @@
     animation:db-in .35s cubic-bezier(.2,.8,.2,1)}
   @keyframes db-in{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
   .daybrief .db-kicker{display:inline-flex;align-items:center;font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#4f7d57;background:rgba(79,125,87,.13);border:none;border-radius:999px;padding:3px 11px;margin-bottom:9px}
-  .daybrief h3{font-family:"Louize",Georgia,serif;font-weight:400;font-size:25px;margin:0 0 14px;color:var(--ink)}
+  .daybrief h3{font-family:"Louize",Georgia,serif;font-weight:400;font-size:25px;margin:0;color:var(--ink)}
+  .daybrief .db-rule{border:none;border-top:1px solid #e4ded1;margin:16px 0}
   .daybrief ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;width:100%}
   .daybrief li{position:relative;display:flex;gap:13px;align-items:baseline;width:100%;font-family:var(--sans);font-size:13px;color:var(--ink);line-height:1.35;cursor:pointer;padding-right:24px;transition:color .15s}
   .daybrief li .db-check{position:absolute;right:0;top:50%;transform:translateY(-50%);opacity:0;color:#a09b91;transition:opacity .15s;pointer-events:none}
@@ -1417,6 +1418,7 @@ function showDayBrief(events){
   el.innerHTML=`<button class="db-x" title="Dismiss" aria-label="Dismiss">&times;</button>
     <div class="db-kicker">${new Date().toLocaleDateString("en-US",{weekday:"short",month:"long",day:"numeric"}).replace(",","")}</div>
     <h3>Today at the Bureau</h3>
+    <hr class="db-rule">
     <ul>${events.map((e,k)=>`<li data-k="${k}"><span class="db-time">${e.allDay?"ALL DAY":e.start}</span><span class="db-text">${esc(e.title)}</span><svg class="db-check" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></li>`).join("")}</ul>`;
   el.querySelector(".db-x").onclick=()=>{ localStorage.setItem("macon_brief",today); el.remove(); };
   let done=[]; try{ const dd=JSON.parse(localStorage.getItem("macon_brief_done")||"null"); if(dd&&dd.date===today) done=dd.done||[]; }catch(e){}
