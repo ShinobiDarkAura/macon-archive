@@ -1695,7 +1695,7 @@ function renderTicker(events){
   */
   bar.classList.remove("show"); document.body.classList.remove("has-ticker");
   showDayBrief(events);
-  clearTimeout(window._rsz2); renderLedger&&renderLedger();
+  // (ticker bar is paused; no layout shift, so no ledger re-render needed here)
 }
 async function loadTicker(){
   if(!CONFIG.TICKER_URL) return;
