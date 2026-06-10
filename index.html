@@ -1095,11 +1095,10 @@ function renderDrawer(){
   const PRI_ICON={High:"!",Medium:"=",Low:"−"};
   body.innerHTML=list.map(x=>{
     const d=x.d;
-    const piece=(d.pieces||"").split(",")[0].trim();
-    const slug=piece.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
-    const src= slug ? `pieces/${slug}.avif` : "pieces/custom.jpeg";
+    const slug=pieceSlug(d.pieces);
+    const src=pieceImg(d.pieces);
     return `<div class="fcard" data-i="${x.i}" data-kind="${x.kind}" role="button" tabindex="0" title="Draft email">
-      <div class="fav-av"><img src="${src}" alt="" loading="lazy" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='pieces/custom.jpeg'}"></div>
+      <div class="fav-av"><img src="${src}" alt="" loading="lazy" data-slug="${slug}" onerror="if(!this.dataset.fb){this.dataset.fb=1;PIECE_404.add(this.dataset.slug);this.src='pieces/custom.jpeg'}"></div>
       <div class="fcard-body">
         <!-- priority badge paused for now:
         <span class="daychip ${x.priority}" title="${x.priority} priority">${PRI_ICON[x.priority]||""}</span> -->
