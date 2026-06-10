@@ -1120,6 +1120,10 @@ function renderDrawer(){
     e.stopPropagation();
     const card=b.closest(".fcard"), i=+b.dataset.i;
     b.classList.add("done");
+    // freeze hover states while the cards reflow upward, so the card sliding
+    // under the cursor doesn't flicker its shadow on/off
+    body.style.pointerEvents="none";
+    setTimeout(()=>{ const db=document.getElementById("drawerBody"); if(db) db.style.pointerEvents=""; }, 850);
     setTimeout(()=>{
       card.style.height=card.offsetHeight+"px";
       requestAnimationFrame(()=>{ card.classList.add("leaving"); card.style.height="0px"; card.style.marginTop="-22px"; });
