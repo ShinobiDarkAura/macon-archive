@@ -205,9 +205,9 @@
   .avatar{position:relative;width:46px;height:46px;flex:0 0 auto;border-radius:6px;background:var(--paper-2);
           display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:600;
           font-size:16px;color:var(--bronze-deep);letter-spacing:.02em;overflow:hidden;transition:width .22s ease,height .22s ease,font-size .22s ease}
-  .avatar img{width:100%;height:100%;object-fit:cover;display:block}
-  .avatar::after{content:"";position:absolute;inset:0;background:rgba(165,157,143,.425);pointer-events:none;transition:opacity .18s ease}
-  .entry:hover .avatar::after{opacity:0}
+  .avatar img{width:100%;height:100%;object-fit:cover;display:block;
+    filter:grayscale(1) sepia(.32) saturate(.78) brightness(1.04);transition:filter .25s ease}
+  .entry:hover .avatar img{filter:none}
   .ledger.compact .avatar{width:32px;height:32px;font-size:12px}
   .entry .who{min-width:0}
   .entry .who .nm{font-family:"Louize",Georgia,serif;font-size:22px;font-weight:400;line-height:1.15;white-space:nowrap;transition:font-size .22s ease}
