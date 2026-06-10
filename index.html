@@ -334,7 +334,8 @@
   .card-body{padding:40px 44px 32px}
   .card input,.card textarea,.card select,.card .btn{border-radius:4px}
   .card h2{font-family:"Louize",Georgia,serif;font-weight:400;font-size:29px;letter-spacing:.02em;margin:0 0 28px}
-  .card .acc-line{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--bronze);margin-bottom:26px}
+  .card h2:has(+ .acc-line),.card h2:has(+ .dchips){margin-bottom:7px}
+  .card .acc-line{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--bronze);margin-bottom:28px}
   .fields{display:grid;grid-template-columns:1fr 1fr;gap:2px 28px;margin-bottom:8px}
   .field{padding:11px 0;border-bottom:1px solid var(--rule)}
   .field.full{grid-column:1/-1}
@@ -348,7 +349,7 @@
   /* Draft modal extras */
   .dpri{position:absolute;top:30px;right:34px;width:34px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#fffbf0;font-size:20px;font-weight:700;line-height:1;z-index:1}
   .dpri.High{background:#d96a2c} .dpri.Medium{background:#c79a3f} .dpri.Low{background:#b3ad9f}
-  .dchips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+  .dchips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
   .dchip{display:inline-flex;align-items:center;border:.75px solid #a09b91;color:#a09b91;border-radius:999px;padding:2px 12px;font-family:var(--sans);font-size:7pt;letter-spacing:.12em;text-transform:uppercase;background:transparent;white-space:nowrap}
   .dfield{position:relative}
   .dfield .dcopy{position:absolute;top:10px;right:8px;border:none;background:none;cursor:pointer;color:#9c948a;line-height:1;padding:2px;transition:color .15s;display:flex}
