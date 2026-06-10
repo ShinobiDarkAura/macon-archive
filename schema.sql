@@ -50,3 +50,19 @@ create policy "keepers only" on public.collectors
 
 -- Let the app receive realtime change events
 alter publication supabase_realtime add table public.collectors;
+
+-- Bureau to-dos: shared completion state for the daily brief
+-- (letters + follow-ups stay on everyone's list until checked off by either keeper)
+create table if not exists public.bureau_todos (
+  id       text primary key,
+  done_at  text,
+  done_by  text default (auth.jwt() ->> 'email')
+);
+alter table public.bureau_todos enable row level security;
+drop policy if exists "keepers only todos" on public.bureau_todos;
+create policy "keepers only todos" on public.bureau_todos
+  for all
+  to authenticated
+  using      ( auth.jwt() ->> 'email' in ('alex@studiomacon.co','hannah@studiomacon.co') )
+  with check ( auth.jwt() ->> 'email' in ('alex@studiomacon.co','hannah@studiomacon.co') );
+alter publication supabase_realtime add table public.bureau_todos;

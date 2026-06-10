@@ -650,6 +650,8 @@ async function startSynced(){
   hideGate(); synced=true; setSync("on","Synced");
   await refresh();
   sb.channel("collectors-rt").on("postgres_changes",{event:"*",schema:"public",table:"collectors"},()=>refresh()).subscribe();
+  loadTodoDone();
+  sb.channel("todos-rt").on("postgres_changes",{event:"*",schema:"public",table:"bureau_todos"},()=>loadTodoDone()).subscribe();
 }
 async function refresh(){
   if(!synced){ data=local.load(); renderAll(); return; }
@@ -1550,11 +1552,39 @@ const BUREAU_LETTERS=[
 const ORDER_TODO_CUTOFF="2026-06-10"; // orders entered after this date also surface as to-dos
 // Persistent completion: letters and follow-ups stay on the list, day after day,
 // until someone checks them off. Done ids: {"letter|2026-07-06":"2026-07-08", ...}
-function briefDone(){ try{ return JSON.parse(localStorage.getItem("macon_brief_done_v2")||"{}"); }catch(e){ return {}; } }
-function setBriefDone(m){
+let todoDone=null; // synced completion map {id: done date}
+function briefDone(){
+  if(todoDone) return todoDone;
+  try{ todoDone=JSON.parse(localStorage.getItem("macon_brief_done_v2")||"{}"); }catch(e){ todoDone={}; }
+  return todoDone;
+}
+function saveBriefLocal(){
+  const m=briefDone();
   const cutoff=new Date(Date.now()-7*86400000).toLocaleDateString("en-CA");
   Object.keys(m).forEach(k=>{ if(k.startsWith("cal|") && (m[k]||"")<cutoff) delete m[k]; });
   localStorage.setItem("macon_brief_done_v2", JSON.stringify(m));
+}
+async function markTodo(id, isDone){
+  const m=briefDone(); const today=new Date().toLocaleDateString("en-CA");
+  if(isDone) m[id]=today; else delete m[id];
+  saveBriefLocal();
+  if(synced&&sb){ try{
+    if(isDone) await sb.from("bureau_todos").upsert({id, done_at:today},{onConflict:"id"});
+    else await sb.from("bureau_todos").delete().eq("id",id);
+  }catch(e){} }
+}
+async function loadTodoDone(){
+  if(!(synced&&sb)) return;
+  try{
+    const {data:rows, error}=await sb.from("bureau_todos").select("id,done_at");
+    if(error) return;
+    const m={}; (rows||[]).forEach(r=>m[r.id]=r.done_at);
+    todoDone=m; saveBriefLocal(); applyDoneToBrief();
+  }catch(e){}
+}
+function applyDoneToBrief(){
+  const m=briefDone();
+  document.querySelectorAll(".daybrief li[data-id]").forEach(li=>li.classList.toggle("done", !!m[li.dataset.id]));
 }
 function bureauTodos(){
   const today=new Date().toLocaleDateString("en-CA");
@@ -1619,9 +1649,7 @@ function showDayBrief(events){
   el.querySelectorAll("li").forEach(li=>{
     if(doneMap[li.dataset.id]) li.classList.add("done");
     li.onclick=()=>{ li.classList.toggle("done");
-      const m=briefDone();
-      if(li.classList.contains("done")) m[li.dataset.id]=today; else delete m[li.dataset.id];
-      setBriefDone(m); };
+      markTodo(li.dataset.id, li.classList.contains("done")); };
   });
   el.querySelectorAll(".db-go").forEach(b=>{
     b.onclick=e=>{ e.stopPropagation();
