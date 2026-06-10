@@ -107,8 +107,8 @@
   .progress-card .bar i{display:block;height:100%;width:0;background:var(--seal);transition:width 1s cubic-bezier(.2,.8,.2,1)}
   .pc-funnel{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:9px;
     font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#a7a39c;white-space:nowrap}
-  .pc-funnel i{font-style:normal;color:#d2cbbc}
-  .pc-funnel span:first-child{color:var(--seal)}
+  .pc-funnel i{font-style:normal;font-weight:700;color:#b8b0a0}
+  .pc-funnel span:first-child{color:var(--seal);font-weight:700}
     .copyright{position:fixed;left:calc(0.625vw + 38px);width:calc(23.75vw - 115px);bottom:28px;z-index:31;text-align:center;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#a7a39c;transition:width .28s ease}
   body.drawer-collapsed .progress-card{width:calc(20.19vw - 22.1px);left:calc(2.406vw + 36.05px)}
   body.drawer-collapsed .copyright{width:calc(23.75vw - 26px)}
@@ -152,7 +152,7 @@
   .ledger-head.hidden{display:none}
   .ledger-head span[data-k]{cursor:pointer;user-select:none;display:inline-flex;align-items:center;gap:5px}
   .ledger-head span[data-k]:hover{color:var(--ink)}
-  .ledger-head .arr{display:inline-flex;flex-direction:column;gap:1px;line-height:1;position:relative;top:-2px;left:1px}
+  .ledger-head .arr{display:inline-flex;flex-direction:column;gap:1px;line-height:1;position:relative;top:-1px;left:1px}
   .ledger-head .arr b{font-weight:400;font-size:5.5px;color:#cfc8b9;transition:color .15s}
   .ledger-head .arr b.on{color:var(--ink)}
   .ledger-head .rp[data-k],.ledger-head .lv[data-k]{justify-self:end}
@@ -429,6 +429,7 @@
         <option value="all">All</option>
         <option value="vip">VIPs</option>
         <option value="repeat">Repeat collectors</option>
+        <option value="prospect">Prospects</option>
         <option value="due">Needs follow-up</option>
         <option value="story">Story captured</option>
       </select>
@@ -443,7 +444,7 @@
       <input type="file" id="importFile" accept=".csv,text/csv" style="display:none">
     </div>
     <div class="ledger-head" id="ledgerHead">
-      <span></span><span data-k="name">Name <span class="arr"><b class="up">▲</b><b class="dn">▼</b></span></span><span data-k="pieces">Pieces <span class="arr"><b class="up">▲</b><b class="dn">▼</b></span></span><span data-k="loc">Location <span class="arr"><b class="up">▲</b><b class="dn">▼</b></span></span><span class="rp" data-k="purchased">Last Purchased <span class="arr"><b class="up">▲</b><b class="dn">▼</b></span></span><span class="lv" data-k="ltv">LTV <span class="arr"><b class="up">▲</b><b class="dn">▼</b></span></span><span></span>
+      <span></span><span data-k="name">Name <span class="arr"><b class="up">▲</b><b class="dn">▼</b></span></span><span data-k="pieces">Pieces</span><span data-k="loc">Location</span><span class="rp" data-k="purchased">Last Purchased <span class="arr"><b class="up">▲</b><b class="dn">▼</b></span></span><span class="lv" data-k="ltv">LTV <span class="arr"><b class="up">▲</b><b class="dn">▼</b></span></span><span></span>
     </div>
     <section class="ledger" id="ledger"></section>
     <div class="pager" id="pager"></div>
@@ -532,6 +533,7 @@ const LFILTERS = {
   all:    d=>true,
   vip:    d=>!!d.first_look,
   repeat: d=>countPieces(d.pieces)>=2,
+  prospect: d=>isProspect(d),
   due:    d=>isDue(d)||isReconnectDue(d),
   story:  d=>d.story==="Yes",
 };
@@ -661,7 +663,7 @@ function renderDash(){
   document.getElementById("goalCount").textContent = `${trueN} / 200`;
   document.getElementById("goalBar").style.width = pct + "%";
   const fn=document.getElementById("goalFunnel");
-  if(fn) fn.innerHTML = `<span title="2+ pieces, bought within 18 months">${trueN} true</span><i>·</i><span title="1 piece, bought within 18 months — the conversion pool">${prospects} prospects</span><i>·</i><span title="Repeat collectors gone quiet 18+ months">${lapsed} lapsed</span>`;
+  if(fn) fn.innerHTML = `<span title="2+ pieces, bought within 18 months">${trueN} true</span><i>·</i><span title="1 piece, bought within 18 months — the conversion pool">${prospects} prospects</span>`;
   document.getElementById("progressCard").classList.toggle("started", total > 0);
 }
 
@@ -754,7 +756,7 @@ const TONES=[
       :c.jewel?`Has it made it into the rotation yet? We love picturing where our pieces get worn.`
       :`Where's it ended up living? On you, a shelf, somewhere it can keep an eye on things?`,"",
       `Even a one-line reply would make our week. Truly no pressure.`,
-      ...(c.vip?["","If you ever catch it in good light, we'd love to see it. No pressure at all."]:[]),
+      ...(c.vip?["","And if you ever catch it in good light, we'd love to see it."]:[]),
       "",
       `Warmly,`,`Alex & Hannah`
     ].join("\n")
@@ -768,7 +770,7 @@ const TONES=[
       :c.jewel?`Where's it been going with you? Out a lot, or saving it for the right days?`
       :c.vip?`Where's it living these days? I keep wondering where it ended up.`
       :`Where'd it end up? Did it find a little spot yet?`,"",
-      `No need to write much, I'm just nosy in the best way.`,"",
+      `No need to write much — a line or two would make my day.`,"",
       `x Alex`
     ].join("\n")
   })},
@@ -778,8 +780,8 @@ const TONES=[
       `Dear ${c.first},`,"",
       `It's Hannah, from Maçon. Making ${c.piece} for you meant a lot to us, and we love knowing where our little objects end up in people's lives.`,"",
       c.gift?`I've been wondering how it was received by the person you chose it for.`
-      :c.jewel?`I'd love to know how it feels to wear, and where it's been with you, if anything comes to mind.`
-      :`I'd love to know where it lives now, and what it's come to mean to you, if anything at all.`,"",
+      :c.jewel?`I'd love to know how it feels to wear, and where it's been with you.`
+      :`I'd love to know where it lives now, and what it's come to mean to you.`,"",
       `Whatever you feel like sharing, we'd hold onto it.`,
       ...(c.vip?["","And if you ever snap a photo of it where it lives, we'd treasure that too."]:[]),
       "",
