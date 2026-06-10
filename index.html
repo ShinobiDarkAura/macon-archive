@@ -70,7 +70,7 @@
   .tagline{font-family:var(--serif-soul);font-style:italic;color:var(--slate);font-size:18px;margin:10px 0 0;letter-spacing:.02em}
 
   /* ---------- Dashboard strip ---------- */
-  .dash{display:grid;grid-template-columns:1fr 1fr;gap:16px 12px;margin:40px 0 0;background:transparent;width:100%}
+  .dash{display:grid;grid-template-columns:1fr 1fr;gap:16px 28px;margin:40px 0 0;background:transparent;width:100%;padding:0 48px;box-sizing:border-box}
   .stat{display:flex;flex-direction:column;align-items:center;text-align:center;width:auto;min-width:0;
         padding:14px 10px 22px;border:none}
   .stat{border-bottom:1px solid var(--rule)}
@@ -135,6 +135,12 @@
   .ledger-head .rp{justify-self:end;text-align:right}
   .ledger-head .lv{justify-self:end;text-align:right}
   .ledger-head.hidden{display:none}
+  .ledger-head span[data-k]{cursor:pointer;user-select:none;display:inline-flex;align-items:center;gap:5px}
+  .ledger-head span[data-k]:hover{color:var(--ink)}
+  .ledger-head .arr{display:inline-flex;flex-direction:column;gap:1px;line-height:1}
+  .ledger-head .arr b{font-weight:400;font-size:5.5px;color:#cfc8b9;transition:color .15s}
+  .ledger-head .arr b.on{color:var(--ink)}
+  .ledger-head .rp[data-k],.ledger-head .lv[data-k]{justify-self:end}
   .ledger{border-top:1px solid var(--rule);flex:1;overflow:hidden;display:flex;flex-direction:column}
   .entry{border-bottom:1px solid var(--rule);padding:6px 6px;display:grid;gap:18px;flex:1 1 0;min-height:0;
          grid-template-columns:46px minmax(200px,0.9fr) minmax(0,1.1fr) minmax(0,1fr) 100px 150px 44px;align-items:center;align-content:center;cursor:pointer;transition:padding .22s ease,background .12s ease}
@@ -173,6 +179,12 @@
   .pager button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   .pager button:disabled{opacity:.35;cursor:default}
   /* View-mode segmented control */
+  .filtersel{height:40px;border:1px solid var(--rule);background:transparent;flex:0 0 auto;
+    font-family:var(--sans);font-size:11px;letter-spacing:.13em;text-transform:uppercase;font-weight:500;color:var(--ink);
+    padding:0 34px 0 14px;cursor:pointer;border-radius:0;-webkit-appearance:none;appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%235b5a55'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 13px center}
+  .filtersel:hover{border-color:#000}
   .viewseg{display:flex;height:40px;border:1px solid var(--rule);flex:0 0 auto;background:transparent}
   .viewseg button{width:44px;height:100%;display:flex;align-items:center;justify-content:center;
         border:none;border-right:1px solid var(--rule);background:transparent;color:var(--slate);
@@ -231,11 +243,11 @@
   /* ---------- Follow-up drawer ---------- */
   body{transition:padding-right .28s ease;padding-right:404px}
   body.drawer-collapsed{padding-right:18px}
-  .drawer{position:fixed;top:0;right:0;height:100vh;width:404px;background:var(--paper);border-left:1px solid var(--rule);
+  .drawer{position:fixed;top:0;right:0;height:100vh;width:404px;background:var(--paper);
         box-shadow:-14px 0 40px rgba(40,37,35,.10);z-index:45;display:flex;flex-direction:column;
         transform:translateX(0);transition:transform .28s ease}
   body.drawer-collapsed .drawer{transform:translateX(100%)}
-  .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:22px 24px 16px;border-bottom:1px solid var(--rule)}
+  .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:22px 24px 16px}
   .drawer-title{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--slate)}
   .drawer-title .dt-ico{font-size:13px;color:var(--slate)}
   .dt-badge{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:0;color:#fff;background:#d96a2c;border-radius:999px;
@@ -245,7 +257,10 @@
   .drawer-close:hover{color:var(--ink)}
   .drawer-body{flex:1;overflow:auto;padding:20px 24px 124px;display:flex;flex-direction:column;gap:16px}
   .drawer-empty{color:var(--slate);font-family:var(--serif-soul);font-style:italic;font-size:15px;text-align:center;margin-top:30px}
-  .fcard{display:flex;flex-direction:column;gap:0;flex:0 0 auto;border:none;border-radius:12px;background:#f5f3ee;box-shadow:0 4px 15px rgba(40,37,35,.11);overflow:hidden}
+  .fcard{display:flex;flex-direction:column;gap:0;flex:0 0 auto;border:none;border-radius:12px;background:#f5f3ee;box-shadow:none;overflow:hidden;cursor:pointer;
+    transition:box-shadow .18s ease,transform .38s cubic-bezier(.4,0,.7,1),opacity .38s ease,height .38s ease,margin .38s ease}
+  .fcard:hover{box-shadow:0 4px 15px rgba(40,37,35,.11)}
+  .fcard.leaving{transform:translateX(80px);opacity:0}
   .fcard-img{position:relative;flex:0 0 auto;width:100%;height:91px;background:var(--paper-2)}
   .fcard-img img{width:100%;height:100%;object-fit:cover;display:block}
   .fcard-img::after{content:"";position:absolute;left:0;right:0;bottom:0;height:58%;background:linear-gradient(to top,#fff,rgba(255,255,255,0));pointer-events:none;z-index:1}
@@ -256,14 +271,15 @@
   .fcard .ftitle{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
   .fcard .fn{font-family:var(--sans);font-variant-caps:all-small-caps;font-size:10pt;font-weight:500;letter-spacing:.08em;line-height:1.1;color:#8f897e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:16pt;line-height:1.15;color:var(--ink);margin-top:6px}
-  .daychip{position:absolute;top:14px;right:16px;display:inline-flex;align-items:center;border-radius:999px;padding:5px 12px;color:#fff;border:none;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.04em;line-height:1;z-index:3;background:#3a6ea5}
+  .daychip{position:absolute;top:14px;right:46px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;padding:0;color:#fff;border:none;font-family:var(--sans);font-size:12px;font-weight:700;line-height:1;z-index:3;background:#3a6ea5}
+  .donechip{position:absolute;top:14px;right:16px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;
+    border:1.5px solid #c9c2b4;background:transparent;color:#8f897e;font-size:11px;line-height:1;cursor:pointer;z-index:3;
+    transition:background .18s ease,border-color .18s ease,color .18s ease}
+  .donechip:hover{border-color:#4f7d57;color:#4f7d57}
+  .donechip.done{background:#4f7d57;border-color:#4f7d57;color:#fff}
   .daychip.High{background:#c0392b}
   .daychip.Medium{background:#b5651d}
   .daychip.Low{background:#3a6ea5}
-  .fcard .facts{display:flex;gap:8px;margin-top:14px}
-  .fcard .facts .btn-draft{flex:1;height:36px;font-size:9px;padding:0 10px;color:#9a948b}
-  .fcard .facts .btn-draft:hover{color:var(--paper)}
-  .fcard .facts .btn-done{flex:0 0 auto;width:46px;height:36px;font-size:15px;padding:0}
   /* collapsed rail */
   .drawer-rail{position:fixed;top:0;right:0;height:100vh;width:20px;border:none;
         background:var(--seal);cursor:pointer;z-index:44;display:none;transition:width .2s ease;padding:0;
@@ -381,6 +397,16 @@
   <main class="col-right">
     <div class="toolbar">
       <div class="search"><input class="search" id="q" placeholder="Search names, pieces, stories…"></div>
+      <select class="filtersel" id="filterSel" title="Filter">
+        <option value="all">All</option>
+        <option value="vip">VIPs</option>
+        <option value="repeat">Repeat collectors</option>
+        <option value="due">Needs follow-up</option>
+        <option value="story">Story captured</option>
+        <option value="asked">Story pending</option>
+        <option value="gift">Gifts</option>
+        <option value="k1">$1k+ value</option>
+      </select>
       <div class="viewseg" id="viewSeg">
         <button data-v="compact" title="Compact">≣</button>
         <button data-v="regular" title="Regular">≡</button>
@@ -388,11 +414,11 @@
       <button class="btn ghost" id="composeBtn">Compose</button>
       <button class="btn ghost" id="importBtn">Import CSV</button>
       <button class="btn" id="addBtn">+ New Entry</button>
-      <button class="btn iconbtn" id="bellBtn" title="Follow-ups"><svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path d="M10 2a6 6 0 0 0-6 6c0 1.886-.454 3.665-1.257 5.234a.75.75 0 0 0 .515 1.076 32.9 32.9 0 0 0 3.256.508 3.5 3.5 0 0 0 6.972 0 32.9 32.9 0 0 0 3.256-.508.75.75 0 0 0 .515-1.076A11.45 11.45 0 0 1 16 8a6 6 0 0 0-6-6ZM8.05 14.943a33.5 33.5 0 0 0 3.9 0 2 2 0 0 1-3.9 0Z"/></svg><span class="bell-badge zero" id="bellBadge">0</span></button>
+      <button class="btn iconbtn" id="bellBtn" title="Follow-ups"><svg viewBox="0 0 20 20" width="18" height="18" fill="currentColor"><path d="M10 2a6 6 0 0 0-6 6c0 1.886-.454 3.665-1.257 5.234a.75.75 0 0 0 .515 1.076 32.9 32.9 0 0 0 3.256.508 3.5 3.5 0 0 0 6.972 0 32.9 32.9 0 0 0 3.256-.508.75.75 0 0 0 .515-1.076A11.45 11.45 0 0 1 16 8a6 6 0 0 0-6-6ZM8.05 14.943a33.5 33.5 0 0 0 3.9 0 2 2 0 0 1-3.9 0Z"/></svg><span class="bell-badge zero" id="bellBadge">0</span></button>
       <input type="file" id="importFile" accept=".csv,text/csv" style="display:none">
     </div>
     <div class="ledger-head" id="ledgerHead">
-      <span></span><span>Name</span><span>Pieces</span><span>Location</span><span class="rp">Last Purchased</span><span class="lv">LTV</span><span></span>
+      <span></span><span data-k="name">Name <span class="arr"><b class="up">▲</b><b class="dn">▼</b></span></span><span data-k="pieces">Pieces <span class="arr"><b class="up">▲</b><b class="dn">▼</b></span></span><span data-k="loc">Location <span class="arr"><b class="up">▲</b><b class="dn">▼</b></span></span><span class="rp" data-k="purchased">Last Purchased <span class="arr"><b class="up">▲</b><b class="dn">▼</b></span></span><span class="lv" data-k="ltv">LTV <span class="arr"><b class="up">▲</b><b class="dn">▼</b></span></span><span></span>
     </div>
     <section class="ledger" id="ledger"></section>
     <div class="pager" id="pager"></div>
@@ -466,6 +492,18 @@ function leadTime(piece){ return (piece && PIECE_LEAD[piece]!=null) ? PIECE_LEAD
 let viewMode = localStorage.getItem("macon_view") || "regular";
 if(viewMode==="generous") viewMode="regular";
 let page = 1;
+let filterKey = "all";
+let sortKey = null, sortDir = 1;
+const LFILTERS = {
+  all:    d=>true,
+  vip:    d=>!!d.first_look,
+  repeat: d=>countPieces(d.pieces)>=2,
+  due:    d=>isDue(d)||isReconnectDue(d),
+  story:  d=>d.story==="Yes",
+  asked:  d=>d.story!=="Yes",
+  gift:   d=>d.gift_self==="Gift",
+  k1:     d=>num(d.ltv)>=1000,
+};
 const PAGE_SIZE = {compact:16, regular:9};
 
 const SEED = [
@@ -730,9 +768,23 @@ function computePageSize(host){
 let _rsz; window.addEventListener("resize",()=>{ clearTimeout(_rsz); _rsz=setTimeout(()=>renderLedger(),150); });
 function renderLedger(){
   let rows = data.slice();
+  if(filterKey!=="all" && LFILTERS[filterKey]) rows = rows.filter(LFILTERS[filterKey]);
   if(query){ const q=query.toLowerCase();
     rows = rows.filter(d=>[d.name,d.email,d.pieces,d.location,d.notes,d.acc].some(v=>(v||"").toLowerCase().includes(q))); }
-  rows.sort((a,b)=>(b.first_look?1:0)-(a.first_look?1:0) || (a.acc||"").localeCompare(b.acc||""));
+  if(sortKey){
+    const get={
+      name: d=>(d.name||"").toLowerCase(),
+      pieces: d=>(firstPiece(d.pieces)||"").toLowerCase(),
+      loc: d=>{ const p=(d.location||"").split(",").map(t=>t.trim()); return ((p[p.length-1]||"")+" "+(p[0]||"")).toLowerCase(); },
+      purchased: d=>Date.parse(d.last_buy)||0,
+      ltv: d=>num(d.ltv),
+    }[sortKey];
+    rows.sort((a,b)=>{ const A=get(a),B=get(b); const e=!A&&A!==0, f=!B&&B!==0;
+      if(e&&!f) return 1; if(f&&!e) return -1;
+      return (A<B?-1:A>B?1:0)*sortDir; });
+  } else {
+    rows.sort((a,b)=>(b.first_look?1:0)-(a.first_look?1:0) || (a.acc||"").localeCompare(b.acc||""));
+  }
   const host=document.getElementById("ledger");
   host.className="ledger "+viewMode;
   host.classList.toggle("is-empty", rows.length===0);
@@ -876,25 +928,33 @@ function renderDrawer(){
     const piece=(d.pieces||"").split(",")[0].trim();
     const slug=piece.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
     const src= slug ? `pieces/${slug}.avif` : "pieces/custom.jpeg";
-    return `<div class="fcard">
+    return `<div class="fcard" data-i="${x.i}" data-kind="${x.kind}" role="button" tabindex="0" title="Draft email">
       <div class="fcard-body">
-        <span class="daychip ${x.priority}">${x.days} DAYS</span>
+        <span class="daychip ${x.priority}" title="${x.priority} priority">${PRI_ICON[x.priority]||""}</span>
+        <button class="donechip" data-i="${x.i}" title="Mark contacted">✓</button>
         <div class="fcard-top">
           <div class="fav-av"><img src="${src}" alt="" loading="lazy" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='pieces/custom.jpeg'}"></div>
           <div class="ftitle">
-            <div class="fn">${esc(d.name||"—")}</div>
-            <div class="ftype">${esc(followType(d, x.kind))}</div>
+            <div class="fn">${esc(followType(d, x.kind))}</div>
+            <div class="ftype">${esc(d.name||"—")}</div>
           </div>
-        </div>
-        <div class="facts">
-          <button class="btn btn-draft" data-act="draft" data-i="${x.i}" data-kind="${x.kind}">${x.kind==="reconnect"?"Reconnect":"Draft email"}</button>
-          <button class="btn ghost btn-done" data-act="done" data-i="${x.i}" title="Mark contacted">✓</button>
         </div>
       </div>
     </div>`;
   }).join("");
-  body.querySelectorAll("button[data-act]").forEach(b=>b.onclick=()=>{
-    const i=+b.dataset.i; if(b.dataset.act==="draft") openDraft(i, b.dataset.kind); else markContacted(i);
+  body.querySelectorAll(".fcard").forEach(c=>{
+    c.onclick=()=>openDraft(+c.dataset.i, c.dataset.kind);
+    c.onkeydown=e=>{ if(e.key==="Enter") openDraft(+c.dataset.i, c.dataset.kind); };
+  });
+  body.querySelectorAll(".donechip").forEach(b=>b.onclick=e=>{
+    e.stopPropagation();
+    const card=b.closest(".fcard"), i=+b.dataset.i;
+    b.classList.add("done");
+    setTimeout(()=>{
+      card.style.height=card.offsetHeight+"px";
+      requestAnimationFrame(()=>{ card.classList.add("leaving"); card.style.height="0px"; card.style.marginTop="-16px"; });
+      setTimeout(()=>markContacted(i), 400);
+    }, 320);
   });
 }
 function priIcon(p){ return {High:"!",Medium:"=",Low:"−"}[p]||""; }
@@ -1234,6 +1294,25 @@ document.getElementById("gatePass").addEventListener("keydown",e=>{ if(e.key==="
 /* ---------- Toolbar wiring ---------- */
 document.getElementById("addBtn").onclick=()=>showForm(null);
 document.getElementById("composeBtn").onclick=()=>openCompose();
+document.getElementById("filterSel").onchange=e=>{ filterKey=e.target.value; page=1; renderLedger(); };
+(function(){ const lh=document.getElementById("ledgerHead"); if(!lh) return;
+  function paintArrows(){
+    lh.querySelectorAll("span[data-k]").forEach(h=>{
+      const on=h.dataset.k===sortKey;
+      const up=h.querySelector(".up"), dn=h.querySelector(".dn");
+      if(up) up.classList.toggle("on", on&&sortDir===1);
+      if(dn) dn.classList.toggle("on", on&&sortDir===-1);
+    });
+  }
+  lh.querySelectorAll("span[data-k]").forEach(h=>h.onclick=()=>{
+    const k=h.dataset.k;
+    const nat=(k==="purchased"||k==="ltv")?-1:1;
+    if(sortKey!==k){ sortKey=k; sortDir=nat; }
+    else if(sortDir===nat){ sortDir=-nat; }
+    else { sortKey=null; sortDir=1; }
+    paintArrows(); page=1; renderLedger();
+  });
+})();
 document.getElementById("q").oninput=e=>{ query=e.target.value; page=1; if(tab==="provenance") renderProvenance(); else renderLedger(); };
 
 /* Ledger / Provenance tabs */
@@ -1284,15 +1363,24 @@ async function importOrdersCSV(text){
         cDate=ix("Date created"), cBill=ix("Billing name"), cRec=ix("Recipient name"),
         cCity=ix("Delivery city"), cCtry=ix("Delivery country"),
         cBph=ix("Billing phone"), cRph=ix("Recipient phone");
+  // Order id column (Wix: "Order number"; Big Cartel: "Number"). Used to count an
+  // order's Total once even when the export has one row per item.
+  const cOrd=[ix("Order number"),ix("Order #"),ix("Number"),ix("Order")].find(i=>i>=0);
+  // Signed parse: refunds/negative rows must subtract, not add (num() strips the minus).
+  const amt=v=>{ const n=parseFloat(String(v??"").replace(/[^0-9.\-]/g,"")); return isNaN(n)?0:n; };
   if(cE<0){ alert("No 'Contact email' column found — is this a Big Cartel orders export?"); return; }
   const groups=new Map();
   for(let r=1;r<rows.length;r++){ const row=rows[r];
     const email=(row[cE]||"").trim().toLowerCase(); if(!email) continue;
     let g=groups.get(email);
-    if(!g){ g={email,name:"",items:[],total:0,dates:[],city:"",ctry:"",phone:""}; groups.set(email,g); }
+    if(!g){ g={email,name:"",items:[],total:0,dates:[],city:"",ctry:"",phone:"",orders:new Set()}; groups.set(email,g); }
     const nm=((cBill>=0&&row[cBill])||(cRec>=0&&row[cRec])||"").trim(); if(nm&&!g.name)g.name=nm;
     const it=(cItem>=0?row[cItem]:"").trim(); if(it)g.items.push(it);
-    g.total += num(cTot>=0?row[cTot]:(cNet>=0?row[cNet]:0));
+    const oid = cOrd!=null ? (row[cOrd]||"").trim() : "";
+    if(!oid || !g.orders.has(oid)){
+      g.total += amt(cTot>=0?row[cTot]:(cNet>=0?row[cNet]:0));
+      if(oid) g.orders.add(oid);
+    }
     const dt=(cDate>=0?row[cDate]:"").trim(); if(dt)g.dates.push(dt);
     if(!g.city){ g.city=(cCity>=0?row[cCity]:"").trim(); g.ctry=(cCtry>=0?row[cCtry]:"").trim(); }
     if(!g.phone){ g.phone=((cBph>=0&&row[cBph])||(cRph>=0&&row[cRph])||"").replace(/[^0-9+]/g,""); }
