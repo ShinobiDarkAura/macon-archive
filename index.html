@@ -141,9 +141,8 @@
   }
   /* Floating progress card (sticky, above the footer) */
   .progress-card{position:fixed;left:calc(0.891vw + 36.7px);bottom:82px;z-index:31;
-        width:calc(23.22vw - 112.4px);background:rgba(252,250,245,.41);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);border:1px solid var(--rule);border-radius:999px;
-        box-shadow:none;padding:16px 18px 18px;transition:width .28s ease,border-color .3s;border-radius:15px}
-  .progress-card.started{border-color:var(--rule)}
+        width:calc(23.22vw - 112.4px);background:rgba(252,250,245,.41);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);border:none;border-radius:999px;
+        box-shadow:none;padding:16px 18px 18px;transition:width .28s ease;border-radius:15px}
   .progress-card .pc-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
   .progress-card .lbl,.progress-card .count{font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.1em;color:var(--slate);white-space:nowrap}
   .progress-card .lbl{overflow:hidden;text-overflow:ellipsis;min-width:0}
@@ -330,7 +329,7 @@
   .drawer-close:hover{color:var(--ink)}
   .drawer-body{flex:1;overflow:auto;padding:20px 24px 124px;display:flex;flex-direction:column;gap:22px}
   .drawer-empty{color:var(--slate);font-family:var(--serif-soul);font-style:italic;font-size:15px;text-align:center;margin-top:30px}
-  .fcard{display:flex;flex-direction:row;gap:0;flex:0 0 auto;border:1px solid #e4ded1;border-radius:12px;background:rgba(255,253,249,.72);box-shadow:none;overflow:hidden;cursor:pointer;
+  .fcard{display:flex;flex-direction:row;gap:0;flex:0 0 auto;border:none;border-radius:12px;background:rgba(255,253,249,.72);box-shadow:none;overflow:hidden;cursor:pointer;
     transition:box-shadow .18s ease,transform .2s ease}
   .fcard:hover{box-shadow:0 4px 15px rgba(40,37,35,.11);transform:translateY(-4px)}
   .fcard.leaving{transform:translateX(80px);opacity:0;
