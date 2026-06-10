@@ -504,6 +504,14 @@ const PIECE_LEAD = {
   // "Ren": 14, "Caldera Arc": 45, "Meridian Egg": 30,
 };
 function leadTime(piece){ return (piece && PIECE_LEAD[piece]!=null) ? PIECE_LEAD[piece] : LEAD_DEFAULT; }
+// Totems carry character names; everything else in the catalog is worn (jewelry).
+// Custom / unknown pieces default to the totem voice.
+const CHARACTER_PIECES = ["Ren","Pip","Rebi","Ori","Zuma","Ibi","Milo","Yael","Eleph"];
+function isJewelry(piece){
+  if(!piece) return false;
+  if(CHARACTER_PIECES.some(c=>c.toLowerCase()===piece.toLowerCase())) return false;
+  return PRODUCTS.some(pr=>pr.toLowerCase()===piece.toLowerCase()) || /ring|arc|key|horn|cuff|band|pendant|necklace|earring/i.test(piece);
+}
 let viewMode = localStorage.getItem("macon_view") || "regular";
 if(viewMode==="generous") viewMode="regular";
 let page = 1;
@@ -672,10 +680,17 @@ function followScore(d){ let s=0; if(d.first_look)s+=3; if(num(d.ltv)>1000)s+=2;
 function followPriority(d){ const s=followScore(d); return s>=3?"High":s>=1?"Medium":"Low"; }
 function followAsk(d){
   const piece=firstPiece(d.pieces)||"your piece";
-  if(d.gift_self==="Gift") return `Did the person you gave ${piece} to understand what it was without being told?`;
+  const jewel=isJewelry(piece);
+  if(d.gift_self==="Gift") return jewel
+    ? `Did the person you gave ${piece} to put it on right away?`
+    : `Did the person you gave ${piece} to understand what it was without being told?`;
   if(countPieces(d.pieces)>=2) return `What made you choose ${piece} over the others?`;
-  if(d.first_look) return `Where does ${piece} live now — and what's it come to mean to you?`;
-  return `Where does ${piece} live now — on you, on a shelf, somewhere specific?`;
+  if(d.first_look) return jewel
+    ? `How does ${piece} feel to wear — has it worked its way into the rotation?`
+    : `Where does ${piece} live now — and what's it come to mean to you?`;
+  return jewel
+    ? `Has ${piece} been getting out into the world with you — where's it been worn?`
+    : `Where does ${piece} live now — on you, on a shelf, somewhere specific?`;
 }
 function followType(d, kind){
   if(kind==="reconnect") return "Reconnect";
@@ -692,7 +707,8 @@ function emailCtx(d){
     city:(d.location||"").split(",")[0].trim(),
     gift:d.gift_self==="Gift",
     repeat:countPieces(d.pieces)>=2,
-    vip:!!d.first_look
+    vip:!!d.first_look,
+    jewel:isJewelry(firstPiece(d.pieces))
   };
 }
 const TONES=[
@@ -700,9 +716,11 @@ const TONES=[
     subject:`Thinking of you & your ${c.piece}`,
     body:[
       `Hi ${c.first},`,"",
-      `It's Alex and Hannah from Maçon. We were just thinking about you and wondering how ${c.piece} is settling in${c.city?` over in ${c.city}`:""}.`,"",
-      c.gift?`Did it land the way you hoped with the person you gave it to?`
+      c.jewel?`It's Alex and Hannah from Maçon. We were just thinking about you and wondering how ${c.piece} has been wearing${c.city?` out in ${c.city}`:""}.`
+      :`It's Alex and Hannah from Maçon. We were just thinking about you and wondering how ${c.piece} is settling in${c.city?` over in ${c.city}`:""}.`,"",
+      c.gift?(c.jewel?`Did it land the way you hoped? Has it been worn yet?`:`Did it land the way you hoped with the person you gave it to?`)
       :c.repeat?`You've quietly built a little collection now, which honestly makes us so happy. What keeps pulling you back?`
+      :c.jewel?`Has it made it into the rotation yet? We love picturing where our pieces get worn.`
       :`Where's it ended up living? On you, a shelf, somewhere it can keep an eye on things?`,"",
       `Even a one-line reply would make our week. Truly no pressure.`,
       ...(c.vip?["","If you ever catch it in good light, we'd love to see it. No pressure at all."]:[]),
@@ -716,6 +734,7 @@ const TONES=[
       `Hey ${c.first},`,"",
       `Hope you're doing well! It's Alex from Maçon. ${c.piece} popped into my head today and I got curious.`,"",
       c.gift?`Did the person you gave it to take to it?`
+      :c.jewel?`Where's it been going with you? Out a lot, or saving it for the right days?`
       :c.vip?`Where's it living these days? I keep wondering where it ended up.`
       :`Where'd it end up? Did it find a little spot yet?`,"",
       `No need to write much, I'm just nosy in the best way.`,"",
@@ -728,6 +747,7 @@ const TONES=[
       `Dear ${c.first},`,"",
       `It's Hannah, from Maçon. Making ${c.piece} for you meant a lot to us, and we love knowing where our little objects end up in people's lives.`,"",
       c.gift?`I've been wondering how it was received by the person you chose it for.`
+      :c.jewel?`I'd love to know how it feels to wear, and where it's been with you, if anything comes to mind.`
       :`I'd love to know where it lives now, and what it's come to mean to you, if anything at all.`,"",
       `Whatever you feel like sharing, we'd hold onto it.`,
       ...(c.vip?["","And if you ever snap a photo of it where it lives, we'd treasure that too."]:[]),
@@ -739,7 +759,7 @@ const TONES=[
     subject:`${c.piece} :)`,
     body:[
       `Hi ${c.first},`,"",
-      `Alex & Hannah from Maçon here. Quick one: ${c.gift?`did your gift land okay?`:`where's ${c.piece} ended up living?`}`,"",
+      `Alex & Hannah from Maçon here. Quick one: ${c.gift?`did your gift land okay?`:c.jewel?`has ${c.piece} been getting worn?`:`where's ${c.piece} ended up living?`}`,"",
       `Thank you, really.`,`Alex & Hannah`
     ].join("\n")
   })}
@@ -1029,6 +1049,7 @@ function openDraft(i, kind){
       </div>
     </div>`;
   openScrim();
+  const x=host.querySelector(".modal-x"); if(x) x.remove();
   const subjEl=host.querySelector("#dSubj"), bodyEl=host.querySelector("#dBody");
   const autosize=()=>{ bodyEl.style.height="auto"; bodyEl.style.height=bodyEl.scrollHeight+"px"; };
   requestAnimationFrame(autosize); bodyEl.addEventListener("input",autosize);
