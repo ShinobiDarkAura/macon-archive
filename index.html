@@ -1443,7 +1443,7 @@ function showDayBrief(events){
   const startMin = localStorage.getItem("macon_brief")===today;
   const el=document.createElement("div");
   el.className="daybrief";
-  el.innerHTML=`<button class="db-icon" title="Today at the Bureau" aria-label="Expand todolist"><svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg></button>
+  el.innerHTML=`<button class="db-icon" title="Today at the Bureau" aria-label="Expand todolist"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg></button>
     <button class="db-x" title="Minimize" aria-label="Minimize">&times;</button>
     <div class="db-kicker">${new Date().toLocaleDateString("en-US",{weekday:"short",month:"long",day:"numeric"}).replace(",","")}</div>
     <h3>Today <i>at the</i> Bureau</h3>
@@ -1464,6 +1464,14 @@ function showDayBrief(events){
     if(fullW){ void el.offsetHeight; el.style.width=fullW+"px"; el.style.height=fullH+"px";
       setTimeout(()=>{ el.style.width=""; el.style.height=""; },400);
     } else { el.style.width=""; el.style.height=""; }
+    // stagger the content in, top to bottom, like the ledger rows (~.5s total)
+    const parts=[...el.querySelectorAll(".db-kicker,h3,.db-rule,li")];
+    const base=140, DUR=180, run=Math.max(0, 500-DUR);
+    const step=parts.length>1 ? run/(parts.length-1) : 0;
+    parts.forEach((n,k)=>{
+      n.animate([{opacity:0,transform:"translateY(14px)"},{opacity:1,transform:"translateY(0)"}],
+        {duration:DUR, delay:base+k*step, easing:"cubic-bezier(.2,.8,.2,1)", fill:"backwards"});
+    });
   };
   el.querySelector(".db-x").onclick=e=>{ e.stopPropagation(); collapse(true); };
   el.onclick=()=>{ if(el.classList.contains("min")) expand(); };
