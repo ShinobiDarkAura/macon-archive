@@ -1632,7 +1632,8 @@ function bureauTodos(){
   });
   data.forEach((d,i)=>{
     const id="fu|"+(d.acc||i)+"|"+(d.last_buy||"");
-    if(isDue(d) && (d.last_buy||"")>=ORDER_TODO_CUTOFF && !done[id])
+    const lb=Date.parse(d.last_buy);
+    if(isDue(d) && !isNaN(lb) && lb>=Date.parse(ORDER_TODO_CUTOFF) && !done[id])
       out.push({id, time:"", title:`Follow up with ${d.name||d.acc}`, act:{type:"draft", i}});
   });
   return out;
