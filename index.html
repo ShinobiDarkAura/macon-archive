@@ -284,13 +284,22 @@
   .fcard .fav-av{width:25%;flex:0 0 25%;align-self:stretch;position:relative;border-radius:0;overflow:hidden;background:var(--paper-2)}
   .fcard .fav-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .fcard .ftitle{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
-  .fcard .fn{font-family:var(--sans);font-variant-caps:all-small-caps;font-size:10pt;font-weight:500;letter-spacing:.08em;line-height:1.1;color:#8f897e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fcard .fn{align-self:flex-start;display:inline-flex;align-items:center;padding:3px 9px 4px;border-radius:999px;background:#ede8dc;
+    font-family:var(--sans);font-variant-caps:all-small-caps;font-size:8.5pt;font-weight:500;letter-spacing:.08em;line-height:1.1;color:#8f897e;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .fn.t-vip{background:#f0e4cf}
+  .fn.t-reconnect{background:#e2e8ee}
+  .fn.t-repeat{background:#e4ecdc}
+  .fn.t-gift{background:#f2e2dd}
+  .fn.t-value{background:#f1ead0}
+  .fn.t-first{background:#ede8dc}
+  .fcard .fsum{font-family:var(--sans);font-size:14px;line-height:1.45;color:var(--slate);margin-top:16px}
   .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:16pt;line-height:1.15;color:var(--ink);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .daychip{position:absolute;top:14px;right:43px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;padding:0;color:#fff;border:none;font-family:var(--sans);font-size:12px;font-weight:700;line-height:1;z-index:3;background:#3a6ea5}
   .donechip{position:absolute;top:14px;right:16px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;
-    border:none;background:#ede8dc;color:#e4ded1;line-height:1;cursor:pointer;z-index:3;
+    border:none;background:#ede8dc;color:#a89f8f;line-height:1;cursor:pointer;z-index:3;
     transition:background .18s ease,color .18s ease}
-  .donechip:hover{color:#b3ab9c}
+  .donechip:hover{color:#6f6657}
   .donechip.done{background:#4f7d57;color:#fff}
   .daychip.High{background:#c0392b}
   .daychip.Medium{background:#b5651d}
@@ -700,6 +709,26 @@ function followType(d, kind){
   if(num(d.ltv)>1000) return "High-value welcome";
   return "First story request";
 }
+function followKey(d, kind){
+  if(kind==="reconnect") return "reconnect";
+  if(d.gift_self==="Gift") return "gift";
+  if(d.first_look) return "vip";
+  if(countPieces(d.pieces)>=2) return "repeat";
+  if(num(d.ltv)>1000) return "value";
+  return "first";
+}
+function followSummary(d, kind){
+  const piece=firstPiece(d.pieces)||"their piece";
+  const jewel=isJewelry(piece);
+  switch(followKey(d, kind)){
+    case "reconnect": return "Gone quiet for a while. Send a no-ask hello so they know they're still on your mind.";
+    case "gift":      return `They gave ${piece} as a gift. Ask how it was received.`;
+    case "vip":       return jewel?`Inner circle. Ask how ${piece} wears and capture their story.`:`Inner circle. Ask where ${piece} lives now and capture their story.`;
+    case "repeat":    return "A returning collector. Ask what keeps pulling them back.";
+    case "value":     return `A big first purchase. A warm thank-you and a story ask.`;
+    default:          return jewel?`First piece has settled in. Ask where ${piece} has been worn.`:`First piece has settled in. Ask where ${piece} lives now.`;
+  }
+}
 function emailCtx(d){
   return {
     first:firstName(d.name),
@@ -986,14 +1015,16 @@ function renderDrawer(){
     return `<div class="fcard" data-i="${x.i}" data-kind="${x.kind}" role="button" tabindex="0" title="Draft email">
       <div class="fav-av"><img src="${src}" alt="" loading="lazy" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='pieces/custom.jpeg'}"></div>
       <div class="fcard-body">
-        <span class="daychip ${x.priority}" title="${x.priority} priority">${PRI_ICON[x.priority]||""}</span>
+        <!-- priority badge paused for now:
+        <span class="daychip ${x.priority}" title="${x.priority} priority">${PRI_ICON[x.priority]||""}</span> -->
         <button class="donechip" data-i="${x.i}" title="Mark contacted"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
         <div class="fcard-top">
           <div class="ftitle">
-            <div class="fn">${esc(followType(d, x.kind))}</div>
+            <div class="fn t-${followKey(d, x.kind)}">${esc(followType(d, x.kind))}</div>
             <div class="ftype">${esc(d.name||"—")}</div>
           </div>
         </div>
+        <div class="fsum">${esc(followSummary(d, x.kind))}</div>
       </div>
     </div>`;
   }).join("");
