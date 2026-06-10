@@ -1267,7 +1267,7 @@ function showForm(i){
       <div class="fg full"><label>Name</label><input id="f_name" value="${F('name')}"></div>
       <div class="fg"><label>Email</label><input id="f_email" value="${F('email')}"></div>
       <div class="fg"><label>Phone</label><input id="f_phone" value="${F('phone')}"></div>
-      <div class="fg"><label>Location</label><input id="f_location" value="${F('location')}" placeholder="City, Country"></div>
+      <div class="fg"><label>Location</label><input id="f_location" value="${F('location')}"></div>
       <div class="fg"><label>Lifetime Value</label><div class="money-wrap"><span class="pfx">$</span><input id="f_ltv" value="${esc(String(d.ltv!=null?d.ltv:'').replace(/[^0-9.]/g,''))}" placeholder="0"></div></div>
       <div class="fg"><label>Last Purchase</label><input id="f_last_buy" value="${F('last_buy')}" placeholder="2026-06-01"></div>
       <div class="fg full"><label>Pieces Owned</label><div class="pbuild" id="pbuild"></div></div>
@@ -1342,7 +1342,7 @@ function openStoryForm(i){
     <div class="form-grid">
       <div class="fg full"><label>Collector</label><input id="s_name" value="${F('name')}" placeholder="Name as it should read"></div>
       <div class="fg"><label>Piece</label><input id="s_piece" value="${esc(piece0)}" placeholder="e.g. Ren"></div>
-      <div class="fg"><label>Location</label><input id="s_location" value="${F('location')}" placeholder="City, Country"></div>
+      <div class="fg"><label>Location</label><input id="s_location" value="${F('location')}"></div>
       <div class="fg"><label>Date</label><input id="s_last_buy" value="${F('last_buy')}" placeholder="2026-06-01"></div>
       <div class="fg"><label>Email</label><input id="s_email" value="${F('email')}"></div>
       <div class="fg full"><label>Story — in their words</label><textarea id="s_notes" rows="4" placeholder="Where it lives now, what it's come to mean…">${F('notes')}</textarea></div>
