@@ -1425,10 +1425,11 @@ function collectPieces(host){
 }
 function renderPieces(piecesStr){
   const host=document.getElementById("pbuild"); if(!host) return;
-  let list=(piecesStr||"").split(",").map(s=>s.trim()).filter(Boolean);
+  let list=Array.isArray(piecesStr) ? piecesStr.slice()
+    : (piecesStr||"").split(",").map(s=>s.trim()).filter(Boolean);
   if(!list.length) list=[""];
   host.innerHTML=list.map(pieceItem).join("")+`<button type="button" class="padd" id="paddBtn" title="Add piece">+</button>`;
-  host.querySelector("#paddBtn").onclick=()=>{ const vals=collectPieces(host); vals.push(""); renderPieces(vals.join(",")); };
+  host.querySelector("#paddBtn").onclick=()=>{ const vals=collectPieces(host); vals.push(""); renderPieces(vals); };
   host.querySelectorAll(".psel").forEach(sel=>sel.onchange=()=>{
     if(sel.value==="__custom__"){ const inp=document.createElement("input"); inp.className="pcustom"; inp.placeholder="Custom piece name"; sel.replaceWith(inp); inp.focus(); }
   });
