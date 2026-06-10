@@ -968,6 +968,14 @@ function renderLedger(){
       el.animate([{opacity:0,transform:"translateY(10px)"},{opacity:1,transform:"translateY(0)"}],
         {duration:300,easing:"ease",delay:250+k*42,fill:"backwards"}));
   }
+  if(!window._ledgerBooted && typeof Element!=="undefined" && Element.prototype.animate){
+    window._ledgerBooted=true;
+    const rows=[...host.querySelectorAll(".entry")];
+    const DUR=180, run=Math.max(0,500-DUR), step=rows.length>1?run/(rows.length-1):0;
+    rows.forEach((el,k)=> el.animate(
+      [{opacity:0,transform:"translateY(22px)"},{opacity:1,transform:"translateY(0)"}],
+      {duration:DUR, delay:k*step, easing:"cubic-bezier(.2,.8,.2,1)", fill:"backwards"}));
+  } else { window._ledgerBooted=true; }
   host.querySelectorAll(".entry").forEach(el=>el.onclick=()=>showForm(+el.dataset.i));
   host.querySelectorAll(".fav").forEach(b=>b.onclick=e=>{ e.stopPropagation(); toggleFav(+b.dataset.i); });
   host.querySelectorAll(".fu:not(.none)").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openDraft(+b.dataset.i); });
