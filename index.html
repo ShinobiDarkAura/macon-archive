@@ -1654,8 +1654,10 @@ function itemsForOffset(offset, events){
   const done=briefDone();
   const dayStr=dayKey(offset), today=dayKey(0);
   const out=[];
-  if(offset===0 && events) events.forEach(e=>
-    out.push({id:"cal|"+today+"|"+e.title, time:e.allDay?"ALL DAY":e.start, title:e.title, act:null}));
+  if(events) events.forEach(e=>{
+    const ed=e.date||today;                       // older cached payloads had no date → treat as today
+    if(ed===dayStr) out.push({id:"cal|"+ed+"|"+e.title, time:e.allDay?"ALL DAY":e.start, title:e.title, act:null});
+  });
   BUREAU_LETTERS.forEach(t=>{
     const id="letter|"+t.date; if(done[id]) return;
     if(offset===0){

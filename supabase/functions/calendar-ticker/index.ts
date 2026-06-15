@@ -1,6 +1,7 @@
 // Maçon Archive — calendar ticker proxy
 // Fetches the private Apple Calendar (iCloud) public-share .ics feed and returns
-// today's events as JSON, with CORS open so the GitHub Pages app can read it.
+// a window of events (each tagged with its date) as JSON, CORS open for the app.
+// Note: one-off events only — recurring (RRULE) events surface on their first date.
 //
 // Setup (Supabase Dashboard):
 //   1. Edge Functions → Deploy new function → name: calendar-ticker → paste this file.
@@ -30,9 +31,19 @@ Deno.serve(async (req) => {
   }
   const ics = await res.text();
 
+  // A window of days around today, in the calendar's display timezone.
+  const tz = Deno.env.get("TICKER_TZ") || "Europe/London";
+  const PAST_DAYS = 7, AHEAD_DAYS = 45;
+  const now = new Date();
+  const todayStr = now.toLocaleDateString("en-CA", { timeZone: tz }); // YYYY-MM-DD
+  const [Y, M, D] = todayStr.split("-").map(Number);
+  const baseUTC = Date.UTC(Y, M - 1, D, 12);
+  const lowStr = new Date(baseUTC - PAST_DAYS * 86400000).toISOString().slice(0, 10);
+  const highStr = new Date(baseUTC + AHEAD_DAYS * 86400000).toISOString().slice(0, 10);
+
   // --- minimal ICS parse: unfold lines, walk VEVENTs ---
   const lines = ics.replace(/\r\n[ \t]/g, "").split(/\r?\n/);
-  type Ev = { title: string; start: string; allDay: boolean };
+  type Ev = { date: string; title: string; start: string; allDay: boolean };
   const events: Ev[] = [];
   let cur: Record<string, string> | null = null;
   for (const ln of lines) {
@@ -45,33 +56,32 @@ Deno.serve(async (req) => {
       if (ln.startsWith("DTSTART;") && ln.includes("TZID=")) cur["TZID"] = ln.slice(8, ln.indexOf(":")).replace(/.*TZID=/, "");
     }
   }
-  // Today's window in the calendar's display timezone (London while you're there).
-  const tz = Deno.env.get("TICKER_TZ") || "Europe/London";
-  const now = new Date();
-  const todayStr = now.toLocaleDateString("en-CA", { timeZone: tz }); // YYYY-MM-DD
-
   function finish(c: Record<string, string>) {
     const raw = c["DTSTART"]; if (!raw || !c["SUMMARY"]) return;
     const allDay = !!c["ALLDAY"] || !raw.includes("T");
-    let when: Date;
+    let evDate: string, start = "";
     if (allDay) {
-      if (raw.slice(0, 4) + "-" + raw.slice(4, 6) + "-" + raw.slice(6, 8) !== todayStr) return;
-      when = now;
-    } else if (raw.endsWith("Z")) {
-      when = new Date(raw.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/, "$1-$2-$3T$4:$5:$6Z"));
+      evDate = raw.slice(0, 4) + "-" + raw.slice(4, 6) + "-" + raw.slice(6, 8);
     } else {
-      // floating/TZID local time — treat as feed's local time (good enough for a ticker)
-      when = new Date(raw.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/, "$1-$2-$3T$4:$5:$6"));
+      const when = raw.endsWith("Z")
+        ? new Date(raw.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/, "$1-$2-$3T$4:$5:$6Z"))
+        : new Date(raw.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/, "$1-$2-$3T$4:$5:$6"));
+      evDate = when.toLocaleDateString("en-CA", { timeZone: tz });
+      start = when.toLocaleTimeString("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit" });
     }
-    if (!allDay && when.toLocaleDateString("en-CA", { timeZone: tz }) !== todayStr) return;
+    if (evDate < lowStr || evDate > highStr) return;   // keep only the window
     events.push({
+      date: evDate,
       title: c["SUMMARY"].replace(/\\,/g, ",").replace(/\\;/g, ";").replace(/\\n/g, " · "),
-      start: allDay ? "" : when.toLocaleTimeString("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit" }),
+      start,
       allDay,
     });
   }
 
-  events.sort((a, b) => (a.allDay ? "" : a.start).localeCompare(b.allDay ? "" : b.start) || a.title.localeCompare(b.title));
+  events.sort((a, b) =>
+    a.date.localeCompare(b.date) ||
+    (a.allDay ? "" : a.start).localeCompare(b.allDay ? "" : b.start) ||
+    a.title.localeCompare(b.title));
   return new Response(JSON.stringify({ date: todayStr, events }), {
     headers: { ...cors, "content-type": "application/json", "cache-control": "public, max-age=300" },
   });
