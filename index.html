@@ -84,6 +84,17 @@
   .daybrief li.done .db-check{opacity:1;color:#4f7d57}
   .daybrief li .db-time{flex:0 0 auto;font-family:var(--mono);font-size:10px;color:var(--bronze);letter-spacing:.06em}
   .daybrief li .db-text{flex:1;min-width:0}
+  .daybrief .db-kicker-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .daybrief .db-kicker-row .db-kicker{margin-bottom:0}
+  .daybrief .db-nav{flex:0 0 auto;border:none;background:transparent;color:#b3ab9c;font-size:15px;line-height:1;cursor:pointer;padding:2px 5px;border-radius:6px;font-family:var(--sans);transition:color .15s,background .15s}
+  .daybrief .db-nav:hover{color:var(--ink);background:rgba(0,0,0,.05)}
+  .daybrief .db-main{width:100%}
+  .daybrief .db-clear{font-family:var(--serif-soul);font-style:italic;font-size:13px;color:#b3ab9c}
+  .daybrief .db-ahead{width:100%;margin-top:20px;padding-top:16px;border-top:1px solid #e4ded1}
+  .daybrief .db-ahead-h{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#b3ab9c;margin-bottom:11px}
+  .daybrief .db-ahead-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;width:100%}
+  .daybrief .db-ahead-list li{position:relative;display:flex;gap:13px;align-items:baseline;width:100%;font-family:var(--sans);font-size:12.5px;color:#a8a294;line-height:1.35;cursor:default;padding-right:0}
+  .daybrief .db-ahead-list .db-text{flex:1;min-width:0}
   .daybrief .db-x{position:absolute;top:10px;right:12px;width:28px;height:28px;border:none;background:transparent;color:var(--slate);
     font-size:20px;line-height:1;cursor:pointer;border-radius:8px;display:flex;align-items:center;justify-content:center}
   .daybrief .db-x:hover{background:var(--paper-2);color:var(--ink)}
@@ -1625,40 +1636,72 @@ function applyDoneToBrief(){
   const m=briefDone();
   document.querySelectorAll(".daybrief li[data-id]").forEach(li=>li.classList.toggle("done", !!m[li.dataset.id]));
 }
-function bureauTodos(){
-  const today=new Date().toLocaleDateString("en-CA");
+function dayDate(offset){ const dt=new Date(); dt.setHours(12,0,0,0); dt.setDate(dt.getDate()+offset); return dt; }
+function dayKey(offset){ return dayDate(offset).toLocaleDateString("en-CA"); }
+function dayLabel(offset){
+  if(offset===0) return "Today"; if(offset===1) return "Tomorrow"; if(offset===-1) return "Yesterday";
+  return dayDate(offset).toLocaleDateString("en-US",{weekday:"long"});
+}
+// First day a collector's follow-up would come due (ignores snooze) — used to project ahead.
+function followDueDate(d){
+  const lb=Date.parse(d.last_buy);
+  if(isNaN(lb) || d.story==="Yes") return null;
+  return lb + (leadTime(firstPiece(d.pieces))+14)*86400000;
+}
+// Items for a given day offset (0 = today). Today accumulates overdue letters +
+// currently-due follow-ups; other days show what is scheduled / projected to land then.
+function itemsForOffset(offset, events){
   const done=briefDone();
+  const dayStr=dayKey(offset), today=dayKey(0);
   const out=[];
+  if(offset===0 && events) events.forEach(e=>
+    out.push({id:"cal|"+today+"|"+e.title, time:e.allDay?"ALL DAY":e.start, title:e.title, act:null}));
   BUREAU_LETTERS.forEach(t=>{
-    const id="letter|"+t.date;
-    if(t.date<=today && !done[id]) out.push({id,
-      time:t.date<today ? new Date(Date.parse(t.date)+43200000).toLocaleDateString("en-US",{month:"short",day:"numeric"}).toUpperCase() : "",
-      title:t.title, act:{type:"compose"}});
+    const id="letter|"+t.date; if(done[id]) return;
+    if(offset===0){
+      if(t.date<=today) out.push({id, time:t.date<today?new Date(Date.parse(t.date)+43200000).toLocaleDateString("en-US",{month:"short",day:"numeric"}).toUpperCase():"", title:t.title, act:{type:"compose"}});
+    } else if(t.date===dayStr){
+      out.push({id, time:"", title:t.title, act:{type:"compose"}});
+    }
   });
   data.forEach((d,i)=>{
-    const id="fu|"+(d.acc||i)+"|"+(d.last_buy||"");
+    const id="fu|"+(d.acc||i)+"|"+(d.last_buy||""); if(done[id]) return;
     const lb=Date.parse(d.last_buy);
-    if(isDue(d) && !isNaN(lb) && lb>=Date.parse(ORDER_TODO_CUTOFF) && !done[id])
-      out.push({id, time:"", title:`Follow up with ${d.name||d.acc}`, act:{type:"draft", i}});
+    if(isNaN(lb) || lb<Date.parse(ORDER_TODO_CUTOFF)) return;
+    let show;
+    if(offset===0) show=isDue(d);
+    else { const due=followDueDate(d); show = due!=null && new Date(due).toLocaleDateString("en-CA")===dayStr; }
+    if(show) out.push({id, time:"", title:`Follow up with ${d.name||d.acc}`, act:{type:"draft", i}});
   });
   return out;
 }
 
-/* ---------- Calendar ticker ---------- */
+/* ---------- Daily brief popup ---------- */
+const DB_CHECK_SVG='<svg class="db-check" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+const DB_GO_SVG='<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+let briefFocus=0;
 function showDayBrief(events){
-  const today=new Date().toLocaleDateString("en-CA");
-  const items=(events||[]).map(e=>({id:"cal|"+today+"|"+e.title, time:e.allDay?"ALL DAY":e.start, title:e.title, act:null})).concat(bureauTodos());
-  if(!items.length) return;
+  window._briefEvents = events||[];
+  if(!itemsForOffset(0, window._briefEvents).length && !itemsForOffset(1, window._briefEvents).length) return;
   if(document.querySelector(".daybrief")) return;
+  briefFocus=0;
+  const today=dayKey(0);
   const startMin = localStorage.getItem("macon_brief")===today;
   const el=document.createElement("div");
   el.className="daybrief";
   el.innerHTML=`<button class="db-icon" title="Today at the Bureau" aria-label="Expand todolist"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg></button>
     <button class="db-x" title="Minimize" aria-label="Minimize">&times;</button>
-    <div class="db-kicker">${new Date().toLocaleDateString("en-US",{weekday:"short",month:"long",day:"numeric"}).replace(",","")}</div>
-    <h3>Today <i>at the</i> Bureau</h3>
+    <div class="db-head">
+      <div class="db-kicker-row">
+        <button class="db-nav db-prev" title="Previous day" aria-label="Previous day">‹</button>
+        <span class="db-kicker"></span>
+        <button class="db-nav db-next" title="Next day" aria-label="Next day">›</button>
+      </div>
+      <h3></h3>
+    </div>
     <hr class="db-rule">
-    <ul>${items.map((e,k)=>`<li data-k="${k}" data-id="${esc(e.id)}" class="${e.act?'has-go':''}">${e.time?`<span class="db-time">${e.time}</span>`:`<span class="db-time">—</span>`}<span class="db-text">${esc(e.title)}</span>${e.act?`<button class="db-go" data-k="${k}" title="Open in the Bureau"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`:''}<svg class="db-check" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></li>`).join("")}</ul>`;
+    <div class="db-main"></div>
+    <div class="db-ahead"></div>`;
   let fullW=0, fullH=0;
   const collapse=(animate)=>{
     localStorage.setItem("macon_brief",today);
@@ -1674,8 +1717,7 @@ function showDayBrief(events){
     if(fullW){ void el.offsetHeight; el.style.width=fullW+"px"; el.style.height=fullH+"px";
       setTimeout(()=>{ el.style.width=""; el.style.height=""; },400);
     } else { el.style.width=""; el.style.height=""; }
-    // stagger the content in, top to bottom, like the ledger rows (~.5s total)
-    const parts=[...el.querySelectorAll(".db-kicker,h3,.db-rule,li")];
+    const parts=[...el.querySelectorAll(".db-head,.db-rule,.db-main li,.db-ahead")];
     const base=140, DUR=180, run=Math.max(0, 500-DUR);
     const step=parts.length>1 ? run/(parts.length-1) : 0;
     parts.forEach((n,k)=>{
@@ -1683,21 +1725,39 @@ function showDayBrief(events){
         {duration:DUR, delay:base+k*step, easing:"cubic-bezier(.2,.8,.2,1)", fill:"backwards"});
     });
   };
+  const liHTML=(e,k)=>`<li data-k="${k}" data-id="${esc(e.id)}" class="${e.act?'has-go':''}">${e.time?`<span class="db-time">${e.time}</span>`:`<span class="db-time">—</span>`}<span class="db-text">${esc(e.title)}</span>${e.act?`<button class="db-go" data-k="${k}" title="Open in the Bureau">${DB_GO_SVG}</button>`:''}${DB_CHECK_SVG}</li>`;
+  let mainItems=[];
+  function renderBody(){
+    mainItems=itemsForOffset(briefFocus, window._briefEvents);
+    const ahead=itemsForOffset(briefFocus+1, window._briefEvents);
+    el.querySelector(".db-kicker").textContent=dayDate(briefFocus).toLocaleDateString("en-US",{weekday:"short",month:"long",day:"numeric"}).replace(",","");
+    el.querySelector("h3").innerHTML=`${esc(dayLabel(briefFocus))} <i>at the</i> Bureau`;
+    const doneMap=briefDone();
+    el.querySelector(".db-main").innerHTML = mainItems.length
+      ? `<ul>${mainItems.map(liHTML).join("")}</ul>`
+      : `<div class="db-clear">Nothing on the agenda.</div>`;
+    el.querySelector(".db-ahead").innerHTML =
+      `<div class="db-ahead-h">${esc(dayLabel(briefFocus+1))}</div>`+
+      (ahead.length
+        ? `<ul class="db-ahead-list">${ahead.map(e=>`<li><span class="db-time">${e.time||"—"}</span><span class="db-text">${esc(e.title)}</span></li>`).join("")}</ul>`
+        : `<div class="db-clear">Clear.</div>`);
+    el.querySelectorAll(".db-main li").forEach(li=>{
+      if(doneMap[li.dataset.id]) li.classList.add("done");
+      li.onclick=()=>{ li.classList.toggle("done"); markTodo(li.dataset.id, li.classList.contains("done")); };
+    });
+    el.querySelectorAll(".db-main .db-go").forEach(b=>{
+      b.onclick=e=>{ e.stopPropagation();
+        const act=mainItems[+b.dataset.k].act; if(!act) return;
+        if(act.type==="draft") openDraft(act.i);
+        else if(act.type==="compose"){ const cb=document.getElementById("composeBtn"); if(cb) cb.click(); }
+      };
+    });
+  }
   el.querySelector(".db-x").onclick=e=>{ e.stopPropagation(); collapse(true); };
+  el.querySelector(".db-prev").onclick=e=>{ e.stopPropagation(); briefFocus--; renderBody(); };
+  el.querySelector(".db-next").onclick=e=>{ e.stopPropagation(); briefFocus++; renderBody(); };
   el.onclick=()=>{ if(el.classList.contains("min")) expand(); };
-  const doneMap=briefDone();
-  el.querySelectorAll("li").forEach(li=>{
-    if(doneMap[li.dataset.id]) li.classList.add("done");
-    li.onclick=()=>{ li.classList.toggle("done");
-      markTodo(li.dataset.id, li.classList.contains("done")); };
-  });
-  el.querySelectorAll(".db-go").forEach(b=>{
-    b.onclick=e=>{ e.stopPropagation();
-      const act=items[+b.dataset.k].act; if(!act) return;
-      if(act.type==="draft") openDraft(act.i);
-      else if(act.type==="compose"){ const cb=document.getElementById("composeBtn"); if(cb) cb.click(); }
-    };
-  });
+  renderBody();
   if(startMin) collapse(false);
   document.body.appendChild(el);
 }
