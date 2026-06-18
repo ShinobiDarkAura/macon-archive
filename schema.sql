@@ -66,3 +66,6 @@ create policy "keepers only todos" on public.bureau_todos
   using      ( auth.jwt() ->> 'email' in ('alex@studiomacon.co','hannah@studiomacon.co') )
   with check ( auth.jwt() ->> 'email' in ('alex@studiomacon.co','hannah@studiomacon.co') );
 alter publication supabase_realtime add table public.bureau_todos;
+
+-- Instagram handle for collector cultivation (added later)
+alter table public.collectors add column if not exists instagram text;
