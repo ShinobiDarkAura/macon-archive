@@ -434,7 +434,7 @@
   .ig-wrap input{padding-left:25px;width:100%}
   .ig-wrap .ig-open{position:absolute;right:11px;color:#a8a294;display:flex;line-height:0;text-decoration:none}
   .ig-wrap .ig-open:hover{color:var(--ink)}
-  .form-grid label .ig-find{float:right;font-size:9px;letter-spacing:.04em;text-transform:none;color:var(--bronze);text-decoration:none;font-weight:500}
+  .form-grid label .ig-find{float:right;display:inline-flex;align-items:center;gap:4px;font-size:9px;letter-spacing:.04em;text-transform:none;color:var(--bronze);text-decoration:none;font-weight:500}
   .form-grid label .ig-find:hover{color:var(--ink);text-decoration:underline}
   .dchip{display:inline-flex;align-items:center;border:.75px solid #a09b91;color:#a09b91;border-radius:999px;padding:2px 12px;font-family:var(--sans);font-size:7pt;letter-spacing:.12em;text-transform:uppercase;background:transparent;white-space:nowrap}
   .dfield{position:relative}
@@ -1297,7 +1297,7 @@ function showForm(i){
       <div class="fg full"><label>Name</label><input id="f_name" value="${F('name')}"></div>
       <div class="fg"><label>Email</label><input id="f_email" value="${F('email')}"></div>
       <div class="fg"><label>Phone</label><input id="f_phone" value="${F('phone')}"></div>
-      <div class="fg"><label>Instagram <a class="ig-find" id="igFind" target="_blank" rel="noopener" title="Search the web for this person">find ↗</a></label>
+      <div class="fg"><label>Instagram <a class="ig-find" id="igFind" target="_blank" rel="noopener" title="Search the web for this person"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none"/></svg>Find ↗</a></label>
         <div class="ig-wrap"><span class="ig-at">@</span><input id="f_instagram" value="${esc(igHandle(d.instagram))}" placeholder="handle"><a class="ig-open" id="igOpen" target="_blank" rel="noopener" title="Open profile">${IG_SVG}</a></div></div>
       <div class="fg"><label>Location</label><input id="f_location" value="${F('location')}"></div>
       <div class="fg"><label>Lifetime Value</label><div class="money-wrap"><span class="pfx">$</span><input id="f_ltv" value="${esc(String(d.ltv!=null?d.ltv:'').replace(/[^0-9.]/g,''))}" placeholder="0"></div></div>
