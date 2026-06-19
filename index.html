@@ -175,11 +175,11 @@
   /* ---------- Toolbar ---------- */
   .toolbar{display:flex;flex-wrap:nowrap;gap:12px;align-items:center;margin:10px 0 66px;min-width:0}
   .toolbar .search{min-width:120px}
-  .toolbar .btn .bi{display:none;line-height:0}
+  /* action buttons are always icon-only (label hidden at every width) */
+  .toolbar .btn .bl{display:none}
+  .toolbar .btn .bi{display:block;line-height:0}
+  .toolbar #composeBtn,.toolbar #importBtn,.toolbar #exportBtn,.toolbar #addBtn{width:44px;padding:0;flex:0 0 auto}
   @media (max-width:1700px){
-    .toolbar .btn .bl{display:none}
-    .toolbar .btn .bi{display:block}
-    .toolbar #composeBtn,.toolbar #importBtn,.toolbar #exportBtn,.toolbar #addBtn{width:44px;padding:0;flex:0 0 auto}
     .filtersel{font-size:10px;padding-right:26px}
   }
   .toolbar .search{flex:1;min-width:200px}
