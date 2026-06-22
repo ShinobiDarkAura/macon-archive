@@ -371,6 +371,9 @@
   .fcard .fmeta{font-family:var(--sans);font-size:11.5px;letter-spacing:.02em;color:#9c9488;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:20pt;line-height:1.15;color:#f1ece1;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .daychip{position:absolute;top:14px;right:43px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;padding:0;color:#fff;border:none;font-family:var(--sans);font-size:12px;font-weight:700;line-height:1;z-index:3;background:#3a6ea5}
+  .fcard.important{background:rgba(255,255,255,.1)}
+  .fcard.important:hover{background:rgba(255,255,255,.13)}
+  .fcard .fn svg{flex:0 0 auto;margin-right:4px}
   .fimp{position:absolute;top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;background:#d4453a;z-index:6;box-shadow:0 0 0 2.5px rgba(20,17,14,.92),0 1px 4px rgba(212,69,58,.6)}
   .donechip{position:absolute;top:14px;right:16px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;
     border:none;background:rgba(255,255,255,.1);color:#9a9286;line-height:1;cursor:pointer;z-index:3;
@@ -818,6 +821,14 @@ function followKey(d, kind){
   if(num(d.ltv)>1000) return "value";
   return "first";
 }
+function chipIcon(d){
+  const I = (path) => `<svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor">${path}</svg>`;
+  const STAR = I('<path d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5 20.4l1.4-6.8L1.3 9l6.9-.7z"/>');
+  const GEM  = I('<path d="M6 3h12l3 6-9 12L3 9z"/>');
+  const GIFT = I('<path d="M20 7h-2.3a3 3 0 1 0-5.7-1 3 3 0 1 0-5.7 1H4a1 1 0 0 0-1 1v3h18V8a1 1 0 0 0-1-1zM3 13v6a1 1 0 0 0 1 1h7v-7H3zm10 7h7a1 1 0 0 0 1-1v-6h-8v7z"/>');
+  const SPARK= I('<path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8z"/>');
+  return ({VIP:STAR, Collector:GEM, Gift:GIFT, New:SPARK})[clientType(d)] || SPARK;
+}
 function clientType(d){ if(d.first_look||num(d.ltv)>1000) return "VIP"; if(countPieces(d.pieces)>=2) return "Collector"; if(d.gift_self==="Gift") return "Gift"; return "New"; }
 function followAction(d, kind){ if(kind==="reconnect") return "Reconnect"; if(d.gift_self==="Gift") return "Gift story"; if(num(d.ltv)>1000 && !(countPieces(d.pieces)>=2)) return "Welcome"; if(countPieces(d.pieces)>=2||d.first_look) return "Check-in"; return "Story request"; }
 function cardMeta(d, kind){ const np=countPieces(d.pieces); const bits=[ followAction(d,kind), np>1?(np+" pieces"):firstPiece(d.pieces), fmtMoney(d.ltv) ].filter(Boolean); return bits.join("  ·  "); }
@@ -1139,7 +1150,7 @@ function renderDrawer(){
     const d=x.d;
     const slug=pieceSlug(d.pieces);
     const src=pieceImg(d.pieces);
-    return `<div class="fcard" data-i="${x.i}" data-kind="${x.kind}" role="button" tabindex="0" title="Draft email">${x.priority==="High"?'<span class="fimp" title="Needs attention"></span>':''}
+    return `<div class="fcard${x.priority==="High"?" important":""}" data-i="${x.i}" data-kind="${x.kind}" role="button" tabindex="0" title="Draft email">${x.priority==="High"?'<span class="fimp" title="Needs attention"></span>':''}
       <div class="fav-av"><img src="${src}" alt="" loading="lazy" data-slug="${slug}" onerror="if(!this.dataset.fb){this.dataset.fb=1;PIECE_404.add(this.dataset.slug);this.src='pieces/custom.jpeg'}"></div>
       <div class="fcard-body">
         <!-- priority badge paused for now:
@@ -1147,7 +1158,7 @@ function renderDrawer(){
         <button class="donechip" data-i="${x.i}" title="Mark contacted"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
         <div class="fcard-top">
           <div class="ftitle">
-            <div class="fn t-${followKey(d, x.kind)}">${esc(clientType(d))}</div>
+            <div class="fn t-${followKey(d, x.kind)}">${chipIcon(d)}${esc(clientType(d))}</div>
             <div class="ftype">${esc(shortName(d.name))}</div>
           </div>
         </div>
