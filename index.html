@@ -328,13 +328,13 @@
   }
 
   /* ---------- Follow-up drawer ---------- */
-  body{transition:padding-right .28s ease;padding-right:428px}
+  body{transition:padding-right .28s ease;padding-right:440px}
   body.drawer-collapsed{padding-right:18px}
   body.preload, body.preload *{transition:none!important}
-  .drawer{position:fixed;top:12px;right:12px;height:calc(100vh - 24px);width:404px;background:rgba(20,17,14,.92);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);border-radius:16px;overflow:hidden;
+  .drawer{position:fixed;top:24px;right:24px;height:calc(100vh - 48px);width:404px;background:rgba(20,17,14,.92);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);border-radius:16px;overflow:hidden;
         box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:45;display:flex;flex-direction:column;
         transform:translateX(0);transition:transform .28s ease}
-  body.drawer-collapsed .drawer{transform:translateX(calc(100% + 16px))}
+  body.drawer-collapsed .drawer{transform:translateX(calc(100% + 28px))}
   .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:22px 24px 16px;position:relative;z-index:2;background:transparent;box-shadow:0 10px 16px -10px rgba(40,37,35,.28)}
   .drawer-title{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#cfc8ba}
   .drawer-title .dt-ico{font-size:13px;color:#cfc8ba}
