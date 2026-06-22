@@ -161,8 +161,8 @@
   .progress-card .bar{height:10px;background:rgba(40,37,35,.06);border:1px solid var(--rule);border-radius:999px;margin:4px 0 0;overflow:hidden}
   .progress-card.started .bar{border-color:var(--rule)}
   .progress-card .bar{position:relative}
-  .progress-card .bar i{display:block;height:100%;width:0;background:#3a6ea5;transition:width 1s cubic-bezier(.2,.8,.2,1);position:relative;z-index:1}
-  .progress-card .bar .bar-prospect{position:absolute;inset:0 auto 0 0;background:rgba(140,170,205,.55);z-index:0;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+  .progress-card .bar i{display:block;height:100%;width:0;background:#5a9367;transition:width 1s cubic-bezier(.2,.8,.2,1);position:relative;z-index:1}
+  .progress-card .bar .bar-prospect{position:absolute;inset:0 auto 0 0;background:rgba(150,196,160,.5);z-index:0;transition:width 1s cubic-bezier(.2,.8,.2,1)}
   .pc-funnel{display:flex;align-items:center;justify-content:flex-start;gap:7px;margin-top:9px;
     font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#a7a39c;white-space:nowrap}
   .pc-funnel i{font-style:normal;font-weight:700;color:#b8b0a0}
@@ -355,22 +355,20 @@
   .fcard-img::after{content:"";position:absolute;left:0;right:0;bottom:0;height:58%;background:linear-gradient(to top,#fff,rgba(255,255,255,0));pointer-events:none;z-index:1}
   .fcard-body{position:relative;flex:1;min-width:0;padding:22px 18px 28px 26px}
   .fcard-top{display:flex;align-items:center;gap:13px}
-  .fcard .fav-av{width:25.9%;flex:0 0 25.9%;align-self:stretch;position:relative;border-radius:0;overflow:hidden;background:#1f1a16}
-  .fcard .fav-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-    filter:grayscale(1) sepia(.48) saturate(.82) brightness(.97);opacity:.75;transition:filter .25s ease,opacity .25s ease}
-  .fcard:hover .fav-av img{filter:none;opacity:1}
+  .fcard .fav-av{width:25.9%;flex:0 0 25.9%;align-self:stretch;margin:3px;position:relative;border-radius:9px;overflow:hidden;background:#1f1a16}
+  .fcard .fav-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .fcard .ftitle{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
   .fcard .fn{align-self:flex-start;display:inline-flex;align-items:center;padding:3px 9px 4px;border-radius:999px;background:#ede8dc;
     font-family:var(--sans);font-variant-caps:all-small-caps;font-size:8.5pt;font-weight:500;letter-spacing:.08em;line-height:1.1;color:#8f897e;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-  .fn.t-vip{background:#f0e4cf;color:#8c6a3f}
-  .fn.t-reconnect{background:#e2e8ee;color:#56708a}
-  .fn.t-repeat{background:#e4ecdc;color:#5f7a4e}
-  .fn.t-gift{background:#f2e2dd;color:#9c5a4a}
-  .fn.t-value{background:#f1ead0;color:#8c7d3a}
-  .fn.t-first{background:#ede8dc;color:#75716a}
+  .fn.t-vip{background:rgba(201,150,79,.26);color:#e6b878}
+  .fn.t-reconnect{background:rgba(86,140,184,.26);color:#90c1ec}
+  .fn.t-repeat{background:rgba(118,168,96,.26);color:#a9d68a}
+  .fn.t-gift{background:rgba(196,103,82,.26);color:#ec9d88}
+  .fn.t-value{background:rgba(196,168,72,.26);color:#dcc46a}
+  .fn.t-first{background:rgba(255,255,255,.12);color:#cdc5b6}
   .fcard .fsum{font-family:var(--sans);font-size:13px;line-height:1.45;color:#9c9488;margin-top:2px}
-  .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:16pt;line-height:1.15;color:#f1ece1;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:20pt;line-height:1.15;color:#f1ece1;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .daychip{position:absolute;top:14px;right:43px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;padding:0;color:#fff;border:none;font-family:var(--sans);font-size:12px;font-weight:700;line-height:1;z-index:3;background:#3a6ea5}
   .donechip{position:absolute;top:14px;right:16px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;
     border:none;background:rgba(255,255,255,.1);color:#9a9286;line-height:1;cursor:pointer;z-index:3;
@@ -822,6 +820,7 @@ function followKey(d, kind){
   if(num(d.ltv)>1000) return "value";
   return "first";
 }
+function shortName(n){ n=(n||"").trim(); if(!n) return "—"; const p=n.split(/\s+/).filter(Boolean); if(p.length<2) return p[0]; const last=p[p.length-1]; return p[0]+" "+last[0].toUpperCase()+"."; }
 function followSummary(d, kind){
   const piece=esc(firstPiece(d.pieces)||"their piece");
   const jewel=isJewelry(firstPiece(d.pieces));
@@ -1148,7 +1147,7 @@ function renderDrawer(){
         <div class="fcard-top">
           <div class="ftitle">
             <div class="fn t-${followKey(d, x.kind)}">${esc(followType(d, x.kind))}</div>
-            <div class="ftype">${esc(d.name||"—")}</div>
+            <div class="ftype">${esc(shortName(d.name))}</div>
           </div>
         </div>
         <div class="fsum">${followSummary(d, x.kind)}</div>
