@@ -369,6 +369,7 @@
   .fn.t-first{background:#cdc5b6;color:#221d18}
   .fcard .fsum{font-family:var(--sans);font-size:13px;line-height:1.45;color:#9c9488;margin-top:2px}
   .fcard .fmeta{font-family:var(--sans);font-size:11.5px;letter-spacing:.02em;color:#9c9488;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fcard .fmeta .fmeta-dim{color:#787264}
   .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:20pt;line-height:1.15;color:#f1ece1;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .daychip{position:absolute;top:14px;right:43px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;padding:0;color:#fff;border:none;font-family:var(--sans);font-size:12px;font-weight:700;line-height:1;z-index:3;background:#3a6ea5}
   .fcard.important{background:rgba(255,255,255,.1)}
@@ -831,7 +832,7 @@ function chipIcon(d){
 }
 function clientType(d){ if(d.first_look||num(d.ltv)>1000) return "VIP"; if(countPieces(d.pieces)>=2) return "Collector"; if(d.gift_self==="Gift") return "Gift"; return "New"; }
 function followAction(d, kind){ if(kind==="reconnect") return "Reconnect"; if(d.gift_self==="Gift") return "Gift story"; if(num(d.ltv)>1000 && !(countPieces(d.pieces)>=2)) return "Welcome"; if(countPieces(d.pieces)>=2||d.first_look) return "Check-in"; return "Story request"; }
-function cardMeta(d, kind){ const np=countPieces(d.pieces); const bits=[ followAction(d,kind), np>1?(np+" pieces"):firstPiece(d.pieces), fmtMoney(d.ltv) ].filter(Boolean); return bits.join("  ·  "); }
+function cardMeta(d, kind){ const np=countPieces(d.pieces); const rest=[ np>1?(np+" pieces"):firstPiece(d.pieces), fmtMoney(d.ltv) ].filter(Boolean).map(esc); const a=esc(followAction(d,kind)); return rest.length ? a+'  ·  <span class="fmeta-dim">'+rest.join("  ·  ")+"</span>" : a; }
 function shortName(n){ n=(n||"").trim(); if(!n) return "—"; const p=n.split(/\s+/).filter(Boolean); if(p.length<2) return p[0]; const last=p[p.length-1]; return p[0]+" "+last[0].toUpperCase()+"."; }
 function followSummary(d, kind){
   const piece=esc(firstPiece(d.pieces)||"their piece");
@@ -1163,7 +1164,7 @@ function renderDrawer(){
           </div>
         </div>
         <!-- description paused: <div class="fsum">…followSummary…</div> -->
-        <div class="fmeta">${esc(cardMeta(d, x.kind))}</div>
+        <div class="fmeta">${cardMeta(d, x.kind)}</div>
       </div>
     </div>`;
   }).join("");
