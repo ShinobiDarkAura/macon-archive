@@ -328,13 +328,13 @@
   }
 
   /* ---------- Follow-up drawer ---------- */
-  body{transition:padding-right .28s ease;padding-right:404px}
+  body{transition:padding-right .28s ease;padding-right:428px}
   body.drawer-collapsed{padding-right:18px}
   body.preload, body.preload *{transition:none!important}
-  .drawer{position:fixed;top:0;right:0;height:100vh;width:404px;background:rgba(20,17,14,.92);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);
-        box-shadow:-20px 0 50px rgba(0,0,0,.45);z-index:45;display:flex;flex-direction:column;
+  .drawer{position:fixed;top:12px;right:12px;height:calc(100vh - 24px);width:404px;background:rgba(20,17,14,.92);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);border-radius:16px;overflow:hidden;
+        box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:45;display:flex;flex-direction:column;
         transform:translateX(0);transition:transform .28s ease}
-  body.drawer-collapsed .drawer{transform:translateX(100%)}
+  body.drawer-collapsed .drawer{transform:translateX(calc(100% + 16px))}
   .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:22px 24px 16px;position:relative;z-index:2;background:transparent;box-shadow:0 10px 16px -10px rgba(40,37,35,.28)}
   .drawer-title{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#cfc8ba}
   .drawer-title .dt-ico{font-size:13px;color:#cfc8ba}
@@ -345,7 +345,7 @@
   .drawer-close:hover{color:var(--ink)}
   .drawer-body{flex:1;overflow:auto;padding:24px 24px 124px;display:flex;flex-direction:column;gap:22px}
   .drawer-empty{color:#9b9488;font-family:var(--serif-soul);font-style:italic;font-size:15px;text-align:center;margin-top:30px}
-  .fcard{display:flex;flex-direction:row;gap:0;flex:0 0 auto;border:none;border-radius:12px;background:rgba(255,255,255,.055);box-shadow:0 6px 18px rgba(0,0,0,.42);overflow:hidden;cursor:pointer;
+  .fcard{display:flex;flex-direction:row;gap:0;flex:0 0 auto;border:none;border-radius:12px;background:rgba(255,255,255,.055);box-shadow:0 6px 18px rgba(0,0,0,.42);position:relative;cursor:pointer;
     transition:box-shadow .18s ease,transform .2s ease}
   .fcard:hover{transform:translateY(-4px);background:rgba(255,255,255,.085);box-shadow:0 13px 30px rgba(0,0,0,.52)}
   .fcard.leaving{transform:translateX(80px);opacity:0;
@@ -353,7 +353,7 @@
   .fcard-img{position:relative;flex:0 0 auto;width:100%;height:91px;background:var(--paper-2)}
   .fcard-img img{width:100%;height:100%;object-fit:cover;display:block}
   .fcard-img::after{content:"";position:absolute;left:0;right:0;bottom:0;height:58%;background:linear-gradient(to top,#fff,rgba(255,255,255,0));pointer-events:none;z-index:1}
-  .fcard-body{position:relative;flex:1;min-width:0;padding:13px 18px 13px 16px}
+  .fcard-body{position:relative;flex:1;min-width:0;padding:25px 18px 25px 16px}
   .fcard-top{display:flex;align-items:center;gap:13px}
   .fcard .fav-av{width:25.9%;flex:0 0 25.9%;align-self:stretch;margin:13px;position:relative;border-radius:9px;overflow:hidden;background:#1f1a16}
   .fcard .fav-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -371,6 +371,7 @@
   .fcard .fmeta{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;color:#9c9488;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:20pt;line-height:1.15;color:#f1ece1;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .daychip{position:absolute;top:14px;right:43px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;padding:0;color:#fff;border:none;font-family:var(--sans);font-size:12px;font-weight:700;line-height:1;z-index:3;background:#3a6ea5}
+  .fimp{position:absolute;top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;background:#d4453a;z-index:6;box-shadow:0 0 0 2.5px rgba(20,17,14,.92),0 1px 4px rgba(212,69,58,.6)}
   .donechip{position:absolute;top:14px;right:16px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;
     border:none;background:rgba(255,255,255,.1);color:#9a9286;line-height:1;cursor:pointer;z-index:3;
     transition:background .18s ease,color .18s ease}
@@ -819,7 +820,7 @@ function followKey(d, kind){
 }
 function clientType(d){ if(d.first_look||num(d.ltv)>1000) return "VIP"; if(countPieces(d.pieces)>=2) return "Collector"; if(d.gift_self==="Gift") return "Gift"; return "New"; }
 function followAction(d, kind){ if(kind==="reconnect") return "Reconnect"; if(d.gift_self==="Gift") return "Gift story"; if(num(d.ltv)>1000 && !(countPieces(d.pieces)>=2)) return "Welcome"; if(countPieces(d.pieces)>=2||d.first_look) return "Check-in"; return "Story request"; }
-function cardMeta(d, kind){ const np=countPieces(d.pieces); const bits=[ followAction(d,kind), np>1?(np+" pieces"):firstPiece(d.pieces), fmtMoney(d.ltv) ].filter(Boolean); return bits.join("  ·  "); }
+function cardMeta(d, kind){ const np=countPieces(d.pieces); const bits=[ followAction(d,kind), np>1?(np+" pieces"):firstPiece(d.pieces) ].filter(Boolean); return bits.join("  ·  "); }
 function shortName(n){ n=(n||"").trim(); if(!n) return "—"; const p=n.split(/\s+/).filter(Boolean); if(p.length<2) return p[0]; const last=p[p.length-1]; return p[0]+" "+last[0].toUpperCase()+"."; }
 function followSummary(d, kind){
   const piece=esc(firstPiece(d.pieces)||"their piece");
@@ -1138,7 +1139,7 @@ function renderDrawer(){
     const d=x.d;
     const slug=pieceSlug(d.pieces);
     const src=pieceImg(d.pieces);
-    return `<div class="fcard" data-i="${x.i}" data-kind="${x.kind}" role="button" tabindex="0" title="Draft email">
+    return `<div class="fcard" data-i="${x.i}" data-kind="${x.kind}" role="button" tabindex="0" title="Draft email">${x.priority==="High"?'<span class="fimp" title="Needs attention"></span>':''}
       <div class="fav-av"><img src="${src}" alt="" loading="lazy" data-slug="${slug}" onerror="if(!this.dataset.fb){this.dataset.fb=1;PIECE_404.add(this.dataset.slug);this.src='pieces/custom.jpeg'}"></div>
       <div class="fcard-body">
         <!-- priority badge paused for now:
