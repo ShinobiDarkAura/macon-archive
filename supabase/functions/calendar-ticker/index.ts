@@ -40,6 +40,9 @@ Deno.serve(async (req) => {
   const baseUTC = Date.UTC(Y, M - 1, D, 12);
   const lowStr = new Date(baseUTC - PAST_DAYS * 86400000).toISOString().slice(0, 10);
   const highStr = new Date(baseUTC + AHEAD_DAYS * 86400000).toISOString().slice(0, 10);
+  const DAY = 86400000;
+  const ymdToUTC = (ymd: string) => { const [y, m, d] = ymd.split("-").map(Number); return Date.UTC(y, m - 1, d, 12); };
+  const utcToYmd = (ts: number) => new Date(ts).toISOString().slice(0, 10);
 
   // --- minimal ICS parse: unfold lines, walk VEVENTs ---
   const lines = ics.replace(/\r\n[ \t]/g, "").split(/\r?\n/);
@@ -51,7 +54,11 @@ Deno.serve(async (req) => {
     else if (ln === "END:VEVENT") { if (cur) finish(cur); cur = null; }
     else if (cur) {
       const i = ln.indexOf(":");
-      if (i > 0) cur[ln.slice(0, i).split(";")[0]] = ln.slice(i + 1);
+      if (i > 0) {
+        const key = ln.slice(0, i).split(";")[0];
+        if (key === "EXDATE") cur["EXDATE"] = (cur["EXDATE"] ? cur["EXDATE"] + "," : "") + ln.slice(i + 1);
+        else cur[key] = ln.slice(i + 1);
+      }
       if (ln.startsWith("DTSTART;VALUE=DATE:")) cur["ALLDAY"] = "1";
       if (ln.startsWith("DTSTART;") && ln.includes("TZID=")) cur["TZID"] = ln.slice(8, ln.indexOf(":")).replace(/.*TZID=/, "");
     }
@@ -59,23 +66,71 @@ Deno.serve(async (req) => {
   function finish(c: Record<string, string>) {
     const raw = c["DTSTART"]; if (!raw || !c["SUMMARY"]) return;
     const allDay = !!c["ALLDAY"] || !raw.includes("T");
-    let evDate: string, start = "";
+    let evDate0: string, start = "";
     if (allDay) {
-      evDate = raw.slice(0, 4) + "-" + raw.slice(4, 6) + "-" + raw.slice(6, 8);
+      evDate0 = raw.slice(0, 4) + "-" + raw.slice(4, 6) + "-" + raw.slice(6, 8);
     } else {
       const when = raw.endsWith("Z")
         ? new Date(raw.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/, "$1-$2-$3T$4:$5:$6Z"))
         : new Date(raw.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/, "$1-$2-$3T$4:$5:$6"));
-      evDate = when.toLocaleDateString("en-CA", { timeZone: tz });
+      evDate0 = when.toLocaleDateString("en-CA", { timeZone: tz });
       start = when.toLocaleTimeString("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit" });
     }
-    if (evDate < lowStr || evDate > highStr) return;   // keep only the window
-    events.push({
-      date: evDate,
-      title: c["SUMMARY"].replace(/\\,/g, ",").replace(/\\;/g, ";").replace(/\\n/g, " · "),
-      start,
-      allDay,
-    });
+    const title = c["SUMMARY"].replace(/\\,/g, ",").replace(/\\;/g, ";").replace(/\\n/g, " · ");
+
+    // exception dates (cancelled instances of a recurring event)
+    const exSet = new Set<string>();
+    if (c["EXDATE"]) for (const m of c["EXDATE"].matchAll(/(\d{4})(\d{2})(\d{2})/g)) exSet.add(`${m[1]}-${m[2]}-${m[3]}`);
+
+    const emit = (ymd: string) => {
+      if (ymd < lowStr || ymd > highStr || exSet.has(ymd)) return;
+      events.push({ date: ymd, title, start, allDay });
+    };
+
+    const rrule = c["RRULE"];
+    if (!rrule) { emit(evDate0); return; }
+
+    // --- expand a recurring event across the window ---
+    const R: Record<string, string> = {};
+    for (const part of rrule.split(";")) { const [k, v] = part.split("="); if (k) R[k] = v; }
+    const freq = R["FREQ"];
+    const interval = Math.max(1, parseInt(R["INTERVAL"] || "1", 10));
+    const count = R["COUNT"] ? parseInt(R["COUNT"], 10) : null;
+    const untilM = (R["UNTIL"] || "").match(/^(\d{4})(\d{2})(\d{2})/);
+    const untilYmd = untilM ? `${untilM[1]}-${untilM[2]}-${untilM[3]}` : null;
+    const stopYmd = untilYmd && untilYmd < highStr ? untilYmd : highStr;
+    const WD: Record<string, number> = { SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6 };
+    const start0 = ymdToUTC(evDate0);
+    let n = 0, iter = 0;
+
+    if (freq === "WEEKLY" && R["BYDAY"]) {
+      const days = R["BYDAY"].split(",").map((d) => WD[d.slice(-2)]).filter((x) => x != null);
+      let weekStart = start0 - new Date(start0).getUTCDay() * DAY;
+      while (iter++ < 5000) {
+        for (const dow of days) {
+          const occ = weekStart + dow * DAY;
+          const ymd = utcToYmd(occ);
+          if (occ < start0 || ymd > stopYmd) continue;
+          if (count && n >= count) break;
+          emit(ymd); n++;
+        }
+        weekStart += interval * 7 * DAY;
+        if (utcToYmd(weekStart) > stopYmd || (count && n >= count)) break;
+      }
+    } else {
+      let occ = start0;
+      while (iter++ < 5000) {
+        const ymd = utcToYmd(occ);
+        if (ymd > stopYmd || (count && n >= count)) break;
+        emit(ymd); n++;
+        const dt = new Date(occ);
+        if (freq === "DAILY") occ += interval * DAY;
+        else if (freq === "WEEKLY") occ += interval * 7 * DAY;
+        else if (freq === "MONTHLY") occ = Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth() + interval, dt.getUTCDate(), 12);
+        else if (freq === "YEARLY") occ = Date.UTC(dt.getUTCFullYear() + interval, dt.getUTCMonth(), dt.getUTCDate(), 12);
+        else break; // unknown freq: only the first occurrence
+      }
+    }
   }
 
   events.sort((a, b) =>
