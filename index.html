@@ -1709,8 +1709,8 @@ const DB_GO_SVG='<svg viewBox="0 0 24 24" width="13" height="13" fill="none" str
 let briefFocus=0;
 function showDayBrief(events){
   window._briefEvents = events||[];
+  if(document.querySelector(".daybrief")){ if(window._briefRender) window._briefRender(); return; }
   if(!itemsForOffset(0, window._briefEvents).length && !itemsForOffset(1, window._briefEvents).length) return;
-  if(document.querySelector(".daybrief")) return;
   briefFocus=0;
   const today=dayKey(0);
   const startMin = localStorage.getItem("macon_brief")===today;
@@ -1784,6 +1784,7 @@ function showDayBrief(events){
   el.querySelector(".db-prev").onclick=e=>{ e.stopPropagation(); briefFocus--; renderBody(); };
   el.querySelector(".db-next").onclick=e=>{ e.stopPropagation(); briefFocus++; renderBody(); };
   el.onclick=()=>{ if(el.classList.contains("min")) expand(); };
+  window._briefRender = renderBody;
   renderBody();
   if(startMin) collapse(false);
   document.body.appendChild(el);
@@ -1814,7 +1815,8 @@ async function loadTicker(){
     renderTicker(j.events);
   }catch(e){}
 }
-loadTicker(); setInterval(loadTicker, 15*60*1000);
+loadTicker(); setInterval(loadTicker, 5*60*1000);
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) loadTicker(); });
 function showGate(){ synced=false; setSync("","Sign in to sync"); document.getElementById("gate").classList.add("show"); }
 function hideGate(){ document.getElementById("gate").classList.remove("show"); }
 document.getElementById("scrim").onclick=e=>{ if(e.target.id==="scrim") closeScrim(); };

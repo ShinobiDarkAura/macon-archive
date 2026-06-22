@@ -83,6 +83,6 @@ Deno.serve(async (req) => {
     (a.allDay ? "" : a.start).localeCompare(b.allDay ? "" : b.start) ||
     a.title.localeCompare(b.title));
   return new Response(JSON.stringify({ date: todayStr, events }), {
-    headers: { ...cors, "content-type": "application/json", "cache-control": "public, max-age=300" },
+    headers: { ...cors, "content-type": "application/json", "cache-control": "public, max-age=60" },
   });
 });
