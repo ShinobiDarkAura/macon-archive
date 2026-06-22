@@ -343,7 +343,7 @@
   .dt-badge.zero{display:none}
   .drawer-close{width:30px;height:30px;border:none;background:transparent;color:#9b9488;cursor:pointer;font-size:18px;transition:.15s}
   .drawer-close:hover{color:var(--ink)}
-  .drawer-body{flex:1;overflow:auto;padding:20px 24px 124px;display:flex;flex-direction:column;gap:22px}
+  .drawer-body{flex:1;overflow:auto;padding:24px 24px 124px;display:flex;flex-direction:column;gap:22px}
   .drawer-empty{color:#9b9488;font-family:var(--serif-soul);font-style:italic;font-size:15px;text-align:center;margin-top:30px}
   .fcard{display:flex;flex-direction:row;gap:0;flex:0 0 auto;border:none;border-radius:12px;background:rgba(255,255,255,.055);box-shadow:0 6px 18px rgba(0,0,0,.42);overflow:hidden;cursor:pointer;
     transition:box-shadow .18s ease,transform .2s ease}
@@ -567,10 +567,6 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
 
 <!-- Follow-up notifications drawer + collapsed rail -->
 <div class="drawer" id="drawer">
-  <div class="drawer-head">
-    <span class="drawer-title">Follow-ups<span class="dt-badge zero" id="drawerBadge">0</span></span>
-    <button class="drawer-close" id="drawerClose" title="Collapse">›</button>
-  </div>
   <div class="drawer-body" id="drawerBody"></div>
 </div>
 <button class="drawer-rail" id="drawerRail" title="Follow-ups"><span class="rail-dot"></span><span id="railLabel">Follow Up</span></button>
