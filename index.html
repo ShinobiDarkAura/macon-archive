@@ -369,13 +369,13 @@
   .fn.t-first{background:#cdc5b6;color:#221d18}
   .fcard .fsum{font-family:var(--sans);font-size:13px;line-height:1.45;color:#9c9488;margin-top:2px}
   .fcard .fmeta{font-family:var(--sans);font-size:11.5px;letter-spacing:.02em;color:#9c9488;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .fcard .fmeta .fmeta-dim{color:#787264}
+  .fcard .fmeta .fmeta-dim{color:#565144}
   .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:20pt;line-height:1.15;color:#f1ece1;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .daychip{position:absolute;top:14px;right:43px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;padding:0;color:#fff;border:none;font-family:var(--sans);font-size:12px;font-weight:700;line-height:1;z-index:3;background:#3a6ea5}
   .fcard.important{background:rgba(255,255,255,.1)}
   .fcard.important:hover{background:rgba(255,255,255,.13)}
   .fcard .fn svg{flex:0 0 auto;margin-right:4px}
-  .fimp{position:absolute;top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;background:#d4453a;z-index:6;box-shadow:0 0 0 2.5px #14110e,0 1px 4px rgba(212,69,58,.55)}
+  .fimp{position:absolute;top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;background:#d4453a;z-index:6;box-shadow:0 0 0 2.5px #26221d,0 1px 4px rgba(212,69,58,.55)}
   .donechip{position:absolute;top:14px;right:16px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;
     border:none;background:rgba(255,255,255,.1);color:#9a9286;line-height:1;cursor:pointer;z-index:3;
     transition:background .18s ease,color .18s ease}
@@ -1159,7 +1159,7 @@ function renderDrawer(){
         <button class="donechip" data-i="${x.i}" title="Mark contacted"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
         <div class="fcard-top">
           <div class="ftitle">
-            <div class="fn t-${followKey(d, x.kind)}">${chipIcon(d)}${esc(clientType(d))}</div>
+            <div class="fn t-${followKey(d, x.kind)}">${esc(clientType(d))}</div>
             <div class="ftype">${esc(shortName(d.name))}</div>
           </div>
         </div>
