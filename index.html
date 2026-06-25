@@ -314,18 +314,33 @@
   .ledger{border-top:1px solid #efeee9;flex:1;overflow:hidden;display:flex;flex-direction:column}
   .entry{border-bottom:1px solid #efeee9;padding:6px 6px 6px 14px;display:grid;gap:18px;flex:1 1 0;min-height:0;
          grid-template-columns:52px 1fr 186px 162px 108px 162px 44px;align-items:center;align-content:center;cursor:pointer;max-height:88px;transition:padding .22s ease,background .12s ease}
-  /* progressively drop least-important columns as the window narrows (avoids overlap) */
+  /* progressively drop least-important columns as the table narrows (avoids overlap).
+     Drawer OPEN shrinks the table ~422px-equivalent, so its breakpoints fire ~422px sooner. */
+  /* --- drawer COLLAPSED (wide table) --- */
   @media(max-width:1600px){
-    .ledger-head,.entry{grid-template-columns:52px 1fr 162px 108px 162px 44px}
-    .entry .cell.pieces,.ledger-head span[data-k="pieces"]{display:none}
+    body.drawer-collapsed .ledger-head,body.drawer-collapsed .entry{grid-template-columns:52px 1fr 162px 108px 162px 44px}
+    body.drawer-collapsed .entry .cell.pieces,body.drawer-collapsed .ledger-head span[data-k="pieces"]{display:none}
   }
   @media(max-width:1380px){
-    .ledger-head,.entry{grid-template-columns:52px 1fr 108px 162px 44px}
-    .entry .cell.loc,.ledger-head span[data-k="loc"]{display:none}
+    body.drawer-collapsed .ledger-head,body.drawer-collapsed .entry{grid-template-columns:52px 1fr 108px 162px 44px}
+    body.drawer-collapsed .entry .cell.loc,body.drawer-collapsed .ledger-head span[data-k="loc"]{display:none}
   }
   @media(max-width:1280px){
-    .ledger-head,.entry{grid-template-columns:52px 1fr 162px 44px}
-    .entry .cell.purchased,.ledger-head span[data-k="purchased"]{display:none}
+    body.drawer-collapsed .ledger-head,body.drawer-collapsed .entry{grid-template-columns:52px 1fr 162px 44px}
+    body.drawer-collapsed .entry .cell.purchased,body.drawer-collapsed .ledger-head span[data-k="purchased"]{display:none}
+  }
+  /* --- drawer OPEN (table ~422px narrower) --- */
+  @media(max-width:2022px){
+    body:not(.drawer-collapsed) .ledger-head,body:not(.drawer-collapsed) .entry{grid-template-columns:52px 1fr 162px 108px 162px 44px}
+    body:not(.drawer-collapsed) .entry .cell.pieces,body:not(.drawer-collapsed) .ledger-head span[data-k="pieces"]{display:none}
+  }
+  @media(max-width:1802px){
+    body:not(.drawer-collapsed) .ledger-head,body:not(.drawer-collapsed) .entry{grid-template-columns:52px 1fr 108px 162px 44px}
+    body:not(.drawer-collapsed) .entry .cell.loc,body:not(.drawer-collapsed) .ledger-head span[data-k="loc"]{display:none}
+  }
+  @media(max-width:1702px){
+    body:not(.drawer-collapsed) .ledger-head,body:not(.drawer-collapsed) .entry{grid-template-columns:52px 1fr 162px 44px}
+    body:not(.drawer-collapsed) .entry .cell.purchased,body:not(.drawer-collapsed) .ledger-head span[data-k="purchased"]{display:none}
   }
   .ledger.compact .entry{padding:9px 6px 9px 14px;max-height:52px}
   .avatar{position:relative;width:46px;height:46px;flex:0 0 auto;border-radius:50%;background:var(--paper-2);
@@ -351,7 +366,8 @@
   .entry .right.ltv{font-family:var(--sans);font-size:12px;color:#000;font-weight:500;justify-self:end;text-align:right}
   .entry .fu{justify-self:center;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:none;
         background:none;cursor:pointer;color:#c3bdb0;font-size:20px;transition:.15s;opacity:1}
-  .entry .fu:hover{color:#d96a2c;opacity:1}
+  .entry .fu svg{width:20px;height:20px}
+  .entry .fu:hover{color:var(--accent);opacity:1}
   .entry .fu.idle{color:#ddd8cc}
   .fu.idle:hover{color:var(--ink);opacity:1}
   .fav{background:none;border:none;cursor:pointer;font-size:15px;line-height:1;padding:0 0 0 9px;color:var(--rule);transition:color .15s;vertical-align:middle}
@@ -463,10 +479,11 @@
   .drawer-close:hover{color:var(--ink)}
   .drawer-body{flex:1;overflow:auto;padding:24px 24px 124px;display:flex;flex-direction:column;gap:14px}
   .drawer-empty{color:#9b9488;font-family:var(--serif-soul);font-style:italic;font-size:15px;text-align:center;margin-top:30px}
-  .fgroup-pri{font-family:"Louize",Georgia,serif;font-size:24pt;font-weight:400;letter-spacing:0;color:#000;padding-top:14px;line-height:1.05}
-  .drawer-body > .fgroup-pri:first-child{padding-top:2px}
-  .fgroup-head{font-family:var(--sans);font-variant-caps:all-small-caps;text-transform:none;font-size:13.5px;font-weight:600;letter-spacing:.16em;color:#bcb3a4;padding-top:10px}
+  .fgroup-pri{font-family:"Louize",Georgia,serif;font-size:18pt;font-weight:400;letter-spacing:0;color:#000;padding-top:30px;line-height:1.05}
+  .drawer-body > .fgroup-pri:first-child{padding-top:16px}
+  .fgroup-head{font-family:var(--sans);font-variant-caps:all-small-caps;text-transform:none;font-size:13.5px;font-weight:600;letter-spacing:.16em;color:#bcb3a4;padding-top:10px;cursor:pointer;transition:color .15s;align-self:flex-start}
   .fgroup-head.no-rule{padding-top:4px}
+  .fgroup-head:hover{color:#000}
   .fcard{display:flex;flex-direction:row;gap:0;flex:0 0 auto;border:1px solid rgba(43,38,34,.06);border-radius:12px;background:#fff;box-shadow:0 4px 14px rgba(40,28,16,.10);position:relative;cursor:pointer;
     transition:box-shadow .18s ease,transform .2s ease}
   .fcard:hover{transform:translateY(-4px);background:#fff;box-shadow:0 12px 28px rgba(40,28,16,.16)}
@@ -1335,11 +1352,14 @@ function renderDrawer(){
     items.forEach(x=>{ const a=followAction(x.d,x.kind); if(!byAction.has(a)) byAction.set(a,[]); byAction.get(a).push(x); });
     const actions=[...ACTION_ORDER.filter(a=>byAction.has(a)), ...[...byAction.keys()].filter(a=>!ACTION_ORDER.includes(a))];
     return `<div class="fgroup-pri">${esc(PRI_LABEL[p]||p)}</div>`+
-      actions.map((a,idx)=>`<div class="fgroup-head${idx===0?' no-rule':''}">${esc(a)}</div>`+byAction.get(a).map(cardHTML).join("")).join("");
+      actions.map((a,idx)=>`<div class="fgroup-head mark-done${idx===0?' no-rule':''}" data-is="${byAction.get(a).map(x=>x.i).join(',')}" role="button" title="Mark all as done">Mark all as done</div>`+byAction.get(a).map(cardHTML).join("")).join("");
   }).join("");
   body.querySelectorAll(".fcard").forEach(c=>{
     c.onclick=()=>openDraft(+c.dataset.i, c.dataset.kind);
     c.onkeydown=e=>{ if(e.key==="Enter") openDraft(+c.dataset.i, c.dataset.kind); };
+  });
+  body.querySelectorAll(".fgroup-head.mark-done").forEach(h=>h.onclick=()=>{
+    (h.dataset.is||"").split(",").filter(Boolean).map(Number).forEach(i=>markContacted(i));
   });
   body.querySelectorAll(".donechip").forEach(b=>b.onclick=e=>{
     e.stopPropagation();
