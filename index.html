@@ -2159,8 +2159,8 @@ window.initChat = function initChat(){
     document.getElementById("chatName").textContent=otherName;
     document.getElementById("chatAv").textContent="";
     const meA=ANIMALS[myEmail]||"ori", otherA=ANIMALS[otherEmail]||"rebi";
-    document.body.style.setProperty("--av-me",'url("public/'+meA+'.png")');
-    document.body.style.setProperty("--av-other",'url("public/'+otherA+'.png")');
+    document.body.style.setProperty("--av-me",'url("pieces/'+meA+'.avif")');
+    document.body.style.setProperty("--av-other",'url("pieces/'+otherA+'.avif")');
     setPlaceholder(); setInterval(setPlaceholder,60000);
     wireChatUI();
     preloadBell();
