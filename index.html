@@ -485,7 +485,8 @@
   .fgroup-titles{min-width:0}
   .fgroup-over{font-family:var(--sans);font-variant-caps:all-small-caps;text-transform:none;font-size:13.5px;font-weight:600;letter-spacing:.16em;color:#bcb3a4;margin-bottom:13px}
   .fgroup-pri{font-family:"Louize",Georgia,serif;font-size:22pt;font-weight:400;letter-spacing:0;color:#000;line-height:1.0}
-  .fgroup-mark{flex:0 0 auto;border:1px solid rgba(43,38,34,.12);background:none;padding:6px;border-radius:6px;font-family:var(--sans);font-variant-caps:all-small-caps;text-transform:none;font-size:13.5px;font-weight:600;letter-spacing:.11em;color:#bcb3a4;cursor:pointer;transition:color .15s,border-color .15s;white-space:nowrap;line-height:1}
+  .fgroup-mark{flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;border:1px solid rgba(43,38,34,.12);background:none;padding:6px 10px;border-radius:6px;font-family:var(--sans);text-transform:none;font-size:12px;font-weight:600;letter-spacing:.04em;color:#bcb3a4;cursor:pointer;transition:color .15s,border-color .15s;white-space:nowrap;line-height:1}
+  .fgroup-mark svg{width:13px;height:13px}
   .fgroup-mark:hover{color:#000}
   .fcard{display:flex;flex-direction:row;gap:0;flex:0 0 auto;border:1px solid rgba(43,38,34,.06);border-radius:12px;background:#fff;box-shadow:0 4px 14px rgba(40,28,16,.10);position:relative;cursor:pointer;
     transition:box-shadow .18s ease,transform .2s ease}
@@ -1355,7 +1356,7 @@ function renderDrawer(){
     return `<div class="fgroup">
       <div class="fgroup-top">
         <div class="fgroup-titles"><div class="fgroup-over">${esc(PRI_OVER[p]||"")}</div><div class="fgroup-pri">${esc(PRI_LABEL[p]||p)}</div></div>
-        <button class="fgroup-mark" data-is="${ids}" title="Mark all as done">Mark done</button>
+        <button class="fgroup-mark" data-is="${ids}" title="Mark all as done">Mark done<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
       </div>
       ${items.map(cardHTML).join("")}
     </div>`;
