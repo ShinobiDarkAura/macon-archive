@@ -436,6 +436,8 @@
   .drawer-close:hover{color:var(--ink)}
   .drawer-body{flex:1;overflow:auto;padding:24px 24px 124px;display:flex;flex-direction:column;gap:14px}
   .drawer-empty{color:#9b9488;font-family:var(--serif-soul);font-style:italic;font-size:15px;text-align:center;margin-top:30px}
+  .fgroup-head{font-family:var(--sans);font-variant-caps:all-small-caps;text-transform:none;font-size:11px;font-weight:600;letter-spacing:.16em;color:#b3aa9c;padding-top:14px;border-top:1px solid #e4ddd0}
+  .drawer-body > .fgroup-head:first-child{border-top:none;padding-top:2px}
   .fcard{display:flex;flex-direction:row;gap:0;flex:0 0 auto;border:1px solid rgba(43,38,34,.06);border-radius:12px;background:#fff;box-shadow:0 4px 14px rgba(40,28,16,.10);position:relative;cursor:pointer;
     transition:box-shadow .18s ease,transform .2s ease}
   .fcard:hover{transform:translateY(-4px);background:#fff;box-shadow:0 12px 28px rgba(40,28,16,.16)}
@@ -452,21 +454,21 @@
   .fcard .fn{align-self:flex-start;display:inline-flex;align-items:center;padding:3px 9px 4px;border-radius:999px;background:#ede8dc;
     font-family:var(--sans);font-variant-caps:all-small-caps;font-size:8.5pt;font-weight:500;letter-spacing:.08em;line-height:1.1;color:#8f897e;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-  .fn.t-vip{background:#e6b878;color:#221d18}
-  .fn.t-reconnect{background:#90c1ec;color:#221d18}
-  .fn.t-repeat{background:#a9d68a;color:#221d18}
-  .fn.t-gift{background:#ec9d88;color:#221d18}
-  .fn.t-value{background:#dcc46a;color:#221d18}
-  .fn.t-first{background:#cdc5b6;color:#221d18}
+  .fn.t-vip{background:#f4ead6;color:#9a7838}
+  .fn.t-reconnect{background:#dde9f5;color:#4a6d92}
+  .fn.t-repeat{background:#e1efd6;color:#5d7e47}
+  .fn.t-gift{background:#f7e3da;color:#a8624a}
+  .fn.t-value{background:#f2e8c8;color:#8a7338}
+  .fn.t-first{background:#ece8df;color:#7c7568}
   .fcard .fsum{font-family:var(--sans);font-size:13px;line-height:1.45;color:#9c9488;margin-top:2px}
-  .fcard .fmeta{font-family:var(--sans);font-size:11.5px;letter-spacing:.02em;color:#9c9488;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .fcard .fmeta .fmeta-dim{color:#565144}
+  .fcard .fmeta{font-family:var(--sans);font-size:11.5px;letter-spacing:.02em;color:#524b3c;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fcard .fmeta .fmeta-dim{color:#a8a094}
   .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:20pt;line-height:1.15;color:#2b2622;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .daychip{position:absolute;top:14px;right:43px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;padding:0;color:#fff;border:none;font-family:var(--sans);font-size:12px;font-weight:700;line-height:1;z-index:3;background:#3a6ea5}
   .fcard.important{background:#fff}
   .fcard.important:hover{background:#fff}
   .fcard .fn svg{flex:0 0 auto;margin-right:4px}
-  .fimp{position:absolute;top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;background:#d4453a;z-index:6;box-shadow:0 0 0 2.5px #fff,0 1px 4px rgba(212,69,58,.45)}
+  .fimp{position:absolute;top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;background:#c65c46;z-index:6;box-shadow:0 0 0 2.5px #fff,0 1px 4px rgba(198,92,70,.45)}
   .donechip{position:absolute;top:14px;right:16px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;
     border:none;background:rgba(43,38,34,.06);color:#9a9286;line-height:1;cursor:pointer;z-index:3;
     transition:background .18s ease,color .18s ease}
@@ -1269,16 +1271,13 @@ function renderDrawer(){
   if(rail) rail.classList.toggle("has-due", list.length>0);
   if(!body) return;
   if(!list.length){ body.innerHTML=`<div class="drawer-empty">No one's due for a follow-up right now.<br>New purchases appear once a piece has had time to arrive and settle.</div>`; return; }
-  const PRI_ICON={High:"!",Medium:"=",Low:"−"};
-  body.innerHTML=list.map(x=>{
+  const cardHTML=(x)=>{
     const d=x.d;
     const slug=pieceSlug(d.pieces);
     const src=pieceImg(d.pieces);
     return `<div class="fcard${x.priority==="High"?" important":""}" data-i="${x.i}" data-kind="${x.kind}" role="button" tabindex="0" title="Draft email">${x.priority==="High"?'<span class="fimp" title="Needs attention"></span>':''}
       <div class="fav-av"><img src="${src}" alt="" loading="lazy" data-slug="${slug}" onerror="if(!this.dataset.fb){this.dataset.fb=1;PIECE_404.add(this.dataset.slug);this.src='pieces/custom.jpeg'}"></div>
       <div class="fcard-body">
-        <!-- priority badge paused for now:
-        <span class="daychip ${x.priority}" title="${x.priority} priority">${PRI_ICON[x.priority]||""}</span> -->
         <button class="donechip" data-i="${x.i}" title="Mark contacted"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
         <div class="fcard-top">
           <div class="ftitle">
@@ -1286,11 +1285,16 @@ function renderDrawer(){
             <div class="ftype">${esc(shortName(d.name))}</div>
           </div>
         </div>
-        <!-- description paused: <div class="fsum">…followSummary…</div> -->
         <div class="fmeta">${cardMeta(d, x.kind)}</div>
       </div>
     </div>`;
-  }).join("");
+  };
+  // group cards by notification type (the follow-up action), with overline section dividers
+  const ACTION_ORDER=["Reconnect","Check-in","Welcome","Gift story","Story request"];
+  const groups=new Map();
+  list.forEach(x=>{ const a=followAction(x.d,x.kind); if(!groups.has(a)) groups.set(a,[]); groups.get(a).push(x); });
+  const actions=[...ACTION_ORDER.filter(a=>groups.has(a)), ...[...groups.keys()].filter(a=>!ACTION_ORDER.includes(a))];
+  body.innerHTML = actions.map(a=>`<div class="fgroup-head">${esc(a)}</div>`+groups.get(a).map(cardHTML).join("")).join("");
   body.querySelectorAll(".fcard").forEach(c=>{
     c.onclick=()=>openDraft(+c.dataset.i, c.dataset.kind);
     c.onkeydown=e=>{ if(e.key==="Enter") openDraft(+c.dataset.i, c.dataset.kind); };
