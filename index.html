@@ -308,17 +308,24 @@
   .ledger-head .arr b{font-weight:400;font-size:5.5px;color:#cfc8b9;transition:color .15s}
   .ledger-head .arr b.on{color:var(--ink)}
   .ledger-head .rp[data-k],.ledger-head .lv[data-k]{justify-self:end}
+  .ledger-surface{flex:1 1 0;min-height:0;display:flex;flex-direction:column;margin:8px 24px 24px;padding:14px 16px 6px;
+    background:rgba(255,255,255,.45);border:1px solid var(--rule);border-radius:12px;overflow:hidden}
+  .ledger-surface[hidden]{display:none}
   .ledger{border-top:1px solid var(--rule);flex:1;overflow:hidden;display:flex;flex-direction:column}
   .entry{border-bottom:1px solid #e7e2d7;padding:6px 6px 6px 14px;display:grid;gap:18px;flex:1 1 0;min-height:0;
          grid-template-columns:52px 1fr 186px 162px 108px 162px 44px;align-items:center;align-content:center;cursor:pointer;max-height:88px;transition:padding .22s ease,background .12s ease}
   .ledger.compact .entry{padding:9px 6px 9px 14px;max-height:52px}
-  .entry:hover{background:rgba(255,255,255,.4)}
+  .entry:hover{border-bottom-color:rgba(43,38,34,.42)}
   .avatar{position:relative;width:46px;height:46px;flex:0 0 auto;border-radius:50%;background:var(--paper-2);
           display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:600;
           font-size:16px;color:var(--bronze-deep);letter-spacing:.02em;overflow:hidden;transition:width .22s ease,height .22s ease,font-size .22s ease}
   .avatar img{width:100%;height:100%;object-fit:cover;display:block;
     filter:grayscale(1) sepia(.48) saturate(.82) brightness(.97);opacity:.2;transition:filter .25s ease,opacity .25s ease}
   .entry:hover .avatar img{filter:none;opacity:1}
+  .entry:hover .who .nm{color:var(--ink)}
+  .entry:hover .who .sub{color:#8a8174}
+  .entry:hover .cell{color:var(--ink)}
+  .entry:hover .cell.loc,.entry:hover .cell.pieces{color:#6f6a60}
   .ledger.compact .avatar{width:32px;height:32px;font-size:12px}
   .entry .who{min-width:0}
   .entry .who .nm{font-family:"Louize",Georgia,serif;font-size:22px;font-weight:400;line-height:1.15;white-space:nowrap;transition:font-size .22s ease}
@@ -628,11 +635,13 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
       <button class="btn iconbtn" id="bellBtn" title="Follow-ups"><svg viewBox="0 0 20 20" width="18" height="18" fill="currentColor"><path d="M10 2a6 6 0 0 0-6 6c0 1.886-.454 3.665-1.257 5.234a.75.75 0 0 0 .515 1.076 32.9 32.9 0 0 0 3.256.508 3.5 3.5 0 0 0 6.972 0 32.9 32.9 0 0 0 3.256-.508.75.75 0 0 0 .515-1.076A11.45 11.45 0 0 1 16 8a6 6 0 0 0-6-6ZM8.05 14.943a33.5 33.5 0 0 0 3.9 0 2 2 0 0 1-3.9 0Z"/></svg><span class="bell-badge zero" id="bellBadge">0</span></button>
       <input type="file" id="importFile" accept=".csv,text/csv" style="display:none">
     </div>
+    <div class="ledger-surface" id="ledgerSurface">
     <div class="ledger-head" id="ledgerHead">
       <span></span><span data-k="name">Name <span class="arr"><b class="up">▲</b><b class="dn">▼</b></span></span><span data-k="pieces">Pieces</span><span data-k="loc">Location</span><span class="rp" data-k="purchased">Last Purchased <span class="arr"><b class="up">▲</b><b class="dn">▼</b></span></span><span class="lv" data-k="ltv">LTV <span class="arr"><b class="up">▲</b><b class="dn">▼</b></span></span><span></span>
     </div>
     <section class="ledger" id="ledger"></section>
     <div class="pager" id="pager"></div>
+    </div>
     <section class="provenance" id="provenance" hidden></section>
   </main>
 
@@ -1240,6 +1249,7 @@ function applyTab(){
   const lh=document.getElementById("ledgerHead"), led=document.getElementById("ledger"),
         pg=document.getElementById("pager"), prov=document.getElementById("provenance"),
         seg=document.getElementById("viewSeg");
+  const sf=document.getElementById("ledgerSurface"); if(sf) sf.hidden=isProv;
   if(lh) lh.hidden=isProv; if(led) led.hidden=isProv; if(pg) pg.hidden=isProv;
   if(prov) prov.hidden=!isProv;
   if(seg) seg.style.display=isProv?"none":"";
