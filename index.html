@@ -425,13 +425,13 @@
   body{transition:padding-right .28s ease;padding-right:440px}
   body.drawer-collapsed{padding-right:18px}
   body.preload, body.preload *{transition:none!important}
-  .drawer{position:fixed;top:24px;right:24px;height:calc(100vh - 48px);width:404px;background:rgba(20,17,14,.92);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);border-radius:16px;overflow:hidden;
-        box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:45;display:flex;flex-direction:column;
+  .drawer{position:fixed;top:24px;right:24px;height:calc(100vh - 48px);width:404px;background:rgba(245,240,231,.96);border:1px solid rgba(43,38,34,.10);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);border-radius:16px;overflow:hidden;
+        box-shadow:0 16px 44px rgba(40,28,16,.20);z-index:45;display:flex;flex-direction:column;
         transform:translateX(0);transition:transform .28s ease}
   body.drawer-collapsed .drawer{transform:translateX(calc(100% + 28px))}
   .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:22px 24px 16px;position:relative;z-index:2;background:transparent;box-shadow:0 10px 16px -10px rgba(40,37,35,.28)}
-  .drawer-title{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#cfc8ba}
-  .drawer-title .dt-ico{font-size:13px;color:#cfc8ba}
+  .drawer-title{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#6f6655}
+  .drawer-title .dt-ico{font-size:13px;color:#6f6655}
   .dt-badge{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:0;color:#fff;background:#d96a2c;border-radius:999px;
         min-width:24px;height:22px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 9px rgba(217,106,44,.5)}
   .dt-badge.zero{display:none}
@@ -439,9 +439,9 @@
   .drawer-close:hover{color:var(--ink)}
   .drawer-body{flex:1;overflow:auto;padding:24px 24px 124px;display:flex;flex-direction:column;gap:22px}
   .drawer-empty{color:#9b9488;font-family:var(--serif-soul);font-style:italic;font-size:15px;text-align:center;margin-top:30px}
-  .fcard{display:flex;flex-direction:row;gap:0;flex:0 0 auto;border:none;border-radius:12px;background:rgba(255,255,255,.055);box-shadow:0 6px 18px rgba(0,0,0,.42);position:relative;cursor:pointer;
+  .fcard{display:flex;flex-direction:row;gap:0;flex:0 0 auto;border:1px solid rgba(43,38,34,.06);border-radius:12px;background:#fff;box-shadow:0 4px 14px rgba(40,28,16,.10);position:relative;cursor:pointer;
     transition:box-shadow .18s ease,transform .2s ease}
-  .fcard:hover{transform:translateY(-4px);background:rgba(255,255,255,.085);box-shadow:0 13px 30px rgba(0,0,0,.52)}
+  .fcard:hover{transform:translateY(-4px);background:#fff;box-shadow:0 12px 28px rgba(40,28,16,.16)}
   .fcard.leaving{transform:translateX(80px);opacity:0;
     transition:transform .38s cubic-bezier(.4,0,.7,1),opacity .38s ease,height .38s ease,margin .38s ease}
   .fcard-img{position:relative;flex:0 0 auto;width:100%;height:91px;background:var(--paper-2)}
@@ -449,7 +449,7 @@
   .fcard-img::after{content:"";position:absolute;left:0;right:0;bottom:0;height:58%;background:linear-gradient(to top,#fff,rgba(255,255,255,0));pointer-events:none;z-index:1}
   .fcard-body{position:relative;flex:1;min-width:0;padding:25px 18px 25px 10px}
   .fcard-top{display:flex;align-items:center;gap:13px}
-  .fcard .fav-av{width:25.9%;flex:0 0 25.9%;align-self:stretch;margin:13px;position:relative;border-radius:9px;overflow:hidden;background:#1f1a16}
+  .fcard .fav-av{width:25.9%;flex:0 0 25.9%;align-self:stretch;margin:13px;position:relative;border-radius:9px;overflow:hidden;background:var(--paper-2)}
   .fcard .fav-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .fcard .ftitle{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
   .fcard .fn{align-self:flex-start;display:inline-flex;align-items:center;padding:3px 9px 4px;border-radius:999px;background:#ede8dc;
@@ -464,14 +464,14 @@
   .fcard .fsum{font-family:var(--sans);font-size:13px;line-height:1.45;color:#9c9488;margin-top:2px}
   .fcard .fmeta{font-family:var(--sans);font-size:11.5px;letter-spacing:.02em;color:#9c9488;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .fcard .fmeta .fmeta-dim{color:#565144}
-  .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:20pt;line-height:1.15;color:#f1ece1;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:20pt;line-height:1.15;color:#2b2622;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .daychip{position:absolute;top:14px;right:43px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;padding:0;color:#fff;border:none;font-family:var(--sans);font-size:12px;font-weight:700;line-height:1;z-index:3;background:#3a6ea5}
-  .fcard.important{background:rgba(255,255,255,.1)}
-  .fcard.important:hover{background:rgba(255,255,255,.13)}
+  .fcard.important{background:#fdf6ec}
+  .fcard.important:hover{background:#fcf2e4}
   .fcard .fn svg{flex:0 0 auto;margin-right:4px}
-  .fimp{position:absolute;top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;background:#d4453a;z-index:6;box-shadow:0 0 0 2.5px #443830,0 1px 4px rgba(212,69,58,.55)}
+  .fimp{position:absolute;top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;background:#d4453a;z-index:6;box-shadow:0 0 0 2.5px #fff,0 1px 4px rgba(212,69,58,.45)}
   .donechip{position:absolute;top:14px;right:16px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;
-    border:none;background:rgba(255,255,255,.1);color:#9a9286;line-height:1;cursor:pointer;z-index:3;
+    border:none;background:rgba(43,38,34,.06);color:#9a9286;line-height:1;cursor:pointer;z-index:3;
     transition:background .18s ease,color .18s ease}
   .donechip:hover{background:#4f7d57;color:#fff}
   .donechip.done{background:#4f7d57;color:#fff}
