@@ -40,7 +40,7 @@
     /* subtle paper texture + column gradient: flat light-white right of the seam, warm paper left of it */
     background-image:radial-gradient(circle at 20% 10%, rgba(0,0,0,.012) 0, transparent 60%),
                      radial-gradient(circle at 80% 80%, rgba(0,0,0,.012) 0, transparent 60%),
-                     linear-gradient(to right, var(--paper) 0%, var(--paper) calc(20vw - 116px), #fefdfb calc(30vw - 72px), #fefdfb 100%);
+                     linear-gradient(to right, var(--paper) 0%, var(--paper) calc(19vw - 116px), #fefdfb calc(26vw - 72px), #fefdfb 100%);
     -webkit-font-smoothing:antialiased;
   }
   body.has-ticker .wrap{padding-top:34px}
@@ -236,9 +236,9 @@
     .stat:last-child{border-right:none}
   }
   /* Floating progress card (sticky, above the footer) */
-  .progress-card{position:fixed;left:calc(3.27vw + 61.7px);bottom:82px;z-index:31;
-        width:calc((34.5vw - 277.4px) * .68);background:rgba(252,250,245,.41);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);border:none;border-radius:999px;
-        box-shadow:none;padding:16px 18px 18px;transition:width .28s ease;border-radius:15px}
+  .progress-card{position:fixed;left:calc(4.5vw - 18.6px);bottom:82px;z-index:31;
+        width:calc(21vw - 28px);background:rgba(252,250,245,.38);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);border:1px solid var(--rule);
+        box-shadow:0 12px 32px rgba(40,37,35,.16);padding:16px 18px 18px;transition:width .28s ease;border-radius:12px}
   .progress-card .pc-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
   .progress-card .lbl,.progress-card .count{font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.1em;color:var(--slate);white-space:nowrap}
   .progress-card .lbl{overflow:hidden;text-overflow:ellipsis;min-width:0}
@@ -253,7 +253,7 @@
   .pc-funnel i{font-style:normal;font-weight:700;color:#b8b0a0}
   
     .copyright{position:fixed;left:calc(0.625vw + 38px);width:calc(23.75vw - 115px);bottom:28px;z-index:31;text-align:center;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#a7a39c;transition:width .28s ease}
-  body.drawer-collapsed .progress-card{width:calc((34.5vw - 144.2px) * .68);left:calc(3.27vw + 74.3px)}
+  body.drawer-collapsed .progress-card{width:calc(21vw - 28px);left:calc(4.5vw + 39.3px)}
   body.drawer-collapsed .copyright{width:calc(23.75vw - 26px)}
   @media(max-width:820px){.progress-card{left:50%;transform:translateX(-50%);width:min(685px,calc(100% - 40px))}.copyright{display:none}}
 
@@ -311,8 +311,8 @@
   .ledger-head .rp[data-k],.ledger-head .lv[data-k]{justify-self:end}
   .ledger-surface{flex:1 1 0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
   .ledger-surface[hidden]{display:none}
-  .ledger{border-top:1px solid var(--rule);flex:1;overflow:hidden;display:flex;flex-direction:column}
-  .entry{border-bottom:1px solid #e7e2d7;padding:6px 6px 6px 14px;display:grid;gap:18px;flex:1 1 0;min-height:0;
+  .ledger{border-top:1px solid #ecebe6;flex:1;overflow:hidden;display:flex;flex-direction:column}
+  .entry{border-bottom:1px solid #ecebe6;padding:6px 6px 6px 14px;display:grid;gap:18px;flex:1 1 0;min-height:0;
          grid-template-columns:52px 1fr 186px 162px 108px 162px 44px;align-items:center;align-content:center;cursor:pointer;max-height:88px;transition:padding .22s ease,background .12s ease}
   .ledger.compact .entry{padding:9px 6px 9px 14px;max-height:52px}
   .avatar{position:relative;width:46px;height:46px;flex:0 0 auto;border-radius:50%;background:var(--paper-2);
@@ -349,8 +349,8 @@
   .empty-mark{display:block;font-family:var(--serif-soul);font-style:normal;font-size:120px;line-height:1;color:#ddd7cb;margin-bottom:16px}
   .ledger.is-empty{flex:1;display:flex;align-items:center;justify-content:center}
   /* Pagination */
-  .pager{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:20px;flex-wrap:wrap}
-  .pager button{height:34px;min-width:34px;padding:0 10px;border:1px solid var(--rule);background:transparent;
+  .pager{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:52px;flex-wrap:wrap}
+  .pager button{height:40px;min-width:40px;padding:0 12px;border:1px solid #e7e2d6;border-radius:8px;background:transparent;
         color:var(--slate);font-family:var(--sans);font-size:12px;cursor:pointer;transition:.15s}
   .pager button:hover:not(:disabled){background:#000;color:var(--paper);border-color:#000}
   .pager button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
@@ -1848,31 +1848,30 @@ const DB_GO_SVG='<svg viewBox="0 0 24 24" width="13" height="13" fill="none" str
 let briefFocus=0;
 /* Confetti when a to-do is checked off — starts in the box, spills ~64px below, fades.
    Parchment-consistent palette, colours not used elsewhere in the app. */
-const CONFETTI_COLORS=["#c0a052","#9aa97f","#bd8f7a","#8c7a96","#7c9690"];
-function confettiBurst(originLi){
+const CONFETTI_COLORS=["#c79a2e","#8a9c4e","#c07050","#8f6aa0","#5e9d8e"];
+function confettiBurst(){
   const box=document.querySelector(".daybrief"); if(!box || !Element.prototype.animate) return;
   const r=box.getBoundingClientRect();
   const layer=document.createElement("div");
   layer.style.cssText="position:fixed;left:"+r.left+"px;top:"+r.top+"px;width:"+r.width+"px;height:"+(r.height+64)+"px;pointer-events:none;z-index:60;overflow:visible";
   document.body.appendChild(layer);
-  let oy=r.height*0.35;
-  if(originLi){ const lr=originLi.getBoundingClientRect(); oy=Math.max(8, lr.top-r.top+lr.height/2); }
-  for(let i=0;i<24;i++){
+  for(let i=0;i<46;i++){
     const p=document.createElement("div");
-    const w=4+Math.round(Math.random()*4), h=6+Math.round(Math.random()*5);
-    const startX=r.width*(0.18+Math.random()*0.64);
+    const w=5+Math.round(Math.random()*5), h=7+Math.round(Math.random()*6);
+    const startX=Math.random()*(r.width-w);        // full width of the box
+    const oy=2+Math.random()*8;                     // very top of the box
     p.style.cssText="position:absolute;left:"+startX+"px;top:"+oy+"px;width:"+w+"px;height:"+h+"px;background:"+CONFETTI_COLORS[i%CONFETTI_COLORS.length]+";border-radius:1px;will-change:transform,opacity";
     layer.appendChild(p);
-    const dx=(Math.random()*2-1)*64;
-    const dy=(r.height-oy)+24+Math.random()*40; // exit the box, continue ~24-64px below
-    const rot=(Math.random()*2-1)*540;
+    const dx=(Math.random()*2-1)*r.width*0.32;
+    const dy=(r.height-oy)+20+Math.random()*44;     // fall through the box + ~20-64px below it
+    const rot=(Math.random()*2-1)*720;
     p.animate([
       {transform:"translate(0,0) rotate(0deg)",opacity:1,offset:0},
-      {opacity:1,offset:.65},
+      {opacity:1,offset:.8},
       {transform:"translate("+dx+"px,"+dy+"px) rotate("+rot+"deg)",opacity:0,offset:1}
-    ],{duration:850+Math.random()*450,easing:"cubic-bezier(.2,.7,.35,1)",fill:"forwards"});
+    ],{duration:2600+Math.random()*1400,easing:"cubic-bezier(.25,.6,.3,1)",fill:"forwards"});
   }
-  setTimeout(()=>layer.remove(),1500);
+  setTimeout(()=>layer.remove(),4400);
 }
 function showDayBrief(events){
   window._briefEvents = events||[];
