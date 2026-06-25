@@ -126,7 +126,8 @@
   .chat-head .ch-close{flex:0 0 auto;border:none;background:transparent;color:#b3ab9c;font-size:20px;line-height:1;cursor:pointer;padding:4px 6px;border-radius:8px;transition:color .15s,background .15s}
   .chat-head .ch-close:hover{color:var(--ink);background:rgba(0,0,0,.05)}
 
-  .chat-thread{flex:1 1 auto;overflow-y:auto;padding:16px 16px 6px;display:flex;flex-direction:column;gap:8px;background:#fff}
+  .chat-thread{flex:1 1 auto;overflow-y:auto;padding:16px 16px 6px;display:flex;flex-direction:column;gap:8px;
+    background:radial-gradient(circle at 18% 12%,rgba(140,106,71,.05),transparent 60%),radial-gradient(circle at 84% 78%,rgba(156,74,58,.045),transparent 55%),var(--paper)}
   .chat-thread::-webkit-scrollbar{width:7px}
   .chat-thread::-webkit-scrollbar-thumb{background:rgba(43,38,34,.16);border-radius:99px}
 
@@ -163,7 +164,7 @@
   .chat-err.show{display:block}
   .chat-compose{flex:0 0 auto;display:flex;align-items:flex-end;gap:8px;padding:11px 12px 13px;border-top:1px solid rgba(43,38,34,.09);background:var(--paper-2)}
   .chat-inputwrap{position:relative;flex:1 1 auto;display:flex}
-  .chat-compose textarea{flex:1 1 auto;box-sizing:border-box;resize:none;border:1px solid rgba(43,38,34,.14);border-radius:13px;background:#fff;color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.35;min-height:42px;height:42px;padding:9px 44px 8px 12px;max-height:100px;outline:none}
+  .chat-compose textarea{flex:1 1 auto;box-sizing:border-box;resize:none;border:1px solid rgba(43,38,34,.14);border-radius:13px;background:#fff;color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.35;min-height:42px;height:42px;padding:11px 44px 6px 12px;max-height:100px;outline:none}
   .chat-compose textarea::placeholder{color:#b3a996;font-style:normal}
   .chat-send{position:absolute;right:12px;bottom:13px;width:16px;height:16px;padding:0;border:none;background:transparent;cursor:pointer;color:var(--bronze);display:flex;align-items:center;justify-content:center;transition:transform .15s,opacity .15s}
   .chat-send:hover{transform:scale(1.1)}
