@@ -100,7 +100,7 @@
 
   /* ===== Studio Line — keeper chat ===== */
   .chat-fab{position:fixed;left:24px;bottom:24px;width:45px;height:45px;border-radius:50%;border:none;cursor:pointer;z-index:60;
-    background:var(--accent);
+    background:linear-gradient(165deg,var(--accent),var(--accent-deep));
     box-shadow:0 8px 22px rgba(120,52,40,.34),inset 0 1px 0 rgba(255,255,255,.18);
     display:flex;align-items:center;justify-content:center;color:#fff;transition:transform .18s ease,box-shadow .18s ease}
   .chat-fab:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(70,50,30,.46)}
@@ -228,7 +228,7 @@
   .dash{display:grid;grid-template-columns:136px 136px;justify-content:center;gap:16px 8px;margin:40px 0 0;background:transparent;width:100%;padding:0;box-sizing:border-box}
   .stat{display:flex;flex-direction:column;align-items:center;text-align:center;width:auto;min-width:0;
         padding:14px 6px 22px;border:none;position:relative}
-  .stat::after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:86%;height:1px;background:#d8cfb9}
+  .stat::after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:86%;height:1px;background:rgba(216,207,185,.85)}
   .stat .num{font-family:"Louize",Georgia,serif;font-size:32px;font-weight:400;color:#3f2d1c;line-height:1;transition:color .6s ease}
   .stat .num.changed{color:#000}
   .stat .lbl{font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.12em;color:#9e8f7c;margin-top:5px;white-space:nowrap;line-height:1.2;max-width:none}
@@ -297,7 +297,7 @@
 
   /* ---------- Ledger ---------- */
   .ledger-head{display:grid;grid-template-columns:52px 1fr 186px 162px 108px 162px 44px;gap:18px;padding:0 6px 9px;padding-left:14px;
-        font-family:var(--mono);font-size:9.7px;letter-spacing:.14em;text-transform:uppercase;color:#a39d8f}
+        font-family:var(--mono);font-size:9.7px;letter-spacing:.14em;text-transform:uppercase;color:#6a665d}
   .ledger-head span{white-space:nowrap}
   .ledger-head .r{justify-self:end;text-align:right}
   .ledger-head .rp{justify-self:end;text-align:right}
@@ -370,7 +370,8 @@
   .entry .fu:hover{color:var(--accent);opacity:1}
   .entry .fu.idle{color:#ddd8cc}
   .fu.idle:hover{color:var(--ink);opacity:1}
-  .fav{background:none;border:none;cursor:pointer;font-size:15px;line-height:1;padding:0 0 0 9px;color:var(--rule);transition:color .15s;vertical-align:middle}
+  .fav{background:none;border:none;cursor:pointer;line-height:0;padding:0 0 0 9px;color:var(--rule);transition:color .15s;vertical-align:middle;position:relative;top:-2px}
+  .fav svg{width:17px;height:17px;display:inline-block}
   .fav.on{color:var(--accent)}
   .fav:hover{color:var(--accent)}
   .empty{text-align:center;padding:20px;color:var(--slate);font-family:var(--serif-soul);font-style:italic;font-size:16pt}
@@ -477,13 +478,15 @@
   .dt-badge.zero{display:none}
   .drawer-close{width:30px;height:30px;border:none;background:transparent;color:#9b9488;cursor:pointer;font-size:18px;transition:.15s}
   .drawer-close:hover{color:var(--ink)}
-  .drawer-body{flex:1;overflow:auto;padding:24px 24px 124px;display:flex;flex-direction:column;gap:14px}
+  .drawer-body{flex:1;overflow:auto;padding:24px 24px 124px;display:flex;flex-direction:column;gap:24px}
   .drawer-empty{color:#9b9488;font-family:var(--serif-soul);font-style:italic;font-size:15px;text-align:center;margin-top:30px}
-  .fgroup-pri{font-family:"Louize",Georgia,serif;font-size:18pt;font-weight:400;letter-spacing:0;color:#000;padding-top:30px;line-height:1.05}
-  .drawer-body > .fgroup-pri:first-child{padding-top:16px}
-  .fgroup-head{font-family:var(--sans);font-variant-caps:all-small-caps;text-transform:none;font-size:13.5px;font-weight:600;letter-spacing:.16em;color:#bcb3a4;padding-top:10px;cursor:pointer;transition:color .15s;align-self:flex-start}
-  .fgroup-head.no-rule{padding-top:4px}
-  .fgroup-head:hover{color:#000}
+  .fgroup{display:flex;flex-direction:column;gap:14px}
+  .fgroup-top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:10px;padding-top:12px}
+  .fgroup-titles{min-width:0}
+  .fgroup-over{font-family:var(--sans);font-variant-caps:all-small-caps;text-transform:none;font-size:13.5px;font-weight:600;letter-spacing:.16em;color:#bcb3a4;margin-bottom:1px}
+  .fgroup-pri{font-family:"Louize",Georgia,serif;font-size:18pt;font-weight:400;letter-spacing:0;color:#000;line-height:1.0}
+  .fgroup-mark{flex:0 0 auto;border:none;background:none;padding:0;font-family:var(--sans);font-variant-caps:all-small-caps;text-transform:none;font-size:13.5px;font-weight:600;letter-spacing:.16em;color:#bcb3a4;cursor:pointer;transition:color .15s;white-space:nowrap}
+  .fgroup-mark:hover{color:#000}
   .fcard{display:flex;flex-direction:row;gap:0;flex:0 0 auto;border:1px solid rgba(43,38,34,.06);border-radius:12px;background:#fff;box-shadow:0 4px 14px rgba(40,28,16,.10);position:relative;cursor:pointer;
     transition:box-shadow .18s ease,transform .2s ease}
   .fcard:hover{transform:translateY(-4px);background:#fff;box-shadow:0 12px 28px rgba(40,28,16,.16)}
@@ -1173,7 +1176,7 @@ function renderLedger(){
     return `<div class="entry" data-i="${i}">
       <div class="avatar"><img src="${pieceImg(d.pieces)}" alt="" loading="lazy" data-slug="${pieceSlug(d.pieces)}" onerror="if(!this.dataset.fb){this.dataset.fb=1;PIECE_404.add(this.dataset.slug);this.src='pieces/custom.jpeg'}"></div>
       <div class="who">
-        <div class="nm">${esc(d.name||"—")}<button class="fav ${d.first_look?'on':''}" data-i="${i}" title="VIP">★</button></div>
+        <div class="nm">${esc(d.name||"—")}<button class="fav ${d.first_look?'on':''}" data-i="${i}" title="VIP"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.4l2.55 5.6 6.1.6-4.6 4.15 1.3 6L12 16.6 6.65 19.75l1.3-6L3.35 9.6l6.1-.6z"/></svg></button></div>
         <div class="sub">${esc(d.email||d.acc||"")}</div>
       </div>
       <div class="cell pieces">${esc(capPieces(d.pieces))}</div>
@@ -1339,26 +1342,29 @@ function renderDrawer(){
       </div>
     </div>`;
   };
-  // two-level grouping: priority (prominent overline) -> follow-up action (lighter overline)
+  // group by priority; each group: overline + title (left) and "mark all as done" (right), then cards
   const PRI_ORDER=["High","Medium","Low"];
   const PRI_LABEL={High:"Needs Attention", Medium:"Follow Up", Low:"Keeping Warm"};
-  const ACTION_ORDER=["Reconnect","Check-in","Welcome","Gift story","Story request"];
+  const PRI_OVER={High:"Urgent", Medium:"Soon", Low:"No Rush"};
   const byPri=new Map();
   list.forEach(x=>{ const p=x.priority||"Low"; if(!byPri.has(p)) byPri.set(p,[]); byPri.get(p).push(x); });
   const pris=[...PRI_ORDER.filter(p=>byPri.has(p)), ...[...byPri.keys()].filter(p=>!PRI_ORDER.includes(p))];
   body.innerHTML = pris.map(p=>{
     const items=byPri.get(p);
-    const byAction=new Map();
-    items.forEach(x=>{ const a=followAction(x.d,x.kind); if(!byAction.has(a)) byAction.set(a,[]); byAction.get(a).push(x); });
-    const actions=[...ACTION_ORDER.filter(a=>byAction.has(a)), ...[...byAction.keys()].filter(a=>!ACTION_ORDER.includes(a))];
-    return `<div class="fgroup-pri">${esc(PRI_LABEL[p]||p)}</div>`+
-      actions.map((a,idx)=>`<div class="fgroup-head mark-done${idx===0?' no-rule':''}" data-is="${byAction.get(a).map(x=>x.i).join(',')}" role="button" title="Mark all as done">Mark all as done</div>`+byAction.get(a).map(cardHTML).join("")).join("");
+    const ids=items.map(x=>x.i).join(',');
+    return `<div class="fgroup">
+      <div class="fgroup-top">
+        <div class="fgroup-titles"><div class="fgroup-over">${esc(PRI_OVER[p]||"")}</div><div class="fgroup-pri">${esc(PRI_LABEL[p]||p)}</div></div>
+        <button class="fgroup-mark" data-is="${ids}" title="Mark all as done">Mark all as done</button>
+      </div>
+      ${items.map(cardHTML).join("")}
+    </div>`;
   }).join("");
   body.querySelectorAll(".fcard").forEach(c=>{
     c.onclick=()=>openDraft(+c.dataset.i, c.dataset.kind);
     c.onkeydown=e=>{ if(e.key==="Enter") openDraft(+c.dataset.i, c.dataset.kind); };
   });
-  body.querySelectorAll(".fgroup-head.mark-done").forEach(h=>h.onclick=()=>{
+  body.querySelectorAll(".fgroup-mark").forEach(h=>h.onclick=()=>{
     (h.dataset.is||"").split(",").filter(Boolean).map(Number).forEach(i=>markContacted(i));
   });
   body.querySelectorAll(".donechip").forEach(b=>b.onclick=e=>{
