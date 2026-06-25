@@ -40,7 +40,7 @@
     /* subtle paper texture + column gradient: flat light-white right of the seam, warm paper left of it */
     background-image:radial-gradient(circle at 20% 10%, rgba(0,0,0,.012) 0, transparent 60%),
                      radial-gradient(circle at 80% 80%, rgba(0,0,0,.012) 0, transparent 60%),
-                     linear-gradient(to right, var(--paper) 0%, var(--paper) calc(20vw - 116px), #fcfaf5 calc(30vw - 72px), #fcfaf5 100%);
+                     linear-gradient(to right, var(--paper) 0%, var(--paper) calc(20vw - 116px), #fefdfb calc(30vw - 72px), #fefdfb 100%);
     -webkit-font-smoothing:antialiased;
   }
   body.has-ticker .wrap{padding-top:34px}
@@ -236,7 +236,7 @@
     .stat:last-child{border-right:none}
   }
   /* Floating progress card (sticky, above the footer) */
-  .progress-card{position:fixed;left:calc(-2.25vw + 106.1px);bottom:82px;z-index:31;
+  .progress-card{position:fixed;left:calc(3.27vw + 61.7px);bottom:82px;z-index:31;
         width:calc((34.5vw - 277.4px) * .68);background:rgba(252,250,245,.41);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);border:none;border-radius:999px;
         box-shadow:none;padding:16px 18px 18px;transition:width .28s ease;border-radius:15px}
   .progress-card .pc-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
@@ -253,12 +253,12 @@
   .pc-funnel i{font-style:normal;font-weight:700;color:#b8b0a0}
   
     .copyright{position:fixed;left:calc(0.625vw + 38px);width:calc(23.75vw - 115px);bottom:28px;z-index:31;text-align:center;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#a7a39c;transition:width .28s ease}
-  body.drawer-collapsed .progress-card{width:calc((34.5vw - 144.2px) * .68);left:calc(-2.25vw + 97.4px)}
+  body.drawer-collapsed .progress-card{width:calc((34.5vw - 144.2px) * .68);left:calc(3.27vw + 74.3px)}
   body.drawer-collapsed .copyright{width:calc(23.75vw - 26px)}
   @media(max-width:820px){.progress-card{left:50%;transform:translateX(-50%);width:min(685px,calc(100% - 40px))}.copyright{display:none}}
 
   /* ---------- Toolbar ---------- */
-  .toolbar{display:flex;flex-wrap:nowrap;gap:12px;align-items:center;margin:10px 0 24px;min-width:0}
+  .toolbar{display:flex;flex-wrap:nowrap;gap:12px;align-items:center;margin:10px 0 72px;min-width:0}
   .toolbar .search{min-width:120px}
   /* action buttons are always icon-only (label hidden at every width) */
   .toolbar .btn .bl{display:none}
@@ -276,7 +276,7 @@
         background-repeat:no-repeat;background-position:right 16px center;padding-right:38px}
   textarea{padding:9px 12px}
   input:focus,select:focus,textarea:focus{border-color:var(--bronze)}
-  input.search{width:100%;border:none}
+  input.search{width:100%;border:1px solid #e7e2d6;border-radius:8px}
   input.search::placeholder{font-family:var(--sans);font-style:normal;font-size:15px;color:#a9a49a}
   .filters{display:flex;gap:6px}
   .chip{height:40px;display:inline-flex;align-items:center;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:0 16px;border:1px solid var(--rule);
@@ -367,6 +367,10 @@
         border:none;border-right:1px solid var(--rule);background:transparent;color:var(--slate);
         cursor:pointer;font-size:15px;transition:.15s}
   .viewseg button:last-child{border-right:none}
+  /* top-nav: lighter warm-grey outlines, rounded corners, square checklist button */
+  .toolbar .btn,.toolbar .filtersel,.toolbar .viewseg{border-color:#e7e2d6;border-radius:8px}
+  .toolbar .viewseg{overflow:hidden}
+  #briefBtn{width:40px}
   .viewseg button:hover{background:#000;color:var(--paper)}
   .viewseg button.on{background:var(--ink);color:var(--paper)}
 
@@ -1842,6 +1846,34 @@ function itemsForOffset(offset, events){
 const DB_CHECK_SVG='<svg class="db-check" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
 const DB_GO_SVG='<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 let briefFocus=0;
+/* Confetti when a to-do is checked off — starts in the box, spills ~64px below, fades.
+   Parchment-consistent palette, colours not used elsewhere in the app. */
+const CONFETTI_COLORS=["#c0a052","#9aa97f","#bd8f7a","#8c7a96","#7c9690"];
+function confettiBurst(originLi){
+  const box=document.querySelector(".daybrief"); if(!box || !Element.prototype.animate) return;
+  const r=box.getBoundingClientRect();
+  const layer=document.createElement("div");
+  layer.style.cssText="position:fixed;left:"+r.left+"px;top:"+r.top+"px;width:"+r.width+"px;height:"+(r.height+64)+"px;pointer-events:none;z-index:60;overflow:visible";
+  document.body.appendChild(layer);
+  let oy=r.height*0.35;
+  if(originLi){ const lr=originLi.getBoundingClientRect(); oy=Math.max(8, lr.top-r.top+lr.height/2); }
+  for(let i=0;i<24;i++){
+    const p=document.createElement("div");
+    const w=4+Math.round(Math.random()*4), h=6+Math.round(Math.random()*5);
+    const startX=r.width*(0.18+Math.random()*0.64);
+    p.style.cssText="position:absolute;left:"+startX+"px;top:"+oy+"px;width:"+w+"px;height:"+h+"px;background:"+CONFETTI_COLORS[i%CONFETTI_COLORS.length]+";border-radius:1px;will-change:transform,opacity";
+    layer.appendChild(p);
+    const dx=(Math.random()*2-1)*64;
+    const dy=(r.height-oy)+24+Math.random()*40; // exit the box, continue ~24-64px below
+    const rot=(Math.random()*2-1)*540;
+    p.animate([
+      {transform:"translate(0,0) rotate(0deg)",opacity:1,offset:0},
+      {opacity:1,offset:.65},
+      {transform:"translate("+dx+"px,"+dy+"px) rotate("+rot+"deg)",opacity:0,offset:1}
+    ],{duration:850+Math.random()*450,easing:"cubic-bezier(.2,.7,.35,1)",fill:"forwards"});
+  }
+  setTimeout(()=>layer.remove(),1500);
+}
 function showDayBrief(events){
   window._briefEvents = events||[];
   if(document.querySelector(".daybrief")){ if(window._briefRender) window._briefRender(); return; }
@@ -1905,7 +1937,7 @@ function showDayBrief(events){
         : `<div class="db-clear">Clear.</div>`);
     el.querySelectorAll(".db-main li").forEach(li=>{
       if(doneMap[li.dataset.id]) li.classList.add("done");
-      li.onclick=()=>{ li.classList.toggle("done"); markTodo(li.dataset.id, li.classList.contains("done")); };
+      li.onclick=()=>{ const wasDone=li.classList.contains("done"); li.classList.toggle("done"); const isDone=li.classList.contains("done"); markTodo(li.dataset.id, isDone); if(isDone && !wasDone) confettiBurst(li); };
     });
     el.querySelectorAll(".db-main .db-go").forEach(b=>{
       b.onclick=e=>{ e.stopPropagation();
