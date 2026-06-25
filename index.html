@@ -171,7 +171,7 @@
   .chat-compose textarea{flex:1 1 auto;box-sizing:border-box;resize:none;border:none;border-radius:13px;background:#faf7f0;color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.35;min-height:42px;height:42px;padding:11px 64px 6px 12px;max-height:100px;outline:none}
   .chat-compose textarea:focus{outline:none;box-shadow:none}
   .chat-compose textarea::placeholder{color:#b3a996;font-style:normal}
-  .chat-send,.chat-emoji{position:absolute;bottom:13px;width:16px;height:16px;padding:0;border:none;background:transparent;cursor:pointer;color:var(--accent);display:flex;align-items:center;justify-content:center;transition:transform .15s,opacity .15s,color .15s}
+  .chat-send,.chat-emoji{position:absolute;bottom:13px;width:16px;height:16px;padding:0;border:none;background:transparent;cursor:pointer;color:#9b9488;display:flex;align-items:center;justify-content:center;transition:transform .15s,opacity .15s,color .15s}
   .chat-send{right:12px}
   .chat-emoji{right:36px}
   .chat-send:hover,.chat-emoji:hover{transform:scale(1.1);color:var(--bronze-deep)}
@@ -480,12 +480,12 @@
   .drawer-close:hover{color:var(--ink)}
   .drawer-body{flex:1;overflow:auto;padding:24px 24px 124px;display:flex;flex-direction:column;gap:24px}
   .drawer-empty{color:#9b9488;font-family:var(--serif-soul);font-style:italic;font-size:15px;text-align:center;margin-top:30px}
-  .fgroup{display:flex;flex-direction:column;gap:14px}
+  .fgroup{display:flex;flex-direction:column;gap:10px}
   .fgroup-top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:10px;padding-top:12px}
   .fgroup-titles{min-width:0}
   .fgroup-over{font-family:var(--sans);font-variant-caps:all-small-caps;text-transform:none;font-size:13.5px;font-weight:600;letter-spacing:.16em;color:#bcb3a4;margin-bottom:1px}
-  .fgroup-pri{font-family:"Louize",Georgia,serif;font-size:18pt;font-weight:400;letter-spacing:0;color:#000;line-height:1.0}
-  .fgroup-mark{flex:0 0 auto;border:none;background:none;padding:0;font-family:var(--sans);font-variant-caps:all-small-caps;text-transform:none;font-size:13.5px;font-weight:600;letter-spacing:.16em;color:#bcb3a4;cursor:pointer;transition:color .15s;white-space:nowrap}
+  .fgroup-pri{font-family:"Louize",Georgia,serif;font-size:22pt;font-weight:400;letter-spacing:0;color:#000;line-height:1.0}
+  .fgroup-mark{flex:0 0 auto;border:none;background:none;padding:0;font-family:var(--sans);font-variant-caps:all-small-caps;text-transform:none;font-size:13.5px;font-weight:600;letter-spacing:.05em;color:#bcb3a4;cursor:pointer;transition:color .15s;white-space:nowrap}
   .fgroup-mark:hover{color:#000}
   .fcard{display:flex;flex-direction:row;gap:0;flex:0 0 auto;border:1px solid rgba(43,38,34,.06);border-radius:12px;background:#fff;box-shadow:0 4px 14px rgba(40,28,16,.10);position:relative;cursor:pointer;
     transition:box-shadow .18s ease,transform .2s ease}
@@ -1355,7 +1355,7 @@ function renderDrawer(){
     return `<div class="fgroup">
       <div class="fgroup-top">
         <div class="fgroup-titles"><div class="fgroup-over">${esc(PRI_OVER[p]||"")}</div><div class="fgroup-pri">${esc(PRI_LABEL[p]||p)}</div></div>
-        <button class="fgroup-mark" data-is="${ids}" title="Mark all as done">Mark all as done</button>
+        <button class="fgroup-mark" data-is="${ids}" title="Mark all as done">Mark done</button>
       </div>
       ${items.map(cardHTML).join("")}
     </div>`;
