@@ -156,6 +156,8 @@
   .chat-typing .tdots i:nth-child(3){animation-delay:.36s}
   @keyframes tbounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:.9}}
 
+  .chat-err{display:none;font-family:var(--sans);font-size:11.5px;color:var(--seal);background:rgba(156,74,58,.08);padding:7px 14px;border-top:1px solid rgba(156,74,58,.16)}
+  .chat-err.show{display:block}
   .chat-compose{flex:0 0 auto;display:flex;align-items:flex-end;gap:8px;padding:11px 12px 13px;border-top:1px solid rgba(43,38,34,.09);background:var(--paper-2)}
   .chat-compose textarea{flex:1 1 auto;resize:none;border:1px solid rgba(43,38,34,.14);border-radius:13px;background:#fff;color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.35;padding:9px 12px;max-height:96px;outline:none;transition:border-color .15s}
   .chat-compose textarea:focus{border-color:var(--bronze)}
@@ -663,6 +665,7 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
   </div>
   <div class="chat-thread" id="chatThread"></div>
   <div class="chat-typing" id="chatTyping"><span class="tdots"><i></i><i></i><i></i></span><span id="chatTypingTxt"></span></div>
+  <div class="chat-err" id="chatErr"></div>
   <div class="chat-compose">
     <textarea id="chatInput" rows="1" placeholder="Write…" maxlength="2000"></textarea>
     <button class="chat-send" id="chatSend" disabled aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg></button>
@@ -2160,7 +2163,7 @@ function wireChatUI(){
   const send=document.getElementById("chatSend");
   document.getElementById("chatFab").onclick=()=>toggleChat();
   document.getElementById("chatClose").onclick=()=>toggleChat(false);
-  input.addEventListener("input",()=>{ send.disabled=!input.value.trim(); autoGrow(input); signalTyping(); });
+  input.addEventListener("input",()=>{ send.disabled=!input.value.trim(); autoGrow(input); signalTyping(); showErr(""); });
   input.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); sendMessage(); } });
   send.onclick=()=>sendMessage();
   const unlock=()=>{ ensureAudio(); if(audioCtx&&audioCtx.state==="suspended") audioCtx.resume(); window.removeEventListener("pointerdown",unlock); };
@@ -2237,8 +2240,18 @@ async function sendMessage(){
   const body=input.value.trim(); if(!body) return;
   input.value=""; document.getElementById("chatSend").disabled=true; autoGrow(input);
   const {data,error}=await sb.from("messages").insert({sender:myEmail,body}).select().single();
-  if(error){ input.value=body; document.getElementById("chatSend").disabled=false; return; }
-  if(data){ renderMsg(data,true); scrollThread(); }
+  if(error){
+    input.value=body; document.getElementById("chatSend").disabled=false; autoGrow(input);
+    showErr(/schema cache|does not exist|PGRST205/i.test(error.message||"")
+      ? "Chat isn't set up yet — the messages table isn't reachable."
+      : "Couldn't send — check your connection and try again.");
+    return;
+  }
+  showErr(""); if(data){ renderMsg(data,true); scrollThread(); }
+}
+function showErr(msg){
+  const el=document.getElementById("chatErr"); if(!el) return;
+  el.textContent=msg||""; el.classList.toggle("show",!!msg);
 }
 
 async function markRead(){
