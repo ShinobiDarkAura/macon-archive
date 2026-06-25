@@ -22,6 +22,8 @@
     --slate:#5b5a55;
     --rule:#dad5c9;
     --seal:#9c4a3a;
+    --accent:var(--accent);
+    --accent-deep:#9c4a3a;
     --high:#e9d9c2;
     --shadow:rgba(43,38,34,.10);
     --sans:"Inter",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
@@ -57,7 +59,7 @@
   .ticker .tk-time{color:#d8a868;margin-right:10px}
   .ticker .tk-dot{margin:0 0 0 28px;color:var(--bronze,#a8845c)}
   @keyframes tk-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-  .daybrief{position:fixed;top:66px;right:calc(70vw + 72px);left:auto;z-index:55;width:calc(21vw - 28px);background:rgba(252,250,245,.38);border:1px solid var(--rule);
+  .daybrief{position:fixed;top:66px;left:calc(4.5vw - 24px);right:auto;z-index:55;width:calc(21vw - 28px);background:rgba(252,250,245,.38);border:1px solid var(--rule);
     border-radius:12px;box-shadow:0 18px 44px rgba(40,37,35,.22);padding:22px 24px 28px 30px;
     -webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);
     animation:db-in .35s cubic-bezier(.2,.8,.2,1);box-sizing:border-box;
@@ -98,7 +100,7 @@
 
   /* ===== Studio Line — keeper chat ===== */
   .chat-fab{position:fixed;left:24px;bottom:24px;width:45px;height:45px;border-radius:50%;border:none;cursor:pointer;z-index:60;
-    background:#c65c46;
+    background:var(--accent);
     box-shadow:0 8px 22px rgba(120,52,40,.34),inset 0 1px 0 rgba(255,255,255,.18);
     display:flex;align-items:center;justify-content:center;color:#fff;transition:transform .18s ease,box-shadow .18s ease}
   .chat-fab:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(70,50,30,.46)}
@@ -148,16 +150,16 @@
   .msg .bub{padding:8px 12px;border-radius:15px;font-family:var(--sans);font-size:13.5px;line-height:1.4;word-wrap:break-word;white-space:pre-wrap}
   .msg .stamp{font-family:var(--sans);font-size:10px;letter-spacing:.01em;color:#b3a996;padding:0 4px}
   .msg.them .bub{background:#fff;color:var(--ink);border:1px solid rgba(43,38,34,.07);border-bottom-left-radius:5px;box-shadow:0 2px 7px rgba(40,28,16,.06)}
-  .msg.me .bub{background:linear-gradient(165deg,var(--bronze),var(--bronze-deep));color:#f6f1e6;border-bottom-right-radius:5px;box-shadow:0 3px 9px rgba(111,82,53,.28)}
+  .msg.me .bub{background:linear-gradient(165deg,var(--accent),var(--accent-deep));color:#f6f1e6;border-bottom-right-radius:5px;box-shadow:0 3px 9px rgba(111,82,53,.28)}
   .msg.me .stamp{color:#bcae99}
-  .msg .seen{font-family:var(--sans);font-size:10px;color:var(--bronze);letter-spacing:.01em;padding:0 4px;display:none}
+  .msg .seen{font-family:var(--sans);font-size:10px;color:var(--accent);letter-spacing:.01em;padding:0 4px;display:none}
   .msg.me.is-seen .seen{display:block}
   @keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
   .chat-typing{display:none;align-items:center;gap:7px;padding:2px 16px 6px;font-family:var(--sans);font-size:11.5px;color:#9a8f7f}
   body.chat-typing-on .chat-typing{display:flex}
   .chat-typing .tdots{display:inline-flex;gap:3px}
-  .chat-typing .tdots i{width:5px;height:5px;border-radius:50%;background:var(--bronze);opacity:.5;animation:tbounce 1.1s infinite}
+  .chat-typing .tdots i{width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:.5;animation:tbounce 1.1s infinite}
   .chat-typing .tdots i:nth-child(2){animation-delay:.18s}
   .chat-typing .tdots i:nth-child(3){animation-delay:.36s}
   @keyframes tbounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:.9}}
@@ -169,7 +171,7 @@
   .chat-compose textarea{flex:1 1 auto;box-sizing:border-box;resize:none;border:none;border-radius:13px;background:#faf7f0;color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.35;min-height:42px;height:42px;padding:11px 64px 6px 12px;max-height:100px;outline:none}
   .chat-compose textarea:focus{outline:none;box-shadow:none}
   .chat-compose textarea::placeholder{color:#b3a996;font-style:normal}
-  .chat-send,.chat-emoji{position:absolute;bottom:13px;width:16px;height:16px;padding:0;border:none;background:transparent;cursor:pointer;color:var(--bronze);display:flex;align-items:center;justify-content:center;transition:transform .15s,opacity .15s,color .15s}
+  .chat-send,.chat-emoji{position:absolute;bottom:13px;width:16px;height:16px;padding:0;border:none;background:transparent;cursor:pointer;color:var(--accent);display:flex;align-items:center;justify-content:center;transition:transform .15s,opacity .15s,color .15s}
   .chat-send{right:12px}
   .chat-emoji{right:36px}
   .chat-send:hover,.chat-emoji:hover{transform:scale(1.1);color:var(--bronze-deep)}
@@ -215,7 +217,7 @@
   header.mast{text-align:center;padding:0 0 6px;margin:0}
   .crest-wrap{position:relative;display:inline-block}
   .crest-img{display:block;width:296px;max-width:100%;height:auto}
-  .stamp{position:fixed;top:-89.6px;left:-89.6px;height:337.5px;width:auto;z-index:-1;pointer-events:none;transform:rotate(-20deg)}
+  .stamp{position:fixed;top:max(-89.6px,calc(-9.08vw + 47.2px));left:max(-89.6px,calc(-9.08vw + 47.2px));height:min(337.5px,calc(34.2vw - 177.8px));width:auto;z-index:-1;pointer-events:none;transform:rotate(-20deg)}
   .crest{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:13px;letter-spacing:.5em;
           color:var(--bronze);text-transform:uppercase;margin:0 0 14px;padding-left:.5em}
   .wordmark{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:54px;letter-spacing:.18em;
@@ -244,7 +246,7 @@
   .progress-card .bar{height:10px;background:rgba(40,37,35,.06);border:1px solid var(--rule);border-radius:999px;margin:4px 0 0;overflow:hidden}
   .progress-card.started .bar{border-color:var(--rule)}
   .progress-card .bar{position:relative}
-  .progress-card .bar i{display:block;height:100%;width:0;background:#c65c46;transition:width 1s cubic-bezier(.2,.8,.2,1);position:relative;z-index:1}
+  .progress-card .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width 1s cubic-bezier(.2,.8,.2,1);position:relative;z-index:1}
   .progress-card .bar .bar-prospect{position:absolute;inset:0 auto 0 0;background:rgba(198,92,70,.42);z-index:0;transition:width 1s cubic-bezier(.2,.8,.2,1)}
   .pc-funnel{display:flex;align-items:center;justify-content:flex-start;gap:7px;margin-top:9px;
     font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#a7a39c;white-space:nowrap}
@@ -273,7 +275,7 @@
         background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%235b5a55' stroke-width='1.3'/%3E%3C/svg%3E");
         background-repeat:no-repeat;background-position:right 16px center;padding-right:38px}
   textarea{padding:9px 12px}
-  input:focus,select:focus,textarea:focus{border-color:var(--bronze)}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent)}
   input.search{width:100%;border:1px solid #e7e2d6;border-radius:8px}
   input.search::placeholder{font-family:var(--sans);font-style:normal;font-size:15px;color:#a9a49a}
   .filters{display:flex;gap:6px}
@@ -290,7 +292,7 @@
   .card .btn.ghost:hover{background:#ece8df;border:none;color:var(--ink)}
   .btn.tiny{font-size:10px;padding:0 14px;letter-spacing:.1em}
   .btn.iconbtn{width:56px;padding:0;flex:0 0 auto;position:relative;overflow:visible}
-  .bell-badge{position:absolute;top:3px;right:5px;min-width:14px;height:14px;padding:0 3px;border-radius:999px;background:#d96a2c;color:#fff;font-family:var(--sans);font-size:8px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(217,106,44,.5)}
+  .bell-badge{position:absolute;top:3px;right:5px;min-width:14px;height:14px;padding:0 3px;border-radius:999px;background:var(--accent);color:#fff;font-family:var(--sans);font-size:8px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(217,106,44,.5)}
   .bell-badge.zero{display:none}
 
   /* ---------- Ledger ---------- */
@@ -312,6 +314,19 @@
   .ledger{border-top:1px solid #efeee9;flex:1;overflow:hidden;display:flex;flex-direction:column}
   .entry{border-bottom:1px solid #efeee9;padding:6px 6px 6px 14px;display:grid;gap:18px;flex:1 1 0;min-height:0;
          grid-template-columns:52px 1fr 186px 162px 108px 162px 44px;align-items:center;align-content:center;cursor:pointer;max-height:88px;transition:padding .22s ease,background .12s ease}
+  /* progressively drop least-important columns as the window narrows (avoids overlap) */
+  @media(max-width:1600px){
+    .ledger-head,.entry{grid-template-columns:52px 1fr 162px 108px 162px 44px}
+    .entry .cell.pieces,.ledger-head span[data-k="pieces"]{display:none}
+  }
+  @media(max-width:1380px){
+    .ledger-head,.entry{grid-template-columns:52px 1fr 108px 162px 44px}
+    .entry .cell.loc,.ledger-head span[data-k="loc"]{display:none}
+  }
+  @media(max-width:1280px){
+    .ledger-head,.entry{grid-template-columns:52px 1fr 162px 44px}
+    .entry .cell.purchased,.ledger-head span[data-k="purchased"]{display:none}
+  }
   .ledger.compact .entry{padding:9px 6px 9px 14px;max-height:52px}
   .avatar{position:relative;width:46px;height:46px;flex:0 0 auto;border-radius:50%;background:var(--paper-2);
           display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:600;
@@ -340,8 +355,8 @@
   .entry .fu.idle{color:#ddd8cc}
   .fu.idle:hover{color:var(--ink);opacity:1}
   .fav{background:none;border:none;cursor:pointer;font-size:15px;line-height:1;padding:0 0 0 9px;color:var(--rule);transition:color .15s;vertical-align:middle}
-  .fav.on{color:#c65c46}
-  .fav:hover{color:#c65c46}
+  .fav.on{color:var(--accent)}
+  .fav:hover{color:var(--accent)}
   .empty{text-align:center;padding:20px;color:var(--slate);font-family:var(--serif-soul);font-style:italic;font-size:16pt}
   .empty-mark{display:block;font-family:var(--serif-soul);font-style:normal;font-size:120px;line-height:1;color:#ddd7cb;margin-bottom:16px}
   .ledger.is-empty{flex:1;display:flex;align-items:center;justify-content:center}
@@ -368,6 +383,15 @@
   .toolbar .btn,.toolbar .filtersel,.toolbar .viewseg{border-color:#e7e2d6;border-radius:8px}
   .toolbar .viewseg{overflow:hidden}
   #briefBtn{width:40px}
+  /* accent theme picker */
+  .themepick{position:relative;flex:0 0 auto}
+  #themeBtn{width:40px}
+  #themeBtn .theme-dot{width:16px;height:16px;border-radius:50%;background:var(--accent);box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+  .theme-pop{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);display:none;gap:8px;padding:10px;background:#fff;border:1px solid rgba(43,38,34,.12);border-radius:10px;box-shadow:0 12px 30px rgba(40,28,16,.18);z-index:62}
+  .theme-pop.show{display:flex}
+  .theme-pop button{width:24px;height:24px;border-radius:50%;border:1px solid rgba(0,0,0,.12);cursor:pointer;padding:0;transition:transform .12s}
+  .theme-pop button:hover{transform:scale(1.12)}
+  .theme-pop button.active{box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--ink)}
   .viewseg button:hover{background:#000;color:var(--paper)}
   .viewseg button.on{background:var(--ink);color:var(--paper)}
 
@@ -378,8 +402,8 @@
     font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#a7a39c;padding:0 0 8px;
     transition:color .2s ease}
   .tabs button:hover{color:var(--ink)}
-  .tabs button.on{color:var(--seal);font-weight:700}
-  .tab-ink{position:absolute;left:0;bottom:0;height:1.5px;width:0;background:var(--seal);pointer-events:none;
+  .tabs button.on{color:var(--accent);font-weight:700}
+  .tab-ink{position:absolute;left:0;bottom:0;height:1.5px;width:0;background:var(--accent);pointer-events:none;
     transition:transform .32s cubic-bezier(.2,.8,.2,1),width .32s cubic-bezier(.2,.8,.2,1)}
 
   /* ---------- Provenance editorial gallery ---------- */
@@ -429,7 +453,7 @@
   .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:22px 24px 16px;position:relative;z-index:2;background:transparent;box-shadow:0 10px 16px -10px rgba(40,37,35,.28)}
   .drawer-title{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#6f6655}
   .drawer-title .dt-ico{font-size:13px;color:#6f6655}
-  .dt-badge{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:0;color:#fff;background:#d96a2c;border-radius:999px;
+  .dt-badge{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:0;color:#fff;background:var(--accent);border-radius:999px;
         min-width:24px;height:22px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 9px rgba(217,106,44,.5)}
   .dt-badge.zero{display:none}
   .drawer-close{width:30px;height:30px;border:none;background:transparent;color:#9b9488;cursor:pointer;font-size:18px;transition:.15s}
@@ -470,7 +494,7 @@
   .fcard.important{background:#fff}
   .fcard.important:hover{background:#fff}
   .fcard .fn svg{flex:0 0 auto;margin-right:4px}
-  .fimp{position:absolute;top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;background:#c65c46;z-index:6;box-shadow:0 0 0 2.5px #fff,0 1px 4px rgba(198,92,70,.45)}
+  .fimp{position:absolute;top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;background:var(--accent);z-index:6;box-shadow:0 0 0 2.5px #fff,0 1px 4px rgba(198,92,70,.45)}
   .donechip{position:absolute;top:14px;right:16px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;
     border:none;background:rgba(43,38,34,.06);color:#9a9286;line-height:1;cursor:pointer;z-index:3;
     transition:background .18s ease,color .18s ease}
@@ -482,7 +506,7 @@
   .daychip.Low{background:#3a6ea5}
   /* collapsed rail */
   .drawer-rail{position:fixed;top:0;right:0;height:100vh;width:20px;border:none;
-        background:var(--seal);cursor:pointer;z-index:44;display:none;transition:width .2s ease;padding:0;
+        background:var(--accent);cursor:pointer;z-index:44;display:none;transition:width .2s ease;padding:0;
         box-shadow:-10px 0 26px rgba(40,37,35,.26)}
   body.drawer-collapsed .drawer-rail{display:none}
   .rail-handle{position:fixed;right:8px;top:50%;transform:translateY(-50%);width:4px;height:24px;border-radius:2px;background:var(--rule);z-index:44;cursor:pointer;display:none;transition:background .15s}
@@ -622,6 +646,10 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
     <div class="toolbar">
       <button class="btn iconbtn" id="briefBtn" title="Today at the Bureau" aria-label="Today's checklist"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg></button>
       <div class="search"><input class="search" id="q" placeholder="Search names, pieces, stories…"></div>
+      <div class="themepick">
+        <button class="btn iconbtn" id="themeBtn" title="Accent colour"><span class="theme-dot"></span></button>
+        <div class="theme-pop" id="themePop"></div>
+      </div>
       <select class="filtersel" id="filterSel" title="Filter">
         <option value="all">All</option>
         <option value="vip">VIPs</option>
@@ -2443,6 +2471,34 @@ function synthBell(){
   const t=ctx.currentTime;
   strike(t,0.5); strike(t+0.13,0.32);
 }
+})();
+
+/* ===== Accent theme picker (temporary toggle) ===== */
+(function(){
+  const THEMES=[
+    {n:"Terracotta", a:"#c65c46", d:"#9c4a3a"},
+    {n:"Ochre",      a:"#b07d3a", d:"#8a5e22"},
+    {n:"Sage",       a:"#6c8a5a", d:"#506a42"},
+    {n:"Teal",       a:"#4f8a82", d:"#3a6962"},
+    {n:"Slate Blue", a:"#5a7596", d:"#45597a"},
+    {n:"Plum",       a:"#8a5e7a", d:"#6b4760"}
+  ];
+  const root=document.documentElement;
+  function setVars(t){ root.style.setProperty("--accent",t.a); root.style.setProperty("--accent-deep",t.d); }
+  let cur=THEMES[0];
+  try{ const s=JSON.parse(localStorage.getItem("macon_accent")||"null"); if(s&&s.a) cur={a:s.a,d:s.d}; }catch(e){}
+  setVars(cur); // apply ASAP
+  function init(){
+    const btn=document.getElementById("themeBtn"), pop=document.getElementById("themePop");
+    if(!btn||!pop) return;
+    pop.innerHTML=THEMES.map(t=>`<button data-a="${t.a}" data-d="${t.d}" title="${t.n}" style="background:${t.a}"></button>`).join("");
+    const mark=()=>pop.querySelectorAll("button").forEach(b=>b.classList.toggle("active", b.dataset.a===cur.a));
+    pop.querySelectorAll("button").forEach(b=>b.onclick=()=>{ cur={a:b.dataset.a,d:b.dataset.d}; setVars(cur); try{localStorage.setItem("macon_accent",JSON.stringify(cur))}catch(e){} mark(); pop.classList.remove("show"); });
+    btn.onclick=e=>{ e.stopPropagation(); pop.classList.toggle("show"); mark(); };
+    document.addEventListener("click",e=>{ if(!btn.contains(e.target)&&!pop.contains(e.target)) pop.classList.remove("show"); });
+    mark();
+  }
+  if(document.readyState!=="loading") init(); else document.addEventListener("DOMContentLoaded",init);
 })();
 
 boot();
