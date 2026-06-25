@@ -56,7 +56,7 @@
   .ticker .tk-time{color:#d8a868;margin-right:10px}
   .ticker .tk-dot{margin:0 0 0 28px;color:var(--bronze,#a8845c)}
   @keyframes tk-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-  .daybrief{position:fixed;top:62px;right:calc(70vw + 84px);left:auto;z-index:55;width:calc(30vw - 108px);background:rgba(252,250,245,.38);border:1px solid var(--rule);
+  .daybrief{position:fixed;top:66px;right:calc(70vw + 16px);left:auto;z-index:55;width:calc(30vw - 40px);background:rgba(252,250,245,.38);border:1px solid var(--rule);
     border-radius:12px;box-shadow:0 18px 44px rgba(40,37,35,.22);padding:22px 24px 28px 30px;
     -webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);
     animation:db-in .35s cubic-bezier(.2,.8,.2,1);box-sizing:border-box;
@@ -195,7 +195,7 @@
   .toolbar{animation:rise .45s ease both .08s}
   .ledger-head{animation:rise .45s ease both .16s}
   .pager{animation:rise .45s ease both .55s}
-  .col-right{min-width:0;padding-top:40px;height:100vh;display:flex;flex-direction:column;overflow:hidden;padding-bottom:28px}
+  .col-right{min-width:0;padding-top:40px;height:100vh;display:flex;flex-direction:column;overflow:hidden;padding-bottom:28px;background:linear-gradient(to right,var(--paper) 0%,#f9f6f0 38%)}
   @media(max-width:820px){
     .wrap{grid-template-columns:1fr;gap:24px}
     .col-left{position:static;height:auto}
@@ -308,8 +308,7 @@
   .ledger-head .arr b{font-weight:400;font-size:5.5px;color:#cfc8b9;transition:color .15s}
   .ledger-head .arr b.on{color:var(--ink)}
   .ledger-head .rp[data-k],.ledger-head .lv[data-k]{justify-self:end}
-  .ledger-surface{flex:1 1 0;min-height:0;display:flex;flex-direction:column;margin:0;padding:24px 24px 30px;
-    background:rgba(255,255,255,.45);border-radius:12px;overflow:hidden}
+  .ledger-surface{flex:1 1 0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
   .ledger-surface[hidden]{display:none}
   .ledger{border-top:1px solid var(--rule);flex:1;overflow:hidden;display:flex;flex-direction:column}
   .entry{border-bottom:1px solid #e7e2d7;padding:6px 6px 6px 14px;display:grid;gap:18px;flex:1 1 0;min-height:0;
