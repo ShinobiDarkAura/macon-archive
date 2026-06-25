@@ -2116,7 +2116,8 @@ function renderAll(){ renderDash(); if(tab==="provenance") renderProvenance(); e
   const rh=document.getElementById("railHandle"); if(rh) rh.onclick=open;
 })();
 
-/* ===== Studio Line — keeper-to-keeper chat ===== */
+/* ===== Studio Line — keeper-to-keeper chat (isolated scope) ===== */
+(function(){
 const KEEPERS={ "alex@studiomacon.co":"Alex", "hannah@studiomacon.co":"Hannah" };
 let chatReady=false, myEmail=null, otherEmail=null, otherName="Studio", chatOpen=false;
 let chatMsgsCh=null, chatRoomCh=null, lastDayKey=null, lastMineEl=null, unread=0, typingTO=null, sendTypingAt=0;
@@ -2134,7 +2135,7 @@ function dayLabel(iso){
   return d.toLocaleDateString([], {weekday:"long",month:"long",day:"numeric"});
 }
 
-function initChat(){
+window.initChat = function initChat(){
   if(chatReady) return;
   if(!document.getElementById("chatFab")) return;
   sb.auth.getSession().then(({data:{session}})=>{
@@ -2326,6 +2327,7 @@ function synthBell(){
   const t=ctx.currentTime;
   strike(t,0.5); strike(t+0.13,0.32);
 }
+})();
 
 boot();
 </script>
