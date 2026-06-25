@@ -162,15 +162,21 @@
 
   .chat-err{display:none;font-family:var(--sans);font-size:11.5px;color:var(--seal);background:rgba(156,74,58,.08);padding:7px 14px;border-top:1px solid rgba(156,74,58,.16)}
   .chat-err.show{display:block}
-  .chat-compose{flex:0 0 auto;display:flex;align-items:flex-end;gap:8px;padding:11px 12px 13px;border-top:1px solid rgba(43,38,34,.09);background:var(--paper-2)}
+  .chat-compose{position:relative;flex:0 0 auto;display:flex;align-items:flex-end;gap:8px;padding:11px 12px 13px;border-top:1px solid rgba(43,38,34,.09);background:var(--paper-2)}
   .chat-inputwrap{position:relative;flex:1 1 auto;display:flex}
-  .chat-compose textarea{flex:1 1 auto;box-sizing:border-box;resize:none;border:none;border-radius:13px;background:#e7decb;color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.35;min-height:42px;height:42px;padding:11px 44px 6px 12px;max-height:100px;outline:none}
+  .chat-compose textarea{flex:1 1 auto;box-sizing:border-box;resize:none;border:none;border-radius:13px;background:#e7decb;color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.35;min-height:42px;height:42px;padding:11px 64px 6px 12px;max-height:100px;outline:none}
   .chat-compose textarea:focus{outline:none;box-shadow:none}
   .chat-compose textarea::placeholder{color:#b3a996;font-style:normal}
-  .chat-send{position:absolute;right:12px;bottom:13px;width:16px;height:16px;padding:0;border:none;background:transparent;cursor:pointer;color:var(--bronze);display:flex;align-items:center;justify-content:center;transition:transform .15s,opacity .15s}
-  .chat-send:hover{transform:scale(1.1)}
+  .chat-send,.chat-emoji{position:absolute;bottom:13px;width:16px;height:16px;padding:0;border:none;background:transparent;cursor:pointer;color:var(--bronze);display:flex;align-items:center;justify-content:center;transition:transform .15s,opacity .15s,color .15s}
+  .chat-send{right:12px}
+  .chat-emoji{right:36px}
+  .chat-send:hover,.chat-emoji:hover{transform:scale(1.1);color:var(--bronze-deep)}
   .chat-send:disabled{opacity:.35;cursor:default;transform:none}
-  .chat-send svg{width:16px;height:16px;display:block}
+  .chat-send svg,.chat-emoji svg{width:16px;height:16px;display:block}
+  .chat-emoji-pop{position:absolute;bottom:56px;right:12px;width:236px;max-height:184px;overflow-y:auto;background:#fff;border:1px solid rgba(43,38,34,.1);border-radius:12px;box-shadow:0 12px 30px rgba(40,28,16,.22);padding:8px;display:none;grid-template-columns:repeat(7,1fr);gap:2px;z-index:62}
+  .chat-emoji-pop.show{display:grid}
+  .chat-emoji-pop button{border:none;background:transparent;cursor:pointer;font-size:18px;line-height:1;padding:5px 0;border-radius:7px;transition:background .12s}
+  .chat-emoji-pop button:hover{background:rgba(140,106,71,.12)}
   .daybrief .db-ahead-list .db-text{flex:1;min-width:0}
   .daybrief .db-x{position:absolute;top:10px;right:12px;width:28px;height:28px;border:none;background:transparent;color:var(--slate);
     font-size:20px;line-height:1;cursor:pointer;border-radius:8px;display:flex;align-items:center;justify-content:center}
@@ -674,8 +680,10 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
   <div class="chat-compose">
     <div class="chat-inputwrap">
       <textarea id="chatInput" rows="1" placeholder="Write…" maxlength="2000"></textarea>
+      <button class="chat-emoji" id="chatEmoji" aria-label="Emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg></button>
       <button class="chat-send" id="chatSend" disabled aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></button>
     </div>
+    <div class="chat-emoji-pop" id="chatEmojiPop"></div>
   </div>
 </div>
 
@@ -2133,6 +2141,26 @@ const ANIMALS={ "hannah@studiomacon.co":"rebi", "alex@studiomacon.co":"ori" };
 const NICKS=["Scrooms","Scombridae","Little Windmill","Western Sweet","Lilac Reverie","Squeeps","Squeepsbot","Scroomsbury","Scombs","Squeepington Jr."];
 function currentNick(){ return NICKS[Math.floor(Date.now()/3600000)%NICKS.length]; }
 function setPlaceholder(){ const el=document.getElementById("chatInput"); if(el) el.placeholder="Write to "+currentNick()+"…"; }
+const EMOJIS=["😀","😄","😊","🙂","😉","😍","🥰","😘","😎","🤩","😇","🤗","😋","😛","🤔","😅","😂","🥹","😭","😮","🙃","😴","🙌","👏","👍","👎","🙏","💪","✨","⭐","🔥","💛","🧡","❤️","🤎","🖤","🐰","🐻","🌙","🫶","🥂","☕"];
+function initEmoji(){
+  const btn=document.getElementById("chatEmoji"), pop=document.getElementById("chatEmojiPop"), ta=document.getElementById("chatInput");
+  if(!btn||!pop||!ta) return;
+  if(!pop.childElementCount){
+    EMOJIS.forEach(e=>{ const b=document.createElement("button"); b.type="button"; b.textContent=e;
+      b.addEventListener("mousedown",ev=>ev.preventDefault());
+      b.addEventListener("click",()=>insertEmoji(e)); pop.appendChild(b); });
+  }
+  btn.addEventListener("mousedown",ev=>ev.preventDefault());
+  btn.addEventListener("click",()=>pop.classList.toggle("show"));
+  document.addEventListener("click",ev=>{ if(!pop.contains(ev.target) && ev.target!==btn && !btn.contains(ev.target)) pop.classList.remove("show"); });
+}
+function insertEmoji(e){
+  const ta=document.getElementById("chatInput"); if(!ta) return;
+  const s=ta.selectionStart??ta.value.length, en=ta.selectionEnd??ta.value.length;
+  ta.value=ta.value.slice(0,s)+e+ta.value.slice(en);
+  const pos=s+e.length; ta.focus(); ta.selectionStart=ta.selectionEnd=pos;
+  ta.dispatchEvent(new Event("input",{bubbles:true}));
+}
 let chatReady=false, myEmail=null, otherEmail=null, otherName="Studio", chatOpen=false;
 let chatMsgsCh=null, chatRoomCh=null, lastDayKey=null, lastMineEl=null, unread=0, typingTO=null, sendTypingAt=0;
 let useSynthBell=false, bellAudio=null, audioCtx=null;
@@ -2182,6 +2210,7 @@ function wireChatUI(){
   send.onclick=()=>sendMessage();
   const unlock=()=>{ ensureAudio(); if(audioCtx&&audioCtx.state==="suspended") audioCtx.resume(); window.removeEventListener("pointerdown",unlock); };
   window.addEventListener("pointerdown",unlock);
+  initEmoji();
 }
 function autoGrow(el){ el.style.height="auto"; el.style.height=Math.min(el.scrollHeight,96)+"px"; }
 
