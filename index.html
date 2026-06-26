@@ -232,7 +232,7 @@
   .dash{display:grid;grid-template-columns:136px 136px;justify-content:center;gap:16px 8px;margin:40px 0 0;background:transparent;width:100%;padding:0;box-sizing:border-box}
   .stat{display:flex;flex-direction:column;align-items:center;text-align:center;width:auto;min-width:0;
         padding:14px 6px 22px;border:none;position:relative}
-  .stat::after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:86%;height:1px;background:rgba(216,207,185,.85)}
+  .stat::after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:86%;height:1px;background:rgba(216,207,185,.55)}
   .stat .num{font-family:"Louize",Georgia,serif;font-size:32px;font-weight:400;color:#3f2d1c;line-height:1;transition:color .6s ease}
   .stat .num.changed{color:#000}
   .stat .lbl{font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.12em;color:#9e8f7c;margin-top:5px;white-space:nowrap;line-height:1.2;max-width:none}
@@ -318,7 +318,7 @@
   .ledger{border-top:1px solid #efeee9;flex:1;overflow:hidden;display:flex;flex-direction:column}
   .entry{border-bottom:none;padding:6px 18px 6px 26px;display:grid;gap:18px;flex:1 1 0;min-height:0;
          grid-template-columns:52px 1fr 186px 162px 108px 162px 44px;align-items:center;align-content:center;cursor:pointer;max-height:88px;transition:padding .22s ease,background .12s ease}
-  .entry:nth-child(even){background:linear-gradient(to right,transparent 0,var(--row-alt) 15%);border-radius:8px}
+  .entry:nth-child(even){background:linear-gradient(to right,transparent 0,var(--row-alt) 15%,var(--row-alt) 85%,transparent 100%);border-radius:8px}
   /* progressively drop least-important columns as the table narrows (avoids overlap).
      Drawer OPEN shrinks the table ~422px-equivalent, so its breakpoints fire ~422px sooner. */
   /* --- drawer COLLAPSED (wide table) --- */
