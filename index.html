@@ -17,8 +17,8 @@
     --ink:#2b2622;
     --paper:#f4efe4;
     --paper-2:#efe8d9;
-    /* shared by the alternating ledger rows AND the drawer bg — keep them matched by editing only this */
-    --row-alt:#f9f7f5;
+    /* shared by the alternating ledger rows, the drawer bg, AND the ledger/provenance toggle — keep them matched by editing only this */
+    --row-alt:#f6f4f2;
     --bronze:#8c6a47;
     --bronze-deep:#6f5235;
     --slate:#5b5a55;
@@ -316,7 +316,7 @@
   .ledger{border-top:1px solid #efeee9;flex:1;overflow:hidden;display:flex;flex-direction:column}
   .entry{border-bottom:none;padding:6px 18px 6px 26px;display:grid;gap:18px;flex:1 1 0;min-height:0;
          grid-template-columns:52px 1fr 186px 162px 108px 162px 44px;align-items:center;align-content:center;cursor:pointer;max-height:88px;transition:padding .22s ease,background .12s ease}
-  .entry:nth-child(even){background:var(--row-alt);border-radius:8px}
+  .entry:nth-child(even){background:linear-gradient(to right,transparent 0,var(--row-alt) 15%);border-radius:8px}
   /* progressively drop least-important columns as the table narrows (avoids overlap).
      Drawer OPEN shrinks the table ~422px-equivalent, so its breakpoints fire ~422px sooner. */
   /* --- drawer COLLAPSED (wide table) --- */
@@ -371,6 +371,7 @@
         background:none;cursor:pointer;color:#c3bdb0;font-size:20px;transition:.15s;opacity:1}
   .entry .fu svg{width:20px;height:20px}
   .entry .fu:hover{color:var(--accent);opacity:1}
+  .entry .fu.due{color:var(--accent)}
   .entry .fu.idle{color:#ddd8cc}
   .fu.idle:hover{color:var(--ink);opacity:1}
   .fav{background:none;border:none;cursor:pointer;line-height:0;padding:0 0 0 9px;color:var(--rule);transition:color .15s;vertical-align:middle;position:relative;top:-2px}
@@ -421,7 +422,7 @@
   .toolbar .tabs button{width:40px;height:100%;display:flex;align-items:center;justify-content:center;border:none;border-right:1px solid #e7e2d6;background:transparent;color:#a39d8f;cursor:pointer;padding:0;transition:color .15s,background .15s}
   .toolbar .tabs button:last-of-type{border-right:none}
   .toolbar .tabs button:hover{color:var(--ink)}
-  .toolbar .tabs button.on{color:var(--accent);background:rgba(43,38,34,.04)}
+  .toolbar .tabs button.on{color:var(--accent);background:var(--row-alt)}
   .toolbar .tabs .tab-ink{display:none}
 
   /* ---------- Provenance editorial gallery ---------- */
