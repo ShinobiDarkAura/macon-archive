@@ -17,6 +17,8 @@
     --ink:#2b2622;
     --paper:#f4efe4;
     --paper-2:#efe8d9;
+    /* shared by the alternating ledger rows AND the drawer bg — keep them matched by editing only this */
+    --row-alt:#f9f7f5;
     --bronze:#8c6a47;
     --bronze-deep:#6f5235;
     --slate:#5b5a55;
@@ -314,7 +316,7 @@
   .ledger{border-top:1px solid #efeee9;flex:1;overflow:hidden;display:flex;flex-direction:column}
   .entry{border-bottom:none;padding:6px 18px 6px 26px;display:grid;gap:18px;flex:1 1 0;min-height:0;
          grid-template-columns:52px 1fr 186px 162px 108px 162px 44px;align-items:center;align-content:center;cursor:pointer;max-height:88px;transition:padding .22s ease,background .12s ease}
-  .entry:nth-child(even){background:rgba(124,82,44,.05);border-radius:8px}
+  .entry:nth-child(even){background:var(--row-alt);border-radius:8px}
   /* progressively drop least-important columns as the table narrows (avoids overlap).
      Drawer OPEN shrinks the table ~422px-equivalent, so its breakpoints fire ~422px sooner. */
   /* --- drawer COLLAPSED (wide table) --- */
@@ -462,12 +464,12 @@
   body{transition:padding-right .28s ease;padding-right:440px}
   body.drawer-collapsed{padding-right:18px}
   body.preload, body.preload *{transition:none!important}
-  .drawer{position:fixed;top:24px;right:24px;height:calc(100vh - 48px);width:404px;background:rgba(244,239,228,.97);border:1px solid rgba(43,38,34,.10);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);border-radius:16px;overflow:hidden;
+  .drawer{position:fixed;top:24px;right:24px;height:calc(100vh - 48px);width:404px;background:var(--row-alt);border:1px solid rgba(43,38,34,.10);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);border-radius:16px;overflow:hidden;
         box-shadow:0 16px 44px rgba(40,28,16,.20);z-index:45;display:flex;flex-direction:column;
         transform:translateX(0);transition:transform .28s ease}
   body.drawer-collapsed .drawer{transform:translateX(calc(100% + 28px))}
   /* bottom fade so cards dissolve into the drawer bg */
-  .drawer::after{content:"";position:absolute;left:0;right:0;bottom:0;height:96px;pointer-events:none;z-index:3;background:linear-gradient(to top,rgb(244,239,228) 12%,rgba(244,239,228,0))}
+  .drawer::after{content:"";position:absolute;left:0;right:0;bottom:0;height:96px;pointer-events:none;z-index:3;background:linear-gradient(to top,var(--row-alt) 12%,transparent)}
   /* floating ghost collapse button, top-right of the drawer */
   .drawer-x{position:absolute;top:14px;right:14px;width:30px;height:30px;border:none;border-radius:50%;background:transparent;color:#9b9488;cursor:pointer;font-size:19px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:6;transition:background .15s,color .15s}
   .drawer-x:hover{background:rgba(43,38,34,.06);color:var(--ink)}
