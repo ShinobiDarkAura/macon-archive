@@ -534,6 +534,7 @@
   .fn.t-gift{background:#f7e3da;color:#a8624a}
   .fn.t-value{background:#f2e8c8;color:#8a7338}
   .fn.t-first{background:#ece8df;color:#7c7568}
+  .fn.t-custom{background:#f0ddd2;color:#a2543a}
   .fcard .fsum{font-family:var(--sans);font-size:13px;line-height:1.45;color:#9c9488;margin-top:2px}
   .fcard .fmeta{font-family:var(--sans);font-size:11.5px;letter-spacing:.02em;color:#a8a094;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .fcard .fmeta .fmeta-dim{color:#a8a094}
@@ -606,6 +607,13 @@
   .ig-wrap input{padding-left:25px;padding-right:34px;width:100%}
   .ig-wrap .ig-open{position:absolute;right:12px;color:#3a7bd5;display:flex;line-height:0;text-decoration:none}
   .ig-wrap .ig-open:hover{color:#2c63ad}
+  /* Guidance panel in the draft modal: what to do before this email goes out */
+  .dtips{margin:-6px 0 22px;padding:13px 15px 14px;background:rgba(162,84,58,.07);border-radius:8px;border-left:2px solid rgba(162,84,58,.35)}
+  .dtips-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:#a2543a;margin-bottom:8px}
+  .dtips ul{margin:0;padding-left:16px}
+  .dtips li{font-family:var(--sans);font-size:12.6px;line-height:1.5;color:var(--slate);margin-bottom:5px}
+  .dtips li:last-child{margin-bottom:0}
+  .dtips li b{color:var(--ink);font-weight:600}
   .dchip{display:inline-flex;align-items:center;border:.75px solid #a09b91;color:#a09b91;border-radius:999px;padding:2px 12px;font-family:var(--sans);font-size:7pt;letter-spacing:.12em;text-transform:uppercase;background:transparent;white-space:nowrap}
   .dfield{position:relative}
   .dfield .dcopy{position:absolute;top:10px;right:8px;border:none;background:none;cursor:pointer;color:#9c948a;line-height:1;padding:2px;transition:color .15s;display:flex}
@@ -1024,6 +1032,7 @@ function followType(d, kind){
   return "First story request";
 }
 function followKey(d, kind){
+  if(kind==="custom") return "custom";
   if(kind==="reconnect") return "reconnect";
   if(d.gift_self==="Gift") return "gift";
   if(d.first_look) return "vip";
@@ -1040,8 +1049,12 @@ function chipIcon(d){
   return ({VIP:STAR, Collector:GEM, Gift:GIFT, New:SPARK})[clientType(d)] || SPARK;
 }
 function clientType(d){ if(d.first_look||num(d.ltv)>1000) return "VIP"; if(countPieces(d.pieces)>=2) return "Collector"; if(d.gift_self==="Gift") return "Gift"; return "New"; }
-function followAction(d, kind){ if(kind==="reconnect") return "Reconnect"; if(d.gift_self==="Gift") return "Gift story"; if(num(d.ltv)>1000 && !(countPieces(d.pieces)>=2)) return "Welcome"; if(countPieces(d.pieces)>=2||d.first_look) return "Check-in"; return "Story request"; }
-function cardMeta(d, kind){ const np=countPieces(d.pieces); const rest=[ np>1?(np+" pieces"):firstPiece(d.pieces), fmtMoney(d.ltv) ].filter(Boolean).map(esc); const a=esc(followAction(d,kind)); return rest.length ? a+'  ·  <span class="fmeta-dim">'+rest.join("  ·  ")+"</span>" : a; }
+function followAction(d, kind){ if(kind==="custom") return "Custom inquiry"; if(kind==="reconnect") return "Reconnect"; if(d.gift_self==="Gift") return "Gift story"; if(num(d.ltv)>1000 && !(countPieces(d.pieces)>=2)) return "Welcome"; if(countPieces(d.pieces)>=2||d.first_look) return "Check-in"; return "Story request"; }
+function cardMeta(d, kind, q){
+  if(kind==="custom") return 'Custom inquiry  ·  <span class="fmeta-dim">'+esc(q?q.animal:"")+"  ·  quoted $925</span>";
+  return cardMetaStd(d, kind);
+}
+function cardMetaStd(d, kind){ const np=countPieces(d.pieces); const rest=[ np>1?(np+" pieces"):firstPiece(d.pieces), fmtMoney(d.ltv) ].filter(Boolean).map(esc); const a=esc(followAction(d,kind)); return rest.length ? a+'  ·  <span class="fmeta-dim">'+rest.join("  ·  ")+"</span>" : a; }
 function shortName(n){ n=(n||"").trim(); if(!n) return "—"; const p=n.split(/\s+/).filter(Boolean); if(p.length<2) return p[0]; const last=p[p.length-1]; return p[0]+" "+last[0].toUpperCase()+"."; }
 function followSummary(d, kind){
   const piece=esc(firstPiece(d.pieces)||"their piece");
@@ -1139,20 +1152,111 @@ const RECON_TONES=[
     ].join("\n")
   })}
 ];
-function draftEmail(d, tone, kind){
-  const c=emailCtx(d);
-  const set = kind==="reconnect" ? RECON_TONES : TONES;
+function draftEmail(d, tone, kind, q){
+  const set = kind==="custom" ? CUSTOM_TONES : kind==="reconnect" ? RECON_TONES : TONES;
   const n=set.length, idx=((tone|0)%n+n)%n;
-  const r=set[idx].build(c);
+  const r=set[idx].build(kind==="custom" ? q : emailCtx(d));
   return {subject:r.subject, body:r.body, toneName:set[idx].name, toneIdx:idx};
 }
+/* ---------- Open custom-totem inquiries ----------
+   Someone asked about a custom and the thread went quiet. They are not ledger
+   entries yet, so they live here: add a line when an inquiry arrives and the
+   drawer chases it until it is checked off.
+
+   The sequence is deliberate. The first reply carries NO pay link: price is
+   stated plainly in the middle, the email ends on a question about their animal,
+   and the deposit link goes in the next email once they have answered. Asking a
+   free question converts; asking for $462 against an object they have never seen
+   does not. */
+const CUSTOM_INQUIRIES=[
+  {id:"matt-mcclure", name:"Matt McClure", email:"", animal:"armoured bear", sent:"2026-07-28",
+   note:"Wrote in off the custom-orders post. Replied same day with the six-step process, $925, and an offer of a pay link. Nothing since."},
+  {id:"jason-fried", name:"Jason Fried", email:"", animal:"snail", sent:"2026-07-28", repeat:true,
+   note:"Already a collector, asked for a snail unprompted. The reply opened with the price change and a deposit link. Nothing since."}
+];
+function inqOpen(){ const done=briefDone(); return CUSTOM_INQUIRIES.filter(q=>!done["inq|"+q.id]); }
+function inqById(id){ return CUSTOM_INQUIRIES.find(q=>q.id===id); }
+function inqAsD(q){ return {name:q.name, email:q.email||"", pieces:"Custom", ltv:"", notes:q.note,
+  location:"", instagram:"", last_buy:"", last_contact:q.sent}; }
+function monthOf(s){ const t=Date.parse(s); return isNaN(t)?"":new Date(t).toLocaleDateString("en-US",{month:"long"}); }
+
+const CUSTOM_TONES=[
+  {name:"Revive", build:q=>{
+    const f=firstName(q.name), a=q.animal;
+    return q.repeat ? {
+      subject:`Re: your ${a}`,
+      body:[`Hey ${f},`,"",
+        `I never circled back about the ${a}, which I regret, it's a good one.`,"",
+        `If you're still up for it, I'd like to draw a couple of options and send them over. No commitment, and no need to decide anything from a drawing.`,"",
+        `Hannah`].join("\n")
+    } : {
+      subject:`Re: your ${a}`,
+      body:[`Hi ${f},`,"",
+        `I never followed up on your ${a}, and I should have.`,"",
+        `If it was the price or the size of the deposit, I would genuinely like to know, it helps us. And if you're still interested, I'd like to draw it for you before you decide anything at all.`,"",
+        `Either way, thanks for writing in ${monthOf(q.sent)}.`,"",
+        `Hannah`].join("\n")
+    };
+  }},
+  {name:"Nudge", build:q=>({
+    subject:`Re: your ${q.animal}`,
+    body:[`Hi ${firstName(q.name)},`,"",
+      `Still thinking about your ${q.animal}.`,"",
+      `Want me to sketch something?`,"",
+      `Hannah`].join("\n")
+  })},
+  {name:"First reply", build:q=>{
+    const f=firstName(q.name), a=q.animal;
+    return q.repeat ? {
+      subject:`Re: your ${a}`,
+      body:[`Hey ${f},`,"",
+        `Yes, a ${a}, absolutely.`,"",
+        `Do you have a particular ${a} in mind, or should we invent one?`,"",
+        `One thing worth mentioning since it has been a while: customs are $925 now. We slowed the process down a lot last year, more time on the carving and much more hand filing, and the price followed the work.`,"",
+        `Tell me about the ${a} and I'll get things moving.`,"",
+        `Hannah`].join("\n")
+    } : {
+      subject:`Re: your ${a}`,
+      body:[`Hi ${f},`,"",
+        `We'd love to make ${a.match(/^[aeiou]/i)?"an":"a"} ${a} for you.`,"",
+        `Tell me about yours first. Is there a particular ${a} you have in mind, or would you rather we invent one? Photos help if you have any, though they are not necessary.`,"",
+        `I've attached a few customs we've made so you can see where these tend to land.`,"",
+        `How it works: Alex and I design the form together, I carve it in wax, it goes to our foundry here in L.A. to be lost-wax cast in bronze, then I file the whole surface by hand, honing the facets, and patinate and wax it. About three weeks from start to mailing, and a custom bronze totem is $925.`,"",
+        `Nothing to decide yet. Tell me about your ${a} and we'll go from there.`,"",
+        `Hannah`].join("\n")
+    };
+  }}
+];
+
+/* What to get right before this email goes out. Shown in the draft modal. */
+const DRAFT_TIPS={
+  custom:[
+    "<b>No pay link in this email.</b> The deposit link goes in the reply after they answer, never before.",
+    "<b>Attach two or three past customs.</b> They are deciding about an object they have never seen.",
+    "<b>End on a question about their animal.</b> Answering is free, deciding is $462.",
+    "<b>Never open with the price change</b> for someone who has bought before.",
+    "<b>One nudge at five to seven days</b>, then leave it and check it off."
+  ],
+  reconnect:[
+    "<b>No ask, no pitch.</b> If it reads as a lead-in to a sale it will not get answered.",
+    "<b>End on something they can answer for free.</b>"
+  ],
+  story:[
+    "<b>One question, not three.</b> A single easy question outperforms a survey.",
+    "<b>Put their answer in <i>why</i></b> when it arrives. It is blank on all 94 rows."
+  ]
+};
+
 function followUps(){
   const P={High:0,Medium:1,Low:2};
   const story=data.map((d,i)=>({d,i})).filter(x=>isDue(x.d))
     .map(x=>({...x, kind:"story", days:daysSince(x.d.last_buy), priority:followPriority(x.d), ask:followAsk(x.d)}));
   const recon=data.map((d,i)=>({d,i})).filter(x=>isReconnectDue(x.d))
     .map(x=>({...x, kind:"reconnect", days:(x.d.last_contact?daysSince(x.d.last_contact):daysSince(x.d.last_buy)), priority:"High", ask:""}));
-  return story.concat(recon).sort((a,b)=> P[a.priority]-P[b.priority] || a.days-b.days);
+  // open custom inquiries lead the drawer: live money, and the thread goes cold fastest
+  const inq=inqOpen().map(q=>({d:inqAsD(q), i:-1, q, kind:"custom", days:daysSince(q.sent), priority:"High", ask:""}));
+  return inq.concat(story, recon).sort((a,b)=>
+    (a.kind==="custom"?0:1)-(b.kind==="custom"?0:1) || P[a.priority]-P[b.priority] || a.days-b.days);
 }
 
 /* ---------- Render ledger ---------- */
@@ -1360,17 +1464,17 @@ function renderDrawer(){
     const d=x.d;
     const slug=pieceSlug(d.pieces);
     const src=pieceImg(d.pieces);
-    return `<div class="fcard${x.priority==="High"?" important":""}" data-i="${x.i}" data-kind="${x.kind}" role="button" tabindex="0" title="Draft email">${x.priority==="High"?'<span class="fimp" title="Needs attention"></span>':''}
+    return `<div class="fcard${x.priority==="High"?" important":""}" data-i="${x.i}" data-kind="${x.kind}" data-q="${esc(x.q?x.q.id:"")}" role="button" tabindex="0" title="Draft email">${x.priority==="High"?'<span class="fimp" title="Needs attention"></span>':''}
       <div class="fav-av"><img src="${src}" alt="" loading="lazy" data-slug="${slug}" onerror="if(!this.dataset.fb){this.dataset.fb=1;PIECE_404.add(this.dataset.slug);this.src='pieces/custom.jpeg'}"></div>
       <div class="fcard-body">
-        <button class="donechip" data-i="${x.i}" title="Mark contacted"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
+        <button class="donechip" data-i="${x.i}" data-q="${esc(x.q?x.q.id:"")}" title="Mark contacted"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
         <div class="fcard-top">
           <div class="ftitle">
-            <div class="fn t-${followKey(d, x.kind)}">${esc(clientType(d))}</div>
+            <div class="fn t-${followKey(d, x.kind)}">${esc(x.kind==="custom"?"Inquiry":clientType(d))}</div>
             <div class="ftype">${esc(shortName(d.name))}</div>
           </div>
         </div>
-        <div class="fmeta">${cardMeta(d, x.kind)}</div>
+        <div class="fmeta">${cardMeta(d, x.kind, x.q)}</div>
       </div>
     </div>`;
   };
@@ -1383,7 +1487,7 @@ function renderDrawer(){
   const pris=[...PRI_ORDER.filter(p=>byPri.has(p)), ...[...byPri.keys()].filter(p=>!PRI_ORDER.includes(p))];
   body.innerHTML = pris.map(p=>{
     const items=byPri.get(p);
-    const ids=items.map(x=>x.i).join(',');
+    const ids=items.map(x=>x.kind==="custom"?("q:"+x.q.id):String(x.i)).join(',');
     return `<div class="fgroup">
       <div class="fgroup-top">
         <div class="fgroup-titles"><div class="fgroup-over">${esc(PRI_OVER[p]||"")}</div><div class="fgroup-pri">${esc(PRI_LABEL[p]||p)}</div></div>
@@ -1393,15 +1497,16 @@ function renderDrawer(){
     </div>`;
   }).join("");
   body.querySelectorAll(".fcard").forEach(c=>{
-    c.onclick=()=>openDraft(+c.dataset.i, c.dataset.kind);
-    c.onkeydown=e=>{ if(e.key==="Enter") openDraft(+c.dataset.i, c.dataset.kind); };
+    c.onclick=()=>openDraft(+c.dataset.i, c.dataset.kind, c.dataset.q);
+    c.onkeydown=e=>{ if(e.key==="Enter") openDraft(+c.dataset.i, c.dataset.kind, c.dataset.q); };
   });
   body.querySelectorAll(".fgroup-mark").forEach(h=>h.onclick=()=>{
-    (h.dataset.is||"").split(",").filter(Boolean).map(Number).forEach(i=>markContacted(i));
+    (h.dataset.is||"").split(",").filter(s=>s!=="").forEach(tok=>
+      tok.startsWith("q:") ? completeFollowUp(-1, tok.slice(2)) : completeFollowUp(+tok, ""));
   });
   body.querySelectorAll(".donechip").forEach(b=>b.onclick=e=>{
     e.stopPropagation();
-    const card=b.closest(".fcard"), i=+b.dataset.i;
+    const card=b.closest(".fcard"), i=+b.dataset.i, qid=b.dataset.q;
     b.classList.add("done");
     // freeze hover states while the cards reflow upward, so the card sliding
     // under the cursor doesn't flicker its shadow on/off
@@ -1410,7 +1515,7 @@ function renderDrawer(){
     setTimeout(()=>{
       card.style.height=card.offsetHeight+"px";
       requestAnimationFrame(()=>{ card.classList.add("leaving"); card.style.height="0px"; card.style.marginTop="-22px"; });
-      setTimeout(()=>markContacted(i), 400);
+      setTimeout(()=>completeFollowUp(i, qid), 400);
     }, 320);
   });
 }
@@ -1419,17 +1524,20 @@ const COPY_SVG=`<svg viewBox="0 0 20 20" width="18" height="18" fill="none" stro
 function igHandle(s){ return (s||"").trim().replace(/^@/,"").replace(/^https?:\/\/(www\.)?instagram\.com\//i,"").replace(/[\/?].*$/,"").trim(); }
 function igUrl(s){ const h=igHandle(s); return h?("https://instagram.com/"+h):""; }
 const IG_SVG='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none"/></svg>';
-function openDraft(i, kind){
-  const d=data[i]; if(!d) return;
-  const {subject, body, toneName}=draftEmail(d, 0, kind);
-  const pri=kind==="reconnect"?"High":followPriority(d);
-  const dayLbl=kind==="reconnect"?"days since last contact":"days since last purchase";
-  const daysN=kind==="reconnect"?(d.last_contact?daysSince(d.last_contact):daysSince(d.last_buy)):daysSince(d.last_buy);
+function openDraft(i, kind, qid){
+  const q=kind==="custom"?inqById(qid):null;
+  if(kind==="custom" && !q) return;
+  const d=q?inqAsD(q):data[i]; if(!d) return;
+  const {subject, body, toneName}=draftEmail(d, 0, kind, q);
+  const pri=(kind==="reconnect"||kind==="custom")?"High":followPriority(d);
+  const dayLbl=kind==="custom"?"days since you wrote":kind==="reconnect"?"days since last contact":"days since last purchase";
+  const daysN=kind==="custom"?daysSince(q.sent):kind==="reconnect"?(d.last_contact?daysSince(d.last_contact):daysSince(d.last_buy)):daysSince(d.last_buy);
+  const tips=DRAFT_TIPS[kind]||DRAFT_TIPS.story;
   const host=document.getElementById("cardHost");
   host.innerHTML=`
     <span class="dpri ${pri}" title="${pri} priority">${priIcon(pri)}</span>
     <div class="card-body">
-      <h2>${kind==="reconnect"?"Reconnect with":"Follow up with"} ${esc(d.name||"")}</h2>
+      <h2>${kind==="custom"?"Revive the custom for":kind==="reconnect"?"Reconnect with":"Follow up with"} ${esc(d.name||"")}</h2>
       <div class="dchips">
         <span class="dchip">${esc(d.email||"—")}</span>
         <span class="dchip">${daysN} ${dayLbl}</span>
@@ -1438,6 +1546,10 @@ function openDraft(i, kind){
         ${igHandle(d.instagram)?`<a class="dwho-ig" href="${igUrl(d.instagram)}" target="_blank" rel="noopener">${IG_SVG}<span>@${esc(igHandle(d.instagram))}</span></a>`:""}
         ${d.notes?`<p class="dwho-note">${esc(d.notes)}</p>`:""}
       </div>`:""}
+      <div class="dtips">
+        <div class="dtips-h">Before you send</div>
+        <ul>${tips.map(t=>`<li>${t}</li>`).join("")}</ul>
+      </div>
       <div style="margin-top:2px">
         <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:3px;padding-bottom:4px"><label style="font-size:13px;letter-spacing:0;text-transform:none;color:var(--ink)">Email draft</label><button class="btn ghost tiny" id="dTone" title="Cycle tone" style="height:26px;margin-bottom:4px">Tone · ${esc(toneName)}</button></div>
         <div class="dfield" style="margin-bottom:8px">
@@ -1471,7 +1583,7 @@ function openDraft(i, kind){
   };
   requestAnimationFrame(autosize); bodyEl.addEventListener("input",autosize);
   let toneIdx=0;
-  host.querySelector("#dTone").onclick=()=>{ toneIdx++; const r=draftEmail(d,toneIdx,kind);
+  host.querySelector("#dTone").onclick=()=>{ toneIdx++; const r=draftEmail(d,toneIdx,kind,q);
     subjEl.value=r.subject; bodyEl.value=r.body; host.querySelector("#dTone").textContent="Tone · "+r.toneName; autosizeSmooth(); };
   const flash=(btn)=>{ const o=btn.innerHTML; btn.innerHTML="✓"; setTimeout(()=>btn.innerHTML=o,1200); };
   const copy=async(text,btn)=>{ try{ await navigator.clipboard.writeText(text); flash(btn); }catch(e){ alert("Copy failed — select the text manually."); } };
@@ -1479,7 +1591,13 @@ function openDraft(i, kind){
   host.querySelector("#dCopyBody").onclick=e=>copy(subjEl.value+"\n\n"+bodyEl.value, e.currentTarget);
   host.querySelector("#dClose").onclick=closeScrim;
   host.querySelector("#dMail").onclick=()=>{ const url=`mailto:${encodeURIComponent(d.email||"")}?subject=${encodeURIComponent(subjEl.value)}&body=${encodeURIComponent(bodyEl.value)}`; window.location.href=url; };
-  host.querySelector("#dDone").onclick=()=>{ markContacted(i); closeScrim(); };
+  host.querySelector("#dDone").onclick=()=>{ completeFollowUp(i, q?q.id:""); closeScrim(); };
+}
+/* One completion path for both card kinds: ledger rows stamp last_contact,
+   custom inquiries check off against bureau_todos so both keepers see it. */
+function completeFollowUp(i, qid){
+  if(qid){ markTodo("inq|"+qid, true).then(()=>renderAll()); renderAll(); return; }
+  markContacted(i);
 }
 function markContacted(i){
   const d=data[i]; if(!d) return;
@@ -2282,7 +2400,7 @@ function renderAll(){ renderDash(); if(tab==="provenance") renderProvenance(); e
 /* ===== Studio Line — keeper-to-keeper chat (isolated scope) ===== */
 (function(){
 const KEEPERS={ "alex@studiomacon.co":"Alex", "hannah@studiomacon.co":"Hannah" };
-const ANIMALS={ "hannah@studiomacon.co":"rebi", "alex@studiomacon.co":"ori" };
+const ANIMALS={ "hannah@studiomacon.co":"pip", "alex@studiomacon.co":"rebi" };
 const NICKS=["Scrooms","Scombridae","Little Windmill","Western Sweet","Lilac Reverie","Squeeps","Squeepsbot","Scroomsbury","Scombs","Squeepington Jr."];
 function currentNick(){ return NICKS[Math.floor(Date.now()/3600000)%NICKS.length]; }
 function setPlaceholder(){ const el=document.getElementById("chatInput"); if(el) el.placeholder="Write to "+currentNick()+"…"; }
