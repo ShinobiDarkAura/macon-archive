@@ -616,8 +616,8 @@
   .ivs-h1{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#6f6655}
   .ivs-num{font-family:var(--mono);font-size:12px;color:var(--notes,#C04722);letter-spacing:.06em}
   .ivs-head .sp{flex:1}
-  .ivs-body{flex:1;display:grid;grid-template-columns:284px minmax(0,1fr) 268px;min-height:0}
-  .ivs-form{overflow:auto;padding:18px;border-right:1px solid rgba(43,38,34,.10);display:grid;gap:13px;align-content:start}
+  .ivs-body{flex:1;display:grid;grid-template-columns:304px minmax(0,1fr) 268px;min-height:0}
+  .ivs-form{overflow-x:hidden;overflow-y:auto;padding:18px;border-right:1px solid rgba(43,38,34,.10);display:grid;gap:13px;align-content:start}
   .ivs-preview{min-width:0;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(43,38,34,.05)}
   .ivs-preview iframe{width:100%;height:auto;aspect-ratio:792/612;/* replaced per render */max-height:100%;border:none;border-radius:6px;background:#fff;box-shadow:0 8px 30px rgba(30,22,14,.18)}
   .ivs-pending{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;
@@ -641,7 +641,9 @@
   .ivs-gwrap{flex:1;overflow:auto}
   .ivs-gcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
   .ivs-empty{color:#9b9488;font-family:var(--serif-soul);font-style:italic;font-size:15px;padding:30px 0}
-  @media(max-width:1180px){ .ivs-body{grid-template-columns:280px minmax(0,1fr)} .ivs-arc{display:none} }
+  /* the archive narrows before it ever disappears */
+  @media(max-width:1240px){ .ivs-body{grid-template-columns:286px minmax(0,1fr) 218px} }
+  @media(max-width:1020px){ .ivs-body{grid-template-columns:272px minmax(0,1fr)} .ivs-arc{display:none} }
 
   /* ---------- Invoice maker ---------- */
   @font-face{font-family:"TAY Flapjack";src:url("fonts/tay-flapjack.woff") format("woff");font-display:swap}
@@ -654,11 +656,11 @@
     font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#7c7568;transition:.15s}
   .inv-kinds button.on{background:var(--notes,#C04722);border-color:transparent;color:#fff}
   .inv-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .inv-form label{display:block;font-family:var(--sans);font-size:11.5px;color:#8b8375;margin-bottom:4px}
-  .inv-form input,.inv-form textarea{width:100%;font-family:var(--sans);font-size:13.5px;padding:8px 10px;
+  .inv-form label,.ivs-form label{display:block;font-family:var(--sans);font-size:11.5px;color:#8b8375;margin-bottom:4px}
+  .inv-form input,.inv-form textarea,.ivs-form input,.ivs-form textarea{width:100%;box-sizing:border-box;font-family:var(--sans);font-size:13.5px;padding:8px 10px;
     border:1px solid rgba(43,38,34,.16);border-radius:7px;background:#fff;color:var(--ink)}
   .inv-lines{display:grid;gap:7px}
-  .inv-line{display:grid;grid-template-columns:96px 1fr 92px 28px;gap:8px;align-items:center}
+  .inv-line{display:grid;grid-template-columns:78px minmax(0,1fr) 74px 22px;gap:7px;align-items:center}
   .inv-qty{display:flex;align-items:center;border:1px solid rgba(43,38,34,.16);border-radius:7px;background:#fff;overflow:hidden;height:35px}
   .inv-qty button{width:26px;height:100%;border:none;background:transparent;cursor:pointer;color:#8b8375;font-size:15px;line-height:1}
   .inv-qty button:hover{background:rgba(43,38,34,.06);color:var(--ink)}
@@ -671,7 +673,7 @@
   .inv-totals{border-top:1px solid rgba(43,38,34,.12);padding-top:12px;display:grid;gap:6px}
   .inv-row{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:12.5px;color:#6f6655}
   .inv-row.grand{font-size:17px;color:var(--notes,#C04722);padding-top:6px}
-  .inv-row .pct{width:64px;text-align:right;font-family:var(--mono);font-size:12.5px;padding:3px 6px;
+  .inv-row .pct{width:56px;text-align:right;font-family:var(--mono);font-size:12.5px;padding:3px 6px;
     border:1px solid rgba(43,38,34,.16);border-radius:5px;background:#fff}
   .inv-num{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#9b9488}
   .inv-list{display:grid;gap:2px;max-height:320px;overflow:auto}
@@ -1808,9 +1810,11 @@ function closeInvoiceStudio(){
 }
 
 /* live preview: the real file, rebuilt on a debounce */
-function invQueuePreview(){
+function invQueuePreview(now){
   clearTimeout(invS.timer);
   const p=document.getElementById("ivsPending"); if(p) p.classList.add("on");
+  // Long enough not to rebuild mid-word, short enough to still feel connected.
+  // Leaving a field rebuilds at once, so tabbing through never waits.
   invS.timer=setTimeout(async()=>{
     try{
       const { bytes, width, height }=await invoicePDF(invS.v);
@@ -1821,7 +1825,7 @@ function invQueuePreview(){
       invS.url=url;
     }catch(e){ /* keep the last good preview on screen */ }
     if(p) p.classList.remove("on");
-  }, 400);
+  }, now ? 0 : 1500);
 }
 
 function invRenderForm(){
@@ -1835,7 +1839,7 @@ function invRenderForm(){
   el.querySelectorAll("#ivsKinds button").forEach(b=>b.onclick=()=>{
     v.kind=b.dataset.k;
     if(v.kind==="wholesale") v.tax_pct=0; else if(!Number(v.tax_pct)) v.tax_pct=INV_TAX_DEFAULT;
-    invRenderForm(); invQueuePreview();
+    invRenderForm(); invQueuePreview(true);
   });
 
   const m=invMath(v);
@@ -1852,7 +1856,9 @@ function invRenderForm(){
     <div><label>Note</label><input id="fNote" value="${esc(v.notes||"")}" placeholder="Prints at the foot" ${ro?"disabled":""}></div>
     ${ro?`<div class="inv-num">Retail invoices come from the shop and are kept as issued.</div>`:""}`;
 
-  const bind=(id,key)=>{ const e=el.querySelector(id); if(e) e.oninput=()=>{ v[key]=e.value; invQueuePreview(); }; };
+  const bind=(id,key)=>{ const e=el.querySelector(id); if(!e) return;
+    e.oninput=()=>{ v[key]=e.value; invQueuePreview(); };
+    e.onblur=()=>invQueuePreview(true); };
   bind("#fTo","bill_to"); bind("#fEmail","bill_email"); bind("#fAddr","bill_addr");
   bind("#fNote","notes"); bind("#fDate","issued_on");
 
@@ -1873,10 +1879,14 @@ function invRenderForm(){
       const i=+row.dataset.i;
       row.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>{
         v.items[i].qty=Math.max(1,(Number(v.items[i].qty)||1)+Number(b.dataset.step));
-        lines(); totals(); invQueuePreview(); });
+        lines(); totals(); invQueuePreview(true); });
       row.querySelector(".q").oninput=e=>{ v.items[i].qty=e.target.value.replace(/[^0-9]/g,""); totals(); invQueuePreview(); };
-      row.querySelector(".dsc").oninput=e=>{ v.items[i].desc=e.target.value; invQueuePreview(); };
-      row.querySelector(".unit").oninput=e=>{ v.items[i].unit=e.target.value.replace(/[^0-9.]/g,""); totals(); invQueuePreview(); };
+      const dsc=row.querySelector(".dsc");
+      dsc.oninput=e=>{ v.items[i].desc=e.target.value; invQueuePreview(); };
+      dsc.onblur=()=>invQueuePreview(true);
+      const unit=row.querySelector(".unit");
+      unit.oninput=e=>{ v.items[i].unit=e.target.value.replace(/[^0-9.]/g,""); totals(); invQueuePreview(); };
+      unit.onblur=()=>invQueuePreview(true);
       const d=row.querySelector(".inv-del");
       if(d) d.onclick=()=>{ if(v.items.length<2) return; v.items.splice(i,1); lines(); totals(); invQueuePreview(); };
     });
