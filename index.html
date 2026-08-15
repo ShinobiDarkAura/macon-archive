@@ -613,10 +613,12 @@
   .ivs-win{width:95vw;height:95vh;background:var(--row-alt,#f6f2e8);border-radius:18px;overflow:hidden;
     display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(30,22,14,.35)}
   .ivs-head{display:flex;align-items:center;gap:16px;padding:14px 18px;border-bottom:1px solid rgba(43,38,34,.10);background:transparent}
+  .ivs-head .btn{border-radius:8px}
+  .ivs-kinds button{border-radius:8px}
   .ivs-h1{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#6f6655}
   .ivs-num{font-family:var(--mono);font-size:12px;color:var(--notes,#C04722);letter-spacing:.06em}
   .ivs-head .sp{flex:1}
-  .ivs-body{flex:1;display:grid;grid-template-columns:304px minmax(0,1fr) 268px;min-height:0}
+  .ivs-body{flex:1;display:grid;grid-template-columns:410px minmax(0,1fr) 268px;min-height:0}
   .ivs-form{overflow-x:hidden;overflow-y:auto;padding:18px;border-right:1px solid rgba(43,38,34,.10);display:grid;gap:13px;align-content:start}
   .ivs-preview{min-width:0;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(43,38,34,.05)}
   .ivs-sheets{width:100%;height:100%;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:16px}
@@ -644,8 +646,8 @@
   .ivs-gcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
   .ivs-empty{color:#9b9488;font-family:var(--serif-soul);font-style:italic;font-size:15px;padding:30px 0}
   /* the archive narrows before it ever disappears */
-  @media(max-width:1240px){ .ivs-body{grid-template-columns:286px minmax(0,1fr) 218px} }
-  @media(max-width:1020px){ .ivs-body{grid-template-columns:272px minmax(0,1fr)} .ivs-arc{display:none} }
+  @media(max-width:1320px){ .ivs-body{grid-template-columns:386px minmax(0,1fr) 218px} }
+  @media(max-width:1080px){ .ivs-body{grid-template-columns:366px minmax(0,1fr)} .ivs-arc{display:none} }
 
   /* ---------- Invoice maker ---------- */
   .inv-form{display:grid;gap:14px}
@@ -658,7 +660,20 @@
   .inv-form input,.inv-form textarea,.ivs-form input,.ivs-form textarea{width:100%;box-sizing:border-box;font-family:var(--sans);font-size:13.5px;padding:8px 10px;
     border:1px solid rgba(43,38,34,.16);border-radius:7px;background:#fff;color:var(--ink)}
   .inv-lines{display:grid;gap:7px}
-  .inv-line{display:grid;grid-template-columns:78px minmax(0,1fr) 74px 22px;gap:7px;align-items:center}
+  .inv-line{display:grid;grid-template-columns:minmax(0,1fr) 112px 20px;gap:8px;align-items:center}
+  .li-main{display:flex;align-items:stretch;border:1px solid rgba(43,38,34,.16);border-radius:7px;background:#fff;overflow:hidden;height:36px}
+  .li-main:focus-within{border-color:rgba(43,38,34,.34)}
+  .li-qty{display:flex;align-items:center;padding:0 3px 0 9px;font-family:var(--mono);font-size:12.5px;color:var(--ink);
+    background:rgba(43,38,34,.045);white-space:nowrap;user-select:none}
+  .li-steps{display:flex;flex-direction:column;justify-content:center;background:rgba(43,38,34,.045);padding-right:6px;gap:1px}
+  .li-steps button{width:14px;height:12px;border:none;background:transparent;cursor:pointer;color:#8b8375;
+    font-size:8px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center}
+  .li-steps button:hover{color:var(--ink)}
+  .li-main .dsc{border:none;border-radius:0;height:100%;padding-left:9px}
+  .li-price{display:flex;align-items:center;border:1px solid rgba(43,38,34,.16);border-radius:7px;background:#fff;height:36px;overflow:hidden}
+  .li-price:focus-within{border-color:rgba(43,38,34,.34)}
+  .li-price .cur{padding:0 1px 0 9px;font-family:var(--mono);font-size:13px;color:#8b8375}
+  .li-price .unit{border:none;border-radius:0;height:100%;padding:0 8px 0 2px;font-family:var(--mono);font-size:13px}
   .inv-qty{display:flex;align-items:center;border:1px solid rgba(43,38,34,.16);border-radius:7px;background:#fff;overflow:hidden;height:35px}
   .inv-qty button{width:26px;height:100%;border:none;background:transparent;cursor:pointer;color:#8b8375;font-size:15px;line-height:1}
   .inv-qty button:hover{background:rgba(43,38,34,.06);color:var(--ink)}
@@ -670,9 +685,15 @@
   .inv-addline:hover{color:var(--ink);border-color:rgba(43,38,34,.4)}
   .inv-totals{border-top:1px solid rgba(43,38,34,.12);padding-top:12px;display:grid;gap:6px}
   .inv-row{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:12.5px;color:#6f6655}
-  .inv-row.grand{font-size:17px;color:var(--notes,#C04722);padding-top:6px}
-  .inv-row .pct{width:56px;text-align:right;font-family:var(--mono);font-size:12.5px;padding:3px 6px;
+  .inv-row .lb{display:inline-flex;align-items:center;gap:7px}
+  .inv-row .lb>span:first-child{display:inline-block;width:62px}
+  .inv-row.grand{font-size:14px;color:var(--notes,#C04722);margin-top:8px;padding:9px 11px;
+    background:rgba(43,38,34,.055);border-radius:8px}
+  .inv-row .pct{width:46px;text-align:right;font-family:var(--mono);font-size:12.5px;padding:3px 6px;
     border:1px solid rgba(43,38,34,.16);border-radius:5px;background:#fff}
+  .ivs-form .note-f{background:rgba(43,38,34,.035);border-color:transparent;color:#6f6655;font-style:italic}
+  .ivs-form .note-f:hover{border-color:rgba(43,38,34,.16);background:#fff}
+  .ivs-form .note-f:focus{border-color:rgba(43,38,34,.34);background:#fff;color:var(--ink);font-style:normal}
   .inv-num{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#9b9488}
   .inv-list{display:grid;gap:2px;max-height:320px;overflow:auto}
   .inv-item{display:grid;grid-template-columns:74px 1fr 92px 88px;gap:10px;align-items:center;padding:9px 10px;border-radius:7px;cursor:pointer}
@@ -1697,7 +1718,7 @@ let invDraft = null;
 function invBlank(kind){
   return { kind, issued_on:new Date().toLocaleDateString("en-CA"), bill_to:"", bill_email:"",
            bill_addr:"", items:[{desc:"",qty:1,unit:0}],
-           discount_pct:0, tax_pct: kind==="wholesale"?0:INV_TAX_DEFAULT, notes:"" };
+           discount_pct:0, tax_pct: kind==="wholesale"?0:INV_TAX_DEFAULT, notes:"Net 30. Thank you." };
 }
 function invMath(v){
   const sub = (v.items||[]).reduce((a,l)=>a + (Number(l.qty)||0) * (Number(l.unit)||0), 0);
@@ -1887,45 +1908,42 @@ function invRenderForm(){
 
   const m=invMath(v);
   el.querySelector("#ivsForm").innerHTML=`
-    <div><label>Bill to</label><input id="fTo" value="${esc(v.bill_to||"")}" placeholder="Person or shop" ${ro?"disabled":""}></div>
-    <div class="inv-grid2">
-      <div><label>Email</label><input id="fEmail" value="${esc(v.bill_email||"")}" ${ro?"disabled":""}></div>
+    <div class="inv-grid2" style="grid-template-columns:minmax(0,1fr) 150px">
+      <div><label>Bill to</label><input id="fTo" value="${esc(v.bill_to||"")}" placeholder="Person or shop" ${ro?"disabled":""}></div>
       <div><label>Date</label><input id="fDate" type="date" value="${esc(v.issued_on||"")}" ${ro?"disabled":""}></div>
     </div>
-    <div><label>Address</label><input id="fAddr" value="${esc(v.bill_addr||"")}" placeholder="Optional" ${ro?"disabled":""}></div>
     <div><label>Line items</label><div class="inv-lines" id="fLines"></div></div>
     ${ro?"":`<button class="inv-addline" id="fAdd">+ Add line</button>`}
     <div class="inv-totals" id="fTotals"></div>
-    <div><label>Note</label><input id="fNote" value="${esc(v.notes||"")}" placeholder="Prints at the foot" ${ro?"disabled":""}></div>
+    <div><label>Note</label><input class="note-f" id="fNote" value="${esc(v.notes||"")}" placeholder="Prints at the foot" ${ro?"disabled":""}></div>
     ${ro?`<div class="inv-num">Retail invoices come from the shop and are kept as issued.</div>`:""}`;
 
   const bind=(id,key)=>{ const e=el.querySelector(id); if(!e) return;
     e.oninput=()=>{ v[key]=e.value; };
     e.onblur=()=>invQueuePreview(true); };
-  bind("#fTo","bill_to"); bind("#fEmail","bill_email"); bind("#fAddr","bill_addr");
+  bind("#fTo","bill_to");
   bind("#fNote","notes"); bind("#fDate","issued_on");
 
   const lines=()=>{
     const box=el.querySelector("#fLines");
     box.innerHTML=(v.items||[]).map((l,i)=>`
       <div class="inv-line" data-i="${i}">
-        <div class="inv-qty">
-          ${ro?"":'<button data-step="-1" type="button">&minus;</button>'}
-          <input class="q" value="${esc(String(l.qty??1))}" inputmode="numeric" ${ro?"disabled":""}>
-          ${ro?"":'<button data-step="1" type="button">+</button>'}
+        <div class="li-main">
+          <span class="li-qty">${esc(String(Number(l.qty)||1))}x</span>
+          ${ro?"":'<span class="li-steps"><button data-step="1" type="button" title="More">&#9650;</button><button data-step="-1" type="button" title="Fewer">&#9660;</button></span>'}
+          <input class="dsc" value="${esc(l.desc||"")}" placeholder="Description of service" ${ro?"disabled":""}>
         </div>
-        <input class="dsc" value="${esc(l.desc||"")}" placeholder="Description of service" ${ro?"disabled":""}>
-        <input class="unit" value="${esc(String(l.unit??0))}" inputmode="decimal" ${ro?"disabled":""}>
+        <div class="li-price"><span class="cur">$</span><input class="unit" value="${esc(String(l.unit??0))}"
+          inputmode="decimal" maxlength="8" placeholder="0" ${ro?"disabled":""}></div>
         ${ro?"<span></span>":'<button class="inv-del" type="button" title="Remove">&times;</button>'}
       </div>`).join("");
     box.querySelectorAll(".inv-line").forEach(row=>{
       const i=+row.dataset.i;
       row.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>{
         v.items[i].qty=Math.max(1,(Number(v.items[i].qty)||1)+Number(b.dataset.step));
-        lines(); totals(); invQueuePreview(true); });
-      const q=row.querySelector(".q");
-      q.oninput=e=>{ v.items[i].qty=e.target.value.replace(/[^0-9]/g,""); totals(); };
-      q.onblur=()=>invQueuePreview(true);
+        row.querySelector(".li-qty").textContent=(Number(v.items[i].qty)||1)+"x";
+        totals(); invQueuePreview(true); });
+
       const dsc=row.querySelector(".dsc");
       dsc.oninput=e=>{ v.items[i].desc=e.target.value; };
       dsc.onblur=()=>invQueuePreview(true);
@@ -1940,9 +1958,9 @@ function invRenderForm(){
     const t=invMath(v);
     el.querySelector("#fTotals").innerHTML=`
       <div class="inv-row"><span>Subtotal</span><span>${invMoney(t.sub)}</span></div>
-      <div class="inv-row"><span>Discount <input class="pct" id="fDisc" value="${esc(String(v.discount_pct||0))}" inputmode="decimal" ${ro?"disabled":""}> %</span>
+      <div class="inv-row"><span class="lb"><span>Discount</span><input class="pct" id="fDisc" value="${esc(String(v.discount_pct||0))}" inputmode="decimal" maxlength="3" ${ro?"disabled":""}>%</span>
         <span>${t.disc?"&minus;"+invMoney(t.disc):invMoney(0)}</span></div>
-      <div class="inv-row"><span>Tax <input class="pct" id="fTax" value="${esc(String(v.tax_pct||0))}" inputmode="decimal" ${ro?"disabled":""}> %</span>
+      <div class="inv-row"><span class="lb"><span>Tax</span><input class="pct" id="fTax" value="${esc(String(v.tax_pct||0))}" inputmode="decimal" maxlength="3" ${ro?"disabled":""}>%</span>
         <span>${invMoney(t.tax)}</span></div>
       <div class="inv-row grand"><span>Total due</span><span>${invMoney(t.total)}</span></div>`;
     const d=el.querySelector("#fDisc"), x=el.querySelector("#fTax");
