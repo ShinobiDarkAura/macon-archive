@@ -607,6 +607,79 @@
   .ig-wrap input{padding-left:25px;padding-right:34px;width:100%}
   .ig-wrap .ig-open{position:absolute;right:12px;color:#3a7bd5;display:flex;line-height:0;text-decoration:none}
   .ig-wrap .ig-open:hover{color:#2c63ad}
+  /* ---------- Invoice studio ---------- */
+  .ivs{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(30,26,22,.42);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+  .ivs.on{display:flex}
+  .ivs-win{width:95vw;height:95vh;background:var(--row-alt,#f6f2e8);border-radius:18px;overflow:hidden;
+    display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(30,22,14,.35)}
+  .ivs-head{display:flex;align-items:center;gap:16px;padding:14px 18px;border-bottom:1px solid rgba(43,38,34,.10);background:transparent}
+  .ivs-h1{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#6f6655}
+  .ivs-num{font-family:var(--mono);font-size:12px;color:var(--notes,#C04722);letter-spacing:.06em}
+  .ivs-head .sp{flex:1}
+  .ivs-body{flex:1;display:grid;grid-template-columns:284px minmax(0,1fr) 268px;min-height:0}
+  .ivs-form{overflow:auto;padding:18px;border-right:1px solid rgba(43,38,34,.10);display:grid;gap:13px;align-content:start}
+  .ivs-preview{min-width:0;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(43,38,34,.05)}
+  .ivs-preview iframe{width:100%;height:auto;aspect-ratio:792/612;/* replaced per render */max-height:100%;border:none;border-radius:6px;background:#fff;box-shadow:0 8px 30px rgba(30,22,14,.18)}
+  .ivs-pending{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;color:#9b9488;opacity:0;transition:opacity .2s}
+  .ivs-pending.on{opacity:1}
+  .ivs-arc{overflow:auto;border-left:1px solid rgba(43,38,34,.10);padding:16px 14px;display:grid;gap:8px;align-content:start}
+  .ivs-arc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+  .ivs-arc-head .t{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#9b9488}
+  .ivs-card{border:1px solid rgba(43,38,34,.09);background:#fff;border-radius:10px;padding:10px 12px;cursor:pointer;transition:.15s}
+  .ivs-card:hover{box-shadow:0 4px 14px rgba(40,28,16,.10);transform:translateY(-1px)}
+  .ivs-card.on{border-color:var(--notes,#C04722)}
+  .ivs-card .n{font-family:var(--mono);font-size:11px;color:var(--notes,#C04722)}
+  .ivs-card .w{font-family:var(--sans);font-size:13px;color:var(--ink);margin:2px 0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ivs-card .f{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:#9b9488}
+  .ivs-grid{position:absolute;inset:0;background:var(--row-alt,#f6f2e8);display:none;flex-direction:column;padding:18px 22px}
+  .ivs-grid.on{display:flex}
+  .ivs-gtop{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .ivs-gtop input{flex:1;max-width:340px;font-family:var(--sans);font-size:13.5px;padding:8px 12px;
+    border:1px solid rgba(43,38,34,.16);border-radius:8px;background:#fff}
+  .ivs-gtop select{font-family:var(--sans);font-size:12.5px;padding:8px 10px;border:1px solid rgba(43,38,34,.16);border-radius:8px;background:#fff}
+  .ivs-gwrap{flex:1;overflow:auto}
+  .ivs-gcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+  .ivs-empty{color:#9b9488;font-family:var(--serif-soul);font-style:italic;font-size:15px;padding:30px 0}
+  @media(max-width:1180px){ .ivs-body{grid-template-columns:280px minmax(0,1fr)} .ivs-arc{display:none} }
+
+  /* ---------- Invoice maker ---------- */
+  @font-face{font-family:"TAY Flapjack";src:url("fonts/tay-flapjack.woff") format("woff");font-display:swap}
+  @font-face{font-family:"TAY Birdie";src:url("fonts/tay-birdie.woff") format("woff");font-display:swap}
+  @font-face{font-family:"Loma";src:url("fonts/loma.woff2") format("woff2");font-display:swap}
+  @font-face{font-family:"Gabriele";src:url("fonts/gabriele-l.woff2") format("woff2");font-display:swap}
+  .inv-form{display:grid;gap:14px}
+  .inv-kinds{display:flex;gap:8px}
+  .inv-kinds button{flex:1;height:36px;border:1px solid rgba(43,38,34,.18);background:transparent;border-radius:8px;cursor:pointer;
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#7c7568;transition:.15s}
+  .inv-kinds button.on{background:var(--notes,#C04722);border-color:transparent;color:#fff}
+  .inv-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .inv-form label{display:block;font-family:var(--sans);font-size:11.5px;color:#8b8375;margin-bottom:4px}
+  .inv-form input,.inv-form textarea{width:100%;font-family:var(--sans);font-size:13.5px;padding:8px 10px;
+    border:1px solid rgba(43,38,34,.16);border-radius:7px;background:#fff;color:var(--ink)}
+  .inv-lines{display:grid;gap:7px}
+  .inv-line{display:grid;grid-template-columns:96px 1fr 92px 28px;gap:8px;align-items:center}
+  .inv-qty{display:flex;align-items:center;border:1px solid rgba(43,38,34,.16);border-radius:7px;background:#fff;overflow:hidden;height:35px}
+  .inv-qty button{width:26px;height:100%;border:none;background:transparent;cursor:pointer;color:#8b8375;font-size:15px;line-height:1}
+  .inv-qty button:hover{background:rgba(43,38,34,.06);color:var(--ink)}
+  .inv-qty input{border:none;text-align:center;padding:0;font-family:var(--mono);font-size:13px;width:100%}
+  .inv-del{border:none;background:transparent;color:#c9c2b4;cursor:pointer;font-size:17px;line-height:1}
+  .inv-del:hover{color:var(--notes,#C04722)}
+  .inv-addline{justify-self:start;border:1px dashed rgba(43,38,34,.22);background:transparent;border-radius:7px;padding:6px 12px;
+    cursor:pointer;font-family:var(--sans);font-size:12px;color:#8b8375}
+  .inv-addline:hover{color:var(--ink);border-color:rgba(43,38,34,.4)}
+  .inv-totals{border-top:1px solid rgba(43,38,34,.12);padding-top:12px;display:grid;gap:6px}
+  .inv-row{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:12.5px;color:#6f6655}
+  .inv-row.grand{font-size:17px;color:var(--notes,#C04722);padding-top:6px}
+  .inv-row .pct{width:64px;text-align:right;font-family:var(--mono);font-size:12.5px;padding:3px 6px;
+    border:1px solid rgba(43,38,34,.16);border-radius:5px;background:#fff}
+  .inv-num{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#9b9488}
+  .inv-list{display:grid;gap:2px;max-height:320px;overflow:auto}
+  .inv-item{display:grid;grid-template-columns:74px 1fr 92px 88px;gap:10px;align-items:center;padding:9px 10px;border-radius:7px;cursor:pointer}
+  .inv-item:hover{background:rgba(43,38,34,.045)}
+  .inv-item .n{font-family:var(--mono);font-size:11.5px;color:var(--notes,#C04722)}
+  .inv-item .w{font-family:var(--sans);font-size:13px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .inv-item .d,.inv-item .t{font-family:var(--mono);font-size:11.5px;color:#8b8375;text-align:right}
   /* Guidance panel in the draft modal: what to do before this email goes out */
   .dtips{margin:-6px 0 22px;padding:13px 15px 14px;background:rgba(162,84,58,.07);border-radius:8px;border-left:2px solid rgba(162,84,58,.35)}
   .dtips-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:#a2543a;margin-bottom:8px}
@@ -728,6 +801,7 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
       <button class="btn ghost" id="composeBtn" title="Compose"><span class="bl">Compose</span><span class="bi"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="m2.5 17.5.9-3.6L13.6 3.7a1.6 1.6 0 0 1 2.3 0l.4.4a1.6 1.6 0 0 1 0 2.3L6.1 16.6l-3.6.9Z"/></svg></span></button>
       <button class="btn ghost" id="exportBtn" title="Export CSV"><span class="bl">Export CSV</span><span class="bi"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M10 3.5V13M6.5 9.5 10 13l3.5-3.5M3.5 13.5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2"/></svg></span></button>
       <button class="btn ghost" id="importBtn" title="Import CSV"><span class="bl">Import CSV</span><span class="bi"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M10 13V3.5M6.5 7 10 3.5 13.5 7M3.5 13.5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2"/></svg></span></button>
+      <button class="btn ghost" id="invBtn" title="Invoices"><span class="bl">Invoices</span><span class="bi"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M5 2.5h10v15l-2.5-1.6-2.5 1.6-2.5-1.6L5 17.5z"/><path d="M8 7h4M8 10.5h4"/></svg></span></button>
       <button class="btn" id="addBtn" title="New Entry"><span class="bl">+ New Entry</span><span class="bi"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 4v12M4 10h12"/></svg></span></button>
       <div class="tabs" id="tabs">
         <button data-tab="ledger" class="on" title="Ledger"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="3.6" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="3.6" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="3.6" cy="18" r="1.2" fill="currentColor" stroke="none"/></svg></button>
@@ -1605,6 +1679,543 @@ function markContacted(i){
   persist({...d, last_contact:today, story: d.story==="Yes"?d.story:"Asked"}, false);
 }
 
+/* ================= Invoice maker =================
+   Three independent sequences (R/W/C) allocated server-side by new_invoice().
+   Retail invoices are written by the Wix webhook and are read-only here; the
+   keepers only ever hand-fill wholesale and custom.
+   PDF is generated with pdf-lib, which embeds OTF/CFF outlines directly, so the
+   text in the file is real selectable text in the studio's own faces. */
+
+const INV_TAX_DEFAULT = 9.5;            // LA County. Editable per invoice.
+const INV_PAPER = "#FEFCF6", INV_INK = "#1C1A18",
+      INV_ORANGE = "#E2661C", INV_LABEL = "#9C8F76", INV_RULE = "#E3DED0";
+const INV_KINDS = [["wholesale","Wholesale"],["custom","Custom"],["retail","Retail"]];
+
+let invoices = [];
+let invDraft = null;
+
+function invBlank(kind){
+  return { kind, issued_on:new Date().toLocaleDateString("en-CA"), bill_to:"", bill_email:"",
+           bill_addr:"", items:[{desc:"",qty:1,unit:0}],
+           discount_pct:0, tax_pct: kind==="wholesale"?0:INV_TAX_DEFAULT, notes:"" };
+}
+function invMath(v){
+  const sub = (v.items||[]).reduce((a,l)=>a + (Number(l.qty)||0) * (Number(l.unit)||0), 0);
+  const disc = sub * (Number(v.discount_pct)||0) / 100;
+  const taxed = sub - disc;
+  const tax = taxed * (Number(v.tax_pct)||0) / 100;
+  return { sub, disc, taxed, tax, total: taxed + tax };
+}
+function invMoney(n){
+  const r = Math.round(n*100)/100;
+  return "$" + (Number.isInteger(r) ? r.toLocaleString("en-US")
+    : r.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}));
+}
+function invDate(s){
+  const t = Date.parse((s||"")+"T00:00:00"); if(isNaN(t)) return "";
+  const d = new Date(t), p = n => String(n).padStart(2,"0");
+  return `${p(d.getMonth()+1)}.${p(d.getDate())}.${String(d.getFullYear()).slice(2)}`;
+}
+
+/* ---------- list ---------- */
+async function loadInvoices(){
+  if(!(synced&&sb)) return;
+  const { data:rows, error } = await sb.from("invoices").select("*").order("created_at",{ascending:false});
+  if(!error) invoices = rows||[];
+}
+/* ---------- Invoice studio ----------
+   One screen: fields on the left, the real PDF live in the middle, the archive
+   on the right. The preview is the actual generated file rather than an HTML
+   lookalike, so there is a single renderer and nothing can drift between what
+   you see here and what the stockist opens. */
+
+let invS = { v:null, saved:false, url:null, timer:null, sel:null, q:"", sort:"date" };
+
+function invStudioEl(){
+  let el=document.getElementById("invStudio");
+  if(el) return el;
+  el=document.createElement("div");
+  el.className="ivs"; el.id="invStudio";
+  el.innerHTML=`
+    <div class="ivs-win" style="position:relative">
+      <div class="ivs-head">
+        <span class="ivs-h1">Artifact Requisition</span>
+        <span class="ivs-num" id="ivsNum"></span>
+        <div class="inv-kinds" id="ivsKinds" style="width:220px"></div>
+        <span class="sp"></span>
+        <button class="btn ghost" id="ivsNew">+ New</button>
+        <button class="btn ghost" id="ivsPdf">Download PDF</button>
+        <button class="btn" id="ivsSave">Save</button>
+        <button class="btn ghost" id="ivsClose" style="width:40px;padding:0;font-size:17px">&times;</button>
+      </div>
+      <div class="ivs-body">
+        <aside class="ivs-form" id="ivsForm"></aside>
+        <main class="ivs-preview" style="position:relative">
+          <iframe id="ivsFrame" title="Invoice preview"></iframe>
+          <div class="ivs-pending" id="ivsPending">Setting type…</div>
+        </main>
+        <aside class="ivs-arc">
+          <div class="ivs-arc-head"><span class="t">Archive</span>
+            <button class="btn ghost tiny" id="ivsExpand" style="height:24px">All</button></div>
+          <div id="ivsArc"></div>
+        </aside>
+      </div>
+      <div class="ivs-grid" id="ivsGrid">
+        <div class="ivs-gtop">
+          <input id="ivsQ" placeholder="Search by number, name or amount">
+          <select id="ivsSort">
+            <option value="date">Newest first</option>
+            <option value="old">Oldest first</option>
+            <option value="high">Largest amount</option>
+            <option value="low">Smallest amount</option>
+          </select>
+          <span class="sp" style="flex:1"></span>
+          <button class="btn ghost" id="ivsGridClose">Close</button>
+        </div>
+        <div class="ivs-gwrap"><div class="ivs-gcards" id="ivsCards"></div></div>
+      </div>
+    </div>`;
+  document.body.appendChild(el);
+  return el;
+}
+
+async function openInvoiceStudio(seed){
+  const el=invStudioEl();
+  el.classList.add("on");
+  invS.v = seed || invBlank("wholesale");
+  invS.saved = !!(seed && seed.id);
+  await loadInvoices();
+  invRenderForm(); invRenderArc(); invQueuePreview();
+
+  el.querySelector("#ivsClose").onclick=closeInvoiceStudio;
+  el.querySelector("#ivsNew").onclick=()=>{ invS.v=invBlank("wholesale"); invS.saved=false; invS.sel=null;
+    invRenderForm(); invRenderArc(); invQueuePreview(); };
+  el.querySelector("#ivsPdf").onclick=async e=>{
+    const b=e.currentTarget, o=b.textContent; b.textContent="Building…"; b.disabled=true;
+    try{ await invoiceDownload(invS.v); } catch(err){ alert("Could not build the PDF: "+err.message); }
+    b.textContent=o; b.disabled=false;
+  };
+  el.querySelector("#ivsSave").onclick=invSave;
+  el.querySelector("#ivsExpand").onclick=()=>{ el.querySelector("#ivsGrid").classList.add("on"); invRenderGrid(); };
+  el.querySelector("#ivsGridClose").onclick=()=>el.querySelector("#ivsGrid").classList.remove("on");
+  el.querySelector("#ivsQ").oninput=e=>{ invS.q=e.target.value; invRenderGrid(); };
+  el.querySelector("#ivsSort").onchange=e=>{ invS.sort=e.target.value; invRenderGrid(); };
+}
+function closeInvoiceStudio(){
+  const el=document.getElementById("invStudio"); if(el) el.classList.remove("on");
+  if(invS.url){ URL.revokeObjectURL(invS.url); invS.url=null; }
+  clearTimeout(invS.timer);
+}
+
+/* live preview: the real file, rebuilt on a debounce */
+function invQueuePreview(){
+  clearTimeout(invS.timer);
+  const p=document.getElementById("ivsPending"); if(p) p.classList.add("on");
+  invS.timer=setTimeout(async()=>{
+    try{
+      const { bytes, width, height }=await invoicePDF(invS.v);
+      const url=URL.createObjectURL(new Blob([bytes],{type:"application/pdf"}));
+      const f=document.getElementById("ivsFrame");
+      if(f){ f.style.aspectRatio=width+"/"+height; f.src=url+"#toolbar=0&navpanes=0&view=Fit"; }
+      if(invS.url) URL.revokeObjectURL(invS.url);
+      invS.url=url;
+    }catch(e){ /* keep the last good preview on screen */ }
+    if(p) p.classList.remove("on");
+  }, 400);
+}
+
+function invRenderForm(){
+  const el=document.getElementById("invStudio"); if(!el) return;
+  const v=invS.v, ro = v.kind==="retail";
+  el.querySelector("#ivsNum").textContent = v.number || "unsaved";
+  el.querySelector("#ivsSave").style.display = (ro||invS.saved) ? "none" : "";
+  el.querySelector("#ivsKinds").innerHTML = (ro||invS.saved) ? "" :
+    INV_KINDS.filter(k=>k[0]!=="retail")
+      .map(([k,l])=>`<button data-k="${k}" class="${v.kind===k?"on":""}">${l}</button>`).join("");
+  el.querySelectorAll("#ivsKinds button").forEach(b=>b.onclick=()=>{
+    v.kind=b.dataset.k;
+    if(v.kind==="wholesale") v.tax_pct=0; else if(!Number(v.tax_pct)) v.tax_pct=INV_TAX_DEFAULT;
+    invRenderForm(); invQueuePreview();
+  });
+
+  const m=invMath(v);
+  el.querySelector("#ivsForm").innerHTML=`
+    <div><label>Bill to</label><input id="fTo" value="${esc(v.bill_to||"")}" placeholder="Person or shop" ${ro?"disabled":""}></div>
+    <div class="inv-grid2">
+      <div><label>Email</label><input id="fEmail" value="${esc(v.bill_email||"")}" ${ro?"disabled":""}></div>
+      <div><label>Date</label><input id="fDate" type="date" value="${esc(v.issued_on||"")}" ${ro?"disabled":""}></div>
+    </div>
+    <div><label>Address</label><input id="fAddr" value="${esc(v.bill_addr||"")}" placeholder="Optional" ${ro?"disabled":""}></div>
+    <div><label>Line items</label><div class="inv-lines" id="fLines"></div></div>
+    ${ro?"":`<button class="inv-addline" id="fAdd">+ Add line</button>`}
+    <div class="inv-totals" id="fTotals"></div>
+    <div><label>Note</label><input id="fNote" value="${esc(v.notes||"")}" placeholder="Prints at the foot" ${ro?"disabled":""}></div>
+    ${ro?`<div class="inv-num">Retail invoices come from the shop and are kept as issued.</div>`:""}`;
+
+  const bind=(id,key)=>{ const e=el.querySelector(id); if(e) e.oninput=()=>{ v[key]=e.value; invQueuePreview(); }; };
+  bind("#fTo","bill_to"); bind("#fEmail","bill_email"); bind("#fAddr","bill_addr");
+  bind("#fNote","notes"); bind("#fDate","issued_on");
+
+  const lines=()=>{
+    const box=el.querySelector("#fLines");
+    box.innerHTML=(v.items||[]).map((l,i)=>`
+      <div class="inv-line" data-i="${i}">
+        <div class="inv-qty">
+          ${ro?"":'<button data-step="-1" type="button">&minus;</button>'}
+          <input class="q" value="${esc(String(l.qty??1))}" inputmode="numeric" ${ro?"disabled":""}>
+          ${ro?"":'<button data-step="1" type="button">+</button>'}
+        </div>
+        <input class="dsc" value="${esc(l.desc||"")}" placeholder="Description of service" ${ro?"disabled":""}>
+        <input class="unit" value="${esc(String(l.unit??0))}" inputmode="decimal" ${ro?"disabled":""}>
+        ${ro?"<span></span>":'<button class="inv-del" type="button" title="Remove">&times;</button>'}
+      </div>`).join("");
+    box.querySelectorAll(".inv-line").forEach(row=>{
+      const i=+row.dataset.i;
+      row.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>{
+        v.items[i].qty=Math.max(1,(Number(v.items[i].qty)||1)+Number(b.dataset.step));
+        lines(); totals(); invQueuePreview(); });
+      row.querySelector(".q").oninput=e=>{ v.items[i].qty=e.target.value.replace(/[^0-9]/g,""); totals(); invQueuePreview(); };
+      row.querySelector(".dsc").oninput=e=>{ v.items[i].desc=e.target.value; invQueuePreview(); };
+      row.querySelector(".unit").oninput=e=>{ v.items[i].unit=e.target.value.replace(/[^0-9.]/g,""); totals(); invQueuePreview(); };
+      const d=row.querySelector(".inv-del");
+      if(d) d.onclick=()=>{ if(v.items.length<2) return; v.items.splice(i,1); lines(); totals(); invQueuePreview(); };
+    });
+  };
+  const totals=()=>{
+    const t=invMath(v);
+    el.querySelector("#fTotals").innerHTML=`
+      <div class="inv-row"><span>Subtotal</span><span>${invMoney(t.sub)}</span></div>
+      <div class="inv-row"><span>Discount <input class="pct" id="fDisc" value="${esc(String(v.discount_pct||0))}" inputmode="decimal" ${ro?"disabled":""}> %</span>
+        <span>${t.disc?"&minus;"+invMoney(t.disc):invMoney(0)}</span></div>
+      <div class="inv-row"><span>Tax <input class="pct" id="fTax" value="${esc(String(v.tax_pct||0))}" inputmode="decimal" ${ro?"disabled":""}> %</span>
+        <span>${invMoney(t.tax)}</span></div>
+      <div class="inv-row grand"><span>Total due</span><span>${invMoney(t.total)}</span></div>`;
+    const d=el.querySelector("#fDisc"), x=el.querySelector("#fTax");
+    if(d&&!ro) d.oninput=e=>{ v.discount_pct=e.target.value.replace(/[^0-9.]/g,""); totals(); invQueuePreview(); };
+    if(x&&!ro) x.oninput=e=>{ v.tax_pct=e.target.value.replace(/[^0-9.]/g,""); totals(); invQueuePreview(); };
+  };
+  lines(); totals();
+  const add=el.querySelector("#fAdd");
+  if(add) add.onclick=()=>{ v.items.push({desc:"",qty:1,unit:0}); lines(); totals(); invQueuePreview(); };
+}
+
+const invCard=(x,sel)=>{
+  const t=invMath(x);
+  return `<div class="ivs-card${sel===x.id?" on":""}" data-id="${esc(x.id)}">
+    <div class="n">${esc(x.number)}</div>
+    <div class="w">${esc(x.bill_to||"—")}</div>
+    <div class="f"><span>${esc(invDate(x.issued_on))}</span><span>${esc(invMoney(t.total))}</span></div>
+  </div>`;
+};
+function invOpenSaved(id){
+  const x=invoices.find(i=>i.id===id); if(!x) return;
+  invS.v={...x}; invS.saved=true; invS.sel=id;
+  invRenderForm(); invRenderArc(); invQueuePreview();
+  const g=document.getElementById("ivsGrid"); if(g) g.classList.remove("on");
+}
+function invRenderArc(){
+  const box=document.getElementById("ivsArc"); if(!box) return;
+  box.innerHTML = invoices.length ? invoices.slice(0,40).map(x=>invCard(x,invS.sel)).join("")
+    : `<div class="ivs-empty">Nothing issued yet.</div>`;
+  box.querySelectorAll(".ivs-card").forEach(c=>c.onclick=()=>invOpenSaved(c.dataset.id));
+}
+function invRenderGrid(){
+  const box=document.getElementById("ivsCards"); if(!box) return;
+  const q=(invS.q||"").trim().toLowerCase();
+  let rows=invoices.filter(x=>{
+    if(!q) return true;
+    return [x.number,x.bill_to,invMoney(invMath(x).total),invDate(x.issued_on)]
+      .some(f=>String(f||"").toLowerCase().includes(q));
+  });
+  const amt=x=>invMath(x).total, day=x=>Date.parse(x.issued_on)||0;
+  rows.sort((a,b)=> invS.sort==="old" ? day(a)-day(b)
+                  : invS.sort==="high"? amt(b)-amt(a)
+                  : invS.sort==="low" ? amt(a)-amt(b)
+                  : day(b)-day(a));
+  box.innerHTML = rows.length ? rows.map(x=>invCard(x,invS.sel)).join("")
+    : `<div class="ivs-empty">${invoices.length ? "Nothing matches “"+esc(invS.q)+"”." : "Nothing issued yet."}</div>`;
+  box.querySelectorAll(".ivs-card").forEach(c=>c.onclick=()=>invOpenSaved(c.dataset.id));
+}
+
+async function invSave(e){
+  const b=e.currentTarget, v=invS.v;
+  b.disabled=true; b.textContent="Saving…";
+  try{
+    const { data, error } = await sb.rpc("new_invoice", { p: {
+      kind:v.kind, issued_on:v.issued_on, bill_to:v.bill_to, bill_email:v.bill_email,
+      bill_addr:v.bill_addr,
+      items:(v.items||[]).map(l=>({desc:l.desc,qty:Number(l.qty)||0,unit:Number(l.unit)||0})),
+      discount_pct:Number(v.discount_pct)||0, tax_pct:Number(v.tax_pct)||0, notes:v.notes }});
+    if(error) throw error;
+    invS.v={...data}; invS.saved=true; invS.sel=data.id;
+    await loadInvoices();
+    invRenderForm(); invRenderArc(); invQueuePreview();
+  }catch(err){ alert("Could not save: "+(err.message||err)); }
+  b.disabled=false; b.textContent="Save";
+}
+
+// Start an invoice from a person already in the ledger.
+function invoiceForCollector(i){
+  const d=data[i]; if(!d) return;
+  const v=invBlank("custom");
+  v.bill_to=d.name||""; v.bill_email=d.email||"";
+  v.bill_addr=d.location||"";
+  closeScrim();
+  openInvoiceStudio(v);
+}
+
+/* ---------- PDF plumbing ---------- */
+let _pdfLibReady=null;
+function loadPdfLib(){
+  if(_pdfLibReady) return _pdfLibReady;
+  const add=src=>new Promise((res,rej)=>{ const s=document.createElement("script");
+    s.src=src; s.onload=res; s.onerror=()=>rej(new Error("could not load "+src)); document.head.appendChild(s); });
+  _pdfLibReady=(async()=>{
+    if(!window.PDFLib)  await add("https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js");
+    if(!window.fontkit) await add("https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js");
+    return { PDFLib:window.PDFLib, fontkit:window.fontkit };
+  })();
+  return _pdfLibReady;
+}
+async function fontBytes(p){ const r=await fetch(p); if(!r.ok) throw new Error("missing font "+p); return new Uint8Array(await r.arrayBuffer()); }
+
+
+/* ---------- PDF ----------
+   One renderer, one source of truth. Everything that can overflow is measured
+   before it is drawn: descriptions wrap then ellipsize, the TO field shrinks to
+   fit before it truncates, the cost column sizes to its widest figure, and the
+   table paginates rather than running off the sheet. */
+
+// Trim a string to fit a width, ending in an ellipsis.
+function fitText(str, font, size, maxW){
+  str=String(str||"");
+  if(font.widthOfTextAtSize(str,size)<=maxW) return str;
+  let s=str;
+  while(s.length>1 && font.widthOfTextAtSize(s+"…",size)>maxW) s=s.slice(0,-1);
+  return s.replace(/\s+$/,"")+"…";
+}
+// Wrap to at most maxLines, ellipsizing the last line if anything is left over.
+function wrapText(str, font, size, maxW, maxLines){
+  const words=String(str||"").trim().split(/\s+/).filter(Boolean);
+  if(!words.length) return [];
+  const lines=[]; let cur="";
+  for(let i=0;i<words.length;i++){
+    const t=cur?cur+" "+words[i]:words[i];
+    if(font.widthOfTextAtSize(t,size)<=maxW){ cur=t; continue; }
+    if(cur){ lines.push(cur); cur=words[i]; }
+    else { lines.push(fitText(words[i],font,size,maxW)); cur=""; }
+    if(lines.length===maxLines){
+      const left=((cur?cur+" ":"")+words.slice(i+1).join(" ")).trim();
+      if(left) lines[maxLines-1]=fitText(lines[maxLines-1]+" …",font,size,maxW);
+      return lines;
+    }
+  }
+  if(cur) lines.push(cur);
+  return lines.slice(0,maxLines);
+}
+
+async function invoicePDF(v){
+  const { PDFLib, fontkit } = await loadPdfLib();
+  const { PDFDocument, rgb, degrees } = PDFLib;
+  const hex=h=>rgb(parseInt(h.slice(1,3),16)/255, parseInt(h.slice(3,5),16)/255, parseInt(h.slice(5,7),16)/255);
+
+  const doc=await PDFDocument.create();
+  doc.registerFontkit(fontkit);
+  const [flap, birdie, loma, gab] = await Promise.all([
+    fontBytes("fonts/tay-flapjack.ttf"), fontBytes("fonts/tay-birdie.ttf"),
+    fontBytes("fonts/loma.ttf"), fontBytes("fonts/gabriele-l.ttf")
+  ]);
+  // Birdie and Loma are embedded whole: pdf-lib's subsetter drops most outlines
+  // from the OTF-to-TTF conversion, leaving blank text.
+  const F={ title:await doc.embedFont(flap,{subset:true}),
+            caps: await doc.embedFont(birdie,{subset:false}),
+            small:await doc.embedFont(loma,{subset:false}),
+            type: await doc.embedFont(gab,{subset:true}) };
+
+  const W=792, L=100, R=692, C1=152;
+  const INK=hex(INV_INK), OR=hex(INV_ORANGE), LAB=hex(INV_LABEL), RULE=hex(INV_RULE);
+  const m=invMath(v);
+  const items=(v.items||[]).filter(l=>(l.desc||"").trim()||Number(l.unit));
+
+  // Cost column sizes itself to the widest figure so its padding never changes.
+  const COST_PAD=14;
+  const costCells=[...items.map(l=>invMoney(Number(l.unit)||0)), invMoney(m.sub),
+    ...(Number(v.discount_pct)?["−"+invMoney(m.disc)]:[]),
+    ...(Number(v.tax_pct)?[invMoney(m.tax)]:[])];
+  const costW=Math.max(52, ...costCells.map(t=>F.type.widthOfTextAtSize(t,11)))+COST_PAD*2;
+  const C2=R-costW, COST_MID=(C2+R)/2, DESC_X=C1+16, DESC_W=C2-DESC_X-16;
+
+  const totalsRows=[["Subtotal", invMoney(m.sub)]]
+    .concat(Number(v.discount_pct) ? [[Number(v.discount_pct)+"% off", "−"+invMoney(m.disc)]] : [])
+    .concat(Number(v.tax_pct) ? [["Tax "+Number(v.tax_pct)+"%", invMoney(m.tax)]] : []);
+
+  // The sheet grows downward rather than spilling onto a second page. It starts
+  // at landscape letter and stretches to at most 8.5 x 11 proportions; only past
+  // that does it paginate.
+  const BASE_H=612, MAX_H=Math.round(W*11/8.5), ROW=34, HDR_BASE=376, LAST_FLOOR=108;
+  const capAt=dy=>Math.floor((HDR_BASE-10+dy-LAST_FLOOR)/ROW);
+  const maxDy=MAX_H-BASE_H, maxRows=capAt(maxDy);
+  const wanted=Math.max(items.length,4)+totalsRows.length;
+  const singleDy=Math.max(0, Math.min(maxDy, ROW*wanted-(HDR_BASE-10-LAST_FLOOR)));
+
+  let sheets, dy;
+  if(wanted<=capAt(maxDy)){ sheets=[items]; dy=singleDy; }
+  else {
+    dy=maxDy;
+    const lastCap=Math.max(1,maxRows-totalsRows.length), fullCap=maxRows;
+    sheets=[]; let rest=items.slice();
+    while(rest.length>lastCap) sheets.push(rest.splice(0,fullCap));
+    sheets.push(rest);
+    if(sheets.length>1 && !sheets[sheets.length-1].length) sheets[sheets.length-1].push(sheets[sheets.length-2].pop());
+  }
+  const H=BASE_H+dy;
+
+  let sealPng=null;
+  try{ sealPng=await doc.embedPng(new Uint8Array(await (await fetch("logos/red-stamp-alt.png")).arrayBuffer())); }
+  catch(e){ /* no seal on file, the document still stands */ }
+
+  const trackedW=(t,font,size,tracking)=>{
+    const cs=[...String(t)], base=c=>c==="Ç"?"C":c==="ç"?"c":c;
+    return cs.reduce((a,c)=>a+font.widthOfTextAtSize(base(c),size)+tracking,0)-tracking;
+  };
+
+  sheets.forEach((sheetItems, si)=>{
+    const page=doc.addPage([W,H]);
+    const last = si===sheets.length-1;
+    page.drawRectangle({x:0,y:0,width:W,height:H,color:hex(INV_PAPER)});
+
+    // pdf-lib has no letter-spacing, so tracked caps are drawn glyph by glyph
+    const tracked=(text,{font,size,color,x,y,tracking=0,align="left"})=>{
+      const cs=[...String(text)], base=c=>c==="Ç"?"C":c==="ç"?"c":c;
+      const w=trackedW(text,font,size,tracking);
+      let cx = align==="center" ? x-w/2 : align==="right" ? x-w : x;
+      for(const c of cs){
+        const g=base(c);
+        page.drawText(g,{x:cx,y,size,font,color});
+        if(g!==c){
+          // TAY Birdie has no cedilla of its own, so one is drawn: a comma
+          // centred beneath the C.
+          const cs2=size*0.95, gw=font.widthOfTextAtSize(g,size), mw=font.widthOfTextAtSize(",",cs2);
+          page.drawText(",",{x:cx+(gw-mw)/2, y:y-size*0.13, size:cs2, font, color});
+        }
+        cx+=font.widthOfTextAtSize(g,size)+tracking;
+      }
+      return w;
+    };
+    const text=(t,{font,size,color,x,y,align="left",rotate=0})=>{
+      const w=font.widthOfTextAtSize(String(t),size);
+      const tx = align==="center" ? x-w/2 : align==="right" ? x-w : x;
+      page.drawText(String(t),{x:tx, y, size, font, color, ...(rotate?{rotate:degrees(rotate)}:{})});
+      return w;
+    };
+    const rule=(x1,x2,y,c=RULE,t=0.8)=>page.drawLine({start:{x:x1,y},end:{x:x2,y},thickness:t,color:c});
+
+    // masthead and meta sit relative to the top, so they ride up as the sheet grows
+    tracked("ARTIFACT",              {font:F.caps,size:9.5,color:INK,x:150,y:560+dy,tracking:2.4,align:"center"});
+    tracked("INVOICING & REMITTANCE",{font:F.caps,size:9.5,color:INK,x:150,y:539+dy,tracking:2.4,align:"center"});
+    tracked("FORM",                  {font:F.caps,size:9.5,color:INK,x:150,y:518+dy,tracking:2.4,align:"center"});
+    tracked("MAÇON",                 {font:F.caps,size:9.5,color:INK,x:642,y:560+dy,tracking:2.4,align:"center"});
+    tracked("BUREAU OF PROVENANCE",  {font:F.caps,size:9.5,color:INK,x:642,y:539+dy,tracking:2.4,align:"center"});
+    tracked("2023",                  {font:F.caps,size:9.5,color:INK,x:642,y:518+dy,tracking:2.4,align:"center"});
+    text("ARTIFACT",   {font:F.title,size:37,color:INK,x:396,y:548+dy,align:"center"});
+    text("REQUISITION",{font:F.title,size:37,color:INK,x:396,y:514+dy,align:"center"});
+
+    /* TO / INVOICE NO. / DATE. The TO cell stretches as its name grows and the
+       other two give ground, but never past the point where their own figures
+       keep 16pt of air either side. Beyond that the name truncates. */
+    const metaY=424+dy, GAP=24, AVAIL=R-L-GAP*2, third=AVAIL/3;
+    const fields=[["TO", v.bill_to||""],["INVOICE NO.", v.number||""],["DATE", invDate(v.issued_on)]];
+    const labW=fields.map(([l])=>trackedW(l,F.caps,8.5,1.6));
+    const need=i=>labW[i]+12+F.type.widthOfTextAtSize(String(fields[i][1]),13)+32;
+    const floor2=need(1), floor3=need(2);
+    let w1=Math.max(third, labW[0]+12+F.type.widthOfTextAtSize(String(fields[0][1]),13)+32);
+    w1=Math.min(w1, AVAIL-floor2-floor3);
+    w1=Math.max(w1, third*0.7);
+    let rest=AVAIL-w1, w2=Math.max(floor2, rest/2), w3=rest-w2;
+    if(w3<floor3){ w3=floor3; w2=rest-w3; }
+    const widths=[w1,w2,w3], META_TILT=[-1.1,0.7,-0.6];
+    let mx=L;
+    fields.forEach(([label,val],i)=>{
+      const x0=mx, x1=mx+widths[i]; mx=x1+GAP;
+      const lw=tracked(label,{font:F.caps,size:8.5,color:INK,x:x0,y:metaY+4,tracking:1.6});
+      const rx0=x0+lw+12, cellW=x1-rx0-4;
+      let vs=13;
+      while(vs>10 && F.type.widthOfTextAtSize(String(val),vs)>cellW) vs-=0.5;
+      text(fitText(val,F.type,vs,cellW),
+        {font:F.type,size:vs,color:OR,x:(rx0+x1)/2,y:metaY+2,align:"center",rotate:META_TILT[i]});
+      rule(rx0-6,x1,metaY-6);
+    });
+    if(v.bill_addr) text(fitText(v.bill_addr,F.type,7,widths[0]),{font:F.type,size:7,color:LAB,x:L,y:404+dy});
+
+    // table
+    const hdr=HDR_BASE+dy;
+    rule(L,R,hdr+18); rule(L,R,hdr-10);
+    tracked("AMT.",                     {font:F.small,size:7,color:LAB,x:L+18,y:hdr,tracking:1.2});
+    tracked("DESCRIPTION OF SERVICE(S)",{font:F.small,size:7,color:LAB,x:DESC_X,y:hdr,tracking:1.2});
+    tracked("COST",                     {font:F.small,size:7,color:LAB,x:COST_MID,y:hdr,tracking:1.2,align:"center"});
+
+    const rows = sheets.length===1 ? Math.max(sheetItems.length,4)
+               : (last ? Math.max(sheetItems.length,1) : sheetItems.length);
+    const y=hdr-10;
+    for(let i=0;i<rows;i++){
+      const rowY=y-ROW*i, mid=rowY-23, l=sheetItems[i];
+      if(l){
+        text("x"+(Number(l.qty)||0),{font:F.type,size:10,color:INK,x:L+18,y:mid});
+        const ls=wrapText(l.desc,F.type,11,DESC_W,2), LH=13;
+        ls.forEach((ln,k)=>text(ln,{font:F.type,size:11,color:INK,x:DESC_X,y:mid+((ls.length-1)/2)*LH-k*LH}));
+        text(invMoney(Number(l.unit)||0),{font:F.type,size:11,color:INK,x:COST_MID,y:mid,align:"center"});
+      }
+      rule(L,R,rowY-ROW);
+    }
+    let ty=y-ROW*rows;
+    if(last) totalsRows.forEach(([label,val])=>{
+      const mid=ty-23;
+      text(label,{font:F.type,size:10,color:INK,x:C2-18,y:mid,align:"right"});
+      text(val,  {font:F.type,size:10,color:INK,x:COST_MID,y:mid,align:"center"});
+      rule(L,R,ty-ROW); ty-=ROW;
+    });
+    page.drawLine({start:{x:C2,y:hdr+18},end:{x:C2,y:ty},thickness:0.8,color:RULE});
+    page.drawLine({start:{x:C1,y:hdr+18},end:{x:C1,y:y-ROW*rows},thickness:0.8,color:RULE});
+    page.drawLine({start:{x:L,y:hdr+18},end:{x:L,y:ty},thickness:0.8,color:RULE});
+    page.drawLine({start:{x:R,y:hdr+18},end:{x:R,y:ty},thickness:0.8,color:RULE});
+
+    // The seal lands on the table's last line and is struck last, over the top.
+    // The left of the totals rows is always empty, so nothing is obscured.
+    if(last && sealPng){
+      const s=142, r=sealPng.height/sealPng.width, th=12*Math.PI/180, cx=136, cy=ty+17;
+      page.drawImage(sealPng,{ x: cx-(s/2)*Math.cos(th)+(s*r/2)*Math.sin(th),
+                               y: cy-(s/2)*Math.sin(th)-(s*r/2)*Math.cos(th),
+                               width:s, height:s*r, rotate:degrees(12), opacity:0.92});
+    }
+
+    if(last){
+      // Total due grows leftward: right edge pinned to the table's, with exactly
+      // 32pt of air either side of the figure.
+      const totalStr=invMoney(m.total)+"—";
+      const tw=F.type.widthOfTextAtSize(totalStr,16);
+      const tx1=R, tx0=tx1-(tw+64);
+      tracked("TOTAL DUE",{font:F.caps,size:8.5,color:INK,x:tx0-14,y:82,tracking:1.4,align:"right"});
+      text(totalStr,{font:F.type,size:16,color:OR,x:(tx0+tx1)/2,y:80,align:"center"});
+      rule(tx0,tx1,70);
+      if(v.notes) text(fitText(v.notes,F.type,9.5,420),{font:F.type,size:9.5,color:LAB,x:16,y:16});
+    }
+    if(sheets.length>1)
+      tracked(`SHEET ${si+1} OF ${sheets.length}`,{font:F.small,size:7,color:LAB,x:R,y:16,tracking:1.2,align:"right"});
+  });
+
+  const bytes=await doc.save();
+  const name=(v.number||"invoice")+" "+(v.bill_to||"").replace(/[^\w \-]/g,"").trim();
+  return { bytes, filename:name.trim()+".pdf", width:W, height:H };
+}
+function invoiceDownload(v){
+  return invoicePDF(v).then(({bytes,filename})=>{
+    const url=URL.createObjectURL(new Blob([bytes],{type:"application/pdf"}));
+    const a=document.createElement("a"); a.href=url; a.download=filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),4000);
+  });
+}
+
 /* ---------- Detail card ---------- */
 function showCard(i){
   const d=data[i];
@@ -1629,12 +2240,14 @@ function showCard(i){
       <button class="btn ghost" id="delBtn">Remove</button>
       <div>
         <button class="btn ghost" id="closeBtn">Close</button>
+        <button class="btn ghost" id="invForBtn">Invoice</button>
         <button class="btn" id="editBtn">Edit</button>
       </div>
     </div>`;
   openScrim();
   host.querySelector("#closeBtn").onclick=closeScrim;
   host.querySelector("#editBtn").onclick=()=>showForm(i);
+  host.querySelector("#invForBtn").onclick=()=>invoiceForCollector(i);
   host.querySelector("#delBtn").onclick=()=>{ if(confirm("Remove "+(d.name||d.acc)+" from the archive?")){ removeRec(d); closeScrim(); } };
 }
 
@@ -2347,6 +2960,7 @@ document.getElementById("exportBtn").onclick=()=>{
   const body=data.map(d=>COLS.map(c=>{ let v=d[c]; if(typeof v==="boolean") v=v?"Yes":"No"; v=(v==null?"":String(v)); return '"'+v.replace(/"/g,'""')+'"'; }).join(",")).join("\n");
   download("macon_archive.csv", head+"\n"+body, "text/csv");
 };
+document.getElementById("invBtn").onclick=()=>openInvoiceStudio();
 document.getElementById("importBtn").onclick=()=>document.getElementById("importFile").click();
 document.getElementById("importFile").onchange=e=>{
   const f=e.target.files[0]; if(!f) return; const r=new FileReader();

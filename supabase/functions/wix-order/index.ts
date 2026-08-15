@@ -74,6 +74,18 @@ Deno.serve(async (req) => {
     const qty = parseInt(String(li?.quantity ?? 1), 10) || 1;
     return nm ? Array(qty).fill(nm) : [];
   });
+  // Invoice lines keep quantity and unit price, unlike `items` above which
+  // flattens to repeated names for the collector's pieces column.
+  const invLines = (Array.isArray(rawItems) ? rawItems : []).map((li: Rec) => ({
+    desc: String(li?.productName?.original ?? li?.productName ?? li?.name ?? li?.title ?? "").trim(),
+    qty: parseInt(String(li?.quantity ?? 1), 10) || 1,
+    unit: moneyToNumber(pick(li, ["price.amount", "price", "priceData.price", "unitPrice", "priceData.discountedPrice"])),
+  })).filter((l) => l.desc);
+  const shipping = moneyToNumber(pick(order, ["priceSummary.shipping", "totals.shipping", "shippingInfo.cost.price"]));
+  const taxAmt = moneyToNumber(pick(order, ["priceSummary.tax", "totals.tax"]));
+  if (shipping > 0) invLines.push({ desc: "Shipping", qty: 1, unit: shipping });
+  if (taxAmt > 0) invLines.push({ desc: "Sales tax", qty: 1, unit: taxAmt });
+
   const dateRaw = pick(order, ["createdDate", "dateCreated", "purchasedDate", "createdAt", "_createdDate"]);
   const date = (dateRaw ? new Date(dateRaw) : new Date()).toISOString().slice(0, 10);
   const city = String(pick(order, [
@@ -142,6 +154,23 @@ Deno.serve(async (req) => {
       method: "POST", headers: { ...H, Prefer: "resolution=ignore-duplicates" },
       body: JSON.stringify({ id: orderId, email, total, applied_at: new Date().toISOString() }),
     });
+  }
+
+  // Retail invoice, written silently. Tax and shipping ride as line items rather
+  // than percentages so the printed total can never disagree with what Wix
+  // actually charged. The unique index on order_ref makes retries harmless.
+  if (invLines.length) {
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/rpc/new_invoice`, {
+        method: "POST", headers: H,
+        body: JSON.stringify({ p: {
+          kind: "retail", issued_on: date, bill_to: name || email, bill_email: email,
+          bill_addr: [city, country].filter(Boolean).join(", "),
+          items: invLines, discount_pct: 0, tax_pct: 0,
+          order_ref: orderId || null,
+        } }),
+      });
+    } catch (_e) { /* an invoice must never cost us the collector update */ }
   }
 
   return ok({ status: existing ? "updated" : "created", acc: rec.acc ?? existing?.acc, email, total, items: items.length, orderId });
