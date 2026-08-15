@@ -622,16 +622,6 @@
   .ivs-sheets{width:100%;height:100%;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:16px}
   .ivs-sheet{position:relative;flex:0 0 auto;border-radius:6px;box-shadow:0 8px 30px rgba(30,22,14,.18);background:#fff}
   .ivs-sheet canvas{display:block;border-radius:6px;width:100%;height:auto}
-  /* A field is invisible until you go near it: the canvas is the truth. On focus
-     the input paints itself over the canvas text and shows what you are typing. */
-  .ivf{position:absolute;border:none;padding:0;margin:0;background:transparent;color:transparent;
-    caret-color:var(--notes,#C04722);border-radius:3px;outline:none;box-sizing:border-box;
-    font-family:"Gabriele",var(--mono);line-height:1;transition:background .12s,box-shadow .12s}
-  .ivf::selection{background:rgba(198,92,70,.22)}
-  .ivs-sheet:hover .ivf{box-shadow:inset 0 0 0 1px rgba(43,38,34,.10)}
-  .ivf:hover{background:rgba(43,38,34,.045)}
-  .ivf:focus{background:var(--inv-paper,#FEFCF6);box-shadow:inset 0 0 0 1px rgba(198,92,70,.55)}
-  .ivf:focus{color:var(--ivf-ink,#1C1A18)}
   .ivs-pending{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;
     letter-spacing:.14em;text-transform:uppercase;color:#9b9488;opacity:0;transition:opacity .2s}
   .ivs-pending.on{opacity:1}
@@ -658,10 +648,6 @@
   @media(max-width:1020px){ .ivs-body{grid-template-columns:272px minmax(0,1fr)} .ivs-arc{display:none} }
 
   /* ---------- Invoice maker ---------- */
-  @font-face{font-family:"TAY Flapjack";src:url("fonts/tay-flapjack.woff") format("woff");font-display:swap}
-  @font-face{font-family:"TAY Birdie";src:url("fonts/tay-birdie.woff") format("woff");font-display:swap}
-  @font-face{font-family:"Loma";src:url("fonts/loma.woff2") format("woff2");font-display:swap}
-  @font-face{font-family:"Gabriele";src:url("fonts/gabriele-l.woff2") format("woff2");font-display:swap}
   .inv-form{display:grid;gap:14px}
   .inv-kinds{display:flex;gap:8px}
   .inv-kinds button{flex:1;height:36px;border:1px solid rgba(43,38,34,.18);background:transparent;border-radius:8px;cursor:pointer;
@@ -1842,7 +1828,7 @@ function loadPdfJs(){
 }
 
 // Draw every sheet to canvas, then lay the editable fields over them.
-async function invPaintSheets(bytes, width, height, fields, pages){
+async function invPaintSheets(bytes, width, height, pages){
   const pdfjsLib=await loadPdfJs();
   const host=document.getElementById("ivsSheets"); if(!host) return;
   const box=host.getBoundingClientRect();
@@ -1864,75 +1850,25 @@ async function invPaintSheets(bytes, width, height, fields, pages){
     const cv=document.createElement("canvas");
     cv.width=Math.floor(vp.width); cv.height=Math.floor(vp.height);
     wrap.appendChild(cv); host.appendChild(wrap);
-    // The fields do not depend on the raster, so they go on straight away. A
-    // render promise can stall indefinitely while the pane is hidden, and the
-    // sheet would otherwise come back with nothing to type into.
     painting.push(page.render({canvasContext:cv.getContext("2d"), viewport:vp}).promise.catch(()=>{}));
-    invLayFields(wrap, fields.filter(f=>f.page===pi), cssW/width, height);
-  }
+      }
   Promise.all(painting).then(()=>doc.destroy()).catch(()=>{});
 }
 
-function invLayFields(wrap, fields, k, pageH){
-  const v=invS.v;
-  fields.forEach(f=>{
-    const el=document.createElement(f.key==="desc" ? "textarea" : "input");
-    el.className="ivf";
-    el.style.left  = (f.x*k)+"px";
-    el.style.top   = ((pageH-f.y-f.h)*k)+"px";
-    el.style.width = (f.w*k)+"px";
-    el.style.height= (f.h*k)+"px";
-    el.style.fontSize  = (f.size*k)+"px";
-    el.style.textAlign = f.align;
-    el.style.setProperty("--ivf-ink", f.colour);
-    if(f.rotate) el.style.transform="rotate("+(-f.rotate)+"deg)";
-    if(el.tagName==="TEXTAREA"){ el.style.resize="none"; el.style.overflow="hidden"; el.rows=1; }
-
-    const read=()=>{
-      if(f.key==="bill_to")   return v.bill_to||"";
-      if(f.key==="issued_on") return invDate(v.issued_on);
-      const it=(v.items||[])[f.idx]||{};
-      if(f.key==="qty")  return "x"+(Number(it.qty)||0);
-      if(f.key==="unit") return invMoney(Number(it.unit)||0);
-      return it.desc||"";
-    };
-    el.value=read();
-    el.title=({bill_to:"Bill to",issued_on:"Date",qty:"Quantity",desc:"Description",unit:"Cost"})[f.key]||"";
-
-    el.oninput=()=>{
-      const raw=el.value;
-      if(f.key==="bill_to") v.bill_to=raw;
-      else if(f.key==="qty")  v.items[f.idx].qty  = raw.replace(/[^0-9]/g,"");
-      else if(f.key==="unit") v.items[f.idx].unit = raw.replace(/[^0-9.]/g,"");
-      else if(f.key==="desc") v.items[f.idx].desc = raw;
-      else if(f.key==="issued_on"){
-        const m=/^(\d{2})\D(\d{2})\D(\d{2})$/.exec(raw.trim());
-        if(m) v.issued_on=`20${m[3]}-${m[1]}-${m[2]}`;
-      }
-      invRenderForm();            // keep the side panel in step
-      invQueuePreview();
-    };
-    // leaving a field repaints the sheet at once, and the input goes transparent
-    // again so what you are looking at is the document rather than a stand-in
-    el.onblur=()=>{ el.value=read(); invQueuePreview(true); };
-    el.onkeydown=e=>{ if(e.key==="Enter" && el.tagName!=="TEXTAREA"){ e.preventDefault(); el.blur(); } };
-    wrap.appendChild(el);
-  });
-}
 
 /* live preview: the real file, rebuilt on a debounce */
 function invQueuePreview(now){
   clearTimeout(invS.timer);
   const p=document.getElementById("ivsPending"); if(p) p.classList.add("on");
-  // Long enough not to rebuild mid-word, short enough to still feel connected.
-  // Leaving a field rebuilds at once, so tabbing through never waits.
+  // The sheet is drawn over the network, so it settles when you leave a field
+  // rather than chasing keystrokes. The panel's totals stay instant regardless.
   invS.timer=setTimeout(async()=>{
     try{
       const r=await invoicePDF(invS.v);
-      await invPaintSheets(r.bytes, r.width, r.height, r.fields, r.pages);
+      await invPaintSheets(r.bytes, r.width, r.height, r.pages);
     }catch(e){ console.error("[invoice preview]", e); }
     if(p) p.classList.remove("on");
-  }, now ? 0 : 1500);
+  }, now ? 0 : 900);
 }
 
 function invRenderForm(){
@@ -1964,7 +1900,7 @@ function invRenderForm(){
     ${ro?`<div class="inv-num">Retail invoices come from the shop and are kept as issued.</div>`:""}`;
 
   const bind=(id,key)=>{ const e=el.querySelector(id); if(!e) return;
-    e.oninput=()=>{ v[key]=e.value; invQueuePreview(); };
+    e.oninput=()=>{ v[key]=e.value; };
     e.onblur=()=>invQueuePreview(true); };
   bind("#fTo","bill_to"); bind("#fEmail","bill_email"); bind("#fAddr","bill_addr");
   bind("#fNote","notes"); bind("#fDate","issued_on");
@@ -1987,15 +1923,17 @@ function invRenderForm(){
       row.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>{
         v.items[i].qty=Math.max(1,(Number(v.items[i].qty)||1)+Number(b.dataset.step));
         lines(); totals(); invQueuePreview(true); });
-      row.querySelector(".q").oninput=e=>{ v.items[i].qty=e.target.value.replace(/[^0-9]/g,""); totals(); invQueuePreview(); };
+      const q=row.querySelector(".q");
+      q.oninput=e=>{ v.items[i].qty=e.target.value.replace(/[^0-9]/g,""); totals(); };
+      q.onblur=()=>invQueuePreview(true);
       const dsc=row.querySelector(".dsc");
-      dsc.oninput=e=>{ v.items[i].desc=e.target.value; invQueuePreview(); };
+      dsc.oninput=e=>{ v.items[i].desc=e.target.value; };
       dsc.onblur=()=>invQueuePreview(true);
       const unit=row.querySelector(".unit");
-      unit.oninput=e=>{ v.items[i].unit=e.target.value.replace(/[^0-9.]/g,""); totals(); invQueuePreview(); };
+      unit.oninput=e=>{ v.items[i].unit=e.target.value.replace(/[^0-9.]/g,""); totals(); };
       unit.onblur=()=>invQueuePreview(true);
       const d=row.querySelector(".inv-del");
-      if(d) d.onclick=()=>{ if(v.items.length<2) return; v.items.splice(i,1); lines(); totals(); invQueuePreview(); };
+      if(d) d.onclick=()=>{ if(v.items.length<2) return; v.items.splice(i,1); lines(); totals(); invQueuePreview(true); };
     });
   };
   const totals=()=>{
@@ -2008,12 +1946,14 @@ function invRenderForm(){
         <span>${invMoney(t.tax)}</span></div>
       <div class="inv-row grand"><span>Total due</span><span>${invMoney(t.total)}</span></div>`;
     const d=el.querySelector("#fDisc"), x=el.querySelector("#fTax");
-    if(d&&!ro) d.oninput=e=>{ v.discount_pct=e.target.value.replace(/[^0-9.]/g,""); totals(); invQueuePreview(); };
-    if(x&&!ro) x.oninput=e=>{ v.tax_pct=e.target.value.replace(/[^0-9.]/g,""); totals(); invQueuePreview(); };
+    if(d&&!ro){ d.oninput=e=>{ v.discount_pct=e.target.value.replace(/[^0-9.]/g,""); totals(); };
+                d.onblur=()=>invQueuePreview(true); }
+    if(x&&!ro){ x.oninput=e=>{ v.tax_pct=e.target.value.replace(/[^0-9.]/g,""); totals(); };
+                x.onblur=()=>invQueuePreview(true); }
   };
   lines(); totals();
   const add=el.querySelector("#fAdd");
-  if(add) add.onclick=()=>{ v.items.push({desc:"",qty:1,unit:0}); lines(); totals(); invQueuePreview(); };
+  if(add) add.onclick=()=>{ v.items.push({desc:"",qty:1,unit:0}); lines(); totals(); invQueuePreview(true); };
 }
 
 const invCard=(x,sel)=>{
@@ -2081,256 +2021,31 @@ function invoiceForCollector(i){
   openInvoiceStudio(v);
 }
 
-/* ---------- PDF plumbing ---------- */
-let _pdfLibReady=null;
-function loadPdfLib(){
-  if(_pdfLibReady) return _pdfLibReady;
-  const add=src=>new Promise((res,rej)=>{ const s=document.createElement("script");
-    s.src=src; s.onload=res; s.onerror=()=>rej(new Error("could not load "+src)); document.head.appendChild(s); });
-  _pdfLibReady=(async()=>{
-    if(!window.PDFLib)  await add("https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js");
-    if(!window.fontkit) await add("https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js");
-    return { PDFLib:window.PDFLib, fontkit:window.fontkit };
-  })();
-  return _pdfLibReady;
-}
-async function fontBytes(p){ const r=await fetch(p); if(!r.ok) throw new Error("missing font "+p); return new Uint8Array(await r.arrayBuffer()); }
 
 
 /* ---------- PDF ----------
-   One renderer, one source of truth. Everything that can overflow is measured
-   before it is drawn: descriptions wrap then ellipsize, the TO field shrinks to
-   fit before it truncates, the cost column sizes to its widest figure, and the
-   table paginates rather than running off the sheet. */
-
-// Trim a string to fit a width, ending in an ellipsis.
-function fitText(str, font, size, maxW){
-  str=String(str||"");
-  if(font.widthOfTextAtSize(str,size)<=maxW) return str;
-  let s=str;
-  while(s.length>1 && font.widthOfTextAtSize(s+"…",size)>maxW) s=s.slice(0,-1);
-  return s.replace(/\s+$/,"")+"…";
-}
-// Wrap to at most maxLines, ellipsizing the last line if anything is left over.
-function wrapText(str, font, size, maxW, maxLines){
-  const words=String(str||"").trim().split(/\s+/).filter(Boolean);
-  if(!words.length) return [];
-  const lines=[]; let cur="";
-  for(let i=0;i<words.length;i++){
-    const t=cur?cur+" "+words[i]:words[i];
-    if(font.widthOfTextAtSize(t,size)<=maxW){ cur=t; continue; }
-    if(cur){ lines.push(cur); cur=words[i]; }
-    else { lines.push(fitText(words[i],font,size,maxW)); cur=""; }
-    if(lines.length===maxLines){
-      const left=((cur?cur+" ":"")+words.slice(i+1).join(" ")).trim();
-      if(left) lines[maxLines-1]=fitText(lines[maxLines-1]+" …",font,size,maxW);
-      return lines;
-    }
-  }
-  if(cur) lines.push(cur);
-  return lines.slice(0,maxLines);
-}
-
+   The sheet is drawn by the invoice-pdf edge function, not here. The licensed
+   typefaces live in a private Storage bucket the browser cannot reach: Fontgrube
+   permits web font formats for display but forbids offering the font software
+   for download, and TAY and LOMA state no terms at all. One renderer, and no
+   font file is ever public. */
 async function invoicePDF(v){
-  const { PDFLib, fontkit } = await loadPdfLib();
-  const { PDFDocument, rgb, degrees } = PDFLib;
-  const hex=h=>rgb(parseInt(h.slice(1,3),16)/255, parseInt(h.slice(3,5),16)/255, parseInt(h.slice(5,7),16)/255);
-
-  const doc=await PDFDocument.create();
-  doc.registerFontkit(fontkit);
-  const [flap, birdie, loma, gab] = await Promise.all([
-    fontBytes("fonts/tay-flapjack.ttf"), fontBytes("fonts/tay-birdie.ttf"),
-    fontBytes("fonts/loma.ttf"), fontBytes("fonts/gabriele-l.ttf")
-  ]);
-  // Birdie and Loma are embedded whole: pdf-lib's subsetter drops most outlines
-  // from the OTF-to-TTF conversion, leaving blank text.
-  const F={ title:await doc.embedFont(flap,{subset:true}),
-            caps: await doc.embedFont(birdie,{subset:false}),
-            small:await doc.embedFont(loma,{subset:false}),
-            type: await doc.embedFont(gab,{subset:true}) };
-
-  const W=792, L=100, R=692, C1=152;
-  const INK=hex(INV_INK), OR=hex(INV_ORANGE), LAB=hex(INV_LABEL), RULE=hex(INV_RULE);
-  const m=invMath(v);
-  const items=(v.items||[]).filter(l=>(l.desc||"").trim()||Number(l.unit));
-
-  // Cost column sizes itself to the widest figure so its padding never changes.
-  const COST_PAD=14;
-  const costCells=[...items.map(l=>invMoney(Number(l.unit)||0)), invMoney(m.sub),
-    ...(Number(v.discount_pct)?["−"+invMoney(m.disc)]:[]),
-    ...(Number(v.tax_pct)?[invMoney(m.tax)]:[])];
-  const costW=Math.max(52, ...costCells.map(t=>F.type.widthOfTextAtSize(t,11)))+COST_PAD*2;
-  const C2=R-costW, COST_MID=(C2+R)/2, DESC_X=C1+16, DESC_W=C2-DESC_X-16;
-
-  const totalsRows=[["Subtotal", invMoney(m.sub)]]
-    .concat(Number(v.discount_pct) ? [[Number(v.discount_pct)+"% off", "−"+invMoney(m.disc)]] : [])
-    .concat(Number(v.tax_pct) ? [["Tax "+Number(v.tax_pct)+"%", invMoney(m.tax)]] : []);
-
-  // The sheet grows downward rather than spilling onto a second page. It starts
-  // at landscape letter and stretches to at most 8.5 x 11 proportions; only past
-  // that does it paginate.
-  const BASE_H=612, MAX_H=Math.round(W*11/8.5), ROW=34, HDR_BASE=376, LAST_FLOOR=108;
-  const capAt=dy=>Math.floor((HDR_BASE-10+dy-LAST_FLOOR)/ROW);
-  const maxDy=MAX_H-BASE_H, maxRows=capAt(maxDy);
-  const wanted=Math.max(items.length,4)+totalsRows.length;
-  const singleDy=Math.max(0, Math.min(maxDy, ROW*wanted-(HDR_BASE-10-LAST_FLOOR)));
-
-  let sheets, dy;
-  if(wanted<=capAt(maxDy)){ sheets=[items]; dy=singleDy; }
-  else {
-    dy=maxDy;
-    const lastCap=Math.max(1,maxRows-totalsRows.length), fullCap=maxRows;
-    sheets=[]; let rest=items.slice();
-    while(rest.length>lastCap) sheets.push(rest.splice(0,fullCap));
-    sheets.push(rest);
-    if(sheets.length>1 && !sheets[sheets.length-1].length) sheets[sheets.length-1].push(sheets[sheets.length-2].pop());
-  }
-  const H=BASE_H+dy;
-
-  let sealPng=null;
-  try{ sealPng=await doc.embedPng(new Uint8Array(await (await fetch("logos/red-stamp-alt.png")).arrayBuffer())); }
-  catch(e){ /* no seal on file, the document still stands */ }
-
-  const fields=[];   // {page,key,idx,x,y,w,h,size,align,rotate} in PDF points
-  const trackedW=(t,font,size,tracking)=>{
-    const cs=[...String(t)], base=c=>c==="Ç"?"C":c==="ç"?"c":c;
-    return cs.reduce((a,c)=>a+font.widthOfTextAtSize(base(c),size)+tracking,0)-tracking;
-  };
-
-  sheets.forEach((sheetItems, si)=>{
-    const page=doc.addPage([W,H]);
-    const last = si===sheets.length-1;
-    page.drawRectangle({x:0,y:0,width:W,height:H,color:hex(INV_PAPER)});
-
-    // pdf-lib has no letter-spacing, so tracked caps are drawn glyph by glyph
-    const tracked=(text,{font,size,color,x,y,tracking=0,align="left"})=>{
-      const cs=[...String(text)], base=c=>c==="Ç"?"C":c==="ç"?"c":c;
-      const w=trackedW(text,font,size,tracking);
-      let cx = align==="center" ? x-w/2 : align==="right" ? x-w : x;
-      for(const c of cs){
-        const g=base(c);
-        page.drawText(g,{x:cx,y,size,font,color});
-        if(g!==c){
-          // TAY Birdie has no cedilla of its own, so one is drawn: a comma
-          // centred beneath the C.
-          const cs2=size*0.95, gw=font.widthOfTextAtSize(g,size), mw=font.widthOfTextAtSize(",",cs2);
-          page.drawText(",",{x:cx+(gw-mw)/2, y:y-size*0.13, size:cs2, font, color});
-        }
-        cx+=font.widthOfTextAtSize(g,size)+tracking;
-      }
-      return w;
-    };
-    const text=(t,{font,size,color,x,y,align="left",rotate=0})=>{
-      const w=font.widthOfTextAtSize(String(t),size);
-      const tx = align==="center" ? x-w/2 : align==="right" ? x-w : x;
-      page.drawText(String(t),{x:tx, y, size, font, color, ...(rotate?{rotate:degrees(rotate)}:{})});
-      return w;
-    };
-    const rule=(x1,x2,y,c=RULE,t=0.8)=>page.drawLine({start:{x:x1,y},end:{x:x2,y},thickness:t,color:c});
-
-    // masthead and meta sit relative to the top, so they ride up as the sheet grows
-    tracked("ARTIFACT",              {font:F.caps,size:9.5,color:INK,x:150,y:560+dy,tracking:2.4,align:"center"});
-    tracked("INVOICING & REMITTANCE",{font:F.caps,size:9.5,color:INK,x:150,y:539+dy,tracking:2.4,align:"center"});
-    tracked("FORM",                  {font:F.caps,size:9.5,color:INK,x:150,y:518+dy,tracking:2.4,align:"center"});
-    tracked("MAÇON",                 {font:F.caps,size:9.5,color:INK,x:642,y:560+dy,tracking:2.4,align:"center"});
-    tracked("BUREAU OF PROVENANCE",  {font:F.caps,size:9.5,color:INK,x:642,y:539+dy,tracking:2.4,align:"center"});
-    tracked("2023",                  {font:F.caps,size:9.5,color:INK,x:642,y:518+dy,tracking:2.4,align:"center"});
-    text("ARTIFACT",   {font:F.title,size:37,color:INK,x:396,y:548+dy,align:"center"});
-    text("REQUISITION",{font:F.title,size:37,color:INK,x:396,y:514+dy,align:"center"});
-
-    /* TO / INVOICE NO. / DATE. The TO cell stretches as its name grows and the
-       other two give ground, but never past the point where their own figures
-       keep 16pt of air either side. Beyond that the name truncates. */
-    const metaY=424+dy, GAP=24, AVAIL=R-L-GAP*2, third=AVAIL/3;
-    const metaFields=[["TO", v.bill_to||""],["INVOICE NO.", v.number||""],["DATE", invDate(v.issued_on)]];
-    const labW=metaFields.map(([l])=>trackedW(l,F.caps,8.5,1.6));
-    const need=i=>labW[i]+12+F.type.widthOfTextAtSize(String(metaFields[i][1]),13)+32;
-    const floor2=need(1), floor3=need(2);
-    let w1=Math.max(third, labW[0]+12+F.type.widthOfTextAtSize(String(metaFields[0][1]),13)+32);
-    w1=Math.min(w1, AVAIL-floor2-floor3);
-    w1=Math.max(w1, third*0.7);
-    let rest=AVAIL-w1, w2=Math.max(floor2, rest/2), w3=rest-w2;
-    if(w3<floor3){ w3=floor3; w2=rest-w3; }
-    const widths=[w1,w2,w3], META_TILT=[-1.1,0.7,-0.6];
-    let mx=L;
-    metaFields.forEach(([label,val],i)=>{
-      const x0=mx, x1=mx+widths[i]; mx=x1+GAP;
-      const lw=tracked(label,{font:F.caps,size:8.5,color:INK,x:x0,y:metaY+4,tracking:1.6});
-      const rx0=x0+lw+12, cellW=x1-rx0-4;
-      let vs=13;
-      while(vs>10 && F.type.widthOfTextAtSize(String(val),vs)>cellW) vs-=0.5;
-      text(fitText(val,F.type,vs,cellW),
-        {font:F.type,size:vs,color:OR,x:(rx0+x1)/2,y:metaY+2,align:"center",rotate:META_TILT[i]});
-      rule(rx0-6,x1,metaY-6);
-      if(i!==1) fields.push({page:si, key:i===0?"bill_to":"issued_on", x:rx0-6, y:metaY-4,
-        w:x1-rx0+6, h:vs*1.6, size:vs, align:"center", rotate:META_TILT[i], colour:INV_ORANGE});
-    });
-    if(v.bill_addr) text(fitText(v.bill_addr,F.type,7,widths[0]),{font:F.type,size:7,color:LAB,x:L,y:404+dy});
-
-    // table
-    const hdr=HDR_BASE+dy;
-    rule(L,R,hdr+18); rule(L,R,hdr-10);
-    tracked("AMT.",                     {font:F.small,size:7,color:LAB,x:L+18,y:hdr,tracking:1.2});
-    tracked("DESCRIPTION OF SERVICE(S)",{font:F.small,size:7,color:LAB,x:DESC_X,y:hdr,tracking:1.2});
-    tracked("COST",                     {font:F.small,size:7,color:LAB,x:COST_MID,y:hdr,tracking:1.2,align:"center"});
-
-    const rows = sheets.length===1 ? Math.max(sheetItems.length,4)
-               : (last ? Math.max(sheetItems.length,1) : sheetItems.length);
-    const y=hdr-10;
-    for(let i=0;i<rows;i++){
-      const rowY=y-ROW*i, mid=rowY-23, l=sheetItems[i];
-      if(l){
-        text("x"+(Number(l.qty)||0),{font:F.type,size:10,color:INK,x:L+18,y:mid});
-        const ls=wrapText(l.desc,F.type,11,DESC_W,2), LH=13;
-        ls.forEach((ln,k)=>text(ln,{font:F.type,size:11,color:INK,x:DESC_X,y:mid+((ls.length-1)/2)*LH-k*LH}));
-        text(invMoney(Number(l.unit)||0),{font:F.type,size:11,color:INK,x:COST_MID,y:mid,align:"center"});
-        const gi=(sheets.slice(0,si).reduce((a,c)=>a+c.length,0))+i;   // index into v.items
-        fields.push({page:si,key:"qty", idx:gi,x:L+14,   y:mid-5,w:C1-L-24,   h:16,size:10,align:"left",  colour:INV_INK});
-        fields.push({page:si,key:"desc",idx:gi,x:DESC_X-4,y:mid-6,w:DESC_W+8,h:18,size:11,align:"left",  colour:INV_INK});
-        fields.push({page:si,key:"unit",idx:gi,x:C2+6,   y:mid-6,w:costW-12, h:18,size:11,align:"center",colour:INV_INK});
-      }
-      rule(L,R,rowY-ROW);
-    }
-    let ty=y-ROW*rows;
-    if(last) totalsRows.forEach(([label,val])=>{
-      const mid=ty-23;
-      text(label,{font:F.type,size:10,color:INK,x:C2-18,y:mid,align:"right"});
-      text(val,  {font:F.type,size:10,color:INK,x:COST_MID,y:mid,align:"center"});
-      rule(L,R,ty-ROW); ty-=ROW;
-    });
-    page.drawLine({start:{x:C2,y:hdr+18},end:{x:C2,y:ty},thickness:0.8,color:RULE});
-    page.drawLine({start:{x:C1,y:hdr+18},end:{x:C1,y:y-ROW*rows},thickness:0.8,color:RULE});
-    page.drawLine({start:{x:L,y:hdr+18},end:{x:L,y:ty},thickness:0.8,color:RULE});
-    page.drawLine({start:{x:R,y:hdr+18},end:{x:R,y:ty},thickness:0.8,color:RULE});
-
-    // The seal lands on the table's last line and is struck last, over the top.
-    // The left of the totals rows is always empty, so nothing is obscured.
-    if(last && sealPng){
-      const s=142, r=sealPng.height/sealPng.width, th=12*Math.PI/180, cx=136, cy=ty+17;
-      page.drawImage(sealPng,{ x: cx-(s/2)*Math.cos(th)+(s*r/2)*Math.sin(th),
-                               y: cy-(s/2)*Math.sin(th)-(s*r/2)*Math.cos(th),
-                               width:s, height:s*r, rotate:degrees(12), opacity:0.92});
-    }
-
-    if(last){
-      // Total due grows leftward: right edge pinned to the table's, with exactly
-      // 32pt of air either side of the figure.
-      const totalStr=invMoney(m.total)+"—";
-      const tw=F.type.widthOfTextAtSize(totalStr,16);
-      const tx1=R, tx0=tx1-(tw+64);
-      tracked("TOTAL DUE",{font:F.caps,size:8.5,color:INK,x:tx0-14,y:82,tracking:1.4,align:"right"});
-      text(totalStr,{font:F.type,size:16,color:OR,x:(tx0+tx1)/2,y:80,align:"center"});
-      rule(tx0,tx1,70);
-      if(v.notes) text(fitText(v.notes,F.type,9.5,420),{font:F.type,size:9.5,color:LAB,x:16,y:16});
-    }
-    if(sheets.length>1)
-      tracked(`SHEET ${si+1} OF ${sheets.length}`,{font:F.small,size:7,color:LAB,x:R,y:16,tracking:1.2,align:"right"});
+  const { data:{ session } = {} } = sb ? await sb.auth.getSession() : { data:{} };
+  const r = await fetch(CONFIG.SUPABASE_URL + "/functions/v1/invoice-pdf", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json",
+              apikey: CONFIG.SUPABASE_ANON_KEY,
+              Authorization: "Bearer " + (session?.access_token || CONFIG.SUPABASE_ANON_KEY) },
+    body: JSON.stringify(v)
   });
-
-  const bytes=await doc.save();
-  const name=(v.number||"invoice")+" "+(v.bill_to||"").replace(/[^\w \-]/g,"").trim();
-  return { bytes, filename:name.trim()+".pdf", width:W, height:H, fields, pages:sheets.length };
+  if(!r.ok) throw new Error("invoice-pdf " + r.status + ": " + (await r.text()).slice(0,160));
+  const bytes = new Uint8Array(await r.arrayBuffer());
+  const [w,h] = (r.headers.get("X-Sheet")||"792x612").split("x").map(Number);
+  const name = (v.number||"invoice") + " " + String(v.bill_to||"").replace(/[^\w \-]/g,"").trim();
+  return { bytes, filename:name.trim()+".pdf", width:w, height:h,
+           pages: Number(r.headers.get("X-Pages")||1) };
 }
+
 function invoiceDownload(v){
   return invoicePDF(v).then(({bytes,filename})=>{
     const url=URL.createObjectURL(new Blob([bytes],{type:"application/pdf"}));
