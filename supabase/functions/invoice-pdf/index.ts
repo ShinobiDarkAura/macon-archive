@@ -259,7 +259,13 @@ async function invoicePDF(v){
       tracked("TOTAL DUE",{font:F.caps,size:8.5,color:INK,x:tx0-14,y:82,tracking:1.4,align:"right"});
       text(totalStr,{font:F.type,size:16,color:OR,x:(tx0+tx1)/2,y:80,align:"center"});
       rule(tx0,tx1,70);
-      if(v.notes) text(fitText(v.notes,F.type,9.5,420),{font:F.type,size:9.5,color:LAB,x:16,y:16});
+      if(v.notes){
+        const pos=v.note_pos||"left";
+        const nx = pos==="center" ? W/2 : pos==="right" ? W-16 : 16;
+        text(fitText(v.notes,F.type,9.5,420),
+          {font:F.type,size:9.5,color:LAB,x:nx,y:16,
+           align: pos==="left" ? "left" : pos==="right" ? "right" : "center"});
+      }
     }
     if(sheets.length>1)
       tracked(`SHEET ${si+1} OF ${sheets.length}`,{font:F.small,size:7,color:LAB,x:R,y:16,tracking:1.2,align:"right"});

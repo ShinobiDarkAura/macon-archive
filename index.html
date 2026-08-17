@@ -613,8 +613,29 @@
   .ivs-win{width:95vw;height:95vh;background:var(--row-alt,#f6f2e8);border-radius:18px;overflow:hidden;
     display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(30,22,14,.35)}
   .ivs-head{display:flex;align-items:center;gap:16px;padding:14px 18px;border-bottom:1px solid rgba(43,38,34,.10);background:transparent}
-  .ivs-head .btn{border-radius:8px}
-  .ivs-kinds button{border-radius:8px}
+  /* header: a sliding segmented control, and icon-only actions */
+  .ivs-head .btn{border-radius:8px;width:40px;padding:0}
+  .ivs-head .btn.plain{border-color:transparent;background:transparent}
+  .ivs-head .btn.plain:hover{background:rgba(43,38,34,.07);border-color:transparent;color:var(--ink)}
+  .ivs-head .btn.on{background:var(--notes,#C04722);border-color:transparent;color:#fff}
+  .ivs-seg{position:relative;display:inline-flex;background:rgba(43,38,34,.07);border-radius:999px;padding:3px}
+  .ivs-seg .seg-thumb{position:absolute;top:3px;bottom:3px;left:0;border-radius:999px;background:var(--notes,#C04722);
+    transition:transform .26s cubic-bezier(.2,.8,.2,1),width .26s cubic-bezier(.2,.8,.2,1)}
+  .ivs-seg button{position:relative;z-index:1;border:none;background:transparent;cursor:pointer;padding:0 18px;height:30px;
+    font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#7c7568;transition:color .2s}
+  .ivs-seg button.on{color:#fff}
+  /* the archive is summoned, not permanent */
+  .ivs-body{grid-template-columns:410px minmax(0,1fr) 0}
+  .ivs-body .ivs-arc{display:none}
+  .ivs-body.show-arc{grid-template-columns:410px minmax(0,1fr) 268px}
+  .ivs-body.show-arc .ivs-arc{display:grid}
+  /* fields read as writing on paper rather than boxes */
+  /* where the foot note sits on the sheet */
+  .note-pos{display:inline-flex;gap:2px;margin-top:7px;background:rgba(43,38,34,.05);border-radius:7px;padding:2px}
+  .note-pos button{border:none;background:transparent;cursor:pointer;padding:5px 12px;border-radius:5px;
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:#8b8375;transition:.15s}
+  .note-pos button:hover{color:var(--ink)}
+  .note-pos button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(40,28,16,.10)}
   .ivs-h1{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#6f6655}
   .ivs-num{font-family:var(--mono);font-size:12px;color:var(--notes,#C04722);letter-spacing:.06em}
   .ivs-head .sp{flex:1}
@@ -701,6 +722,13 @@
   .inv-item .n{font-family:var(--mono);font-size:11.5px;color:var(--notes,#C04722)}
   .inv-item .w{font-family:var(--sans);font-size:13px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .inv-item .d,.inv-item .t{font-family:var(--mono);font-size:11.5px;color:#8b8375;text-align:right}
+  /* fields read as writing on paper rather than boxes (declared after the shared rule) */
+  .ivs-win .ivs-form input{border-color:transparent;background:rgba(43,38,34,.035)}
+  .ivs-win .ivs-form input:hover{background:rgba(43,38,34,.06)}
+  .ivs-win .ivs-form input:focus{background:#fff;border-color:rgba(43,38,34,.30);outline:none}
+  .ivs-win .ivs-form .li-main,.ivs-win .ivs-form .li-price{border-color:transparent;background:rgba(43,38,34,.035)}
+  .ivs-win .ivs-form .li-main:focus-within,.ivs-win .ivs-form .li-price:focus-within{background:#fff;border-color:rgba(43,38,34,.30)}
+  .ivs-win .ivs-form .li-qty,.ivs-win .ivs-form .li-steps{background:rgba(43,38,34,.05)}
   /* Guidance panel in the draft modal: what to do before this email goes out */
   .dtips{margin:-6px 0 22px;padding:13px 15px 14px;background:rgba(162,84,58,.07);border-radius:8px;border-left:2px solid rgba(162,84,58,.35)}
   .dtips-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:#a2543a;margin-bottom:8px}
@@ -772,7 +800,11 @@
 </defs></svg>
 <script>try{if(localStorage.getItem("macon_drawer")==="collapsed")document.body.classList.add("drawer-collapsed")}catch(e){}
 document.body.classList.add("preload");
-requestAnimationFrame(()=>requestAnimationFrame(()=>document.body.classList.remove("preload")));
+// rAF never fires in a background tab, and preload kills every transition in
+// the app with !important, so a timer backs it up.
+const _unpreload=()=>document.body.classList.remove("preload");
+requestAnimationFrame(()=>requestAnimationFrame(_unpreload));
+setTimeout(_unpreload, 500);
 setTimeout(()=>document.body.classList.add("booted"),1400);</script>
 
 <!-- =====================================================================
@@ -1718,7 +1750,7 @@ let invDraft = null;
 function invBlank(kind){
   return { kind, issued_on:new Date().toLocaleDateString("en-CA"), bill_to:"", bill_email:"",
            bill_addr:"", items:[{desc:"",qty:1,unit:0}],
-           discount_pct:0, tax_pct: kind==="wholesale"?0:INV_TAX_DEFAULT, notes:"Net 30. Thank you." };
+           discount_pct:0, tax_pct: kind==="wholesale"?0:INV_TAX_DEFAULT, notes:"Net 30. Thank you.", note_pos:"left" };
 }
 function invMath(v){
   const sub = (v.items||[]).reduce((a,l)=>a + (Number(l.qty)||0) * (Number(l.unit)||0), 0);
@@ -1760,14 +1792,14 @@ function invStudioEl(){
   el.innerHTML=`
     <div class="ivs-win" style="position:relative">
       <div class="ivs-head">
-        <span class="ivs-h1">Artifact Requisition</span>
+        <div class="ivs-seg" id="ivsKinds"></div>
         <span class="ivs-num" id="ivsNum"></span>
-        <div class="inv-kinds" id="ivsKinds" style="width:220px"></div>
         <span class="sp"></span>
-        <button class="btn ghost" id="ivsNew">+ New</button>
-        <button class="btn ghost" id="ivsPdf">Download PDF</button>
-        <button class="btn" id="ivsSave">Save</button>
-        <button class="btn ghost" id="ivsClose" style="width:40px;padding:0;font-size:17px">&times;</button>
+        <button class="btn ghost" id="ivsNew" title="New invoice" aria-label="New invoice"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button class="btn ghost" id="ivsExpand" title="Archive" aria-label="Archive"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3z"/><path d="M3 7l2-3h14l2 3M9 12h6"/></svg></button>
+        <button class="btn ghost" id="ivsPdf" title="Download PDF" aria-label="Download PDF"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 10.5 12 15l4.5-4.5M4 18v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2"/></svg></button>
+        <button class="btn" id="ivsSave" title="Save" aria-label="Save"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7M8 20v-6h8v6"/></svg></button>
+        <button class="btn plain" id="ivsClose" title="Close" aria-label="Close"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
       <div class="ivs-body">
         <aside class="ivs-form" id="ivsForm"></aside>
@@ -1777,7 +1809,7 @@ function invStudioEl(){
         </main>
         <aside class="ivs-arc">
           <div class="ivs-arc-head"><span class="t">Archive</span>
-            <button class="btn ghost tiny" id="ivsExpand" style="height:24px">All</button></div>
+            <button class="btn ghost tiny" id="ivsAll" style="height:24px">All</button></div>
           <div id="ivsArc"></div>
         </aside>
       </div>
@@ -1817,7 +1849,13 @@ async function openInvoiceStudio(seed){
     b.textContent=o; b.disabled=false;
   };
   el.querySelector("#ivsSave").onclick=invSave;
-  el.querySelector("#ivsExpand").onclick=()=>{ el.querySelector("#ivsGrid").classList.add("on"); invRenderGrid(); };
+  el.querySelector("#ivsExpand").onclick=e=>{
+    const body=el.querySelector(".ivs-body"), on=body.classList.toggle("show-arc");
+    e.currentTarget.classList.toggle("on", on);
+    if(on) invRenderArc();
+    invQueuePreview(true);        // the sheet has a new width to fit
+  };
+  el.querySelector("#ivsAll").onclick=()=>{ el.querySelector("#ivsGrid").classList.add("on"); invRenderGrid(); };
   el.querySelector("#ivsGridClose").onclick=()=>el.querySelector("#ivsGrid").classList.remove("on");
   el.querySelector("#ivsQ").oninput=e=>{ invS.q=e.target.value; invRenderGrid(); };
   el.querySelector("#ivsSort").onchange=e=>{ invS.sort=e.target.value; invRenderGrid(); };
@@ -1889,22 +1927,41 @@ function invQueuePreview(now){
       await invPaintSheets(r.bytes, r.width, r.height, r.pages);
     }catch(e){ console.error("[invoice preview]", e); }
     if(p) p.classList.remove("on");
-  }, now ? 0 : 900);
+  }, now ? 0 : 350);
+}
+
+// Slide the segmented thumb onto whichever half is live.
+function invSlideThumb(){
+  const seg=document.getElementById("ivsKinds"); if(!seg) return;
+  const on=seg.querySelector("button.on"), thumb=seg.querySelector(".seg-thumb");
+  if(!on||!thumb) return;
+  // measured synchronously: requestAnimationFrame never fires in a hidden pane
+  thumb.style.width=on.offsetWidth+"px";
+  thumb.style.transform="translateX("+on.offsetLeft+"px)";
 }
 
 function invRenderForm(){
   const el=document.getElementById("invStudio"); if(!el) return;
   const v=invS.v, ro = v.kind==="retail";
-  el.querySelector("#ivsNum").textContent = v.number || "unsaved";
+  el.querySelector("#ivsNum").textContent = v.number || "";
   el.querySelector("#ivsSave").style.display = (ro||invS.saved) ? "none" : "";
-  el.querySelector("#ivsKinds").innerHTML = (ro||invS.saved) ? "" :
-    INV_KINDS.filter(k=>k[0]!=="retail")
-      .map(([k,l])=>`<button data-k="${k}" class="${v.kind===k?"on":""}">${l}</button>`).join("");
-  el.querySelectorAll("#ivsKinds button").forEach(b=>b.onclick=()=>{
-    v.kind=b.dataset.k;
-    if(v.kind==="wholesale") v.tax_pct=0; else if(!Number(v.tax_pct)) v.tax_pct=INV_TAX_DEFAULT;
-    invRenderForm(); invQueuePreview(true);
-  });
+  // The control is built once and only ever has its classes synced: rebuilding
+  // it would replace the thumb each time and it could never slide.
+  const seg=el.querySelector("#ivsKinds");
+  seg.style.display = (ro||invS.saved) ? "none" : "";
+  if(!(ro||invS.saved)){
+    if(!seg.querySelector("button")){
+      seg.innerHTML = `<span class="seg-thumb"></span>` + INV_KINDS.filter(k=>k[0]!=="retail")
+        .map(([k,l])=>`<button data-k="${k}">${l}</button>`).join("");
+      seg.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+        v.kind=b.dataset.k;
+        if(v.kind==="wholesale") v.tax_pct=0; else if(!Number(v.tax_pct)) v.tax_pct=INV_TAX_DEFAULT;
+        invRenderForm(); invQueuePreview(true);
+      });
+    }
+    seg.querySelectorAll("button").forEach(b=>b.classList.toggle("on", b.dataset.k===v.kind));
+    invSlideThumb();
+  }
 
   const m=invMath(v);
   el.querySelector("#ivsForm").innerHTML=`
@@ -1915,7 +1972,10 @@ function invRenderForm(){
     <div><label>Line items</label><div class="inv-lines" id="fLines"></div></div>
     ${ro?"":`<button class="inv-addline" id="fAdd">+ Add line</button>`}
     <div class="inv-totals" id="fTotals"></div>
-    <div><label>Note</label><input class="note-f" id="fNote" value="${esc(v.notes||"")}" placeholder="Prints at the foot" ${ro?"disabled":""}></div>
+    <div><label>Note</label><input class="note-f" id="fNote" value="${esc(v.notes||"")}" placeholder="Prints at the foot" ${ro?"disabled":""}>
+      <div class="note-pos" id="fNotePos">${["left","center","right"].map(k=>
+        `<button data-p="${k}" class="${(v.note_pos||"left")===k?"on":""}" ${ro?"disabled":""}>${k==="center"?"Middle":k}</button>`).join("")}</div>
+    </div>
     ${ro?`<div class="inv-num">Retail invoices come from the shop and are kept as issued.</div>`:""}`;
 
   const bind=(id,key)=>{ const e=el.querySelector(id); if(!e) return;
@@ -1970,6 +2030,11 @@ function invRenderForm(){
                 x.onblur=()=>invQueuePreview(true); }
   };
   lines(); totals();
+  el.querySelectorAll("#fNotePos button").forEach(b=>b.onclick=()=>{
+    v.note_pos=b.dataset.p;
+    el.querySelectorAll("#fNotePos button").forEach(x=>x.classList.toggle("on",x===b));
+    invQueuePreview(true);
+  });
   const add=el.querySelector("#fAdd");
   if(add) add.onclick=()=>{ v.items.push({desc:"",qty:1,unit:0}); lines(); totals(); invQueuePreview(true); };
 }
@@ -2020,7 +2085,8 @@ async function invSave(e){
       kind:v.kind, issued_on:v.issued_on, bill_to:v.bill_to, bill_email:v.bill_email,
       bill_addr:v.bill_addr,
       items:(v.items||[]).map(l=>({desc:l.desc,qty:Number(l.qty)||0,unit:Number(l.unit)||0})),
-      discount_pct:Number(v.discount_pct)||0, tax_pct:Number(v.tax_pct)||0, notes:v.notes }});
+      discount_pct:Number(v.discount_pct)||0, tax_pct:Number(v.tax_pct)||0,
+      notes:v.notes, note_pos:v.note_pos||"left" }});
     if(error) throw error;
     invS.v={...data}; invS.saved=true; invS.sel=data.id;
     await loadInvoices();
