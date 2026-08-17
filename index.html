@@ -688,7 +688,7 @@
   .inv-form input,.inv-form textarea,.ivs-form input,.ivs-form textarea{width:100%;box-sizing:border-box;font-family:var(--sans);font-size:13.5px;padding:8px 10px;
     border:1px solid rgba(43,38,34,.16);border-radius:7px;background:#fff;color:var(--ink)}
   .inv-lines{display:grid;gap:7px}
-  .inv-line{display:grid;grid-template-columns:minmax(0,1fr) 112px 20px;gap:8px;align-items:center}
+  .inv-line{display:grid;grid-template-columns:minmax(0,1fr) 56px 20px;gap:8px;align-items:center}
   .li-main{display:flex;align-items:stretch;border:1px solid rgba(43,38,34,.16);border-radius:7px;background:#fff;overflow:hidden;height:36px}
   .li-main:focus-within{border-color:rgba(43,38,34,.34)}
   .li-qty{display:flex;align-items:center;padding:0 3px 0 9px;font-family:var(--mono);font-size:12.5px;color:var(--ink);
@@ -700,8 +700,8 @@
   .li-main .dsc{border:none;border-radius:0;height:100%;padding-left:9px}
   .li-price{display:flex;align-items:center;border:1px solid rgba(43,38,34,.16);border-radius:7px;background:#fff;height:36px;overflow:hidden}
   .li-price:focus-within{border-color:rgba(43,38,34,.34)}
-  .li-price .cur{padding:0 1px 0 9px;font-family:var(--mono);font-size:13px;color:#8b8375}
-  .li-price .unit{border:none;border-radius:0;height:100%;padding:0 8px 0 2px;font-family:var(--mono);font-size:13px}
+  .li-price .cur{padding:0 1px 0 6px;font-family:var(--mono);font-size:11.5px;color:#8b8375}
+  .li-price .unit{border:none;border-radius:0;height:100%;padding:0 5px 0 1px;font-family:var(--mono);font-size:11.5px}
   .inv-qty{display:flex;align-items:center;border:1px solid rgba(43,38,34,.16);border-radius:7px;background:#fff;overflow:hidden;height:35px}
   .inv-qty button{width:26px;height:100%;border:none;background:transparent;cursor:pointer;color:#8b8375;font-size:15px;line-height:1}
   .inv-qty button:hover{background:rgba(43,38,34,.06);color:var(--ink)}
@@ -719,7 +719,7 @@
     background:rgba(43,38,34,.055);border-radius:8px}
   .inv-row .pct{width:46px;text-align:right;font-family:var(--mono);font-size:12.5px;padding:3px 6px;
     border:1px solid rgba(43,38,34,.16);border-radius:5px;background:#fff}
-  .ivs-form .note-f{background:rgba(43,38,34,.035);border-color:transparent;color:#6f6655;font-style:italic}
+  .ivs-win .ivs-form .note-f{background:#fff;border-color:transparent;color:#8b8375;font-style:italic}
   .ivs-form .note-f:hover{border-color:rgba(43,38,34,.16);background:#fff}
   .ivs-form .note-f:focus{border-color:rgba(43,38,34,.34);background:#fff;color:var(--ink);font-style:normal}
   .inv-num{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#9b9488}
@@ -730,12 +730,13 @@
   .inv-item .w{font-family:var(--sans);font-size:13px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .inv-item .d,.inv-item .t{font-family:var(--mono);font-size:11.5px;color:#8b8375;text-align:right}
   /* fields read as writing on paper rather than boxes (declared after the shared rule) */
-  .ivs-win .ivs-form input{border-color:transparent;background:rgba(43,38,34,.035)}
-  .ivs-win .ivs-form input:hover{background:rgba(43,38,34,.06)}
-  .ivs-win .ivs-form input:focus{background:#fff;border-color:rgba(43,38,34,.30);outline:none}
-  .ivs-win .ivs-form .li-main,.ivs-win .ivs-form .li-price{border-color:transparent;background:rgba(43,38,34,.035)}
-  .ivs-win .ivs-form .li-main:focus-within,.ivs-win .ivs-form .li-price:focus-within{background:#fff;border-color:rgba(43,38,34,.30)}
-  .ivs-win .ivs-form .li-qty,.ivs-win .ivs-form .li-steps{background:rgba(43,38,34,.05)}
+  .ivs-win .ivs-form input{border-color:transparent;background:#fff}
+  .ivs-win .ivs-form input:hover{border-color:rgba(43,38,34,.12)}
+  .ivs-win .ivs-form input:focus{background:#fff;border-color:rgba(43,38,34,.34);outline:none}
+  .ivs-win .ivs-form .li-main,.ivs-win .ivs-form .li-price{border-color:transparent;background:#fff}
+  .ivs-win .ivs-form .li-main:hover,.ivs-win .ivs-form .li-price:hover{border-color:rgba(43,38,34,.12)}
+  .ivs-win .ivs-form .li-main:focus-within,.ivs-win .ivs-form .li-price:focus-within{border-color:rgba(43,38,34,.34)}
+  .ivs-win .ivs-form .li-qty,.ivs-win .ivs-form .li-steps{background:rgba(43,38,34,.045)}
   /* Guidance panel in the draft modal: what to do before this email goes out */
   .dtips{margin:-6px 0 22px;padding:13px 15px 14px;background:rgba(162,84,58,.07);border-radius:8px;border-left:2px solid rgba(162,84,58,.35)}
   .dtips-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:#a2543a;margin-bottom:8px}
@@ -2002,12 +2003,12 @@ function invRenderForm(){
 
   const m=invMath(v);
   el.querySelector("#ivsForm").innerHTML=`
-    <div class="inv-grid2" style="grid-template-columns:minmax(0,1fr) 150px">
+    <div class="inv-grid2" style="grid-template-columns:minmax(0,1fr) 138px 104px">
       <div><label>Bill to</label><input id="fTo" value="${esc(v.bill_to||"")}" placeholder="Person or shop" ${ro?"disabled":""}></div>
       <div><label>Date</label><input id="fDate" type="date" value="${esc(v.issued_on||"")}" ${ro?"disabled":""}></div>
+      <div><label>Invoice no.</label><input id="fNum" value="${esc(v.number||"")}"
+        placeholder="${invS.saved?"":"on save"}" ${(ro||invS.saved)?"disabled":""}></div>
     </div>
-    <div><label>Invoice no.</label><input id="fNum" value="${esc(v.number||"")}"
-      placeholder="${invS.saved?"":"assigned on save"}" ${(ro||invS.saved)?"disabled":""}></div>
     <div><label>Line items</label><div class="inv-lines" id="fLines"></div></div>
     ${ro?"":`<button class="inv-addline" id="fAdd">+ Add line</button>`}
     <div class="inv-totals" id="fTotals"></div>
