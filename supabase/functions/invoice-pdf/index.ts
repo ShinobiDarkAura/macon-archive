@@ -286,12 +286,16 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("POST an invoice", { status: 405, headers: cors });
 
   try {
+    const t0 = performance.now();
     const v = await req.json();
+    const tParse = performance.now();
     const { bytes, filename, width, height, pages } = await invoicePDF(v);
+    const tDraw = performance.now();
     return new Response(bytes, { status: 200, headers: { ...cors,
       "Content-Type": "application/pdf",
       "Content-Disposition": `inline; filename="${filename.replace(/"/g, "")}"`,
       "X-Sheet": `${width}x${height}`, "X-Pages": String(pages),
+      "X-Timing": `parse=${(tParse-t0).toFixed(0)} draw=${(tDraw-tParse).toFixed(0)} warm=${_cache.size}`,
       "Cache-Control": "no-store" } });
   } catch (e) {
     return new Response(JSON.stringify({ error: String(e) }), { status: 500,

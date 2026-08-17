@@ -1919,15 +1919,36 @@ async function invPaintSheets(bytes, width, height, pages){
 function invQueuePreview(now){
   clearTimeout(invS.timer);
   const p=document.getElementById("ivsPending"); if(p) p.classList.add("on");
-  // The sheet is drawn over the network, so it settles when you leave a field
-  // rather than chasing keystrokes. The panel's totals stay instant regardless.
-  invS.timer=setTimeout(async()=>{
-    try{
-      const r=await invoicePDF(invS.v);
-      await invPaintSheets(r.bytes, r.width, r.height, r.pages);
-    }catch(e){ console.error("[invoice preview]", e); }
-    if(p) p.classList.remove("on");
-  }, now ? 0 : 350);
+  invS.timer=setTimeout(invRunPreview, now ? 0 : 150);
+}
+
+/* The sheet is drawn on the server, which takes about a second, so requests are
+   coalesced rather than queued: while one is in flight the newest state is held
+   and fired the moment it lands. Typing therefore updates as fast as the render
+   can go and always finishes on the current state, instead of playing back a
+   backlog. Identical payloads are served from a small cache, so undoing an edit
+   or flipping a toggle is instant. */
+let _invBusy=false, _invPending=false;
+const _invCache=new Map();
+
+async function invRunPreview(){
+  if(_invBusy){ _invPending=true; return; }
+  _invBusy=true;
+  const p=document.getElementById("ivsPending");
+  try{
+    const key=JSON.stringify(invS.v);
+    let r=_invCache.get(key);
+    if(!r){
+      r=await invoicePDF(invS.v);
+      _invCache.set(key, r);
+      if(_invCache.size>24) _invCache.delete(_invCache.keys().next().value);
+    }
+    // a newer edit landed while this was rendering; that one wins
+    if(!_invPending) await invPaintSheets(r.bytes, r.width, r.height, r.pages);
+  }catch(e){ console.error("[invoice preview]", e); }
+  _invBusy=false;
+  if(_invPending){ _invPending=false; invRunPreview(); }
+  else if(p) p.classList.remove("on");
 }
 
 // Slide the segmented thumb onto whichever half is live.
