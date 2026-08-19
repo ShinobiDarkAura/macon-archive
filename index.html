@@ -504,6 +504,23 @@
   .drawer-close{width:30px;height:30px;border:none;background:transparent;color:#9b9488;cursor:pointer;font-size:18px;transition:.15s}
   .drawer-close:hover{color:var(--ink)}
   .drawer-body{flex:1;overflow:auto;padding:24px 24px 124px;display:flex;flex-direction:column;gap:24px}
+  .dfilter{display:flex;gap:2px;background:rgba(43,38,34,.05);border-radius:8px;padding:2px;margin-bottom:4px}
+  .dfilter button{flex:1;border:none;background:transparent;cursor:pointer;padding:6px 4px;border-radius:6px;
+    font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#8b8375;transition:.15s}
+  .dfilter button:hover{color:var(--ink)}
+  .dfilter button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(40,28,16,.10)}
+  .dfilter .n{opacity:.55;margin-left:4px}
+  .dadd{border:1px dashed rgba(43,38,34,.22);background:transparent;border-radius:8px;padding:8px;cursor:pointer;
+    font-family:var(--sans);font-size:12px;color:#8b8375;width:100%}
+  .dadd:hover{color:var(--ink);border-color:rgba(43,38,34,.4)}
+  .dstatus{display:flex;gap:2px;background:rgba(43,38,34,.05);border-radius:7px;padding:2px;margin:-6px 0 16px}
+  .dstatus button{flex:1;border:none;background:transparent;cursor:pointer;padding:6px;border-radius:5px;
+    font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#8b8375}
+  .dstatus button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(40,28,16,.10)}
+  .dnote-edit{width:100%;font-family:var(--sans);font-size:13px;line-height:1.45;color:var(--slate);
+    background:transparent;border:1px solid transparent;border-radius:7px;padding:8px;resize:vertical;min-height:64px}
+  .dnote-edit:hover{border-color:rgba(43,38,34,.14)}
+  .dnote-edit:focus{background:#fff;border-color:rgba(43,38,34,.34);outline:none}
   .drawer-empty{color:#9b9488;font-family:var(--serif-soul);font-style:italic;font-size:15px;text-align:center;margin-top:30px}
   .fgroup{display:flex;flex-direction:column;gap:10px}
   .fgroup-top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:10px;padding-top:6px}
@@ -1033,8 +1050,9 @@ async function startSynced(){
   hideGate(); synced=true; setSync("on","Synced");
   await refresh();
   sb.channel("collectors-rt").on("postgres_changes",{event:"*",schema:"public",table:"collectors"},()=>refresh()).subscribe();
-  loadTodoDone();
+  loadTodoDone(); loadInquiries().then(renderDrawer);
   sb.channel("todos-rt").on("postgres_changes",{event:"*",schema:"public",table:"bureau_todos"},()=>loadTodoDone()).subscribe();
+  sb.channel("inq-rt").on("postgres_changes",{event:"*",schema:"public",table:"inquiries"},()=>loadInquiries().then(renderDrawer)).subscribe();
   initChat();
 }
 async function refresh(){
@@ -1186,7 +1204,10 @@ function chipIcon(d){
 function clientType(d){ if(d.first_look||num(d.ltv)>1000) return "VIP"; if(countPieces(d.pieces)>=2) return "Collector"; if(d.gift_self==="Gift") return "Gift"; return "New"; }
 function followAction(d, kind){ if(kind==="custom") return "Custom inquiry"; if(kind==="reconnect") return "Reconnect"; if(d.gift_self==="Gift") return "Gift story"; if(num(d.ltv)>1000 && !(countPieces(d.pieces)>=2)) return "Welcome"; if(countPieces(d.pieces)>=2||d.first_look) return "Check-in"; return "Story request"; }
 function cardMeta(d, kind, q){
-  if(kind==="custom") return 'Custom inquiry  ·  <span class="fmeta-dim">'+esc(q?q.animal:"")+"  ·  quoted $925</span>";
+  if(kind==="custom"){
+    const when = q && q.last_touched ? "followed up "+daysSince(q.last_touched)+"d ago" : "no reply yet";
+    return 'Enquiry  ·  <span class="fmeta-dim">'+esc((q&&q.subject)||"")+"  ·  "+when+"</span>";
+  }
   return cardMetaStd(d, kind);
 }
 function cardMetaStd(d, kind){ const np=countPieces(d.pieces); const rest=[ np>1?(np+" pieces"):firstPiece(d.pieces), fmtMoney(d.ltv) ].filter(Boolean).map(esc); const a=esc(followAction(d,kind)); return rest.length ? a+'  ·  <span class="fmeta-dim">'+rest.join("  ·  ")+"</span>" : a; }
@@ -1293,32 +1314,55 @@ function draftEmail(d, tone, kind, q){
   const r=set[idx].build(kind==="custom" ? q : emailCtx(d));
   return {subject:r.subject, body:r.body, toneName:set[idx].name, toneIdx:idx};
 }
-/* ---------- Open custom-totem inquiries ----------
-   Someone asked about a custom and the thread went quiet. They are not ledger
-   entries yet, so they live here: add a line when an inquiry arrives and the
-   drawer chases it until it is checked off.
+/* ---------- Custom enquiries ----------
+   Records, not tasks. They live in public.inquiries and carry a status, so a
+   tick advances them rather than erasing them. What "needs attention" means is
+   worked out here from status plus time and is never written down: that is what
+   makes it impossible for a click to lose someone. */
 
-   The sequence is deliberate. The first reply carries NO pay link: price is
-   stated plainly in the middle, the email ends on a question about their animal,
-   and the deposit link goes in the next email once they have answered. Asking a
-   free question converts; asking for $462 against an object they have never seen
-   does not. */
-const CUSTOM_INQUIRIES=[
-  {id:"matt-mcclure", name:"Matt McClure", email:"", animal:"armoured bear", sent:"2026-07-28",
-   note:"Wrote in off the custom-orders post. Replied same day with the six-step process, $925, and an offer of a pay link. Nothing since."},
-  {id:"jason-fried", name:"Jason Fried", email:"", animal:"snail", sent:"2026-07-28", repeat:true,
-   note:"Already a collector, asked for a snail unprompted. The reply opened with the price change and a deposit link. Nothing since."}
-];
-function inqOpen(){ const done=briefDone(); return CUSTOM_INQUIRIES.filter(q=>!done["inq|"+q.id]); }
-function inqById(id){ return CUSTOM_INQUIRIES.find(q=>q.id===id); }
+const INQ_STALE_DAYS = 7;      // a followed-up thread goes quiet this long, it resurfaces
+let inquiries = [];
+
+async function loadInquiries(){
+  if(!(synced&&sb)) return;
+  const { data:rows, error } = await sb.from("inquiries").select("*").order("first_seen",{ascending:true});
+  if(!error) inquiries = rows||[];
+}
+function inqState(q){
+  if(q.status==="closed") return "closed";
+  if(q.status==="open")   return "attention";
+  const since = q.last_touched ? daysSince(q.last_touched) : daysSince(q.first_seen);
+  return since >= INQ_STALE_DAYS ? "attention" : "followed";
+}
 function inqAsD(q){ return {name:q.name, email:q.email||"", pieces:"Custom", ltv:"", notes:q.note,
-  location:"", instagram:"", last_buy:"", last_contact:q.sent}; }
+  location:"", instagram:"", last_buy:"", last_contact:q.last_touched||q.first_seen}; }
+
+async function inqSet(id, patch){
+  const q = inquiries.find(x=>x.id===id); if(!q) return;
+  Object.assign(q, patch);
+  renderDrawer();
+  if(synced&&sb){ try{ await sb.from("inquiries").update(patch).eq("id",id); }catch(e){} }
+}
+// Following someone up stamps the date and moves them on. It never removes them.
+function inqFollowUp(id){
+  return inqSet(id, { status:"followed", last_touched:new Date().toLocaleDateString("en-CA") });
+}
+async function inqAdd(){
+  const name = prompt("Who wrote in?"); if(!name) return;
+  const subject = prompt("What did they ask for?") || "";
+  const email = prompt("Email address (optional)") || "";
+  if(!(synced&&sb)) return;
+  const { error } = await sb.from("inquiries").insert({ name, subject, email, source:"website" });
+  if(error){ alert("Could not add: "+error.message); return; }
+  await loadInquiries(); renderDrawer();
+}
+
 function monthOf(s){ const t=Date.parse(s); return isNaN(t)?"":new Date(t).toLocaleDateString("en-US",{month:"long"}); }
 
 const CUSTOM_TONES=[
   {name:"Revive", build:q=>{
-    const f=firstName(q.name), a=q.animal;
-    return q.repeat ? {
+    const f=firstName(q.name), a=q.subject;
+    return q.repeat_buyer ? {
       subject:`Re: your ${a}`,
       body:[`Hey ${f},`,"",
         `I never circled back about the ${a}, which I regret, it's a good one.`,"",
@@ -1329,20 +1373,20 @@ const CUSTOM_TONES=[
       body:[`Hi ${f},`,"",
         `I never followed up on your ${a}, and I should have.`,"",
         `If it was the price or the size of the deposit, I would genuinely like to know, it helps us. And if you're still interested, I'd like to draw it for you before you decide anything at all.`,"",
-        `Either way, thanks for writing in ${monthOf(q.sent)}.`,"",
+        `Either way, thanks for writing in ${monthOf(q.first_seen)}.`,"",
         `Hannah`].join("\n")
     };
   }},
   {name:"Nudge", build:q=>({
-    subject:`Re: your ${q.animal}`,
+    subject:`Re: your ${q.subject}`,
     body:[`Hi ${firstName(q.name)},`,"",
-      `Still thinking about your ${q.animal}.`,"",
+      `Still thinking about your ${q.subject}.`,"",
       `Want me to sketch something?`,"",
       `Hannah`].join("\n")
   })},
   {name:"First reply", build:q=>{
-    const f=firstName(q.name), a=q.animal;
-    return q.repeat ? {
+    const f=firstName(q.name), a=q.subject;
+    return q.repeat_buyer ? {
       subject:`Re: your ${a}`,
       body:[`Hey ${f},`,"",
         `Yes, a ${a}, absolutely.`,"",
@@ -1385,12 +1429,18 @@ const DRAFT_TIPS={
 function followUps(){
   const P={High:0,Medium:1,Low:2};
   const story=data.map((d,i)=>({d,i})).filter(x=>isDue(x.d))
-    .map(x=>({...x, kind:"story", days:daysSince(x.d.last_buy), priority:followPriority(x.d), ask:followAsk(x.d)}));
+    .map(x=>({...x, kind:"story", days:daysSince(x.d.last_buy), priority:followPriority(x.d), ask:followAsk(x.d), state:"attention"}));
   const recon=data.map((d,i)=>({d,i})).filter(x=>isReconnectDue(x.d))
-    .map(x=>({...x, kind:"reconnect", days:(x.d.last_contact?daysSince(x.d.last_contact):daysSince(x.d.last_buy)), priority:"High", ask:""}));
+    .map(x=>({...x, kind:"reconnect", days:(x.d.last_contact?daysSince(x.d.last_contact):daysSince(x.d.last_buy)), priority:"High", ask:"", state:"attention"}));
+  // spoken to lately: not due, but still visible under Followed up rather than gone
+  const RECENT=45;
+  const warm=data.map((d,i)=>({d,i}))
+    .filter(x=>x.d.last_contact && daysSince(x.d.last_contact)<RECENT && !isDue(x.d) && !isReconnectDue(x.d))
+    .map(x=>({...x, kind:"story", days:daysSince(x.d.last_contact), priority:"Low", ask:"", state:"followed"}));
   // open custom inquiries lead the drawer: live money, and the thread goes cold fastest
-  const inq=inqOpen().map(q=>({d:inqAsD(q), i:-1, q, kind:"custom", days:daysSince(q.sent), priority:"High", ask:""}));
-  return inq.concat(story, recon).sort((a,b)=>
+  const inq=inquiries.map(q=>({d:inqAsD(q), i:-1, q, kind:"custom",
+    days:daysSince(q.last_touched||q.first_seen), priority:"High", ask:"", state:inqState(q)}));
+  return inq.concat(story, recon, warm).sort((a,b)=>
     (a.kind==="custom"?0:1)-(b.kind==="custom"?0:1) || P[a.priority]-P[b.priority] || a.days-b.days);
 }
 
@@ -1584,17 +1634,36 @@ function applyTab(){
 }
 
 /* ---------- Follow-up drawer + draft ---------- */
+let drawerFilter="attention";
+
 function renderDrawer(){
-  const list=followUps();
+  const all=followUps();
+  const counts={attention:0,followed:0,closed:0};
+  all.forEach(x=>counts[x.state||"attention"]++);
+  const list=all.filter(x=>(x.state||"attention")===drawerFilter);
   const body=document.getElementById("drawerBody");
   const badge=document.getElementById("drawerBadge");
   const rail=document.getElementById("drawerRail");
-  if(badge){ badge.textContent=list.length; badge.classList.toggle("zero", list.length===0); }
+  if(badge){ badge.textContent=counts.attention; badge.classList.toggle("zero", counts.attention===0); }
   const bbadge=document.getElementById("bellBadge");
-  if(bbadge){ bbadge.textContent=list.length; bbadge.classList.toggle("zero", list.length===0); }
-  if(rail) rail.classList.toggle("has-due", list.length>0);
+  if(bbadge){ bbadge.textContent=counts.attention; bbadge.classList.toggle("zero", counts.attention===0); }
+  if(rail) rail.classList.toggle("has-due", counts.attention>0);
   if(!body) return;
-  if(!list.length){ body.innerHTML=`<div class="drawer-empty">No one's due for a follow-up right now.<br>New purchases appear once a piece has had time to arrive and settle.</div>`; return; }
+  const FILTERS=[["attention","Needs you"],["followed","Followed up"],["closed","Closed"]];
+  const chrome = `<div class="dfilter">` + FILTERS.map(([k,l])=>
+      `<button data-f="${k}" class="${drawerFilter===k?"on":""}">${l}<span class="n">${counts[k]}</span></button>`).join("") + `</div>`
+    + `<button class="dadd" id="drawerAdd">+ Log an enquiry</button>`;
+  const wire = () => {
+    body.querySelectorAll(".dfilter button").forEach(b=>b.onclick=()=>{ drawerFilter=b.dataset.f; renderDrawer(); });
+    const a=body.querySelector("#drawerAdd"); if(a) a.onclick=inqAdd;
+  };
+  if(!list.length){
+    const blank = drawerFilter==="attention"
+      ? "Nothing needs you right now.<br>Followed-up threads return here if they go quiet."
+      : "Nothing here yet.";
+    body.innerHTML = chrome + `<div class="drawer-empty">${blank}</div>`;
+    wire(); return;
+  }
   const cardHTML=(x)=>{
     const d=x.d;
     const slug=pieceSlug(d.pieces);
@@ -1605,7 +1674,7 @@ function renderDrawer(){
         <button class="donechip" data-i="${x.i}" data-q="${esc(x.q?x.q.id:"")}" title="Mark contacted"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
         <div class="fcard-top">
           <div class="ftitle">
-            <div class="fn t-${followKey(d, x.kind)}">${esc(x.kind==="custom"?"Inquiry":clientType(d))}</div>
+            <div class="fn t-${followKey(d, x.kind)}">${esc(x.kind==="custom"?"Enquiry":clientType(d))}</div>
             <div class="ftype">${esc(shortName(d.name))}</div>
           </div>
         </div>
@@ -1620,7 +1689,7 @@ function renderDrawer(){
   const byPri=new Map();
   list.forEach(x=>{ const p=x.priority||"Low"; if(!byPri.has(p)) byPri.set(p,[]); byPri.get(p).push(x); });
   const pris=[...PRI_ORDER.filter(p=>byPri.has(p)), ...[...byPri.keys()].filter(p=>!PRI_ORDER.includes(p))];
-  body.innerHTML = pris.map(p=>{
+  body.innerHTML = chrome + pris.map(p=>{
     const items=byPri.get(p);
     const ids=items.map(x=>x.kind==="custom"?("q:"+x.q.id):String(x.i)).join(',');
     return `<div class="fgroup">
@@ -1631,6 +1700,7 @@ function renderDrawer(){
       ${items.map(cardHTML).join("")}
     </div>`;
   }).join("");
+  wire();
   body.querySelectorAll(".fcard").forEach(c=>{
     c.onclick=()=>openDraft(+c.dataset.i, c.dataset.kind, c.dataset.q);
     c.onkeydown=e=>{ if(e.key==="Enter") openDraft(+c.dataset.i, c.dataset.kind, c.dataset.q); };
@@ -1660,13 +1730,13 @@ function igHandle(s){ return (s||"").trim().replace(/^@/,"").replace(/^https?:\/
 function igUrl(s){ const h=igHandle(s); return h?("https://instagram.com/"+h):""; }
 const IG_SVG='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none"/></svg>';
 function openDraft(i, kind, qid){
-  const q=kind==="custom"?inqById(qid):null;
+  const q=kind==="custom"?inquiries.find(x=>x.id===qid):null;
   if(kind==="custom" && !q) return;
   const d=q?inqAsD(q):data[i]; if(!d) return;
   const {subject, body, toneName}=draftEmail(d, 0, kind, q);
   const pri=(kind==="reconnect"||kind==="custom")?"High":followPriority(d);
   const dayLbl=kind==="custom"?"days since you wrote":kind==="reconnect"?"days since last contact":"days since last purchase";
-  const daysN=kind==="custom"?daysSince(q.sent):kind==="reconnect"?(d.last_contact?daysSince(d.last_contact):daysSince(d.last_buy)):daysSince(d.last_buy);
+  const daysN=kind==="custom"?daysSince(q.first_seen):kind==="reconnect"?(d.last_contact?daysSince(d.last_contact):daysSince(d.last_buy)):daysSince(d.last_buy);
   const tips=DRAFT_TIPS[kind]||DRAFT_TIPS.story;
   const host=document.getElementById("cardHost");
   host.innerHTML=`
@@ -1677,9 +1747,12 @@ function openDraft(i, kind, qid){
         <span class="dchip">${esc(d.email||"—")}</span>
         <span class="dchip">${daysN} ${dayLbl}</span>
       </div>
-      ${(d.notes||igHandle(d.instagram))?`<div class="dwho">
+      ${q?`<div class="dstatus" id="dStatus">${[["open","Open"],["followed","Followed up"],["closed","Closed"]]
+        .map(([k,l])=>`<button data-s="${k}" class="${q.status===k?"on":""}">${l}</button>`).join("")}</div>`:""}
+      ${(d.notes||igHandle(d.instagram)||q)?`<div class="dwho">
         ${igHandle(d.instagram)?`<a class="dwho-ig" href="${igUrl(d.instagram)}" target="_blank" rel="noopener">${IG_SVG}<span>@${esc(igHandle(d.instagram))}</span></a>`:""}
-        ${d.notes?`<p class="dwho-note">${esc(d.notes)}</p>`:""}
+        ${q ? `<textarea class="dnote-edit" id="dNote" placeholder="What happened, and what you owe them next">${esc(q.note||"")}</textarea>`
+            : (d.notes?`<p class="dwho-note">${esc(d.notes)}</p>`:"")}
       </div>`:""}
       <div class="dtips">
         <div class="dtips-h">Before you send</div>
@@ -1724,6 +1797,14 @@ function openDraft(i, kind, qid){
   const copy=async(text,btn)=>{ try{ await navigator.clipboard.writeText(text); flash(btn); }catch(e){ alert("Copy failed — select the text manually."); } };
   host.querySelector("#dCopySubj").onclick=e=>copy(subjEl.value, e.currentTarget);
   host.querySelector("#dCopyBody").onclick=e=>copy(subjEl.value+"\n\n"+bodyEl.value, e.currentTarget);
+  const stat=host.querySelector("#dStatus");
+  if(stat) stat.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    stat.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));
+    inqSet(q.id, { status:b.dataset.s,
+      last_touched: b.dataset.s==="open" ? q.last_touched : new Date().toLocaleDateString("en-CA") });
+  });
+  const noteEl=host.querySelector("#dNote");
+  if(noteEl) noteEl.onblur=()=>{ if(noteEl.value!==(q.note||"")) inqSet(q.id,{ note:noteEl.value }); };
   host.querySelector("#dClose").onclick=closeScrim;
   host.querySelector("#dMail").onclick=()=>{ const url=`mailto:${encodeURIComponent(d.email||"")}?subject=${encodeURIComponent(subjEl.value)}&body=${encodeURIComponent(bodyEl.value)}`; window.location.href=url; };
   host.querySelector("#dDone").onclick=()=>{ completeFollowUp(i, q?q.id:""); closeScrim(); };
@@ -1731,7 +1812,10 @@ function openDraft(i, kind, qid){
 /* One completion path for both card kinds: ledger rows stamp last_contact,
    custom inquiries check off against bureau_todos so both keepers see it. */
 function completeFollowUp(i, qid){
-  if(qid){ markTodo("inq|"+qid, true).then(()=>renderAll()); renderAll(); return; }
+  // Advances the record. Nothing is ever removed: an enquiry becomes "followed
+  // up" and returns on its own if it goes quiet, and a collector simply stops
+  // being due once last_contact is stamped.
+  if(qid){ inqFollowUp(qid); return; }
   markContacted(i);
 }
 function markContacted(i){
