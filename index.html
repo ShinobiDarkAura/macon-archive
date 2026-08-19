@@ -504,6 +504,41 @@
   .drawer-close{width:30px;height:30px;border:none;background:transparent;color:#9b9488;cursor:pointer;font-size:18px;transition:.15s}
   .drawer-close:hover{color:var(--ink)}
   .drawer-body{flex:1;overflow:auto;padding:24px 24px 124px;display:flex;flex-direction:column;gap:24px}
+  /* ---------- Enquiries tab ---------- */
+  .enquiries{padding:0 0 60px}
+  .enq-top{display:flex;align-items:center;gap:10px;margin:6px 0 18px}
+  .enq-seg{display:flex;gap:2px;background:rgba(43,38,34,.05);border-radius:9px;padding:3px}
+  .enq-seg button{border:none;background:transparent;cursor:pointer;padding:7px 14px;border-radius:6px;
+    font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8b8375;transition:.15s}
+  .enq-seg button:hover{color:var(--ink)}
+  .enq-seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(40,28,16,.10)}
+  .enq-seg .n{opacity:.5;margin-left:5px}
+  .enq-search{flex:1;max-width:320px;font-family:var(--sans);font-size:13.5px;padding:9px 12px;
+    border:1px solid rgba(43,38,34,.16);border-radius:8px;background:#fff}
+  .enq-list{display:grid;gap:10px}
+  .enq-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.6fr) 132px 128px;gap:16px;align-items:start;
+    background:#fff;border:1px solid rgba(43,38,34,.08);border-radius:12px;padding:14px 16px;transition:.15s}
+  .enq-row:hover{box-shadow:0 4px 16px rgba(40,28,16,.08)}
+  .enq-who{font-family:var(--sans);font-size:15px;color:var(--ink)}
+  .enq-sub{font-family:var(--mono);font-size:11px;color:#9b9488;margin-top:3px}
+  .enq-note{font-family:var(--sans);font-size:13px;line-height:1.5;color:var(--slate);
+    background:transparent;border:1px solid transparent;border-radius:7px;padding:7px 8px;resize:vertical;
+    min-height:56px;width:100%}
+  .enq-note:hover{border-color:rgba(43,38,34,.14)}
+  .enq-note:focus{background:#fdfcf8;border-color:rgba(43,38,34,.34);outline:none}
+  .enq-stat{display:flex;flex-direction:column;gap:3px}
+  .enq-stat button{border:1px solid transparent;background:rgba(43,38,34,.04);cursor:pointer;padding:6px;border-radius:6px;
+    font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#8b8375;transition:.15s}
+  .enq-stat button:hover{color:var(--ink)}
+  .enq-stat button.on{background:var(--notes,#C04722);border-color:transparent;color:#fff}
+  .enq-when{font-family:var(--mono);font-size:10.5px;color:#9b9488;line-height:1.7}
+  .enq-when b{display:block;color:var(--ink);font-weight:400}
+  .enq-act{display:flex;gap:6px;margin-top:8px}
+  .enq-act button{border:1px solid var(--rule);background:transparent;border-radius:6px;padding:5px 9px;cursor:pointer;
+    font-family:var(--sans);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+  .enq-act button:hover{background:#000;border-color:#000;color:var(--paper)}
+  .enq-empty{color:#9b9488;font-family:var(--serif-soul);font-style:italic;font-size:16px;padding:44px 0;text-align:center}
+  @media(max-width:900px){ .enq-row{grid-template-columns:1fr;gap:10px} }
   .dfilter{display:flex;gap:2px;background:rgba(43,38,34,.05);border-radius:8px;padding:2px;margin-bottom:4px}
   .dfilter button{flex:1;border:none;background:transparent;cursor:pointer;padding:6px 4px;border-radius:6px;
     font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#8b8375;transition:.15s}
@@ -883,6 +918,7 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
       <button class="btn" id="addBtn" title="New Entry"><span class="bl">+ New Entry</span><span class="bi"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 4v12M4 10h12"/></svg></span></button>
       <div class="tabs" id="tabs">
         <button data-tab="ledger" class="on" title="Ledger"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="3.6" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="3.6" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="3.6" cy="18" r="1.2" fill="currentColor" stroke="none"/></svg></button>
+        <button data-tab="enquiries" title="Enquiries"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18v14H3z"/><path d="m3 6 9 7 9-7"/></svg></button>
         <button data-tab="provenance" title="Provenance"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></button>
         <span class="tab-ink" id="tabInk"></span>
       </div>
@@ -896,6 +932,7 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
     <section class="ledger" id="ledger"></section>
     <div class="pager" id="pager"></div>
     </div>
+    <section class="enquiries" id="enquiries" hidden></section>
     <section class="provenance" id="provenance" hidden></section>
   </main>
 
@@ -1050,9 +1087,9 @@ async function startSynced(){
   hideGate(); synced=true; setSync("on","Synced");
   await refresh();
   sb.channel("collectors-rt").on("postgres_changes",{event:"*",schema:"public",table:"collectors"},()=>refresh()).subscribe();
-  loadTodoDone(); loadInquiries().then(renderDrawer);
+  loadTodoDone(); loadInquiries().then(()=>{ renderDrawer(); if(tab==="enquiries") renderEnquiries(); });
   sb.channel("todos-rt").on("postgres_changes",{event:"*",schema:"public",table:"bureau_todos"},()=>loadTodoDone()).subscribe();
-  sb.channel("inq-rt").on("postgres_changes",{event:"*",schema:"public",table:"inquiries"},()=>loadInquiries().then(renderDrawer)).subscribe();
+  sb.channel("inq-rt").on("postgres_changes",{event:"*",schema:"public",table:"inquiries"},()=>loadInquiries().then(()=>{ renderDrawer(); if(tab==="enquiries") renderEnquiries(); })).subscribe();
   initChat();
 }
 async function refresh(){
@@ -1340,7 +1377,7 @@ function inqAsD(q){ return {name:q.name, email:q.email||"", pieces:"Custom", ltv
 async function inqSet(id, patch){
   const q = inquiries.find(x=>x.id===id); if(!q) return;
   Object.assign(q, patch);
-  renderDrawer();
+  renderDrawer(); if(tab==="enquiries") renderEnquiries();
   if(synced&&sb){ try{ await sb.from("inquiries").update(patch).eq("id",id); }catch(e){} }
 }
 // Following someone up stamps the date and moves them on. It never removes them.
@@ -1354,7 +1391,7 @@ async function inqAdd(){
   if(!(synced&&sb)) return;
   const { error } = await sb.from("inquiries").insert({ name, subject, email, source:"website" });
   if(error){ alert("Could not add: "+error.message); return; }
-  await loadInquiries(); renderDrawer();
+  await loadInquiries(); renderDrawer(); if(tab==="enquiries") renderEnquiries();
 }
 
 function monthOf(s){ const t=Date.parse(s); return isNaN(t)?"":new Date(t).toLocaleDateString("en-US",{month:"long"}); }
@@ -1622,17 +1659,99 @@ function applyTab(){
   const tabsEl=document.getElementById("tabs");
   if(tabsEl) tabsEl.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
   positionTabInk();
-  const isProv=tab==="provenance";
+  const isProv=tab==="provenance", isEnq=tab==="enquiries", isLedger=!isProv&&!isEnq;
   const lh=document.getElementById("ledgerHead"), led=document.getElementById("ledger"),
         pg=document.getElementById("pager"), prov=document.getElementById("provenance"),
-        seg=document.getElementById("viewSeg");
-  const sf=document.getElementById("ledgerSurface"); if(sf) sf.hidden=isProv;
-  if(lh) lh.hidden=isProv; if(led) led.hidden=isProv; if(pg) pg.hidden=isProv;
+        enq=document.getElementById("enquiries"), seg=document.getElementById("viewSeg");
+  const sf=document.getElementById("ledgerSurface"); if(sf) sf.hidden=!isLedger;
+  if(lh) lh.hidden=!isLedger; if(led) led.hidden=!isLedger; if(pg) pg.hidden=!isLedger;
   if(prov) prov.hidden=!isProv;
-  if(seg) seg.style.display=isProv?"none":"";
-  if(isProv) renderProvenance(); else renderLedger();
+  if(enq) enq.hidden=!isEnq;
+  if(seg) seg.style.display=isLedger?"":"none";
+  if(isProv) renderProvenance(); else if(isEnq) renderEnquiries(); else renderLedger();
 }
 
+/* ---------- Enquiries tab ----------
+   The drawer answers "what needs me today". This answers "who has ever written
+   in", with room to actually read and write. Same records, same statuses; the
+   drawer is just a filtered view of them. */
+
+let enqFilter="all", enqQuery="";
+
+function renderEnquiries(){
+  const host=document.getElementById("enquiries"); if(!host) return;
+  const counts={all:inquiries.length, attention:0, followed:0, closed:0};
+  inquiries.forEach(q=>counts[inqState(q)]++);
+
+  const qy=enqQuery.trim().toLowerCase();
+  const rows=inquiries
+    .filter(q=>enqFilter==="all" || inqState(q)===enqFilter)
+    .filter(q=>!qy || [q.name,q.subject,q.note,q.email,q.source]
+      .some(f=>String(f||"").toLowerCase().includes(qy)))
+    .sort((a,b)=>{
+      const rank={attention:0,followed:1,closed:2};
+      return rank[inqState(a)]-rank[inqState(b)] ||
+             (Date.parse(b.first_seen)||0)-(Date.parse(a.first_seen)||0);
+    });
+
+  const FILTERS=[["all","All"],["attention","Needs you"],["followed","Followed up"],["closed","Closed"]];
+  const STATUSES=[["open","Open"],["followed","Followed"],["closed","Closed"]];
+
+  host.innerHTML = `
+    <div class="enq-top">
+      <div class="enq-seg" id="enqSeg">${FILTERS.map(([k,l])=>
+        `<button data-f="${k}" class="${enqFilter===k?"on":""}">${l}<span class="n">${counts[k]}</span></button>`).join("")}</div>
+      <input class="enq-search" id="enqSearch" placeholder="Search name, piece or notes" value="${esc(enqQuery)}">
+      <span style="flex:1"></span>
+      <button class="btn" id="enqNew">+ Log an enquiry</button>
+    </div>
+    ${rows.length ? `<div class="enq-list">` + rows.map(q=>{
+      const touched = q.last_touched ? daysSince(q.last_touched)+"d ago" : "never";
+      return `<div class="enq-row" data-id="${esc(q.id)}">
+        <div>
+          <div class="enq-who">${esc(q.name)}</div>
+          <div class="enq-sub">${esc(q.subject||"—")}${q.repeat_buyer?" · collector":""}</div>
+          ${q.email?`<div class="enq-sub">${esc(q.email)}</div>`:""}
+          <div class="enq-act">
+            <button data-act="draft">Draft</button>
+            ${q.email?`<button data-act="mail">Mail</button>`:""}
+          </div>
+        </div>
+        <textarea class="enq-note" data-id="${esc(q.id)}"
+          placeholder="What happened, and what you owe them next">${esc(q.note||"")}</textarea>
+        <div class="enq-stat">${STATUSES.map(([k,l])=>
+          `<button data-s="${k}" class="${q.status===k?"on":""}">${l}</button>`).join("")}</div>
+        <div class="enq-when">
+          <b>${esc(fmtDate(q.first_seen))}</b> first wrote
+          <b style="margin-top:6px">${esc(touched)}</b> last touched
+        </div>
+      </div>`;
+    }).join("") + `</div>`
+    : `<div class="enq-empty">${inquiries.length ? "Nothing matches." : "No enquiries logged yet."}</div>`}`;
+
+  host.querySelector("#enqSeg").querySelectorAll("button").forEach(b=>
+    b.onclick=()=>{ enqFilter=b.dataset.f; renderEnquiries(); });
+  const se=host.querySelector("#enqSearch");
+  se.oninput=e=>{ enqQuery=e.target.value; renderEnquiries();
+    const el=document.getElementById("enqSearch"); if(el){ el.focus(); el.setSelectionRange(el.value.length,el.value.length); } };
+  host.querySelector("#enqNew").onclick=inqAdd;
+
+  host.querySelectorAll(".enq-note").forEach(t=>t.onblur=()=>{
+    const q=inquiries.find(x=>x.id===t.dataset.id);
+    if(q && t.value!==(q.note||"")) inqSet(q.id,{ note:t.value });
+  });
+  host.querySelectorAll(".enq-row").forEach(row=>{
+    const id=row.dataset.id, q=inquiries.find(x=>x.id===id);
+    row.querySelectorAll(".enq-stat button").forEach(b=>b.onclick=()=>{
+      inqSet(id,{ status:b.dataset.s,
+        last_touched: b.dataset.s==="open" ? q.last_touched : new Date().toLocaleDateString("en-CA") });
+    });
+    row.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{
+      if(b.dataset.act==="draft") openDraft(-1,"custom",id);
+      else window.location.href="mailto:"+encodeURIComponent(q.email||"");
+    });
+  });
+}
 /* ---------- Follow-up drawer + draft ---------- */
 let drawerFilter="attention";
 
@@ -3143,7 +3262,7 @@ document.getElementById("filterSel").onchange=e=>{ filterKey=e.target.value; pag
     paintArrows(); page=1; renderLedger();
   });
 })();
-document.getElementById("q").oninput=e=>{ query=e.target.value; page=1; if(tab==="provenance") renderProvenance(); else renderLedger(); };
+document.getElementById("q").oninput=e=>{ query=e.target.value; page=1; if(tab==="provenance") renderProvenance(); else if(tab==="enquiries") renderEnquiries(); else renderLedger(); };
 
 /* Ledger / Provenance tabs */
 (function(){ const tabsEl=document.getElementById("tabs"); if(!tabsEl) return;
@@ -3151,7 +3270,7 @@ document.getElementById("q").oninput=e=>{ query=e.target.value; page=1; if(tab==
     if(b.dataset.tab===tab) return;
     tab=b.dataset.tab; localStorage.setItem("macon_tab",tab);
     applyTab();
-    const tgt=document.getElementById(tab==="provenance"?"provenance":"ledger");
+    const tgt=document.getElementById(tab==="provenance"?"provenance":tab==="enquiries"?"enquiries":"ledger");
     if(tgt){ tgt.classList.add("switching"); requestAnimationFrame(()=>tgt.classList.remove("switching")); }
   });
   applyTab();
@@ -3287,7 +3406,7 @@ function download(name,content,type){
   const a=document.createElement("a"); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u);
 }
 
-function renderAll(){ renderDash(); if(tab==="provenance") renderProvenance(); else renderLedger(); renderDrawer(); }
+function renderAll(){ renderDash(); if(tab==="provenance") renderProvenance(); else if(tab==="enquiries") renderEnquiries(); else renderLedger(); renderDrawer(); }
 
 /* ---------- Drawer open/collapse ---------- */
 (function(){
