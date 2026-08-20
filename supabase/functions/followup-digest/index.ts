@@ -9,10 +9,10 @@
 //   DIGEST_TO                    comma-separated recipients, e.g. "alex@studiomacon.co,hannah@studiomacon.co"
 //   DIGEST_FROM                  verified Resend sender, e.g. "Maçon Archive <archive@studiomacon.co>"
 
-// The letters come from drafts.js in the repo root, which the archive loads
-// too, so a wording fix lands in both. Only the timing rules below are still
+// The letters come from _shared/drafts.js, which the archive loads over HTTP
+// from the same path, so a wording fix lands in both. Only the timing rules below are still
 // duplicated, and those are flagged in README-followups.md.
-import { collectorDraft, enquiryDraft } from "https://shinobidarkaura.github.io/macon-archive/drafts.js";
+import { collectorDraft, enquiryDraft } from "../_shared/drafts.js";
 
 // --- keep these in sync with index.html ---
 const LEAD_DEFAULT = 21;
