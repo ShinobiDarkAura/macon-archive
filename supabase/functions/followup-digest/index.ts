@@ -34,10 +34,17 @@ const num = (v: unknown) => {
 
 type Rec = Record<string, any>;
 
+// A story ask is for a recent purchase. Past STORY_WINDOW it is not a story ask
+// any more, it is a reconnect, and asking "how has it settled in" about
+// something bought two years ago reads as a form letter.
+const STORY_WINDOW = 180;
+const PATRON_LTV = 600;
+
 function isDue(d: Rec): boolean {
   const days = daysSince(d.last_buy);
   if (days == null) return false;
   if (days < leadTime(firstPiece(d.pieces)) + 14) return false;
+  if (days > STORY_WINDOW) return false;
   if (d.story === "Yes") return false;
   if (d.last_contact) {
     const c = daysSince(d.last_contact);
@@ -45,8 +52,10 @@ function isDue(d: Rec): boolean {
   }
   return true;
 }
+// Reconnects follow value, not just the VIP flag: the patrons above PATRON_LTV
+// are half of all revenue, and they are the ones worth never losing touch with.
 function isReconnectDue(d: Rec): boolean {
-  if (!d.first_look) return false;
+  if (!d.first_look && num(d.ltv) < PATRON_LTV) return false;
   if (isDue(d)) return false;
   const last = d.last_contact ? daysSince(d.last_contact) : daysSince(d.last_buy);
   return last != null && last >= 90;
@@ -116,38 +125,66 @@ Deno.serve(async (_req) => {
   };
 
   const order = { High: 0, Medium: 1, Low: 2 } as const;
-  const due = data.filter(isDue)
-    .map((d) => ({ d, kind: "Story ask", days: daysSince(d.last_buy)!, pri: priority(d) }));
-  const recon = data.filter(isReconnectDue)
-    .map((d) => ({ d, kind: "Reconnect", days: (d.last_contact ? daysSince(d.last_contact) : daysSince(d.last_buy))!, pri: "High" as const }));
-  const items = due.concat(recon).sort((a, b) => order[a.pri] - order[b.pri] || a.days - b.days);
+  const CAP = 10;   // a briefing, not the whole ledger
 
-  const row = (x: typeof items[number]) => `
-    <tr>
-      <td style="padding:8px 14px;border-bottom:1px solid #e7e1d4;font-weight:600">${esc(x.d.name || "—")}</td>
-      <td style="padding:8px 14px;border-bottom:1px solid #e7e1d4;color:#9c4a3a">${esc(x.pri)}</td>
-      <td style="padding:8px 14px;border-bottom:1px solid #e7e1d4">${esc(x.kind)}</td>
-      <td style="padding:8px 14px;border-bottom:1px solid #e7e1d4">${esc(firstPiece(x.d.pieces) || "")}</td>
-      <td style="padding:8px 14px;border-bottom:1px solid #e7e1d4;color:#5b5a55">${x.days}d</td>
-      <td style="padding:8px 14px;border-bottom:1px solid #e7e1d4;color:#5b5a55">${esc(x.d.email || "")}</td>
-    </tr>`;
+  const first = (n?: string) => String(n || "").trim().split(/\s+/)[0] || "there";
 
+  /* Drafts follow the studio's own rules: no em dashes, short ideas joined with
+     commas rather than stacked, nothing pitchy, and each one ends on something
+     answerable in a sentence. */
+  const storyDraft = (d: Rec) => {
+    const piece = firstPiece(d.pieces) || "your piece";
+    const jewel = /ring|cuff|pendant|chain|earring|talisman|key/i.test(piece);
+    const ask = d.gift_self === "Gift"
+      ? `Did the person you gave ${piece} to put it on straight away?`
+      : jewel
+        ? `Has ${piece} worked its way into the rotation, or is it saved for something?`
+        : `Where does ${piece} live now, on you, on a shelf, somewhere particular?`;
+    return `Hi ${first(d.name)},\n\nIt's Hannah. ${piece} has been with you a little while now, and I have been wondering how it settled in.\n\n${ask}\n\nA sentence is plenty, no need to write at length.\n\nHannah`;
+  };
+  const reconnectDraft = (d: Rec) => {
+    const piece = firstPiece(d.pieces) || "your piece";
+    return `Hi ${first(d.name)},\n\nNo news and no ask. You have been on our minds lately, and I did not want more time to pass without saying hello.\n\nI hope ${piece} is still keeping good company, and that you are well.\n\nHannah`;
+  };
+
+  type Card = { d: Rec; kind: string; days: number; pri: "High" | "Medium" | "Low"; draft: string };
+  const due: Card[] = data.filter(isDue)
+    .map((d) => ({ d, kind: "Story ask", days: daysSince(d.last_buy)!, pri: priority(d) as Card["pri"], draft: storyDraft(d) }));
+  const recon: Card[] = data.filter(isReconnectDue)
+    .map((d) => ({ d, kind: "Patron gone quiet", days: (d.last_contact ? daysSince(d.last_contact) : daysSince(d.last_buy))!, pri: "High", draft: reconnectDraft(d) }));
+
+  // Patrons first, then the most overdue, then by what they are worth.
+  const ranked = recon.concat(due).sort((a, b) =>
+    order[a.pri] - order[b.pri] || b.days - a.days || num(b.d.ltv) - num(a.d.ltv));
+  const items = ranked.slice(0, CAP);
+  const overflow = ranked.length - items.length;
+
+  const money = (v: unknown) => { const n = num(v); return n ? `$${Math.round(n).toLocaleString("en-US")}` : ""; };
+
+  const card = (x: Card) => `
+    <div style="border:1px solid #e7e1d4;border-radius:10px;padding:14px 16px;margin-bottom:12px">
+      <div style="font-family:Helvetica,Arial,sans-serif;font-size:14px">
+        <strong>${esc(x.d.name || "—")}</strong>
+        <span style="color:#8f897e"> · ${esc(x.kind)} · ${x.days}d${money(x.d.ltv) ? " · " + money(x.d.ltv) : ""}</span>
+        ${x.d.email ? `<span style="color:#8f897e"> · ${esc(x.d.email)}</span>` : `<span style="color:#9c4a3a"> · no address</span>`}
+      </div>
+      ${firstPiece(x.d.pieces) ? `<div style="color:#8f897e;font-size:12.5px;margin-top:3px">${esc(firstPiece(x.d.pieces))}</div>` : ""}
+      <pre style="white-space:pre-wrap;font-family:Georgia,serif;font-size:13.5px;color:#2b2622;background:#faf7f0;border-radius:8px;padding:12px;margin:10px 0 0">${esc(x.draft)}</pre>
+    </div>`;
+
+  const total = items.length + waiting.length;
   const html = `
     <div style="font-family:Georgia,serif;max-width:680px;margin:0 auto;color:#2b2622">
       <p style="font-family:monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#8c6a47">Bureau of Provenance</p>
-      <h1 style="font-weight:400;font-size:28px;margin:6px 0 2px">Follow-ups due</h1>
-      <p style="color:#5b5a55;margin:0 0 18px">${items.length} collector${items.length === 1 ? "" : "s"} waiting to hear from you.</p>
-      ${items.length ? `<table style="width:100%;border-collapse:collapse;font-family:Helvetica,Arial,sans-serif;font-size:14px">
-        <thead><tr style="text-align:left;color:#8f897e;font-size:11px;text-transform:uppercase;letter-spacing:.08em">
-          <th style="padding:0 14px 6px">Name</th><th style="padding:0 14px 6px">Priority</th><th style="padding:0 14px 6px">Type</th><th style="padding:0 14px 6px">Piece</th><th style="padding:0 14px 6px">Since</th><th style="padding:0 14px 6px">Email</th>
-        </tr></thead><tbody>${items.map(row).join("")}</tbody></table>`
-      : `<p style="color:#5b5a55">No one is due this week. Nicely kept.</p>`}
+      <h1 style="font-weight:400;font-size:28px;margin:6px 0 2px">This week</h1>
+      <p style="color:#5b5a55;margin:0 0 22px">${total ? `${total} ${total === 1 ? "letter" : "letters"} worth writing. Each one is drafted below, ready to edit and send.` : "Nothing pressing. Nicely kept."}</p>
+
       ${waiting.length ? `
-      <h2 style="font-weight:400;font-size:22px;margin:34px 0 2px">Enquiries waiting on you</h2>
-      <p style="color:#5b5a55;margin:0 0 14px">${waiting.length} ${waiting.length === 1 ? "person has" : "people have"} written in and not heard back.</p>
+      <h2 style="font-weight:400;font-size:21px;margin:26px 0 2px">Enquiries waiting on you</h2>
+      <p style="color:#5b5a55;margin:0 0 14px;font-size:14px">Someone wrote in and has not heard back.</p>
       ${waiting.map(({ q, days }) => `
         <div style="border:1px solid #e7e1d4;border-radius:10px;padding:14px 16px;margin-bottom:12px">
-          <div style="font-family:Helvetica,Arial,sans-serif">
+          <div style="font-family:Helvetica,Arial,sans-serif;font-size:14px">
             <strong>${esc(q.name || "—")}</strong>
             <span style="color:#8f897e"> · ${esc(q.subject || "")} · ${days}d</span>
             ${q.email ? `<span style="color:#8f897e"> · ${esc(q.email)}</span>` : `<span style="color:#9c4a3a"> · no address on file</span>`}
@@ -156,7 +193,14 @@ Deno.serve(async (_req) => {
           ${q.note ? `<p style="color:#5b5a55;font-size:13px;margin:8px 0 0">${esc(q.note)}</p>` : ""}
           <pre style="white-space:pre-wrap;font-family:Georgia,serif;font-size:13.5px;color:#2b2622;background:#faf7f0;border-radius:8px;padding:12px;margin:10px 0 0">${esc(draftFor({ q, days }))}</pre>
         </div>`).join("")}` : ""}
-      <p style="color:#a7a39c;font-size:12px;margin-top:24px">Open the archive to draft each note. Maçon · Artifacts of Love</p>
+
+      ${items.length ? `
+      <h2 style="font-weight:400;font-size:21px;margin:30px 0 2px">Collectors</h2>
+      <p style="color:#5b5a55;margin:0 0 14px;font-size:14px">Patrons who have gone quiet, then recent pieces worth asking about.</p>
+      ${items.map(card).join("")}` : ""}
+
+      ${overflow > 0 ? `<p style="color:#a7a39c;font-size:12.5px">${overflow} more in the archive, not pressing this week.</p>` : ""}
+      <p style="color:#a7a39c;font-size:12px;margin-top:24px">Maçon · Artifacts of Love</p>
     </div>`;
 
   const send = await fetch("https://api.resend.com/emails", {
@@ -165,13 +209,13 @@ Deno.serve(async (_req) => {
     body: JSON.stringify({
       from: DIGEST_FROM,
       to: DIGEST_TO,
-      subject: `Maçon · ${items.length + waiting.length} to answer this week`,
+      subject: `Maçon · ${total} ${total === 1 ? "letter" : "letters"} to write this week`,
       html,
     }),
   });
   if (!send.ok) return new Response("Resend failed: " + (await send.text()), { status: 502 });
 
-  return new Response(JSON.stringify({ sent: DIGEST_TO, due: items.length, enquiries: waiting.length }), {
+  return new Response(JSON.stringify({ sent: DIGEST_TO, collectors: items.length, enquiries: waiting.length, held_back: overflow }), {
     headers: { "Content-Type": "application/json" },
   });
 });

@@ -1182,22 +1182,29 @@ function fmtDate(str){ const t=Date.parse(str); if(isNaN(t)) return str||""; con
   return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); }
 function firstName(n){ return (n||"").trim().split(/\s+/)[0]||"there"; }
 function firstPiece(p){ return ((p||"").split(",")[0]||"").trim().replace(/\s*[×x]\d+$/,""); }
+/* Kept in step with functions/followup-digest/index.ts. A story ask belongs to a
+   recent purchase; past STORY_WINDOW it stops being one, which is what turned
+   the digest into all 94 collectors at once. */
+const STORY_WINDOW=180, PATRON_LTV=600;
 function isDue(d){
   const days=daysSince(d.last_buy);
   if(days==null) return false;
   if(days < leadTime(firstPiece(d.pieces)) + 14) return false;   // make + ship, then settle
+  if(days > STORY_WINDOW) return false;          // too long ago to ask how it settled in
   if(d.story==="Yes") return false;              // story already captured
   if(d.last_contact){ const c=daysSince(d.last_contact);
     if(c!=null && c<21) return false; }          // snooze: resurface ~3 weeks after a no-reply
-  return true;                                   // no upper cap — long-time collectors stay reachable
+  return true;
 }
-// Gone-quiet inner circle: a no-ask "thinking of you" presence ping
 function isReconnectDue(d){
-  if(!d.first_look) return false;                // VIPs / inner circle only
+  // follows value, not just the VIP flag: the patrons above PATRON_LTV are half
+  // of all revenue and are the ones worth never losing touch with
+  if(!d.first_look && num(d.ltv) < PATRON_LTV) return false;
   if(isDue(d)) return false;                     // a live story ask takes precedence
   const last = d.last_contact ? daysSince(d.last_contact) : daysSince(d.last_buy);
   return last!=null && last>=90;
 }
+
 function followScore(d){ let s=0; if(d.first_look)s+=3; if(num(d.ltv)>1000)s+=2; if(countPieces(d.pieces)>=2)s+=1; if(d.gift_self==="Gift")s+=1; return s; }
 function followPriority(d){ const s=followScore(d); return s>=3?"High":s>=1?"Medium":"Low"; }
 function followAsk(d){
