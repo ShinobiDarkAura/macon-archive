@@ -80,6 +80,41 @@ Deno.serve(async (_req) => {
   if (!res.ok) return new Response("Fetch failed: " + (await res.text()), { status: 502 });
   const data: Rec[] = await res.json();
 
+  // Open enquiries, with the same needs-attention rule the app uses
+  const iq = await fetch(`${SUPABASE_URL}/rest/v1/inquiries?select=*`, {
+    headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` },
+  });
+  const inquiries: Rec[] = iq.ok ? await iq.json() : [];
+  const INQ_STALE = 7;
+  const inqState = (q: Rec) => {
+    if (q.status === "closed") return "closed";
+    if (q.status === "open") return "attention";
+    const d = daysSince(q.last_touched) ?? daysSince(q.first_seen) ?? 0;
+    return d >= INQ_STALE ? "attention" : "followed";
+  };
+  const waiting = inquiries
+    .filter((q) => inqState(q) === "attention")
+    .map((q) => ({ q, days: (daysSince(q.last_touched) ?? daysSince(q.first_seen) ?? 0) }))
+    .sort((a, b) => b.days - a.days);
+
+  // The letter to send, chosen by where the thread actually is. Prepared drafts
+  // win; otherwise it is a first reply, a nudge, or an apology for the silence.
+  const draftFor = ({ q, days }: { q: Rec; days: number }) => {
+    if (q.draft) return q.draft;
+    const first = String(q.name || "").split(/\s+/)[0] || "there";
+    const what = q.subject || "the piece you asked about";
+    if (!q.last_touched)
+      return `Hi ${first},\n\nThanks for writing in, we would love to make ${what} for you.\n\n` +
+             `Tell me about yours first. Is there a particular one you have in mind, or would you rather we invent it? ` +
+             `Photos help if you have any, though they are not necessary.\n\n` +
+             `Nothing to decide yet. Tell me what you are picturing and we will go from there.\n\nHannah`;
+    if (days < 30)
+      return `Hi ${first},\n\nStill thinking about ${what}.\n\nWant me to sketch something?\n\nHannah`;
+    return `Hi ${first},\n\nI never followed up on ${what}, and I should have.\n\n` +
+           `If you are still interested, I would like to draw it for you before you decide anything at all.\n\n` +
+           `Either way, thank you for writing.\n\nHannah`;
+  };
+
   const order = { High: 0, Medium: 1, Low: 2 } as const;
   const due = data.filter(isDue)
     .map((d) => ({ d, kind: "Story ask", days: daysSince(d.last_buy)!, pri: priority(d) }));
@@ -107,6 +142,20 @@ Deno.serve(async (_req) => {
           <th style="padding:0 14px 6px">Name</th><th style="padding:0 14px 6px">Priority</th><th style="padding:0 14px 6px">Type</th><th style="padding:0 14px 6px">Piece</th><th style="padding:0 14px 6px">Since</th><th style="padding:0 14px 6px">Email</th>
         </tr></thead><tbody>${items.map(row).join("")}</tbody></table>`
       : `<p style="color:#5b5a55">No one is due this week. Nicely kept.</p>`}
+      ${waiting.length ? `
+      <h2 style="font-weight:400;font-size:22px;margin:34px 0 2px">Enquiries waiting on you</h2>
+      <p style="color:#5b5a55;margin:0 0 14px">${waiting.length} ${waiting.length === 1 ? "person has" : "people have"} written in and not heard back.</p>
+      ${waiting.map(({ q, days }) => `
+        <div style="border:1px solid #e7e1d4;border-radius:10px;padding:14px 16px;margin-bottom:12px">
+          <div style="font-family:Helvetica,Arial,sans-serif">
+            <strong>${esc(q.name || "—")}</strong>
+            <span style="color:#8f897e"> · ${esc(q.subject || "")} · ${days}d</span>
+            ${q.email ? `<span style="color:#8f897e"> · ${esc(q.email)}</span>` : `<span style="color:#9c4a3a"> · no address on file</span>`}
+            ${q.draft ? `<span style="color:#9c4a3a"> · prepared</span>` : ""}
+          </div>
+          ${q.note ? `<p style="color:#5b5a55;font-size:13px;margin:8px 0 0">${esc(q.note)}</p>` : ""}
+          <pre style="white-space:pre-wrap;font-family:Georgia,serif;font-size:13.5px;color:#2b2622;background:#faf7f0;border-radius:8px;padding:12px;margin:10px 0 0">${esc(draftFor({ q, days }))}</pre>
+        </div>`).join("")}` : ""}
       <p style="color:#a7a39c;font-size:12px;margin-top:24px">Open the archive to draft each note. Maçon · Artifacts of Love</p>
     </div>`;
 
@@ -116,13 +165,13 @@ Deno.serve(async (_req) => {
     body: JSON.stringify({
       from: DIGEST_FROM,
       to: DIGEST_TO,
-      subject: `Maçon · ${items.length} follow-up${items.length === 1 ? "" : "s"} due`,
+      subject: `Maçon · ${items.length + waiting.length} to answer this week`,
       html,
     }),
   });
   if (!send.ok) return new Response("Resend failed: " + (await send.text()), { status: 502 });
 
-  return new Response(JSON.stringify({ sent: DIGEST_TO, due: items.length }), {
+  return new Response(JSON.stringify({ sent: DIGEST_TO, due: items.length, enquiries: waiting.length }), {
     headers: { "Content-Type": "application/json" },
   });
 });

@@ -595,6 +595,7 @@
   .fcard.important{background:#fff}
   .fcard.important:hover{background:#fff}
   .fcard .fn svg{flex:0 0 auto;margin-right:4px}
+  .fdraft{color:var(--notes,#C04722);font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase}
   .fimp{position:absolute;top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;background:var(--accent-grad);z-index:6;box-shadow:0 0 0 2.5px #fff,0 1px 4px rgba(198,92,70,.45)}
   .donechip{position:absolute;top:14px;right:16px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;
     border:none;background:rgba(43,38,34,.06);color:#9a9286;line-height:1;cursor:pointer;z-index:3;
@@ -1243,7 +1244,8 @@ function followAction(d, kind){ if(kind==="custom") return "Custom inquiry"; if(
 function cardMeta(d, kind, q){
   if(kind==="custom"){
     const when = q && q.last_touched ? "followed up "+daysSince(q.last_touched)+"d ago" : "no reply yet";
-    return 'Enquiry  ·  <span class="fmeta-dim">'+esc((q&&q.subject)||"")+"  ·  "+when+"</span>";
+    const flag = q && q.draft ? '  ·  <span class="fdraft">draft ready</span>' : "";
+    return 'Enquiry  ·  <span class="fmeta-dim">'+esc((q&&q.subject)||"")+"  ·  "+when+"</span>"+flag;
   }
   return cardMetaStd(d, kind);
 }
@@ -1346,7 +1348,9 @@ const RECON_TONES=[
   })}
 ];
 function draftEmail(d, tone, kind, q){
-  const set = kind==="custom" ? CUSTOM_TONES : kind==="reconnect" ? RECON_TONES : TONES;
+  let set = kind==="custom" ? CUSTOM_TONES : kind==="reconnect" ? RECON_TONES : TONES;
+  if(kind==="custom" && q && q.draft)
+    set = [{name:"Prepared", build:x=>({subject:"Re: "+(x.subject||"your commission"), body:x.draft})}].concat(set);
   const n=set.length, idx=((tone|0)%n+n)%n;
   const r=set[idx].build(kind==="custom" ? q : emailCtx(d));
   return {subject:r.subject, body:r.body, toneName:set[idx].name, toneIdx:idx};
@@ -1478,7 +1482,9 @@ function followUps(){
   const inq=inquiries.map(q=>({d:inqAsD(q), i:-1, q, kind:"custom",
     days:daysSince(q.last_touched||q.first_seen), priority:"High", ask:"", state:inqState(q)}));
   return inq.concat(story, recon, warm).sort((a,b)=>
-    (a.kind==="custom"?0:1)-(b.kind==="custom"?0:1) || P[a.priority]-P[b.priority] || a.days-b.days);
+    (a.kind==="custom"?0:1)-(b.kind==="custom"?0:1) || P[a.priority]-P[b.priority] ||
+    // enquiries lead with the most overdue; collector cards keep soonest-first
+    (a.kind==="custom" && b.kind==="custom" ? b.days-a.days : a.days-b.days));
 }
 
 /* ---------- Render ledger ---------- */
