@@ -1,7 +1,6 @@
 // Maçon Archive — calendar ticker proxy
 // Fetches the private Apple Calendar (iCloud) public-share .ics feed and returns
 // a window of events (each tagged with its date) as JSON, CORS open for the app.
-// Note: one-off events only — recurring (RRULE) events surface on their first date.
 //
 // Setup (Supabase Dashboard):
 //   1. Edge Functions → Deploy new function → name: calendar-ticker → paste this file.
@@ -44,14 +43,28 @@ Deno.serve(async (req) => {
   const ymdToUTC = (ymd: string) => { const [y, m, d] = ymd.split("-").map(Number); return Date.UTC(y, m - 1, d, 12); };
   const utcToYmd = (ts: number) => new Date(ts).toISOString().slice(0, 10);
 
-  // --- minimal ICS parse: unfold lines, walk VEVENTs ---
+  // Helper: parse a DTSTART/RECURRENCE-ID raw value to a YYYY-MM-DD string.
+  const rawToYmd = (raw: string): string => {
+    if (!raw.includes("T")) {
+      // all-day: YYYYMMDD
+      return raw.slice(0, 4) + "-" + raw.slice(4, 6) + "-" + raw.slice(6, 8);
+    }
+    const when = raw.endsWith("Z")
+      ? new Date(raw.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/, "$1-$2-$3T$4:$5:$6Z"))
+      : new Date(raw.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/, "$1-$2-$3T$4:$5:$6"));
+    return when.toLocaleDateString("en-CA", { timeZone: tz });
+  };
+
+  // --- Phase 1: collect all VEVENTs into an array ---
   const lines = ics.replace(/\r\n[ \t]/g, "").split(/\r?\n/);
   type Ev = { date: string; title: string; start: string; allDay: boolean };
   const events: Ev[] = [];
+  const vevents: Record<string, string>[] = [];
   let cur: Record<string, string> | null = null;
+
   for (const ln of lines) {
-    if (ln === "BEGIN:VEVENT") cur = {};
-    else if (ln === "END:VEVENT") { if (cur) finish(cur); cur = null; }
+    if (ln === "BEGIN:VEVENT") { cur = {}; }
+    else if (ln === "END:VEVENT") { if (cur) vevents.push(cur); cur = null; }
     else if (cur) {
       const i = ln.indexOf(":");
       if (i > 0) {
@@ -61,9 +74,26 @@ Deno.serve(async (req) => {
       }
       if (ln.startsWith("DTSTART;VALUE=DATE:")) cur["ALLDAY"] = "1";
       if (ln.startsWith("DTSTART;") && ln.includes("TZID=")) cur["TZID"] = ln.slice(8, ln.indexOf(":")).replace(/.*TZID=/, "");
+      // Capture RECURRENCE-ID (the original date of a moved/edited recurring instance)
+      if (ln.startsWith("RECURRENCE-ID")) cur["RECURRENCE-ID"] = ln.slice(ln.indexOf(":") + 1);
     }
   }
-  function finish(c: Record<string, string>) {
+
+  // --- Phase 2: build override map  uid → Set<original-ymd> ---
+  // A VEVENT with RECURRENCE-ID is an override for one specific instance of a recurring
+  // series. We record its original date so the master RRULE expansion can skip it.
+  const overrideMap = new Map<string, Set<string>>();
+  for (const c of vevents) {
+    const uid = c["UID"];
+    const recId = c["RECURRENCE-ID"];
+    if (!uid || !recId) continue;
+    const ymd = rawToYmd(recId);
+    if (!overrideMap.has(uid)) overrideMap.set(uid, new Set());
+    overrideMap.get(uid)!.add(ymd);
+  }
+
+  // --- Phase 3: emit events ---
+  function finish(c: Record<string, string>, overriddenDates: Set<string>) {
     const raw = c["DTSTART"]; if (!raw || !c["SUMMARY"]) return;
     const allDay = !!c["ALLDAY"] || !raw.includes("T");
     let evDate0: string, start = "";
@@ -78,15 +108,19 @@ Deno.serve(async (req) => {
     }
     const title = c["SUMMARY"].replace(/\\,/g, ",").replace(/\\;/g, ";").replace(/\\n/g, " · ");
 
-    // exception dates (cancelled instances of a recurring event)
+    // Exception dates (cancelled instances)
     const exSet = new Set<string>();
     if (c["EXDATE"]) for (const m of c["EXDATE"].matchAll(/(\d{4})(\d{2})(\d{2})/g)) exSet.add(`${m[1]}-${m[2]}-${m[3]}`);
 
     const emit = (ymd: string) => {
       if (ymd < lowStr || ymd > highStr || exSet.has(ymd)) return;
+      // Skip original slots that have been superseded by a RECURRENCE-ID override
+      if (overriddenDates.has(ymd)) return;
       events.push({ date: ymd, title, start, allDay });
     };
 
+    // Override VEVENTs (have RECURRENCE-ID) carry their own DTSTART (the new slot).
+    // They have no RRULE; emit once at the new date and return.
     const rrule = c["RRULE"];
     if (!rrule) { emit(evDate0); return; }
 
@@ -132,6 +166,8 @@ Deno.serve(async (req) => {
       }
     }
   }
+
+  for (const c of vevents) finish(c, overrideMap.get(c["UID"] ?? "") ?? new Set());
 
   events.sort((a, b) =>
     a.date.localeCompare(b.date) ||

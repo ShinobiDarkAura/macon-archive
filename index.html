@@ -3077,6 +3077,14 @@ function itemsForOffset(offset, events){
       out.push({id, time:"", title:t.title, act:{type:"compose"}});
     }
   });
+  // Enquiries waiting on a reply belong on the day's list, not only in the drawer
+  if(offset===0) inquiries.forEach(q=>{
+    if(inqState(q)!=="attention") return;
+    const id="inq|"+q.id+"|"+(q.last_touched||q.first_seen);
+    if(done[id]) return;
+    const what=q.subject ? ` about their ${q.subject} request` : "'s enquiry";
+    out.push({ id, time:"", title:`Follow up with ${q.name}${what}`, act:{type:"draft", i:-1, qid:q.id} });
+  });
   data.forEach((d,i)=>{
     const id="fu|"+(d.acc||i)+"|"+(d.last_buy||""); if(done[id]) return;
     const lb=Date.parse(d.last_buy);
@@ -3188,7 +3196,7 @@ function showDayBrief(events){
     el.querySelectorAll(".db-main .db-go").forEach(b=>{
       b.onclick=e=>{ e.stopPropagation();
         const act=mainItems[+b.dataset.k].act; if(!act) return;
-        if(act.type==="draft") openDraft(act.i);
+        if(act.type==="draft") openDraft(act.i, act.qid?"custom":undefined, act.qid);
         else if(act.type==="compose"){ const cb=document.getElementById("composeBtn"); if(cb) cb.click(); }
       };
     });
