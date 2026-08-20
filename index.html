@@ -1005,6 +1005,7 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module">import * as D from "./drafts.js"; window.MaconDrafts = D;</script>
 <script>
 const STORE = "macon_archive_v1";
 const SIG_ORDER = {High:0, Med:1, Low:2, "":3};
@@ -1270,92 +1271,13 @@ function followSummary(d, kind){
     default:          return jewel?`First piece has settled in. Ask where ${piece} has been worn.`:`First piece has settled in. Ask where ${piece} lives now.`;
   }
 }
-function emailCtx(d){
-  return {
-    first:firstName(d.name),
-    piece:firstPiece(d.pieces)||"your piece",
-    city:(d.location||"").split(",")[0].trim(),
-    gift:d.gift_self==="Gift",
-    repeat:countPieces(d.pieces)>=2,
-    vip:!!d.first_look,
-    jewel:isJewelry(firstPiece(d.pieces))
-  };
-}
-const TONES=[
-  {name:"Warm", build:c=>({
-    subject:`Thinking of you & your ${c.piece}`,
-    body:[
-      `Hi ${c.first},`,"",
-      c.jewel?`It's Alex and Hannah from Maçon. We were just thinking about you and wondering how ${c.piece} has been wearing${c.city?` out in ${c.city}`:""}.`
-      :`It's Alex and Hannah from Maçon. We were just thinking about you and wondering how ${c.piece} is settling in${c.city?` over in ${c.city}`:""}.`,"",
-      c.gift?(c.jewel?`Did it land the way you hoped? Has it been worn yet?`:`Did it land the way you hoped with the person you gave it to?`)
-      :c.repeat?`You've quietly built a little collection now, which honestly makes us so happy. What keeps pulling you back?`
-      :c.jewel?`Has it made it into the rotation yet? We love picturing where our pieces get worn.`
-      :`Where's it ended up living? On you, a shelf, somewhere it can keep an eye on things?`,"",
-      `Even a one-line reply would make our week. Truly no pressure.`,
-      ...(c.vip?["","And if you ever catch it in good light, we'd love to see it."]:[]),
-      "",
-      `Warmly,`,`Alex & Hannah`
-    ].join("\n")
-  })},
-  {name:"Casual", build:c=>({
-    subject:`Quick q about your ${c.piece}`,
-    body:[
-      `Hey ${c.first},`,"",
-      `Hope you're doing well! It's Alex from Maçon. ${c.piece} popped into my head today and I got curious.`,"",
-      c.gift?`Did the person you gave it to take to it?`
-      :c.jewel?`Where's it been going with you? Out a lot, or saving it for the right days?`
-      :c.vip?`Where's it living these days? I keep wondering where it ended up.`
-      :`Where'd it end up? Did it find a little spot yet?`,"",
-      `No need to write much — a line or two would make my day.`,"",
-      `x Alex`
-    ].join("\n")
-  })},
-  {name:"Heartfelt", build:c=>({
-    subject:`A little note about your ${c.piece}`,
-    body:[
-      `Dear ${c.first},`,"",
-      `It's Hannah, from Maçon. Making ${c.piece} for you meant a lot to us, and we love knowing where our little objects end up in people's lives.`,"",
-      c.gift?`I've been wondering how it was received by the person you chose it for.`
-      :c.jewel?`I'd love to know how it feels to wear, and where it's been with you.`
-      :`I'd love to know where it lives now, and what it's come to mean to you.`,"",
-      `Whatever you feel like sharing, we'd hold onto it.`,
-      ...(c.vip?["","And if you ever snap a photo of it where it lives, we'd treasure that too."]:[]),
-      "",
-      `With love,`,`Alex & Hannah`
-    ].join("\n")
-  })},
-  {name:"Brief", build:c=>({
-    subject:`${c.piece} :)`,
-    body:[
-      `Hi ${c.first},`,"",
-      `Alex & Hannah from Maçon here. Quick one: ${c.gift?`did your gift land okay?`:c.jewel?`has ${c.piece} been getting worn?`:`where's ${c.piece} ended up living?`}`,"",
-      `Thank you, really.`,`Alex & Hannah`
-    ].join("\n")
-  })}
-];
+/* The letters live in drafts.js so the archive and the weekly digest read the
+   same words. Loaded as a module below and read lazily, by which time it is in. */
+const D = () => window.MaconDrafts;
+const emailCtx = d => D().emailCtx(d);
 // Reconnect: presence only, no ask — just "you're on our minds"
-const RECON_TONES=[
-  {name:"Warm", build:c=>({
-    subject:`Thinking of you, ${c.first}`,
-    body:[
-      `Hi ${c.first},`,"",
-      `It's Alex and Hannah from Maçon. No news, no ask — you just crossed our minds today and we wanted to say hello${c.city?` over in ${c.city}`:""}.`,"",
-      `We hope ${c.piece} is still keeping good company, and that you're well.`,"",
-      `Warmly,`,`Alex & Hannah`
-    ].join("\n")
-  })},
-  {name:"Brief", build:c=>({
-    subject:`Hello from Maçon`,
-    body:[
-      `Hi ${c.first},`,"",
-      `Just a quiet hello from Alex & Hannah — you've been on our minds. No need to reply, we only wanted you to know.`,"",
-      `Warmly,`,`Alex & Hannah`
-    ].join("\n")
-  })}
-];
 function draftEmail(d, tone, kind, q){
-  let set = kind==="custom" ? CUSTOM_TONES : kind==="reconnect" ? RECON_TONES : TONES;
+  let set = kind==="custom" ? D().CUSTOM_TONES : kind==="reconnect" ? D().RECON_TONES : D().TONES;
   if(kind==="custom" && q && q.draft)
     set = [{name:"Prepared", build:x=>({subject:"Re: "+(x.subject||"your commission"), body:x.draft})}].concat(set);
   const n=set.length, idx=((tone|0)%n+n)%n;
@@ -1407,53 +1329,6 @@ async function inqAdd(){
 
 function monthOf(s){ const t=Date.parse(s); return isNaN(t)?"":new Date(t).toLocaleDateString("en-US",{month:"long"}); }
 
-const CUSTOM_TONES=[
-  {name:"Revive", build:q=>{
-    const f=firstName(q.name), a=q.subject;
-    return q.repeat_buyer ? {
-      subject:`Re: your ${a}`,
-      body:[`Hey ${f},`,"",
-        `I never circled back about the ${a}, which I regret, it's a good one.`,"",
-        `If you're still up for it, I'd like to draw a couple of options and send them over. No commitment, and no need to decide anything from a drawing.`,"",
-        `Hannah`].join("\n")
-    } : {
-      subject:`Re: your ${a}`,
-      body:[`Hi ${f},`,"",
-        `I never followed up on your ${a}, and I should have.`,"",
-        `If it was the price or the size of the deposit, I would genuinely like to know, it helps us. And if you're still interested, I'd like to draw it for you before you decide anything at all.`,"",
-        `Either way, thanks for writing in ${monthOf(q.first_seen)}.`,"",
-        `Hannah`].join("\n")
-    };
-  }},
-  {name:"Nudge", build:q=>({
-    subject:`Re: your ${q.subject}`,
-    body:[`Hi ${firstName(q.name)},`,"",
-      `Still thinking about your ${q.subject}.`,"",
-      `Want me to sketch something?`,"",
-      `Hannah`].join("\n")
-  })},
-  {name:"First reply", build:q=>{
-    const f=firstName(q.name), a=q.subject;
-    return q.repeat_buyer ? {
-      subject:`Re: your ${a}`,
-      body:[`Hey ${f},`,"",
-        `Yes, a ${a}, absolutely.`,"",
-        `Do you have a particular ${a} in mind, or should we invent one?`,"",
-        `One thing worth mentioning since it has been a while: customs are $925 now. We slowed the process down a lot last year, more time on the carving and much more hand filing, and the price followed the work.`,"",
-        `Tell me about the ${a} and I'll get things moving.`,"",
-        `Hannah`].join("\n")
-    } : {
-      subject:`Re: your ${a}`,
-      body:[`Hi ${f},`,"",
-        `We'd love to make ${a.match(/^[aeiou]/i)?"an":"a"} ${a} for you.`,"",
-        `Tell me about yours first. Is there a particular ${a} you have in mind, or would you rather we invent one? Photos help if you have any, though they are not necessary.`,"",
-        `I've attached a few customs we've made so you can see where these tend to land.`,"",
-        `How it works: Alex and I design the form together, I carve it in wax, it goes to our foundry here in L.A. to be lost-wax cast in bronze, then I file the whole surface by hand, honing the facets, and patinate and wax it. About three weeks from start to mailing, and a custom bronze totem is $925.`,"",
-        `Nothing to decide yet. Tell me about your ${a} and we'll go from there.`,"",
-        `Hannah`].join("\n")
-    };
-  }}
-];
 
 /* What to get right before this email goes out. Shown in the draft modal. */
 const DRAFT_TIPS={

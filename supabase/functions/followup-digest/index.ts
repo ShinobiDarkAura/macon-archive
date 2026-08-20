@@ -9,6 +9,11 @@
 //   DIGEST_TO                    comma-separated recipients, e.g. "alex@studiomacon.co,hannah@studiomacon.co"
 //   DIGEST_FROM                  verified Resend sender, e.g. "Maçon Archive <archive@studiomacon.co>"
 
+// The letters come from drafts.js in the repo root, which the archive loads
+// too, so a wording fix lands in both. Only the timing rules below are still
+// duplicated, and those are flagged in README-followups.md.
+import { collectorDraft, enquiryDraft } from "https://shinobidarkaura.github.io/macon-archive/drafts.js";
+
 // --- keep these in sync with index.html ---
 const LEAD_DEFAULT = 21;
 const PIECE_LEAD: Record<string, number> = {
@@ -108,93 +113,27 @@ Deno.serve(async (_req) => {
 
   // The letter to send, chosen by where the thread actually is. Prepared drafts
   // win; otherwise it is a first reply, a nudge, or an apology for the silence.
-  const draftFor = ({ q, days }: { q: Rec; days: number }) => {
-    if (q.draft) return q.draft;
-    const first = firstName(q.name);
-    const what = q.subject || "the piece you asked about";
-    // A reply recorded in the note counts, even when nobody ticked the card:
-    // most replies happen in Gmail and never touch the app.
-    const answered = !!q.last_touched || /replied|reply|answered|wrote back|sent/i.test(String(q.note || ""));
-    if (!answered)
-      return `Hi ${first},\n\nThanks for writing in, we would love to make ${withArticle(what)} for you.\n\n` +
-             `Tell me about yours first. Is there a particular one you have in mind, or would you rather we invent it? ` +
-             `Photos help if you have any, though they are not necessary.\n\n` +
-             `Nothing to decide yet. Tell me what you are picturing and we will go from there.\n\nHannah`;
-    if (days < 30)
-      return `Hi ${first},\n\nStill thinking about ${withArticle(what)}.\n\nWant me to sketch something?\n\nHannah`;
-    return `Hi ${first},\n\nI never followed up on ${withArticle(what)}, and I should have.\n\n` +
-           `If you are still interested, I would like to draw it for you before you decide anything at all.\n\n` +
-           `Either way, thank you for writing.\n\nHannah`;
-  };
 
   const order = { High: 0, Medium: 1, Low: 2 } as const;
   const CAP = 10;   // a briefing, not the whole ledger
 
   // "Thailand bronzes enquiry" is a label, not a name. Only greet by first name
   // when the record actually looks like a person.
-  const firstName = (n?: string) => {
-    const raw = String(n || "").trim();
-    if (!raw || /enquiry|inquiry|unknown|test/i.test(raw)) return "there";
-    const w = raw.split(/\s+/)[0].replace(/[^\p{L}'-]/gu, "");
-    return w.length > 1 ? w : "there";
-  };
   // "a snail", "an armoured bear", and nothing at all in front of a plural
   // Only put an article in front of something short and plainly singular.
   // "a bronze pieces, possibly cutlery" is worse than no article at all.
-  const withArticle = (t: string) => {
-    const s = String(t || "").trim();
-    if (!s) return "something";
-    const words = s.split(/\s+/);
-    const plainSingular = words.length <= 3 && !/^\d/.test(s) && !s.includes(",") &&
-      !words.some((w) => /[^s]s$/i.test(w) && !/'s$/i.test(w));
-    if (!plainSingular || /^(a|an|the|some|my|our)\s/i.test(s)) return s;
-    return (/^[aeiou]/i.test(s) ? "an " : "a ") + s;
-  };
   // Plurality comes from the last word, not the first: "Ida's Wonder Horn" is
   // one thing, "Custom Bronze Dog Totems" is several. A leading count settles it.
-  const piecePhrase = (raw: string) => {
-    const lead = /^(\d+)\s+/.exec(raw);
-    const name = raw.replace(/^\d+\s+/, "").trim() || raw;
-    const last = name.split(/\s+/).pop() || "";
-    const many = (lead ? Number(lead[1]) > 1 : false) || (/[^s]s$/i.test(last) && !/'s$/i.test(last));
-    return { name, has: many ? "have" : "has", it: many ? "they" : "it",
-             is: many ? "are" : "is", does: many ? "do" : "does" };
-  };
 
   /* Drafts follow the studio's own rules: no em dashes, short ideas joined with
      commas rather than stacked, nothing pitchy, and each one ends on something
      answerable in a sentence. */
-  const storyDraft = (d: Rec) => {
-    const piece = firstPiece(d.pieces) || "your piece";
-    const pp = piecePhrase(piece);
-    const jewel = /ring|cuff|pendant|chain|earring|talisman|key/i.test(piece);
-    const ask = d.gift_self === "Gift"
-      ? `Did the person you gave ${pp.name} to put ${pp.it === "they" ? "them" : "it"} on straight away?`
-      : jewel
-        ? `${pp.has === "have" ? "Have" : "Has"} ${pp.name} worked ${pp.it === "they" ? "their" : "its"} way into the rotation, or ${pp.is} ${pp.it} saved for something?`
-        : `Where ${pp.does} ${pp.name} live now, on you, on a shelf, somewhere particular?`;
-    return `Hi ${firstName(d.name)},\n\nIt's Hannah. ${pp.name} ${pp.has} been with you a little while now, and I have been wondering how ${pp.it} settled in.\n\n${ask}\n\nA sentence is plenty, no need to write at length.\n\nHannah`;
-  };
-  const reconnectDraft = (d: Rec) => {
-    const piece = firstPiece(d.pieces) || "your piece";
-    const pp = piecePhrase(piece);
-    const f = firstName(d.name);
-    const openings = [
-      `No news and no ask. You have been on our minds lately, and I did not want more time to pass without saying hello.\n\nI hope ${pp.name} ${pp.is} still keeping good company, and that you are well.`,
-      `It has been a while, and I found myself thinking about where ${pp.name} ended up.\n\nNothing needed from you, I just wanted to say hello and hope you are well.`,
-      `I was going back through the ledger this week and your name stopped me, so I thought I would write.\n\nNo ask attached. I hope ${pp.name} ${pp.has} settled somewhere good.`,
-      `Hello from the bench. We have been quiet for far too long on our side, which is nobody's fault but ours.\n\nI hope you are well, and that ${pp.name} still gets picked up now and then.`,
-    ];
-    // stable per person: the same collector never gets a different letter twice
-    let h = 0; for (const c of String(d.name || d.acc || "")) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-    return `Hi ${f},\n\n${openings[h % openings.length]}\n\nHannah`;
-  };
 
   type Card = { d: Rec; kind: string; days: number; pri: "High" | "Medium" | "Low"; draft: string };
   const due: Card[] = data.filter(isDue)
-    .map((d) => ({ d, kind: "Story ask", days: daysSince(d.last_buy)!, pri: priority(d) as Card["pri"], draft: storyDraft(d) }));
+    .map((d) => ({ d, kind: "Story ask", days: daysSince(d.last_buy)!, pri: priority(d) as Card["pri"], draft: collectorDraft(d, "story").body }));
   const recon: Card[] = data.filter(isReconnectDue)
-    .map((d) => ({ d, kind: "Patron gone quiet", days: (d.last_contact ? daysSince(d.last_contact) : daysSince(d.last_buy))!, pri: "High", draft: reconnectDraft(d) }));
+    .map((d) => ({ d, kind: "Patron gone quiet", days: (d.last_contact ? daysSince(d.last_contact) : daysSince(d.last_buy))!, pri: "High", draft: collectorDraft(d, "reconnect").body }));
 
   // Patrons first, then the most overdue, then by what they are worth.
   const ranked = recon.concat(due).sort((a, b) =>
@@ -234,7 +173,7 @@ Deno.serve(async (_req) => {
             ${q.draft ? `<span style="color:#9c4a3a"> · prepared</span>` : ""}
           </div>
           ${q.note ? `<p style="color:#5b5a55;font-size:13px;margin:8px 0 0">${esc(q.note)}</p>` : ""}
-          <pre style="white-space:pre-wrap;font-family:Georgia,serif;font-size:13.5px;color:#2b2622;background:#faf7f0;border-radius:8px;padding:12px;margin:10px 0 0">${esc(draftFor({ q, days }))}</pre>
+          <pre style="white-space:pre-wrap;font-family:Georgia,serif;font-size:13.5px;color:#2b2622;background:#faf7f0;border-radius:8px;padding:12px;margin:10px 0 0">${esc(enquiryDraft(q, days).body)}</pre>
         </div>`).join("")}` : ""}
 
       ${items.length ? `
