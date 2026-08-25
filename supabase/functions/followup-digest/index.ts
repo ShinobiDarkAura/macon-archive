@@ -1,13 +1,24 @@
 // Maçon Archive — weekly follow-up digest
-// Re-runs the same due-detection as the app, server-side, and emails a summary
-// to the keepers via Resend. Deploy + schedule per ../README-followups.md.
+//
+// Two delivery paths, coordinated through public.digest_runs so a normal week
+// sends exactly one email:
+//
+//   Primary:  a Claude scheduled task POSTs ?preview=1 here Monday morning,
+//             sends the returned HTML directly via Gmail as hello@studiomacon.co,
+//             then POSTs ?mark_sent=1 to record it. No third party, no
+//             deliverability question — but it only fires while the Claude
+//             Code app is open at trigger time.
+//   Fallback: pg_cron POSTs ?send_if_missing=1 several hours later. If the
+//             primary already marked this week done, it does nothing. If not
+//             (the app was closed Monday morning), it sends the same content
+//             through Resend instead, so the week is still covered.
 //
 // Env (set as function secrets, except the two SUPABASE_* which Supabase injects):
 //   SUPABASE_URL                 (auto)
-//   SUPABASE_SERVICE_ROLE_KEY    (auto) — bypasses RLS to read the table
-//   RESEND_API_KEY               your Resend key
-//   DIGEST_TO                    comma-separated recipients, e.g. "alex@studiomacon.co,hannah@studiomacon.co"
-//   DIGEST_FROM                  verified Resend sender, e.g. "Maçon Archive <archive@studiomacon.co>"
+//   SUPABASE_SERVICE_ROLE_KEY    (auto) — bypasses RLS to read collectors/inquiries and digest_runs
+//   RESEND_API_KEY               fallback only — your Resend key
+//   DIGEST_TO                    fallback only — comma-separated recipients
+//   DIGEST_FROM                  fallback only — verified Resend sender, or the onboarding@resend.dev test address
 
 // The letters come from _shared/drafts.js, which the archive loads over HTTP
 // from the same path, so a wording fix lands in both. Only the timing rules below are still
@@ -76,15 +87,55 @@ function priority(d: Rec): "High" | "Medium" | "Low" {
 const esc = (s: string) =>
   String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-Deno.serve(async (_req) => {
+// No mail is sent from here. This endpoint only computes the week's letters and
+// returns them as HTML; delivery is a Gmail send from a Claude scheduled task,
+// which sends as the studio's own address rather than a third-party relay.
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+};
+
+function isoMonday(d: Date): string {
+  const t = new Date(d);
+  const day = (t.getUTCDay() + 6) % 7;      // 0 = Monday
+  t.setUTCDate(t.getUTCDate() - day);
+  return t.toISOString().slice(0, 10);
+}
+function textResponse(body: string, status: number) {
+  return new Response(new TextEncoder().encode(body),
+    { status, headers: { ...CORS, "content-type": "application/json" } });
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
+
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
   const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
-  const DIGEST_TO = (Deno.env.get("DIGEST_TO") || "").split(",").map((s) => s.trim()).filter(Boolean);
-  const DIGEST_FROM = Deno.env.get("DIGEST_FROM") || "Maçon Archive <onboarding@resend.dev>";
+  const H = { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" };
+  const action = new URL(req.url).searchParams.get("action")
+    ?? (new URL(req.url).searchParams.has("mark_sent") ? "mark_sent"
+       : new URL(req.url).searchParams.has("send_if_missing") ? "send_if_missing" : "");
+  const week = isoMonday(new Date());
 
-  if (!RESEND_API_KEY || !DIGEST_TO.length) {
-    return new Response("Missing RESEND_API_KEY or DIGEST_TO", { status: 500 });
+  // Called by the Gmail-direct task right after it sends successfully, so the
+  // fallback below knows not to send a second copy.
+  if (action === "mark_sent") {
+    const ins = await fetch(`${SUPABASE_URL}/rest/v1/digest_runs`, {
+      method: "POST", headers: { ...H, Prefer: "resolution=ignore-duplicates" },
+      body: JSON.stringify({ week_start: week, sent_via: "gmail" }),
+    });
+    if (!ins.ok) return textResponse(JSON.stringify({ error: await ins.text() }), 502);
+    return textResponse(JSON.stringify({ marked: week }), 200);
+  }
+
+  // Called by pg_cron, hours after the primary's slot. Only sends if nothing
+  // was marked for this week yet.
+  if (action === "send_if_missing") {
+    const chk = await fetch(
+      `${SUPABASE_URL}/rest/v1/digest_runs?week_start=eq.${week}&select=sent_via`, { headers: H });
+    const already: Rec[] = chk.ok ? await chk.json() : [];
+    if (already.length) return textResponse(JSON.stringify({ skipped: true, via: already[0].sent_via }), 200);
   }
 
   // Read the archive (service role bypasses RLS)
@@ -185,19 +236,36 @@ Deno.serve(async (_req) => {
       <p style="color:#a7a39c;font-size:12px;margin-top:24px">Maçon · Artifacts of Love</p>
     </div>`;
 
-  const send = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: DIGEST_FROM,
-      to: DIGEST_TO,
-      subject: `Maçon · ${total} ${total === 1 ? "letter" : "letters"} to write this week`,
-      html,
-    }),
-  });
-  if (!send.ok) return new Response("Resend failed: " + (await send.text()), { status: 502 });
+  // Header values must stay ASCII; the middot and cedilla live in the body,
+  // which has no such restriction and already carries the full name in UTF-8.
+  const subject = `Macon Archive: ${total} ${total === 1 ? "letter" : "letters"} to write this week`;
 
-  return new Response(JSON.stringify({ sent: DIGEST_TO, collectors: items.length, enquiries: waiting.length, held_back: overflow }), {
-    headers: { "Content-Type": "application/json" },
-  });
+  if (action === "send_if_missing") {
+    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    const DIGEST_TO = (Deno.env.get("DIGEST_TO") || "").split(",").map((s) => s.trim()).filter(Boolean);
+    const DIGEST_FROM = Deno.env.get("DIGEST_FROM") || "Macon Archive <onboarding@resend.dev>";
+    if (!RESEND_API_KEY || !DIGEST_TO.length) {
+      return textResponse(JSON.stringify({ error: "fallback not configured: missing RESEND_API_KEY or DIGEST_TO" }), 500);
+    }
+    const send = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: DIGEST_FROM, to: DIGEST_TO, subject, html }),
+    });
+    if (!send.ok) return textResponse(JSON.stringify({ error: "Resend failed: " + await send.text() }), 502);
+    await fetch(`${SUPABASE_URL}/rest/v1/digest_runs`, {
+      method: "POST", headers: { ...H, Prefer: "resolution=ignore-duplicates" },
+      body: JSON.stringify({ week_start: week, sent_via: "resend-fallback" }),
+    });
+    return textResponse(JSON.stringify({ sent: DIGEST_TO, via: "resend-fallback" }), 200);
+  }
+
+  // A plain string body is sniffed by the gateway and served as text/plain
+  // regardless of the Content-Type set here. invoice-pdf's binary body is
+  // trusted as-is, so encoding this the same way sidesteps whatever check
+  // that is: a string body is a hint to override, a binary body is not.
+  const outHeaders = new Headers(CORS);
+  outHeaders.set("content-type", "text/html; charset=utf-8");
+  outHeaders.set("x-digest-subject", subject);
+  return new Response(new TextEncoder().encode(html), { status: 200, headers: outHeaders });
 });
