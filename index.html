@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" href="logos/crest.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&family=Public+Sans:wght@400&display=swap" rel="stylesheet">
 <style>
   @font-face{font-family:"Louize";src:url("fonts/louize.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
   @font-face{font-family:"Louize";src:url("fonts/louize-italic.woff2") format("woff2");font-weight:400;font-style:italic;font-display:swap}
@@ -103,67 +103,78 @@
   .daybrief .db-ahead-list li{position:relative;display:flex;gap:13px;align-items:baseline;width:100%;font-family:var(--sans);font-size:13px;color:var(--ink);line-height:1.35;cursor:default;padding-right:0}
 
 
-  /* ===== Letters view — the default surface: one pressing follow-up at a time ===== */
+  /* ===== Letters view — the default surface: one pressing follow-up at a time =====
+     Poster-scale type, real invoice paper (#FEFCF6, the same colour the PDF
+     uses), the actual studio stamp. Overlines are Public Sans, all caps,
+     regular weight; everything meant to be read is the serif, exaggerated. */
   #viewToggle{position:fixed;top:46px;right:16px;z-index:70;display:flex;gap:2px;
     background:rgba(43,38,34,.06);border-radius:999px;padding:3px;backdrop-filter:blur(6px)}
   #viewToggle button{border:none;background:transparent;cursor:pointer;padding:7px 14px;border-radius:999px;
-    font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8b8375;transition:.15s}
+    font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:400;color:#8b8375;transition:.15s}
   #viewToggle button:hover{color:var(--ink)}
   #viewToggle button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(40,28,16,.14)}
+  body.view-letters{padding-right:0}
   body.view-letters .wrap,body.view-letters .progress-card,body.view-letters .drawer,
   body.view-letters .drawer-rail,body.view-letters .rail-handle{display:none}
   body.view-classic .letters-view{display:none}
 
-  .letters-view{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    padding:64px 24px 48px;box-sizing:border-box;gap:22px}
-  .lv-count{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#a89d89}
-  .lv-empty{font-family:var(--serif-soul);font-style:italic;font-size:20px;color:#a89d89;text-align:center;max-width:420px}
+  .lv-overline{font-family:"Public Sans",var(--sans);text-transform:uppercase;font-weight:400}
 
-  .lv-scene{display:flex;align-items:flex-start;gap:28px;max-width:1040px;width:100%}
-  .lv-label{flex:0 0 190px;padding-top:38px;font-family:var(--mono);font-size:10.5px;line-height:1.7;color:#8c7f68}
-  .lv-label .lv-name{font-family:var(--serif-soul);font-style:normal;font-size:19px;color:var(--ink);margin-bottom:6px;line-height:1.25}
+  .letters-view{min-height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:80px 40px 56px;box-sizing:border-box;gap:34px;
+    background:radial-gradient(ellipse at 50% 30%,rgba(255,255,255,.6),rgba(180,166,140,.16) 78%)}
+  .lv-count{font-size:11px;letter-spacing:.2em;color:#a89d89}
+  .lv-empty{font-family:var(--serif-soul);font-style:italic;font-size:22px;color:#a89d89;text-align:center;max-width:460px}
+
+  .lv-scene{display:flex;align-items:flex-start;justify-content:center;gap:40px;max-width:1680px;width:100%}
+  .lv-label{flex:0 0 220px;padding-top:54px;font-size:11px;line-height:1.8;color:#8c7f68;letter-spacing:.06em}
+  .lv-label .lv-name{font-family:var(--serif-soul);font-style:normal;font-weight:500;font-size:38px;line-height:1.1;
+    color:var(--ink);margin-bottom:10px;text-transform:none;letter-spacing:0}
   .lv-label .lv-fact{opacity:.85}
-  .lv-quote{margin-top:14px;padding-top:14px;border-top:1px solid var(--rule);font-family:var(--serif-soul);
-    font-style:italic;font-size:13.5px;line-height:1.55;color:var(--slate)}
+  .lv-quote{margin-top:18px;padding-top:16px;border-top:1px solid var(--rule);font-family:var(--serif-soul);
+    font-style:italic;font-size:14.5px;line-height:1.6;color:var(--slate);letter-spacing:0;text-transform:none}
   .lv-quote::before{content:"\201C"}
   .lv-quote::after{content:"\201D"}
 
-  .lv-paper{flex:1 1 auto;max-width:600px;background:var(--paper);border-radius:3px;
-    box-shadow:0 22px 60px rgba(40,28,16,.22),0 2px 8px rgba(40,28,16,.12);
-    padding:46px 50px;box-sizing:border-box;position:relative}
-  .lv-paper::before{content:"";position:absolute;inset:10px;border:1px solid rgba(140,106,71,.14);pointer-events:none}
-  .lv-to{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#a89d89;margin-bottom:14px}
-  .lv-subj{width:100%;border:none;background:transparent;font-family:var(--serif-soul);font-size:21px;color:var(--ink);
-    padding:0 0 12px;margin-bottom:14px;border-bottom:1px solid var(--rule)}
+  .lv-paper{flex:1 1 auto;max-width:1440px;min-width:0;background:#FEFCF6;border-radius:2px;
+    box-shadow:0 30px 90px rgba(30,22,14,.24),0 2px 10px rgba(30,22,14,.14);
+    padding:72px 88px 100px;box-sizing:border-box;position:relative;overflow:hidden}
+  .lv-paper::before{content:"";position:absolute;inset:14px;border:1px solid rgba(140,106,71,.12);pointer-events:none}
+  .lv-stamp{position:absolute;right:64px;bottom:56px;width:132px;height:auto;opacity:.92;
+    transform:rotate(-12deg);pointer-events:none;mix-blend-mode:multiply}
+  .lv-to{font-size:11px;letter-spacing:.14em;color:#9C8F76;margin-bottom:22px}
+  .lv-subj{width:100%;border:none;background:transparent;font-family:var(--serif-soul);font-weight:500;
+    font-size:56px;line-height:1.15;color:#1C1A18;padding:0 0 20px;margin-bottom:26px;border-bottom:1px solid #E3DED0;
+    resize:none;overflow:hidden;display:block}
   .lv-subj:focus{outline:none;border-bottom-color:var(--accent)}
-  .lv-body{width:100%;border:none;background:transparent;resize:none;font-family:var(--serif-soul);font-size:16.5px;
-    line-height:1.75;color:var(--ink);min-height:260px}
+  .lv-body{width:100%;border:none;background:transparent;resize:none;font-family:var(--serif-soul);font-size:48px;
+    line-height:1.5;color:#1C1A18;min-height:420px;position:relative;z-index:1}
   .lv-body:focus{outline:none}
-  .lv-vault-tab{position:absolute;top:16px;right:16px;width:26px;height:26px;border-radius:50%;border:none;
+  .lv-vault-tab{position:absolute;top:24px;right:24px;width:30px;height:30px;border-radius:50%;border:none;
     background:rgba(140,106,71,.10);color:#8c6a47;cursor:pointer;display:flex;align-items:center;justify-content:center;
-    transition:.15s}
+    transition:.15s;z-index:2}
   .lv-vault-tab:hover{background:rgba(140,106,71,.2)}
-  .lv-vault{margin-top:16px;padding-top:16px;border-top:1px dashed var(--rule);font-family:var(--sans);font-size:12.5px;
-    color:var(--slate);display:none}
+  .lv-vault{margin-top:28px;padding-top:20px;border-top:1px dashed #E3DED0;font-family:var(--sans);font-size:13px;
+    color:var(--slate);display:none;position:relative;z-index:1}
   .lv-vault.on{display:block}
-  .lv-vault-row{display:flex;justify-content:space-between;gap:12px;padding:3px 0}
-  .lv-vault-row b{color:var(--ink);font-weight:600}
-  .lv-vault textarea{width:100%;margin-top:8px;font-family:var(--sans);font-size:12.5px;line-height:1.5;
-    border:1px solid var(--rule);border-radius:6px;padding:8px;resize:vertical;min-height:56px}
+  .lv-vault-row{display:flex;justify-content:space-between;gap:12px;padding:4px 0}
+  .lv-vault-row span:first-child{font-family:"Public Sans",var(--sans);text-transform:uppercase;font-size:10.5px;letter-spacing:.08em;color:#a89d89}
+  .lv-vault-row b{color:var(--ink);font-weight:600;font-family:var(--sans)}
+  .lv-vault textarea{width:100%;margin-top:10px;font-family:var(--sans);font-size:13px;line-height:1.5;
+    border:1px solid var(--rule);border-radius:6px;padding:9px;resize:vertical;min-height:60px}
 
-  .lv-actions{display:flex;align-items:center;gap:10px;margin-top:18px;width:100%;max-width:600px}
-  .lv-tone{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#a89d89;
-    background:transparent;border:1px solid var(--rule);border-radius:999px;padding:6px 13px;cursor:pointer}
+  .lv-actions{display:flex;align-items:center;justify-content:flex-end;gap:14px;margin-top:24px;width:100%;max-width:1680px}
+  .lv-tone{font-size:10.5px;letter-spacing:.1em;color:#a89d89;
+    background:transparent;border:1px solid var(--rule);border-radius:999px;padding:7px 15px;cursor:pointer}
   .lv-tone:hover{border-color:#a89d89;color:var(--ink)}
-  .lv-spacer{flex:1}
-  .lv-skip{font-family:var(--sans);font-size:12.5px;color:#a89d89;background:transparent;border:none;cursor:pointer;
-    padding:8px 4px}
+  .lv-skip{font-family:var(--sans);font-size:13px;color:#a89d89;background:transparent;border:none;cursor:pointer;
+    padding:9px 4px}
   .lv-skip:hover{color:var(--ink)}
-  .lv-send{font-family:var(--sans);font-size:13px;letter-spacing:.02em;font-weight:500;color:#fff;
-    background:var(--accent-grad);border:none;border-radius:8px;padding:11px 24px;cursor:pointer;
+  .lv-send{font-family:var(--sans);font-size:13.5px;letter-spacing:.02em;font-weight:500;color:#fff;
+    background:var(--accent-grad);border:none;border-radius:8px;padding:13px 28px;cursor:pointer;
     box-shadow:0 6px 18px rgba(189,84,64,.32)}
   .lv-send:hover{filter:brightness(1.05)}
-  @media(max-width:820px){ .lv-scene{flex-direction:column;align-items:stretch} .lv-label{padding-top:0} }
+  @media(max-width:1100px){ .lv-paper{padding:44px 36px 64px} .lv-subj{font-size:38px} .lv-body{font-size:28px} .lv-scene{flex-direction:column;align-items:stretch} .lv-label{padding-top:0} }
 
   /* ===== Studio Line — keeper chat ===== */
   .chat-fab{position:fixed;left:24px;bottom:24px;width:45px;height:45px;border-radius:50%;border:none;cursor:pointer;z-index:60;
@@ -1946,24 +1957,24 @@ function renderCurrentLetter(){
        ${d.notes?`<p style="margin:8px 0 0">${esc(d.notes)}</p>`:""}`;
 
   host.innerHTML = `
-    <div class="lv-count">${letterIdx+1} of ${letterQueue.length}</div>
+    <div class="lv-count lv-overline">${letterIdx+1} of ${letterQueue.length}</div>
     <div class="lv-scene">
-      <div class="lv-label">
+      <div class="lv-label lv-overline">
         <div class="lv-name">${esc(name)}</div>
         ${facts.map(f=>`<div class="lv-fact">${esc(f)}</div>`).join("")}
         ${quote?`<div class="lv-quote">${esc(quote)}</div>`:""}
       </div>
       <div class="lv-paper">
+        <img class="lv-stamp" src="logos/red-stamp-alt.png" alt="" aria-hidden="true">
         <button class="lv-vault-tab" id="lvVaultTab" title="Their full record">☉</button>
-        <div class="lv-to">To ${esc(name)}${email?" · "+esc(email):""}</div>
-        <input class="lv-subj" id="lvSubj" value="${esc(subject)}">
+        <div class="lv-to lv-overline">To ${esc(name)}${email?" · "+esc(email):""}</div>
+        <textarea class="lv-subj" id="lvSubj" rows="1">${esc(subject)}</textarea>
         <textarea class="lv-body" id="lvBody">${esc(body)}</textarea>
         <div class="lv-vault" id="lvVault">${vaultRows}</div>
       </div>
     </div>
     <div class="lv-actions">
-      <button class="lv-tone" id="lvTone">Tone · ${esc(toneName)}</button>
-      <span class="lv-spacer"></span>
+      <button class="lv-tone lv-overline" id="lvTone">Tone · ${esc(toneName)}</button>
       <button class="lv-skip" id="lvSkip">Skip for now</button>
       <button class="lv-send" id="lvSend">Send</button>
     </div>`;
@@ -1982,6 +1993,9 @@ function renderCurrentLetter(){
     letterToneIdx=0; letterVaultOpen=false;
     letterQueue.length ? renderCurrentLetter() : renderLetters();
   };
+  const subjEl=host.querySelector("#lvSubj");
+  const autosizeSubj=()=>{ subjEl.style.height="auto"; subjEl.style.height=subjEl.scrollHeight+"px"; };
+  requestAnimationFrame(autosizeSubj); subjEl.addEventListener("input",autosizeSubj);
   const noteEl=host.querySelector("#lvNote");
   if(noteEl) noteEl.onblur=()=>{ if(q && noteEl.value!==(q.note||"")) inqSet(q.id,{ note:noteEl.value }); };
 }
