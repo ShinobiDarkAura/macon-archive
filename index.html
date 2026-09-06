@@ -102,6 +102,69 @@
   .daybrief .db-ahead-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;width:100%}
   .daybrief .db-ahead-list li{position:relative;display:flex;gap:13px;align-items:baseline;width:100%;font-family:var(--sans);font-size:13px;color:var(--ink);line-height:1.35;cursor:default;padding-right:0}
 
+
+  /* ===== Letters view — the default surface: one pressing follow-up at a time ===== */
+  #viewToggle{position:fixed;top:46px;right:16px;z-index:70;display:flex;gap:2px;
+    background:rgba(43,38,34,.06);border-radius:999px;padding:3px;backdrop-filter:blur(6px)}
+  #viewToggle button{border:none;background:transparent;cursor:pointer;padding:7px 14px;border-radius:999px;
+    font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8b8375;transition:.15s}
+  #viewToggle button:hover{color:var(--ink)}
+  #viewToggle button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(40,28,16,.14)}
+  body.view-letters .wrap,body.view-letters .progress-card,body.view-letters .drawer,
+  body.view-letters .drawer-rail,body.view-letters .rail-handle{display:none}
+  body.view-classic .letters-view{display:none}
+
+  .letters-view{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:64px 24px 48px;box-sizing:border-box;gap:22px}
+  .lv-count{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#a89d89}
+  .lv-empty{font-family:var(--serif-soul);font-style:italic;font-size:20px;color:#a89d89;text-align:center;max-width:420px}
+
+  .lv-scene{display:flex;align-items:flex-start;gap:28px;max-width:1040px;width:100%}
+  .lv-label{flex:0 0 190px;padding-top:38px;font-family:var(--mono);font-size:10.5px;line-height:1.7;color:#8c7f68}
+  .lv-label .lv-name{font-family:var(--serif-soul);font-style:normal;font-size:19px;color:var(--ink);margin-bottom:6px;line-height:1.25}
+  .lv-label .lv-fact{opacity:.85}
+  .lv-quote{margin-top:14px;padding-top:14px;border-top:1px solid var(--rule);font-family:var(--serif-soul);
+    font-style:italic;font-size:13.5px;line-height:1.55;color:var(--slate)}
+  .lv-quote::before{content:"\201C"}
+  .lv-quote::after{content:"\201D"}
+
+  .lv-paper{flex:1 1 auto;max-width:600px;background:var(--paper);border-radius:3px;
+    box-shadow:0 22px 60px rgba(40,28,16,.22),0 2px 8px rgba(40,28,16,.12);
+    padding:46px 50px;box-sizing:border-box;position:relative}
+  .lv-paper::before{content:"";position:absolute;inset:10px;border:1px solid rgba(140,106,71,.14);pointer-events:none}
+  .lv-to{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#a89d89;margin-bottom:14px}
+  .lv-subj{width:100%;border:none;background:transparent;font-family:var(--serif-soul);font-size:21px;color:var(--ink);
+    padding:0 0 12px;margin-bottom:14px;border-bottom:1px solid var(--rule)}
+  .lv-subj:focus{outline:none;border-bottom-color:var(--accent)}
+  .lv-body{width:100%;border:none;background:transparent;resize:none;font-family:var(--serif-soul);font-size:16.5px;
+    line-height:1.75;color:var(--ink);min-height:260px}
+  .lv-body:focus{outline:none}
+  .lv-vault-tab{position:absolute;top:16px;right:16px;width:26px;height:26px;border-radius:50%;border:none;
+    background:rgba(140,106,71,.10);color:#8c6a47;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:.15s}
+  .lv-vault-tab:hover{background:rgba(140,106,71,.2)}
+  .lv-vault{margin-top:16px;padding-top:16px;border-top:1px dashed var(--rule);font-family:var(--sans);font-size:12.5px;
+    color:var(--slate);display:none}
+  .lv-vault.on{display:block}
+  .lv-vault-row{display:flex;justify-content:space-between;gap:12px;padding:3px 0}
+  .lv-vault-row b{color:var(--ink);font-weight:600}
+  .lv-vault textarea{width:100%;margin-top:8px;font-family:var(--sans);font-size:12.5px;line-height:1.5;
+    border:1px solid var(--rule);border-radius:6px;padding:8px;resize:vertical;min-height:56px}
+
+  .lv-actions{display:flex;align-items:center;gap:10px;margin-top:18px;width:100%;max-width:600px}
+  .lv-tone{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#a89d89;
+    background:transparent;border:1px solid var(--rule);border-radius:999px;padding:6px 13px;cursor:pointer}
+  .lv-tone:hover{border-color:#a89d89;color:var(--ink)}
+  .lv-spacer{flex:1}
+  .lv-skip{font-family:var(--sans);font-size:12.5px;color:#a89d89;background:transparent;border:none;cursor:pointer;
+    padding:8px 4px}
+  .lv-skip:hover{color:var(--ink)}
+  .lv-send{font-family:var(--sans);font-size:13px;letter-spacing:.02em;font-weight:500;color:#fff;
+    background:var(--accent-grad);border:none;border-radius:8px;padding:11px 24px;cursor:pointer;
+    box-shadow:0 6px 18px rgba(189,84,64,.32)}
+  .lv-send:hover{filter:brightness(1.05)}
+  @media(max-width:820px){ .lv-scene{flex-direction:column;align-items:stretch} .lv-label{padding-top:0} }
+
   /* ===== Studio Line — keeper chat ===== */
   .chat-fab{position:fixed;left:24px;bottom:24px;width:45px;height:45px;border-radius:50%;border:none;cursor:pointer;z-index:60;
     background:var(--accent-grad);
@@ -883,6 +946,13 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
 <img class="stamp" src="logos/STAMP.png" alt="">
 <div class="sync" id="sync"><span class="led"></span><span id="syncTxt">Local mode</span></div>
 
+<div id="viewToggle">
+  <button data-v="letters" title="Today's letters">Letters</button>
+  <button data-v="classic" title="Ledger, provenance and search">Classic</button>
+</div>
+
+<section class="letters-view" id="lettersView"></section>
+
 <div class="wrap">
 
   <aside class="col-left">
@@ -1089,7 +1159,7 @@ async function startSynced(){
   hideGate(); synced=true; setSync("on","Synced");
   await refresh();
   sb.channel("collectors-rt").on("postgres_changes",{event:"*",schema:"public",table:"collectors"},()=>refresh()).subscribe();
-  loadTodoDone(); loadInquiries().then(()=>{ renderDrawer(); if(tab==="enquiries") renderEnquiries(); });
+  loadTodoDone(); loadInquiries().then(()=>{ renderDrawer(); renderLetters(); if(tab==="enquiries") renderEnquiries(); });
   sb.channel("todos-rt").on("postgres_changes",{event:"*",schema:"public",table:"bureau_todos"},()=>loadTodoDone()).subscribe();
   sb.channel("inq-rt").on("postgres_changes",{event:"*",schema:"public",table:"inquiries"},()=>loadInquiries().then(()=>{ renderDrawer(); if(tab==="enquiries") renderEnquiries(); })).subscribe();
   initChat();
@@ -1818,6 +1888,121 @@ function openDraft(i, kind, qid){
 }
 /* One completion path for both card kinds: ledger rows stamp last_contact,
    custom inquiries check off against bureau_todos so both keepers see it. */
+
+/* ---------- Letters view ----------
+   The default surface: one pressing follow-up at a time, full-bleed, instead
+   of a table with a drawer and a modal behind it. Reuses draftEmail() and
+   completeFollowUp() exactly as the drawer's cards already do, so nothing
+   about how a letter is composed or how a follow-up is marked done is
+   duplicated — only the presentation is new. */
+let letterQueue=[], letterIdx=0, letterToneIdx=0, letterVaultOpen=false;
+
+function letterLabelFacts(x){
+  const {d,q,kind}=x;
+  if(kind==="custom"){
+    const when=fmtDate(q.first_seen);
+    return { name:q.name||"—", facts:[q.subject||"enquiry", "wrote in "+when] };
+  }
+  const piece=firstPiece(d.pieces);
+  const since=d.first_buy?fmtDate(d.first_buy):(d.last_buy?fmtDate(d.last_buy):"");
+  return { name:d.name||d.acc||"—",
+    facts:[piece||"collector", since?("carried since "+since):""].filter(Boolean) };
+}
+function letterQuoteText(x){
+  const raw = x.kind==="custom" ? x.q.note : (x.d.story||x.d.notes||"");
+  const t=String(raw||"").trim();
+  return t.length>260 ? t.slice(0,257)+"…" : t;
+}
+
+function renderLetters(){
+  const host=document.getElementById("lettersView"); if(!host) return;
+  const all=followUps();
+  letterQueue = all.filter(x=>(x.state||"attention")==="attention");
+  if(letterIdx>=letterQueue.length) letterIdx=0;
+  if(!letterQueue.length){
+    host.innerHTML=`<div class="lv-empty">Nothing needs you right now.<br>Come back once someone's due, or switch to Classic to browse everyone.</div>`;
+    return;
+  }
+  letterToneIdx=0; letterVaultOpen=false;
+  renderCurrentLetter();
+}
+
+function renderCurrentLetter(){
+  const host=document.getElementById("lettersView"); if(!host) return;
+  const x=letterQueue[letterIdx]; if(!x) return renderLetters();
+  const {d,q,kind,i}=x;
+  const {subject,body,toneName}=draftEmail(d, letterToneIdx, kind, q);
+  const {name,facts}=letterLabelFacts(x);
+  const quote=letterQuoteText(x);
+  const email=d.email||"";
+
+  const vaultRows = kind==="custom"
+    ? `<div class="lv-vault-row"><span>Email</span><b>${esc(email||"—")}</b></div>
+       <div class="lv-vault-row"><span>Status</span><b>${esc(q.status||"open")}</b></div>
+       <textarea id="lvNote" placeholder="What happened, and what you owe them next">${esc(q.note||"")}</textarea>`
+    : `<div class="lv-vault-row"><span>Email</span><b>${esc(email||"—")}</b></div>
+       ${d.location?`<div class="lv-vault-row"><span>Location</span><b>${esc(d.location)}</b></div>`:""}
+       ${d.ltv?`<div class="lv-vault-row"><span>Lifetime value</span><b>$${esc(String(d.ltv))}</b></div>`:""}
+       ${d.notes?`<p style="margin:8px 0 0">${esc(d.notes)}</p>`:""}`;
+
+  host.innerHTML = `
+    <div class="lv-count">${letterIdx+1} of ${letterQueue.length}</div>
+    <div class="lv-scene">
+      <div class="lv-label">
+        <div class="lv-name">${esc(name)}</div>
+        ${facts.map(f=>`<div class="lv-fact">${esc(f)}</div>`).join("")}
+        ${quote?`<div class="lv-quote">${esc(quote)}</div>`:""}
+      </div>
+      <div class="lv-paper">
+        <button class="lv-vault-tab" id="lvVaultTab" title="Their full record">☉</button>
+        <div class="lv-to">To ${esc(name)}${email?" · "+esc(email):""}</div>
+        <input class="lv-subj" id="lvSubj" value="${esc(subject)}">
+        <textarea class="lv-body" id="lvBody">${esc(body)}</textarea>
+        <div class="lv-vault" id="lvVault">${vaultRows}</div>
+      </div>
+    </div>
+    <div class="lv-actions">
+      <button class="lv-tone" id="lvTone">Tone · ${esc(toneName)}</button>
+      <span class="lv-spacer"></span>
+      <button class="lv-skip" id="lvSkip">Skip for now</button>
+      <button class="lv-send" id="lvSend">Send</button>
+    </div>`;
+
+  const vault=host.querySelector("#lvVault");
+  vault.classList.toggle("on", letterVaultOpen);
+  host.querySelector("#lvVaultTab").onclick=()=>{ letterVaultOpen=!letterVaultOpen; vault.classList.toggle("on",letterVaultOpen); };
+  host.querySelector("#lvTone").onclick=()=>{ letterToneIdx++; renderCurrentLetter(); };
+  host.querySelector("#lvSkip").onclick=()=>{ letterIdx=(letterIdx+1)%letterQueue.length; letterToneIdx=0; letterVaultOpen=false; renderCurrentLetter(); };
+  host.querySelector("#lvSend").onclick=()=>{
+    const subj=host.querySelector("#lvSubj").value, body=host.querySelector("#lvBody").value;
+    window.location.href=`mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+    completeFollowUp(i, q?q.id:"");
+    letterQueue.splice(letterIdx,1);
+    if(letterIdx>=letterQueue.length) letterIdx=0;
+    letterToneIdx=0; letterVaultOpen=false;
+    letterQueue.length ? renderCurrentLetter() : renderLetters();
+  };
+  const noteEl=host.querySelector("#lvNote");
+  if(noteEl) noteEl.onblur=()=>{ if(q && noteEl.value!==(q.note||"")) inqSet(q.id,{ note:noteEl.value }); };
+}
+
+function setView(v){
+  document.body.classList.toggle("view-classic", v==="classic");
+  document.body.classList.toggle("view-letters", v!=="classic");
+  try{ localStorage.setItem("macon_view", v); }catch(e){}
+  document.querySelectorAll("#viewToggle button").forEach(b=>b.classList.toggle("on", b.dataset.v===v));
+  if(v!=="classic") renderLetters();
+}
+(function(){
+  let v="letters"; try{ v=localStorage.getItem("macon_view")||"letters"; }catch(e){}
+  document.body.classList.toggle("view-classic", v==="classic");
+  document.body.classList.toggle("view-letters", v!=="classic");
+  document.getElementById("viewToggle").querySelectorAll("button").forEach(b=>{
+    b.classList.toggle("on", b.dataset.v===v);
+    b.onclick=()=>setView(b.dataset.v);
+  });
+})();
+
 function completeFollowUp(i, qid){
   // Advances the record. Nothing is ever removed: an enquiry becomes "followed
   // up" and returns on its own if it goes quiet, and a collector simply stops
@@ -3302,7 +3487,7 @@ function download(name,content,type){
   const a=document.createElement("a"); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u);
 }
 
-function renderAll(){ renderDash(); if(tab==="provenance") renderProvenance(); else if(tab==="enquiries") renderEnquiries(); else renderLedger(); renderDrawer(); }
+function renderAll(){ renderDash(); if(tab==="provenance") renderProvenance(); else if(tab==="enquiries") renderEnquiries(); else renderLedger(); renderDrawer(); renderLetters(); }
 
 /* ---------- Drawer open/collapse ---------- */
 (function(){
