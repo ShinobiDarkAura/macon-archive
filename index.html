@@ -154,7 +154,7 @@
     width:313px;padding:28px;box-sizing:border-box;border-radius:6px;background:rgba(255,255,255,.42);
     font-size:11px;line-height:1.8;color:#8c7f68;letter-spacing:.06em;
     transition:opacity .2s}
-  .lv-label .lv-name{font-family:"TAY Flapjack",var(--serif-soul);font-style:normal;font-weight:400;font-size:30px;line-height:1.2;
+  .lv-label .lv-name{font-family:"TAY Flapjack",var(--serif-soul);font-style:normal;font-weight:400;font-size:38px;line-height:1.2;
     color:var(--ink);margin-bottom:2px;text-transform:uppercase;letter-spacing:-.04em}
   .lv-label .lv-fact{opacity:.85}
   .lv-ctx{display:flex;gap:6px;margin:2px 0 8px}
@@ -194,11 +194,11 @@
   .lv-body-wrap{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;overflow-y:auto;box-sizing:border-box}
   .lv-body-wrap::before{content:"";flex:4}
   .lv-body-wrap::after{content:"";flex:6}
-  .lv-body{width:78%;border:none;background:transparent;resize:none;font-family:"Gabriele Dark","Gabriele Light",var(--serif-soul);font-size:16px;
+  .lv-body{width:78%;border:none;background:transparent;resize:none;font-family:"Gabriele Dark","Gabriele Light",var(--serif-soul);font-size:17px;
     line-height:1.55;color:#1C1A18;min-height:0;position:relative;z-index:1;overflow:hidden;flex:0 0 auto}
   .lv-body:focus{outline:none}
   .lv-signoff{width:78%;text-align:left;margin:30px 0 0;padding:1px 0 1px 10px;border:none;background:transparent;cursor:pointer;
-    font-family:"Gabriele Dark","Gabriele Light",var(--serif-soul);font-size:16px;color:#1C1A18;border-bottom:1px dotted transparent}
+    font-family:"Gabriele Dark","Gabriele Light",var(--serif-soul);font-size:17px;color:#1C1A18;border-bottom:1px dotted transparent}
   .lv-signoff:hover{border-bottom-color:#a89d89;color:var(--accent-deep)}
 
   /* the footer is part of the sheet itself, not a row floating below it —
@@ -258,8 +258,6 @@
   .lv-reader-refresh:hover,.lv-reader-back:hover{color:var(--ink)}
   .lv-reader-back{margin:0 0 10px -4px}
   .lv-reader-note{margin:0 0 12px;color:#8c7f68}
-  .lv-reader-connect{font-family:var(--sans);font-size:13px;color:#fff;background:var(--accent-grad);border:none;border-radius:8px;
-    padding:9px 16px;cursor:pointer}
   .lv-reader-list{display:flex;flex-direction:column}
   .lv-reader-row{display:block;width:100%;text-align:left;border:none;border-top:1px solid var(--rule);background:transparent;
     padding:10px 0;cursor:pointer;font-family:inherit;color:inherit;transition:background .15s}
@@ -1285,7 +1283,7 @@ async function boot(){
     sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
     const { data:{ session } } = await sb.auth.getSession();
     if(session) startSynced(); else showGate();
-    sb.auth.onAuthStateChange((_e, s)=>{ if(s&&s.provider_token) gmailSaveToken(s); if(s) startSynced(); else showGate(); });
+    sb.auth.onAuthStateChange((_e, s)=>{ if(s) startSynced(); else showGate(); });
   } else {
     data = local.load(); synced=false; setSync("local","Local mode"); renderAll();
   }
@@ -2198,32 +2196,23 @@ function letterNavigate(dir){
 }
 
 /* ---------- the reader: what came in, beside what goes out ----------
-   Gmail is read straight from the browser with the Google token Supabase
-   hands back after a Google sign-in (same email, so it links to the existing
-   keeper account). Wix form submissions arrive as ordinary mail, so they come
-   along for free. Read-only: replies still happen in Gmail. */
-const GMAIL_SCOPE="https://www.googleapis.com/auth/gmail.readonly";
-const GMAIL_KEY="macon.gmail";
+   The studio inbox (hello@) is read through the gmail-reader Edge Function,
+   which acts as that mailbox via a service account — nothing to connect in
+   the browser, and both keepers see the same threads. Read-only: replies
+   still happen in Gmail. */
 const STUDIO_INBOX="hello@studiomacon.co";
 let readerMsgs=null, readerOpen=null, readerErr="", readerLoading=false;
 // the thread with whoever the current letter is to, when Gmail has one
 let readerMode="post", readerThread=null; const _threads=new Map();
-function gmailSaveToken(s){
-  try{ localStorage.setItem(GMAIL_KEY, JSON.stringify({token:s.provider_token, at:Date.now()})); }catch{}
-}
-function gmailToken(){
-  try{ const t=JSON.parse(localStorage.getItem(GMAIL_KEY)||"null"); return t && (Date.now()-t.at<55*60*1000) ? t.token : null; }catch{ return null; }
-}
-function gmailConnect(){
-  sb.auth.signInWithOAuth({ provider:"google", options:{ scopes:GMAIL_SCOPE, redirectTo:location.origin+location.pathname,
-    queryParams:{ access_type:"offline", prompt:"consent" } } });
-}
+const gmailReady=()=>!!(sb&&synced);
 async function gmail(path){
-  const token=gmailToken(); if(!token) throw new Error("connect");
-  const r=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/"+path, { headers:{ Authorization:"Bearer "+token } });
-  if(r.status===401){ localStorage.removeItem(GMAIL_KEY); throw new Error("connect"); }
-  if(!r.ok) throw new Error("Gmail "+r.status);
-  return r.json();
+  const { data:{ session } }=await sb.auth.getSession();
+  if(!session) throw new Error("connect");
+  const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/gmail-reader?path=${encodeURIComponent(path)}`,
+    { headers:{ Authorization:"Bearer "+session.access_token, apikey:CONFIG.SUPABASE_ANON_KEY } });
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(j.error||("Gmail "+r.status));
+  return j;
 }
 const hdr=(m,n)=>((m.payload&&m.payload.headers)||[]).find(h=>h.name.toLowerCase()===n.toLowerCase())?.value||"";
 function gmailPlainText(payload){
@@ -2243,18 +2232,18 @@ function ago(ms){
   if(m<60) return m+"m"; const h=Math.round(m/60); if(h<24) return h+"h"; return Math.round(h/24)+"d";
 }
 async function loadReader(){
-  if(!gmailToken() || readerLoading) { renderReader(); return; }
+  if(!gmailReady() || readerLoading) { renderReader(); return; }
   readerLoading=true; readerErr=""; renderReader();
   try{
     // only what was written to the studio, not the keeper's own mail
-    const q=encodeURIComponent(`(to:${STUDIO_INBOX} OR deliveredto:${STUDIO_INBOX}) newer_than:14d`);
+    const q=encodeURIComponent("in:inbox newer_than:14d");
     const list=await gmail(`messages?q=${q}&maxResults=20`);
     const metas=await Promise.all((list.messages||[]).map(m=>
       gmail(`messages/${m.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`)));
     readerMsgs=metas.map(m=>({ id:m.id, from:hdr(m,"From").replace(/\s*<.*>$/,"").replace(/^"|"$/g,""),
       subject:hdr(m,"Subject")||"(no subject)", snippet:m.snippet||"", at:Number(m.internalDate),
       unread:(m.labelIds||[]).includes("UNREAD") }));
-  }catch(e){ readerErr = e.message==="connect" ? "" : e.message; if(e.message==="connect") readerMsgs=null; }
+  }catch(e){ readerErr=e.message; readerMsgs=readerMsgs||[]; }
   readerLoading=false; renderReader();
 }
 async function openReaderMsg(id){
@@ -2266,7 +2255,7 @@ async function openReaderMsg(id){
   renderReader();
 }
 async function loadThreadFor(email, name){
-  if(!email || !gmailToken()){ readerMode="post"; readerThread=null; renderReader(); return; }
+  if(!email || !gmailReady()){ readerMode="post"; readerThread=null; renderReader(); return; }
   readerMode="thread";
   if(_threads.has(email)){ readerThread=_threads.get(email); renderReader(); return; }
   readerThread={email, name, loading:true}; renderReader();
@@ -2280,13 +2269,13 @@ async function loadThreadFor(email, name){
         at:Number(m.internalDate), body:gmailPlainText(m.payload)||m.snippet||"", subject:hdr(m,"Subject") }));
     }
     readerThread={email, name, msgs};
-  }catch(e){ readerThread={email, name, msgs:[], err:e.message==="connect"?"":e.message}; }
+  }catch(e){ readerThread={email, name, msgs:[], err:e.message}; }
   if(readerThread.email===email) _threads.set(email, readerThread);
   renderReader();
 }
 function renderReader(){
   const el=document.getElementById("lvReader"); if(!el) return;
-  if(gmailToken() && readerMode==="thread" && readerThread){
+  if(gmailReady() && readerMode==="thread" && readerThread){
     const t=readerThread;
     const back=`<button class="lv-reader-back" id="lvReaderPost">‹ Post</button>`;
     if(t.loading){ el.innerHTML=`${back}<div class="lv-reader-head lv-overline">Thread</div><p class="lv-reader-note">Looking for mail with ${esc(t.name||t.email)}…</p>`; }
@@ -2300,11 +2289,8 @@ function renderReader(){
     el.querySelector("#lvReaderPost").onclick=()=>{ readerMode="post"; renderReader(); };
     return;
   }
-  if(!gmailToken()){
-    el.innerHTML=`<div class="lv-reader-head lv-overline">Post</div>
-      <p class="lv-reader-note">Read what's come in beside what you're writing.</p>
-      <button class="lv-reader-connect" id="lvGmail">Connect Gmail</button>`;
-    el.querySelector("#lvGmail").onclick=gmailConnect; return;
+  if(!gmailReady()){
+    el.innerHTML=`<div class="lv-reader-head lv-overline">Post</div><p class="lv-reader-note">Sign in to read the studio inbox.</p>`; return;
   }
   if(readerOpen){
     const o=readerOpen;
@@ -2328,7 +2314,7 @@ function renderReader(){
   el.querySelectorAll(".lv-reader-row").forEach(b=>b.onclick=()=>openReaderMsg(b.dataset.id));
   if(readerMsgs===null && !readerLoading) loadReader();
 }
-document.addEventListener("visibilitychange",()=>{ if(!document.hidden && document.getElementById("lvReader") && gmailToken()) loadReader(); });
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden && document.getElementById("lvReader") && gmailReady()) loadReader(); });
 
 function renderLetters(){
   const host=document.getElementById("lettersView"); if(!host) return;
@@ -3844,7 +3830,6 @@ document.getElementById("diagFab").onclick=async()=>{
   alert("Copied to clipboard. Paste it to Claude.\n\n"+text);
 };
 document.getElementById("signOut").onclick=async()=>{
-  try{ localStorage.removeItem(GMAIL_KEY); }catch{}
   if(sb) await sb.auth.signOut();
   location.reload();
 };
