@@ -215,7 +215,11 @@
   .lv-send{font-family:var(--sans);font-size:14.3px;letter-spacing:.02em;font-weight:500;color:#fff;
     background:var(--accent-grad);border:none;border-radius:8px;padding:12px 24px;cursor:pointer;
     box-shadow:0 6px 18px rgba(189,84,64,.32)}
+  .lv-send{display:inline-flex;align-items:center}
+  .lv-send::after{content:"\2192";display:inline-block;max-width:0;opacity:0;margin-left:0;overflow:hidden;
+    transform:translateX(-4px);transition:max-width .2s ease,opacity .2s ease,margin-left .2s ease,transform .2s ease}
   .lv-send:hover{filter:brightness(1.05)}
+  .lv-send:hover::after{max-width:1.2em;opacity:1;margin-left:8px;transform:none}
 
   /* Motion: the paper enters with a small settle rather than popping in, and
      Mark closed gets its own send-off — a checkmark, then the sheet slides
