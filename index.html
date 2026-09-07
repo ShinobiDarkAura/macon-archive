@@ -154,8 +154,8 @@
     width:313px;padding:28px;box-sizing:border-box;border-radius:6px;background:rgba(255,255,255,.42);
     font-size:11px;line-height:1.8;color:#8c7f68;letter-spacing:.06em;
     transition:opacity .2s}
-  .lv-label .lv-name{font-family:"TAY Birdie",var(--serif-soul);font-style:normal;font-weight:400;font-size:17px;line-height:1.2;
-    color:var(--ink);margin-bottom:2px;text-transform:uppercase;letter-spacing:-.02em}
+  .lv-label .lv-name{font-family:"TAY Flapjack",var(--serif-soul);font-style:normal;font-weight:400;font-size:23px;line-height:1.2;
+    color:var(--ink);margin-bottom:2px;text-transform:uppercase;letter-spacing:-.04em}
   .lv-label .lv-fact{opacity:.85}
   .lv-ctx{display:flex;gap:6px;margin:2px 0 8px}
   .lv-ctx-kind{font-family:"Public Sans",var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
@@ -2141,7 +2141,7 @@ function letterLabelFacts(x){
   const {d,q,kind}=x;
   if(kind==="custom"){
     const when=fmtDate(q.first_seen);
-    return { name:q.name||"—", facts:[q.subject||"enquiry", "wrote in "+when] };
+    return { name:q.name||"—", facts:[q.subject||"enquiry", when] };
   }
   const piece=firstPiece(d.pieces);
   const since=d.first_buy?fmtDate(d.first_buy):(d.last_buy?fmtDate(d.last_buy):"");
@@ -2351,7 +2351,7 @@ function renderCurrentLetter(){
     </div>
     <div class="lv-scene">
       <div class="lv-label lv-overline">
-        <div class="lv-name" style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",name)}">${esc(name)}</div>
+        <div class="lv-name" style="font-family:${safeFont("TAY Flapjack","var(--serif-soul)",name)}">${esc(name)}</div>
         ${ctxHTML}
         ${factLine1?`<div class="lv-fact">${esc(factLine1)}</div>`:""}
         ${factLine2?`<div class="lv-fact">${esc(factLine2)}</div>`:""}
