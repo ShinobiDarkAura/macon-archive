@@ -245,6 +245,31 @@
   .lv-ghost-2{transform:rotate(3deg) translate(14px,16px);z-index:0}
   .lv-ghost-3{transform:rotate(-4.5deg) translate(-18px,22px);z-index:-1}
 
+  /* the reader: incoming post in the right gutter, same panel as the marginalia */
+  .lv-reader{grid-column:3;grid-row:1;justify-self:center;align-self:center;width:320px;max-height:100%;overflow-y:auto;
+    box-sizing:border-box;padding:16px;border-radius:6px;background:rgba(255,255,255,.42);
+    font-family:"Public Sans",var(--sans);font-size:12.5px;line-height:1.5;color:var(--slate)}
+  .lv-reader-head{display:flex;align-items:center;justify-content:space-between;font-size:11px;letter-spacing:.14em;color:#8c7f68;margin-bottom:10px}
+  .lv-reader-refresh,.lv-reader-back{border:none;background:transparent;color:#a89d89;cursor:pointer;font-family:var(--sans);font-size:13px;padding:2px 4px}
+  .lv-reader-refresh:hover,.lv-reader-back:hover{color:var(--ink)}
+  .lv-reader-back{margin:0 0 10px -4px}
+  .lv-reader-note{margin:0 0 12px;color:#8c7f68}
+  .lv-reader-connect{font-family:var(--sans);font-size:13px;color:#fff;background:var(--accent-grad);border:none;border-radius:8px;
+    padding:9px 16px;cursor:pointer}
+  .lv-reader-list{display:flex;flex-direction:column}
+  .lv-reader-row{display:block;width:100%;text-align:left;border:none;border-top:1px solid var(--rule);background:transparent;
+    padding:10px 0;cursor:pointer;font-family:inherit;color:inherit;transition:background .15s}
+  .lv-reader-row:first-child{border-top:none}
+  .lv-reader-row:hover{background:rgba(255,255,255,.5)}
+  .lv-reader-row-top{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#8c7f68}
+  .lv-reader-from{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lv-reader-row-subj{color:var(--ink);margin:2px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lv-reader-row.unread .lv-reader-row-subj{font-weight:600}
+  .lv-reader-row-snip{font-size:11.5px;color:#8c7f68;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .lv-reader-subject{font-size:15px;color:var(--ink);margin-bottom:4px}
+  .lv-reader-meta{font-size:11px;color:#8c7f68;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--rule)}
+  .lv-reader-body{white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.6;color:var(--ink)}
+
   /* chevrons sit just off the paper's own edges, in its grid cell */
   .lv-chev{grid-column:2;grid-row:1;align-self:center;z-index:4;width:32px;height:32px;padding:0;border:none;
     background:transparent;color:#a89d89;cursor:pointer;transition:color .15s,opacity .15s}
@@ -255,7 +280,7 @@
   .lv-chev-next{justify-self:end;transform:translateX(calc(100% + 16px))}
 
   @media(max-width:1100px){ .lv-paper{padding:36px 28px 0} .lv-subj{font-size:24px} .lv-body{font-size:14px}
-    .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} }
+    .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none} }
 
   /* ===== Studio Line — keeper chat ===== */
   .chat-fab{position:fixed;left:24px;bottom:24px;width:45px;height:45px;border-radius:50%;border:none;cursor:pointer;z-index:60;
@@ -1242,7 +1267,7 @@ async function boot(){
     sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
     const { data:{ session } } = await sb.auth.getSession();
     if(session) startSynced(); else showGate();
-    sb.auth.onAuthStateChange((_e, s)=>{ if(s) startSynced(); else showGate(); });
+    sb.auth.onAuthStateChange((_e, s)=>{ if(s&&s.provider_token) gmailSaveToken(s); if(s) startSynced(); else showGate(); });
   } else {
     data = local.load(); synced=false; setSync("local","Local mode"); renderAll();
   }
@@ -2070,7 +2095,7 @@ function safeFont(family, fallback, text){
       if(ch!==" " && !have.has(ch.codePointAt(0))) return fallback;
     }
   }
-  return `"${family}", ${fallback}`;
+  return `'${family}', ${fallback}`;
 }
 
 let _letterFontsReady=false;
@@ -2151,6 +2176,102 @@ function letterNavigate(dir){
   if(next<0 || next>=letterQueue.length) return;
   letterIdx=next; letterToneIdx=0; renderCurrentLetter();
 }
+
+/* ---------- the reader: what came in, beside what goes out ----------
+   Gmail is read straight from the browser with the Google token Supabase
+   hands back after a Google sign-in (same email, so it links to the existing
+   keeper account). Wix form submissions arrive as ordinary mail, so they come
+   along for free. Read-only: replies still happen in Gmail. */
+const GMAIL_SCOPE="https://www.googleapis.com/auth/gmail.readonly";
+const GMAIL_KEY="macon.gmail";
+let readerMsgs=null, readerOpen=null, readerErr="", readerLoading=false;
+function gmailSaveToken(s){
+  try{ localStorage.setItem(GMAIL_KEY, JSON.stringify({token:s.provider_token, at:Date.now()})); }catch{}
+}
+function gmailToken(){
+  try{ const t=JSON.parse(localStorage.getItem(GMAIL_KEY)||"null"); return t && (Date.now()-t.at<55*60*1000) ? t.token : null; }catch{ return null; }
+}
+function gmailConnect(){
+  sb.auth.signInWithOAuth({ provider:"google", options:{ scopes:GMAIL_SCOPE, redirectTo:location.origin+location.pathname,
+    queryParams:{ access_type:"offline", prompt:"consent" } } });
+}
+async function gmail(path){
+  const token=gmailToken(); if(!token) throw new Error("connect");
+  const r=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/"+path, { headers:{ Authorization:"Bearer "+token } });
+  if(r.status===401){ localStorage.removeItem(GMAIL_KEY); throw new Error("connect"); }
+  if(!r.ok) throw new Error("Gmail "+r.status);
+  return r.json();
+}
+const hdr=(m,n)=>((m.payload&&m.payload.headers)||[]).find(h=>h.name.toLowerCase()===n.toLowerCase())?.value||"";
+function gmailPlainText(payload){
+  if(!payload) return "";
+  if(payload.mimeType==="text/plain" && payload.body&&payload.body.data) return gmailDecode(payload.body.data);
+  for(const p of payload.parts||[]){ const t=gmailPlainText(p); if(t) return t; }
+  if(payload.mimeType==="text/html" && payload.body&&payload.body.data)
+    return gmailDecode(payload.body.data).replace(/<style[\s\S]*?<\/style>/gi,"").replace(/<[^>]+>/g," ").replace(/\s{3,}/g,"\n\n").trim();
+  return "";
+}
+function gmailDecode(b64){
+  const bin=atob(b64.replace(/-/g,"+").replace(/_/g,"/"));
+  return new TextDecoder().decode(Uint8Array.from(bin, c=>c.charCodeAt(0)));
+}
+function ago(ms){
+  const m=Math.round((Date.now()-ms)/60000);
+  if(m<60) return m+"m"; const h=Math.round(m/60); if(h<24) return h+"h"; return Math.round(h/24)+"d";
+}
+async function loadReader(){
+  if(!gmailToken() || readerLoading) { renderReader(); return; }
+  readerLoading=true; readerErr=""; renderReader();
+  try{
+    const q=encodeURIComponent("in:inbox newer_than:7d -category:promotions -category:social");
+    const list=await gmail(`messages?q=${q}&maxResults=20`);
+    const metas=await Promise.all((list.messages||[]).map(m=>
+      gmail(`messages/${m.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`)));
+    readerMsgs=metas.map(m=>({ id:m.id, from:hdr(m,"From").replace(/\s*<.*>$/,"").replace(/^"|"$/g,""),
+      subject:hdr(m,"Subject")||"(no subject)", snippet:m.snippet||"", at:Number(m.internalDate),
+      unread:(m.labelIds||[]).includes("UNREAD") }));
+  }catch(e){ readerErr = e.message==="connect" ? "" : e.message; if(e.message==="connect") readerMsgs=null; }
+  readerLoading=false; renderReader();
+}
+async function openReaderMsg(id){
+  readerOpen={id, body:"…"}; renderReader();
+  try{
+    const m=await gmail(`messages/${id}?format=full`);
+    readerOpen={ id, from:hdr(m,"From"), subject:hdr(m,"Subject"), at:Number(m.internalDate), body:gmailPlainText(m.payload)||m.snippet||"" };
+  }catch(e){ readerOpen={id, body:"Couldn't open this one: "+e.message}; }
+  renderReader();
+}
+function renderReader(){
+  const el=document.getElementById("lvReader"); if(!el) return;
+  if(!gmailToken()){
+    el.innerHTML=`<div class="lv-reader-head lv-overline">Post</div>
+      <p class="lv-reader-note">Read what's come in beside what you're writing.</p>
+      <button class="lv-reader-connect" id="lvGmail">Connect Gmail</button>`;
+    el.querySelector("#lvGmail").onclick=gmailConnect; return;
+  }
+  if(readerOpen){
+    const o=readerOpen;
+    el.innerHTML=`<button class="lv-reader-back" id="lvReaderBack">‹ Post</button>
+      <div class="lv-reader-subject">${esc(o.subject||"")}</div>
+      <div class="lv-reader-meta">${esc(o.from||"")}${o.at?` · ${ago(o.at)}`:""}</div>
+      <div class="lv-reader-body">${esc(o.body)}</div>`;
+    el.querySelector("#lvReaderBack").onclick=()=>{ readerOpen=null; renderReader(); }; return;
+  }
+  const rows=(readerMsgs||[]).map(m=>`<button class="lv-reader-row${m.unread?" unread":""}" data-id="${m.id}">
+      <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(m.from)}</span><span class="lv-reader-ago">${ago(m.at)}</span></div>
+      <div class="lv-reader-row-subj">${esc(m.subject)}</div>
+      <div class="lv-reader-row-snip">${esc(m.snippet)}</div></button>`).join("");
+  el.innerHTML=`<div class="lv-reader-head lv-overline">Post
+      <button class="lv-reader-refresh" id="lvReaderRefresh" title="Check again">${readerLoading?"…":"↻"}</button></div>
+    ${readerErr?`<p class="lv-reader-note">${esc(readerErr)}</p>`:""}
+    ${readerMsgs&&!readerMsgs.length?`<p class="lv-reader-note">Nothing new this week.</p>`:""}
+    ${readerMsgs===null&&!readerLoading?`<p class="lv-reader-note">Fetching…</p>`:""}
+    <div class="lv-reader-list">${rows}</div>`;
+  el.querySelector("#lvReaderRefresh").onclick=loadReader;
+  el.querySelectorAll(".lv-reader-row").forEach(b=>b.onclick=()=>openReaderMsg(b.dataset.id));
+  if(readerMsgs===null && !readerLoading) loadReader();
+}
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden && document.getElementById("lvReader") && gmailToken()) loadReader(); });
 
 function renderLetters(){
   const host=document.getElementById("lettersView"); if(!host) return;
@@ -2237,7 +2358,9 @@ function renderCurrentLetter(){
           </div>
         </div>
       </div>
+      <aside class="lv-reader" id="lvReader"></aside>
     </div>`;
+  renderReader();
 
   // "+" sits just to the left of the Letters/Classic toggle, whatever that
   // toggle's actual rendered width happens to be — measured, not guessed.
