@@ -121,14 +121,14 @@
   .lv-overline{font-family:"Public Sans",var(--sans);text-transform:uppercase;font-weight:400}
 
   .letters-view{min-height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    padding:80px 40px 56px;box-sizing:border-box;gap:34px;
+    padding:64px 40px;box-sizing:border-box;gap:34px;
     background:radial-gradient(ellipse at 50% 30%,rgba(255,255,255,.6),rgba(180,166,140,.16) 78%)}
   .lv-count{font-size:11px;letter-spacing:.2em;color:#a89d89}
   .lv-empty{font-family:var(--serif-soul);font-style:italic;font-size:22px;color:#a89d89;text-align:center;max-width:460px}
 
-  .lv-scene{display:flex;align-items:flex-start;justify-content:center;gap:40px;max-width:1680px;width:100%}
-  .lv-label{flex:0 0 220px;padding-top:54px;font-size:11px;line-height:1.8;color:#8c7f68;letter-spacing:.06em}
-  .lv-label .lv-name{font-family:var(--serif-soul);font-style:normal;font-weight:500;font-size:26px;line-height:1.15;
+  .lv-scene{display:flex;align-items:flex-start;justify-content:center;gap:40px;width:100%}
+  .lv-label{flex:0 0 240px;padding-top:54px;font-size:11px;line-height:1.8;color:#8c7f68;letter-spacing:.06em}
+  .lv-label .lv-name{font-family:"TAY Flapjack",var(--serif-soul);font-style:normal;font-weight:400;font-size:26px;line-height:1.2;
     color:var(--ink);margin-bottom:10px;text-transform:none;letter-spacing:0}
   .lv-label .lv-fact{opacity:.85}
   .lv-quote{margin-top:18px;padding-top:16px;border-top:1px solid var(--rule);font-family:var(--serif-soul);
@@ -136,13 +136,13 @@
   .lv-quote::before{content:"\201C"}
   .lv-quote::after{content:"\201D"}
 
-  .lv-paper{flex:1 1 auto;max-width:1180px;min-width:0;background:#FEFCF6;border-radius:2px;
+  .lv-paper{flex:0 1 70%;min-width:0;background:#FEFCF6;border-radius:2px;
     box-shadow:0 26px 80px rgba(30,22,14,.22),0 2px 10px rgba(30,22,14,.14);
-    padding:52px 64px 68px;box-sizing:border-box;position:relative;overflow:hidden}
+    padding:52px 64px 68px;box-sizing:border-box;position:relative}
   .lv-paper::before{content:"";position:absolute;inset:14px;border:1px solid rgba(140,106,71,.12);pointer-events:none}
-  .lv-stamp{position:absolute;right:64px;bottom:56px;width:132px;height:auto;opacity:.92;
-    transform:rotate(-12deg);pointer-events:none;mix-blend-mode:multiply}
-  .lv-to{font-family:"TAY Birdie",var(--sans);font-size:10px;letter-spacing:.18em;color:#9C8F76;margin-bottom:26px;text-transform:uppercase}
+  .lv-stamp{position:absolute;right:32px;top:-12px;width:132px;height:auto;opacity:.92;
+    transform:rotate(-12deg);pointer-events:none;mix-blend-mode:multiply;z-index:2}
+  .lv-to{font-family:"TAY Birdie",var(--sans);font-size:12px;letter-spacing:.18em;color:#9C8F76;margin-bottom:26px;text-transform:uppercase}
   .lv-subj{width:100%;border:none;background:transparent;font-family:"TAY Flapjack",var(--serif-soul);font-weight:400;
     font-size:32px;line-height:1.25;color:#1C1A18;padding:0 0 18px;margin-bottom:24px;border-bottom:1px solid #E3DED0;
     resize:none;overflow:hidden;display:block;letter-spacing:.01em}
@@ -150,18 +150,10 @@
   .lv-body{width:100%;border:none;background:transparent;resize:none;font-family:"Gabriele Light",var(--serif-soul);font-size:17px;
     line-height:1.75;color:#1C1A18;min-height:260px;position:relative;z-index:1}
   .lv-body:focus{outline:none}
-  .lv-vault-tab{position:absolute;top:24px;right:24px;width:30px;height:30px;border-radius:50%;border:none;
-    background:rgba(140,106,71,.10);color:#8c6a47;cursor:pointer;display:flex;align-items:center;justify-content:center;
-    transition:.15s;z-index:2}
-  .lv-vault-tab:hover{background:rgba(140,106,71,.2)}
-  .lv-vault{margin-top:28px;padding-top:20px;border-top:1px dashed #E3DED0;font-family:var(--sans);font-size:13px;
-    color:var(--slate);display:none;position:relative;z-index:1}
-  .lv-vault.on{display:block}
-  .lv-vault-row{display:flex;justify-content:space-between;gap:12px;padding:4px 0}
-  .lv-vault-row span:first-child{font-family:"Public Sans",var(--sans);text-transform:uppercase;font-size:10.5px;letter-spacing:.08em;color:#a89d89}
-  .lv-vault-row b{color:var(--ink);font-weight:600;font-family:var(--sans)}
-  .lv-vault textarea{width:100%;margin-top:10px;font-family:var(--sans);font-size:13px;line-height:1.5;
-    border:1px solid var(--rule);border-radius:6px;padding:9px;resize:vertical;min-height:60px}
+  .lv-quote-edit{width:100%;margin-top:18px;padding-top:16px;border-top:1px solid var(--rule);background:transparent;
+    border-left:none;border-right:none;border-bottom:none;resize:vertical;font-family:var(--serif-soul);
+    font-style:italic;font-size:14.5px;line-height:1.6;color:var(--slate);letter-spacing:0;text-transform:none;min-height:60px}
+  .lv-quote-edit:focus{outline:none}
 
   .lv-actions{display:flex;align-items:center;justify-content:flex-end;gap:14px;margin-top:24px;width:100%;max-width:1680px}
   .lv-tone{font-size:10.5px;letter-spacing:.1em;color:#a89d89;
@@ -1968,14 +1960,11 @@ function renderCurrentLetter(){
   const quote=letterQuoteText(x);
   const email=d.email||"";
 
-  const vaultRows = kind==="custom"
-    ? `<div class="lv-vault-row"><span>Email</span><b>${esc(email||"—")}</b></div>
-       <div class="lv-vault-row"><span>Status</span><b>${esc(q.status||"open")}</b></div>
-       <textarea id="lvNote" placeholder="What happened, and what you owe them next">${esc(q.note||"")}</textarea>`
-    : `<div class="lv-vault-row"><span>Email</span><b>${esc(email||"—")}</b></div>
-       ${d.location?`<div class="lv-vault-row"><span>Location</span><b>${esc(d.location)}</b></div>`:""}
-       ${d.ltv?`<div class="lv-vault-row"><span>Lifetime value</span><b>$${esc(String(d.ltv))}</b></div>`:""}
-       ${d.notes?`<p style="margin:8px 0 0">${esc(d.notes)}</p>`:""}`;
+  // The margin quote IS an enquiry's note, editable in place — there is no
+  // separate panel repeating it, so this is the only copy of that text.
+  const quoteHTML = kind==="custom"
+    ? `<textarea class="lv-quote-edit" id="lvNote" placeholder="What happened, and what you owe them next">${esc(q.note||"")}</textarea>`
+    : (quote?`<div class="lv-quote">${esc(quote)}</div>`:"");
 
   host.innerHTML = `
     <div class="lv-count lv-overline">${letterIdx+1} of ${letterQueue.length}</div>
@@ -1983,15 +1972,13 @@ function renderCurrentLetter(){
       <div class="lv-label lv-overline">
         <div class="lv-name">${esc(name)}</div>
         ${facts.map(f=>`<div class="lv-fact">${esc(f)}</div>`).join("")}
-        ${quote?`<div class="lv-quote">${esc(quote)}</div>`:""}
+        ${quoteHTML}
       </div>
       <div class="lv-paper">
         <img class="lv-stamp" src="logos/red-stamp-alt.png" alt="" aria-hidden="true">
-        <button class="lv-vault-tab" id="lvVaultTab" title="Their full record">☉</button>
         <div class="lv-to lv-overline">To ${esc(name)}${email?" · "+esc(email):""}</div>
         <textarea class="lv-subj" id="lvSubj" rows="1">${esc(subject)}</textarea>
         <textarea class="lv-body" id="lvBody">${esc(body)}</textarea>
-        <div class="lv-vault" id="lvVault">${vaultRows}</div>
       </div>
     </div>
     <div class="lv-actions">
@@ -2000,9 +1987,6 @@ function renderCurrentLetter(){
       <button class="lv-send" id="lvSend">Send</button>
     </div>`;
 
-  const vault=host.querySelector("#lvVault");
-  vault.classList.toggle("on", letterVaultOpen);
-  host.querySelector("#lvVaultTab").onclick=()=>{ letterVaultOpen=!letterVaultOpen; vault.classList.toggle("on",letterVaultOpen); };
   host.querySelector("#lvTone").onclick=()=>{ letterToneIdx++; renderCurrentLetter(); };
   host.querySelector("#lvSkip").onclick=()=>{ letterIdx=(letterIdx+1)%letterQueue.length; letterToneIdx=0; letterVaultOpen=false; renderCurrentLetter(); };
   host.querySelector("#lvSend").onclick=()=>{
@@ -2018,7 +2002,11 @@ function renderCurrentLetter(){
   const autosizeSubj=()=>{ subjEl.style.height="auto"; subjEl.style.height=subjEl.scrollHeight+"px"; };
   requestAnimationFrame(autosizeSubj); subjEl.addEventListener("input",autosizeSubj);
   const noteEl=host.querySelector("#lvNote");
-  if(noteEl) noteEl.onblur=()=>{ if(q && noteEl.value!==(q.note||"")) inqSet(q.id,{ note:noteEl.value }); };
+  if(noteEl){
+    const autosizeNote=()=>{ noteEl.style.height="auto"; noteEl.style.height=noteEl.scrollHeight+"px"; };
+    requestAnimationFrame(autosizeNote); noteEl.addEventListener("input",autosizeNote);
+    noteEl.onblur=()=>{ if(q && noteEl.value!==(q.note||"")) inqSet(q.id,{ note:noteEl.value }); };
+  }
 }
 
 function setView(v){
