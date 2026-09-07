@@ -147,12 +147,20 @@
      balance the centering and can be narrower than the label needs. Name and
      quote are one block again, centered together as a unit rather than
      name-at-top-note-pushed-to-bottom. */
-  .lv-label{grid-column:2;grid-row:1;justify-self:start;align-self:stretch;
-    transform:translateX(calc(-100% - 40px));display:flex;flex-direction:column;justify-content:center;
+  .lv-label{grid-column:2;grid-row:1;justify-self:end;align-self:stretch;
+    transform:translateX(calc(100% + 40px));display:flex;flex-direction:column;justify-content:center;
     width:240px;padding:8px 0;font-size:11px;line-height:1.8;color:#8c7f68;letter-spacing:.06em}
   .lv-label .lv-name{font-family:"TAY Flapjack",var(--serif-soul);font-style:normal;font-weight:400;font-size:26px;line-height:1.2;
     color:var(--ink);margin-bottom:10px;text-transform:none;letter-spacing:0}
   .lv-label .lv-fact{opacity:.85}
+  .lv-ctx{display:flex;gap:6px;margin:2px 0 8px}
+  .lv-ctx-kind{font-family:"Public Sans",var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:#8c7f68;background:rgba(140,106,71,.10);border-radius:999px;padding:3px 9px}
+  .lv-ctx-pri{font-family:"Public Sans",var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+    border-radius:999px;padding:3px 9px}
+  .lv-pri-high{color:#a1432f;background:rgba(189,84,64,.14)}
+  .lv-pri-medium{color:#8c7f68;background:rgba(140,106,71,.10)}
+  .lv-pri-low{color:#8b9c7a;background:rgba(120,150,90,.12)}
   .lv-quote,.lv-quote-edit{margin-top:18px;padding-top:16px;border-top:1px solid var(--rule);font-family:var(--serif-soul);
     font-style:italic;font-size:17.5px;line-height:1.6;color:var(--slate);letter-spacing:0;text-transform:none}
   .lv-quote::before{content:"\201C"}
@@ -166,7 +174,7 @@
     padding:44px 48px 0;box-sizing:border-box;position:relative;overflow:hidden;z-index:3;
     display:flex;flex-direction:column}
   .lv-paper::before{content:"";position:absolute;inset:14px;border:1px solid rgba(140,106,71,.12);pointer-events:none}
-  .lv-stamp{position:absolute;right:32px;top:-12px;width:140px;height:auto;opacity:.92;
+  .lv-stamp{position:absolute;right:32px;top:-12px;width:175px;height:auto;opacity:.92;
     transform:rotate(-12deg);pointer-events:none;mix-blend-mode:multiply;z-index:2}
   /* the email line reads like the margin's overline facts (Public Sans, plain
      uppercase) rather than TAY Birdie, which has no glyphs for "." or "@" and
@@ -181,10 +189,10 @@
   /* Two flexible spacers rather than a single centered box: a 4:6 split
      settles the block 10% above true center (50/50 would be dead center),
      with the block itself unchanged otherwise — same auto height, same wrap. */
-  .lv-body-wrap{flex:1;min-height:0;display:flex;flex-direction:column;overflow-y:auto}
+  .lv-body-wrap{flex:1;min-height:0;display:flex;flex-direction:column;overflow-y:auto;padding-left:32px;box-sizing:border-box}
   .lv-body-wrap::before{content:"";flex:4}
   .lv-body-wrap::after{content:"";flex:6}
-  .lv-body{width:78%;border:none;background:transparent;resize:none;font-family:"Gabriele Light",var(--serif-soul);font-size:15px;
+  .lv-body{width:78%;border:none;background:transparent;resize:none;font-family:"Gabriele Light",var(--serif-soul);font-size:18px;
     line-height:1.7;color:#1C1A18;min-height:0;position:relative;z-index:1;overflow:hidden;flex:0 0 auto}
   .lv-body:focus{outline:none}
   .lv-signoff{align-self:flex-start;margin:6px 0 0;padding:1px 3px;border:none;background:transparent;cursor:pointer;
@@ -194,7 +202,7 @@
   /* the footer is part of the sheet itself, not a row floating below it —
      Tone and Mark closed on the left, Skip and Send on the right */
   .lv-footer{flex:0 0 8%;min-height:44px;display:flex;align-items:center;gap:12px;
-    border-top:1px solid #E3DED0;margin-top:8px}
+    border-top:1px solid #E3DED0;margin-top:8px;margin-bottom:8px}
   .lv-footer-right{margin-left:auto;display:flex;align-items:center;gap:12px}
   .lv-tone{font-size:10.5px;letter-spacing:.1em;color:#a89d89;
     background:transparent;border:1px solid var(--rule);border-radius:999px;padding:6px 13px;cursor:pointer}
@@ -2006,10 +2014,47 @@ function letterLabelFacts(x){
   return { name:d.name||d.acc||"—",
     facts:[piece||"collector", since?("carried since "+since):""].filter(Boolean) };
 }
+// What this letter is, how pressing it is, and which tone it opens on — the
+// same facts that drove its place in the queue, made visible rather than
+// left implicit in the ranking alone.
+function letterContext(x){
+  const kindLabel = x.kind==="custom" ? "Enquiry" : x.kind==="reconnect" ? "Reconnect" : "Story ask";
+  const priority = x.priority || "Medium";
+  let suggestedTone = "—";
+  try{ suggestedTone = draftEmail(x.d, 0, x.kind, x.q, "Alex").toneName; }catch(e){}
+  return { kindLabel, priority, suggestedTone };
+}
 function letterQuoteText(x){
   const raw = x.kind==="custom" ? x.q.note : (x.d.story||x.d.notes||"");
   const t=String(raw||"").trim();
   return t.length>260 ? t.slice(0,257)+"…" : t;
+}
+
+// Swipe or scroll through the stack. Attached once to the host (which
+// survives every re-render, unlike its innerHTML) rather than re-bound each
+// time — a guard flag keeps it from stacking up duplicate listeners.
+let _letterNavWired=false;
+function wireLetterNav(host){
+  if(_letterNavWired) return; _letterNavWired=true;
+  let touchStartX=null;
+  host.addEventListener("touchstart", e=>{ touchStartX=e.touches[0].clientX; }, {passive:true});
+  host.addEventListener("touchend", e=>{
+    if(touchStartX==null) return;
+    const dx=e.changedTouches[0].clientX-touchStartX; touchStartX=null;
+    if(Math.abs(dx)>60) letterNavigate(dx<0?1:-1);
+  }, {passive:true});
+  let wheelCooldown=false;
+  host.addEventListener("wheel", e=>{
+    if(wheelCooldown || Math.abs(e.deltaY)<30) return;
+    wheelCooldown=true; setTimeout(()=>wheelCooldown=false, 450);
+    letterNavigate(e.deltaY>0?1:-1);
+  }, {passive:true});
+}
+function letterNavigate(dir){
+  if(letterComposing || !letterQueue.length) return;
+  const next=letterIdx+dir;
+  if(next<0 || next>=letterQueue.length) return;
+  letterIdx=next; letterToneIdx=0; renderCurrentLetter();
 }
 
 function renderLetters(){
@@ -2040,6 +2085,12 @@ function renderCurrentLetter(){
   const {name,facts}=letterLabelFacts(x);
   const quote=letterQuoteText(x);
   const email=d.email||"";
+  const ctx = composing ? null : letterContext(x);
+  const ctxHTML = ctx ? `<div class="lv-ctx">
+      <span class="lv-ctx-kind">${esc(ctx.kindLabel)}</span>
+      <span class="lv-ctx-pri lv-pri-${esc(ctx.priority.toLowerCase())}">${esc(ctx.priority)}</span>
+    </div>
+    <div class="lv-fact">Suggested tone: ${esc(ctx.suggestedTone)}</div>` : "";
 
   // The margin quote IS an enquiry's note, editable in place — there is no
   // separate panel repeating it, so this is the only copy of that text.
@@ -2060,6 +2111,7 @@ function renderCurrentLetter(){
     <div class="lv-scene">
       <div class="lv-label lv-overline">
         <div class="lv-name">${esc(name)}</div>
+        ${ctxHTML}
         ${facts.map(f=>`<div class="lv-fact">${esc(f)}</div>`).join("")}
         ${quoteHTML}
       </div>
@@ -2093,6 +2145,7 @@ function renderCurrentLetter(){
     renderCurrentLetter();
   };
   host.querySelector("#lvNew").onclick=composeBlankLetter;
+  wireLetterNav(host);
   const exitCompose=()=>{ letterComposing=false; letterComposeItem=null; renderLetters(); };
   if(composing){
     host.querySelector("#lvSkip").onclick=exitCompose;
