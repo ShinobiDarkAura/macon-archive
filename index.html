@@ -107,9 +107,6 @@
      Poster-scale type, real invoice paper (#FEFCF6, the same colour the PDF
      uses), the actual studio stamp. Overlines are Public Sans, all caps,
      regular weight; everything meant to be read is the serif, exaggerated. */
-  #signOut{position:fixed;top:46px;right:16px;z-index:70;height:30px;border:none;background:transparent;cursor:pointer;padding:0 10px;
-    font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8b8375;transition:.15s}
-  #signOut:hover{color:var(--ink)}
   #viewToggle{position:fixed;top:16px;left:16px;z-index:70;display:flex;gap:2px;
     background:rgba(43,38,34,.06);border-radius:999px;padding:3px;backdrop-filter:blur(6px)}
   #viewToggle button{border:none;background:transparent;cursor:pointer;padding:7px 14px;border-radius:999px;
@@ -132,7 +129,7 @@
      too whenever they bled past its edge. #lvTopbar's `right` is set in JS,
      measured off the view toggle's actual rendered edge, so "+" always sits
      just to its left regardless of the toggle's own width. */
-  .lv-topbar{position:fixed;top:46px;z-index:70;display:flex;align-items:center;gap:8px;height:30px}
+  .lv-topbar{position:fixed;top:46px;right:16px;z-index:70;display:flex;align-items:center;gap:8px;height:30px}
   .lv-new{width:26px;height:26px;border-radius:50%;border:1px solid var(--rule);background:#fff;
     color:#8c7f68;font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
   .lv-new:hover{color:var(--ink);border-color:#a89d89}
@@ -1070,7 +1067,6 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
   <button data-v="letters" title="Today's letters">Letters</button>
   <button data-v="classic" title="Ledger, provenance and search">Classic</button>
 </div>
-<button id="signOut" title="Sign out of the archive">Sign out</button>
 
 <section class="letters-view" id="lettersView"></section>
 
@@ -1115,6 +1111,7 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
         <span class="tab-ink" id="tabInk"></span>
       </div>
       <button class="btn iconbtn" id="bellBtn" title="Follow-ups"><svg viewBox="0 0 20 20" width="18" height="18" fill="currentColor"><path d="M10 2a6 6 0 0 0-6 6c0 1.886-.454 3.665-1.257 5.234a.75.75 0 0 0 .515 1.076 32.9 32.9 0 0 0 3.256.508 3.5 3.5 0 0 0 6.972 0 32.9 32.9 0 0 0 3.256-.508.75.75 0 0 0 .515-1.076A11.45 11.45 0 0 1 16 8a6 6 0 0 0-6-6ZM8.05 14.943a33.5 33.5 0 0 0 3.9 0 2 2 0 0 1-3.9 0Z"/></svg><span class="bell-badge zero" id="bellBadge">0</span></button>
+      <button class="btn iconbtn" id="signOut" title="Sign out of the archive" aria-label="Sign out"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg></button>
       <input type="file" id="importFile" accept=".csv,text/csv" style="display:none">
     </div>
     <div class="ledger-surface" id="ledgerSurface">
@@ -2366,11 +2363,6 @@ function renderCurrentLetter(){
     </div>`;
   renderReader();
 
-  // "+" sits just to the left of Sign out, whatever that button's actual
-  // rendered width happens to be — measured, not guessed.
-  const anchor=document.getElementById("signOut"), topbar=document.getElementById("lvTopbar");
-  if(anchor && topbar) topbar.style.right = (innerWidth - anchor.getBoundingClientRect().left + 10) + "px";
-
   // clicking the name cycles who signs — Alex, Hannah, or both — and simply
   // redraws the letter with the new choice baked in, the same way Tone does
   host.querySelector("#lvSignoff").onclick=()=>{
@@ -2433,7 +2425,7 @@ function setView(v){
   setTimeout(()=>{
     document.body.classList.toggle("view-classic", v==="classic");
     document.body.classList.toggle("view-letters", v!=="classic");
-    try{ localStorage.setItem("macon_view", v); }catch(e){}
+    try{ localStorage.setItem("macon_surface", v); }catch(e){}
     document.querySelectorAll("#viewToggle button").forEach(b=>b.classList.toggle("on", b.dataset.v===v));
     if(v!=="classic") renderLetters();
     requestAnimationFrame(()=>document.body.classList.remove("lv-fading"));
@@ -2454,7 +2446,8 @@ function playCloseAnimation(onDone){
   }, 380);
 }
 (function(){
-  let v="letters"; try{ v=localStorage.getItem("macon_view")||"letters"; }catch(e){}
+  // its own key: "macon_view" belongs to the ledger's Compact/Regular switch
+  let v="letters"; try{ v=localStorage.getItem("macon_surface")||"letters"; }catch(e){}
   document.body.classList.toggle("view-classic", v==="classic");
   document.body.classList.toggle("view-letters", v!=="classic");
   document.getElementById("viewToggle").querySelectorAll("button").forEach(b=>{
