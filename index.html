@@ -287,6 +287,7 @@
     .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none} }
 
   /* ===== Studio Line — keeper chat ===== */
+  .diag-fab{display:none} body.diag .diag-fab{display:block}
   .diag-fab{position:fixed;right:24px;bottom:24px;width:32px;height:32px;border-radius:50%;border:1px solid var(--rule);
     background:rgba(255,255,255,.7);color:#a89d89;font-family:var(--sans);font-size:14px;cursor:pointer;z-index:60}
   .diag-fab:hover{color:var(--ink)}
@@ -3789,6 +3790,7 @@ async function gateSignIn(){
   document.getElementById("gateMsg").textContent = error ? error.message : "";
 }
 document.getElementById("gateBtn").onclick=gateSignIn;
+if(location.search.includes("diag")) document.body.classList.add("diag");
 document.getElementById("diagFab").onclick=async()=>{
   const lv=document.getElementById("lettersView");
   let user="?"; try{ user=(await sb.auth.getUser()).data.user?.email||"none"; }catch(e){ user="err "+e.message; }
