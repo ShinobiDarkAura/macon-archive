@@ -147,9 +147,12 @@
      balance the centering and can be narrower than the label needs. Name and
      quote are one block again, centered together as a unit rather than
      name-at-top-note-pushed-to-bottom. */
-  .lv-label{grid-column:2;grid-row:1;justify-self:end;align-self:stretch;
-    transform:translateX(calc(100% + 40px));display:flex;flex-direction:column;justify-content:center;
-    width:240px;padding:8px 0;font-size:11px;line-height:1.8;color:#8c7f68;letter-spacing:.06em}
+  /* Pinned to the viewport itself now, not to wherever the paper happens to
+     sit — independent of the paper's centering, rather than chasing its edge. */
+  .lv-label{position:fixed;left:24px;top:50%;transform:translateY(-50%);z-index:2;
+    display:flex;flex-direction:column;justify-content:center;
+    width:240px;padding:8px 0;font-size:11px;line-height:1.8;color:#8c7f68;letter-spacing:.06em;
+    transition:opacity .2s}
   .lv-label .lv-name{font-family:"TAY Flapjack",var(--serif-soul);font-style:normal;font-weight:400;font-size:26px;line-height:1.2;
     color:var(--ink);margin-bottom:10px;text-transform:none;letter-spacing:0}
   .lv-label .lv-fact{opacity:.85}
@@ -169,7 +172,7 @@
     background:transparent;resize:vertical;min-height:60px;padding-left:0;padding-right:0}
   .lv-quote-edit:focus{outline:none}
 
-  .lv-paper{grid-column:2;grid-row:1;height:100%;max-height:100%;aspect-ratio:8.5/11;width:auto;background:#FEFCF6;border-radius:2px;
+  .lv-paper{grid-column:2;grid-row:1;height:100%;max-height:100%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
     box-shadow:0 26px 80px rgba(30,22,14,.22),0 2px 10px rgba(30,22,14,.14);
     padding:44px 48px 0;box-sizing:border-box;position:relative;overflow:hidden;z-index:3;
     display:flex;flex-direction:column}
@@ -202,7 +205,7 @@
   /* the footer is part of the sheet itself, not a row floating below it —
      Tone and Mark closed on the left, Skip and Send on the right */
   .lv-footer{flex:0 0 8%;min-height:44px;display:flex;align-items:center;gap:12px;
-    border-top:1px solid #E3DED0;margin-top:8px;margin-bottom:8px}
+    border-top:1px solid #E3DED0;margin-top:8px;margin-bottom:12px}
   .lv-footer-right{margin-left:auto;display:flex;align-items:center;gap:12px}
   .lv-tone{font-size:10.5px;letter-spacing:.1em;color:#a89d89;
     background:transparent;border:1px solid var(--rule);border-radius:999px;padding:6px 13px;cursor:pointer}
@@ -215,12 +218,29 @@
     box-shadow:0 6px 18px rgba(189,84,64,.32)}
   .lv-send:hover{filter:brightness(1.05)}
 
+  /* Motion: the paper enters with a small settle rather than popping in, and
+     Mark closed gets its own send-off — a checkmark, then the sheet slides
+     away — before the next letter takes its place. */
+  @keyframes lvEnter{ from{opacity:0;transform:translateY(10px) scale(.98)} to{opacity:1;transform:none} }
+  .lv-paper,.lv-ghost{ animation:lvEnter .28s cubic-bezier(.2,.8,.2,1) both }
+  @keyframes lvSlideAway{ to{ transform:translateX(-140%) rotate(-6deg); opacity:0 } }
+  .lv-paper.lv-closing{ animation:lvSlideAway .45s cubic-bezier(.4,0,.2,1) forwards; pointer-events:none }
+  @keyframes lvCheckPop{ 0%{transform:scale(.5);opacity:0} 60%{transform:scale(1.15);opacity:1} 100%{transform:scale(1)} }
+  .lv-checkmark{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;
+    background:rgba(255,254,252,.92);animation:lvCheckPop .35s cubic-bezier(.2,.8,.2,1)}
+  .lv-checkmark svg{width:88px;height:88px;color:#6f9c5a}
+  .lv-subj,.lv-body,.lv-quote-edit{transition:height .18s ease}
+  /* view switch: a quick cross-fade instead of a hard cut */
+  .wrap,.letters-view{transition:opacity .18s ease}
+  body.lv-fading .wrap,body.lv-fading .letters-view{opacity:0}
+
   /* the stack: a couple of blank sheets behind the real one, each nudged and
      tilted, each with its own shadow, so the pile reads as physical */
-  .lv-ghost{grid-column:2;grid-row:1;height:100%;aspect-ratio:8.5/11;background:#FEFCF6;border-radius:2px;
+  .lv-ghost{grid-column:2;grid-row:1;height:100%;aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
     box-shadow:0 14px 40px rgba(30,22,14,.16);pointer-events:none}
   .lv-ghost:nth-of-type(1){transform:rotate(-2.5deg) translate(-10px,10px);z-index:1}
   .lv-ghost:nth-of-type(2){transform:rotate(3deg) translate(14px,16px);z-index:0}
+  .lv-ghost:nth-of-type(3){transform:rotate(-4.5deg) translate(-18px,22px);z-index:-1}
 
   @media(max-width:1100px){ .lv-paper{padding:36px 28px 0} .lv-subj{font-size:24px} .lv-body{font-size:14px}
     .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} }
@@ -1982,6 +2002,36 @@ async function composeBlankLetter(){
   renderCurrentLetter();
 }
 
+// These fonts were only ever drawn as short, all-caps labels on the invoice
+// ("ARTIFACT", "AMT.") — full sentences exercise glyphs that may not exist in
+// the file, and a missing glyph doesn't error, it silently substitutes the
+// next font in the stack FOR JUST THAT CHARACTER: "letters mismatched within
+// a word."
+//
+// A canvas width-comparison approach (measure a character against a
+// monospace baseline, flag it as missing if the widths match) was tried and
+// reverted: tested live against Gabriele Light, a font already confirmed
+// working, it flagged nearly every letter as missing — plenty of real glyphs
+// in a normal proportional font coincidentally share a monospace font's fixed
+// cell width, so the technique produces false positives, not real signal.
+//
+// Reliable detection needs either an actual font-parsing library (reading the
+// font's own glyph table) or a human reporting which characters break. Until
+// one of those exists, this is a manually-maintained list: known bad
+// characters get force-switched to the safe serif for the whole string,
+// rather than half-rendering in a mismatched font.
+const FONT_GLYPH_GAPS = {
+  "LOMA": new Set(["U","L"]),   // reported: mismatched mid-word
+};
+function safeFont(family, fallback, text){
+  if(!_letterFontsReady) return fallback;
+  const gaps = FONT_GLYPH_GAPS[family];
+  if(gaps){
+    for(const ch of String(text||"").toUpperCase()) if(gaps.has(ch)) return fallback;
+  }
+  return `"${family}", ${fallback}`;
+}
+
 let _letterFontsReady=false;
 async function loadLetterFonts(){
   if(_letterFontsReady || !sb) return;
@@ -2060,7 +2110,9 @@ function letterNavigate(dir){
 function renderLetters(){
   const host=document.getElementById("lettersView"); if(!host) return;
   const all=followUps();
-  letterQueue = all.filter(x=>(x.state||"attention")==="attention");
+  // The urgent, per-letter view stops at 3 months — anything older still
+  // needs attention, but it belongs in Classic's drawer, not the front page.
+  letterQueue = all.filter(x=>(x.state||"attention")==="attention" && (x.days==null || x.days<=90));
   if(letterIdx>=letterQueue.length) letterIdx=0;
   if(!letterQueue.length){
     host.innerHTML=`<div class="lv-empty">Nothing needs you right now.<br>Come back once someone's due, or switch to Classic to browse everyone.</div>`;
@@ -2086,11 +2138,16 @@ function renderCurrentLetter(){
   const quote=letterQuoteText(x);
   const email=d.email||"";
   const ctx = composing ? null : letterContext(x);
+  // Kind + priority read as pills, a different visual tier entirely — the
+  // small-caps text itself is capped at two lines, so the piece/date facts
+  // and the suggested tone are consolidated onto them rather than each
+  // getting a line of their own.
   const ctxHTML = ctx ? `<div class="lv-ctx">
       <span class="lv-ctx-kind">${esc(ctx.kindLabel)}</span>
       <span class="lv-ctx-pri lv-pri-${esc(ctx.priority.toLowerCase())}">${esc(ctx.priority)}</span>
-    </div>
-    <div class="lv-fact">Suggested tone: ${esc(ctx.suggestedTone)}</div>` : "";
+    </div>` : "";
+  const factLine1 = facts.join(" · ");
+  const factLine2 = ctx ? `Suggested tone: ${ctx.suggestedTone}` : "";
 
   // The margin quote IS an enquiry's note, editable in place — there is no
   // separate panel repeating it, so this is the only copy of that text.
@@ -2100,7 +2157,7 @@ function renderCurrentLetter(){
 
   // A couple of blank sheets behind the real one, tilted, so the pile beneath
   // today's letters reads as an actual stack rather than a single page.
-  const ghostCount = composing ? 0 : Math.max(0, Math.min(letterQueue.length-1, 2));
+  const ghostCount = composing ? 0 : Math.max(0, Math.min(letterQueue.length-1, 3));
   const ghosts = Array.from({length:ghostCount}, () => `<div class="lv-ghost"></div>`).join("");
 
   host.innerHTML = `
@@ -2112,16 +2169,17 @@ function renderCurrentLetter(){
       <div class="lv-label lv-overline">
         <div class="lv-name">${esc(name)}</div>
         ${ctxHTML}
-        ${facts.map(f=>`<div class="lv-fact">${esc(f)}</div>`).join("")}
+        ${factLine1?`<div class="lv-fact">${esc(factLine1)}</div>`:""}
+        ${factLine2?`<div class="lv-fact">${esc(factLine2)}</div>`:""}
         ${quoteHTML}
       </div>
       ${ghosts}
       <div class="lv-paper">
         <img class="lv-stamp" src="logos/red-stamp-alt.png" alt="" aria-hidden="true">
         <div class="lv-to">${esc(email)}</div>
-        <textarea class="lv-subj" id="lvSubj" rows="1">${esc(subject)}</textarea>
-        <div class="lv-body-wrap"><textarea class="lv-body" id="lvBody">${esc(body)}</textarea></div>
-        <button class="lv-signoff" id="lvSignoff" title="Click to change who signs">— ${esc(letterSignoff)}</button>
+        <textarea class="lv-subj" id="lvSubj" rows="1" style="font-family:${safeFont("LOMA","var(--serif-soul)",subject)}">${esc(subject)}</textarea>
+        <div class="lv-body-wrap"><textarea class="lv-body" id="lvBody">${esc(body)}</textarea>
+        <button class="lv-signoff" id="lvSignoff" title="Click to change who signs">— ${esc(letterSignoff)}</button></div>
         <div class="lv-footer">
           ${composing?"":`<button class="lv-tone lv-overline" id="lvTone">Tone · ${esc(toneName)}</button>`}
           <button class="lv-close" id="lvClose">Mark closed</button>
@@ -2149,16 +2207,20 @@ function renderCurrentLetter(){
   const exitCompose=()=>{ letterComposing=false; letterComposeItem=null; renderLetters(); };
   if(composing){
     host.querySelector("#lvSkip").onclick=exitCompose;
-    host.querySelector("#lvClose").onclick=()=>{ inqSet(q.id,{status:"closed"}); exitCompose(); };
+    host.querySelector("#lvClose").onclick=()=>{
+      playCloseAnimation(()=>{ inqSet(q.id,{status:"closed"}); exitCompose(); });
+    };
   } else {
     host.querySelector("#lvTone").onclick=()=>{ letterToneIdx++; renderCurrentLetter(); };
     host.querySelector("#lvSkip").onclick=()=>{ letterIdx=(letterIdx+1)%letterQueue.length; letterToneIdx=0; renderCurrentLetter(); };
     host.querySelector("#lvClose").onclick=()=>{
-      if(q) inqSet(q.id,{status:"closed"}); else markContacted(i);
-      letterQueue.splice(letterIdx,1);
-      if(letterIdx>=letterQueue.length) letterIdx=0;
-      letterToneIdx=0;
-      letterQueue.length ? renderCurrentLetter() : renderLetters();
+      playCloseAnimation(()=>{
+        if(q) inqSet(q.id,{status:"closed"}); else markContacted(i);
+        letterQueue.splice(letterIdx,1);
+        if(letterIdx>=letterQueue.length) letterIdx=0;
+        letterToneIdx=0;
+        letterQueue.length ? renderCurrentLetter() : renderLetters();
+      });
     };
   }
   host.querySelector("#lvSend").onclick=()=>{
@@ -2186,11 +2248,32 @@ function renderCurrentLetter(){
 }
 
 function setView(v){
-  document.body.classList.toggle("view-classic", v==="classic");
-  document.body.classList.toggle("view-letters", v!=="classic");
-  try{ localStorage.setItem("macon_view", v); }catch(e){}
-  document.querySelectorAll("#viewToggle button").forEach(b=>b.classList.toggle("on", b.dataset.v===v));
-  if(v!=="classic") renderLetters();
+  // fade out, swap which surface is display:none underneath the fade, fade
+  // back in — display can't be transitioned directly, so the swap happens
+  // while briefly invisible rather than as a hard cut
+  document.body.classList.add("lv-fading");
+  setTimeout(()=>{
+    document.body.classList.toggle("view-classic", v==="classic");
+    document.body.classList.toggle("view-letters", v!=="classic");
+    try{ localStorage.setItem("macon_view", v); }catch(e){}
+    document.querySelectorAll("#viewToggle button").forEach(b=>b.classList.toggle("on", b.dataset.v===v));
+    if(v!=="classic") renderLetters();
+    requestAnimationFrame(()=>document.body.classList.remove("lv-fading"));
+  }, 180);
+}
+// Mark closed gets a send-off: a checkmark over the sheet, then it slides
+// away, and only once that's played does the actual state change happen.
+function playCloseAnimation(onDone){
+  const paper=document.querySelector(".lv-paper");
+  if(!paper){ onDone(); return; }
+  const mark=document.createElement("div");
+  mark.className="lv-checkmark";
+  mark.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+  paper.appendChild(mark);
+  setTimeout(()=>{
+    paper.classList.add("lv-closing");
+    setTimeout(onDone, 450);
+  }, 380);
 }
 (function(){
   let v="letters"; try{ v=localStorage.getItem("macon_view")||"letters"; }catch(e){}
