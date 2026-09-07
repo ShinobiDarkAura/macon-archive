@@ -128,7 +128,7 @@
 
   .lv-scene{display:flex;align-items:flex-start;justify-content:center;gap:40px;max-width:1680px;width:100%}
   .lv-label{flex:0 0 220px;padding-top:54px;font-size:11px;line-height:1.8;color:#8c7f68;letter-spacing:.06em}
-  .lv-label .lv-name{font-family:var(--serif-soul);font-style:normal;font-weight:500;font-size:38px;line-height:1.1;
+  .lv-label .lv-name{font-family:var(--serif-soul);font-style:normal;font-weight:500;font-size:26px;line-height:1.15;
     color:var(--ink);margin-bottom:10px;text-transform:none;letter-spacing:0}
   .lv-label .lv-fact{opacity:.85}
   .lv-quote{margin-top:18px;padding-top:16px;border-top:1px solid var(--rule);font-family:var(--serif-soul);
@@ -136,19 +136,19 @@
   .lv-quote::before{content:"\201C"}
   .lv-quote::after{content:"\201D"}
 
-  .lv-paper{flex:1 1 auto;max-width:1440px;min-width:0;background:#FEFCF6;border-radius:2px;
-    box-shadow:0 30px 90px rgba(30,22,14,.24),0 2px 10px rgba(30,22,14,.14);
-    padding:72px 88px 100px;box-sizing:border-box;position:relative;overflow:hidden}
+  .lv-paper{flex:1 1 auto;max-width:1180px;min-width:0;background:#FEFCF6;border-radius:2px;
+    box-shadow:0 26px 80px rgba(30,22,14,.22),0 2px 10px rgba(30,22,14,.14);
+    padding:52px 64px 68px;box-sizing:border-box;position:relative;overflow:hidden}
   .lv-paper::before{content:"";position:absolute;inset:14px;border:1px solid rgba(140,106,71,.12);pointer-events:none}
   .lv-stamp{position:absolute;right:64px;bottom:56px;width:132px;height:auto;opacity:.92;
     transform:rotate(-12deg);pointer-events:none;mix-blend-mode:multiply}
-  .lv-to{font-size:11px;letter-spacing:.14em;color:#9C8F76;margin-bottom:22px}
-  .lv-subj{width:100%;border:none;background:transparent;font-family:var(--serif-soul);font-weight:500;
-    font-size:56px;line-height:1.15;color:#1C1A18;padding:0 0 20px;margin-bottom:26px;border-bottom:1px solid #E3DED0;
-    resize:none;overflow:hidden;display:block}
+  .lv-to{font-family:"TAY Birdie",var(--sans);font-size:10px;letter-spacing:.18em;color:#9C8F76;margin-bottom:26px;text-transform:uppercase}
+  .lv-subj{width:100%;border:none;background:transparent;font-family:"TAY Flapjack",var(--serif-soul);font-weight:400;
+    font-size:32px;line-height:1.25;color:#1C1A18;padding:0 0 18px;margin-bottom:24px;border-bottom:1px solid #E3DED0;
+    resize:none;overflow:hidden;display:block;letter-spacing:.01em}
   .lv-subj:focus{outline:none;border-bottom-color:var(--accent)}
-  .lv-body{width:100%;border:none;background:transparent;resize:none;font-family:var(--serif-soul);font-size:48px;
-    line-height:1.5;color:#1C1A18;min-height:420px;position:relative;z-index:1}
+  .lv-body{width:100%;border:none;background:transparent;resize:none;font-family:"Gabriele Light",var(--serif-soul);font-size:17px;
+    line-height:1.75;color:#1C1A18;min-height:260px;position:relative;z-index:1}
   .lv-body:focus{outline:none}
   .lv-vault-tab{position:absolute;top:24px;right:24px;width:30px;height:30px;border-radius:50%;border:none;
     background:rgba(140,106,71,.10);color:#8c6a47;cursor:pointer;display:flex;align-items:center;justify-content:center;
@@ -174,7 +174,7 @@
     background:var(--accent-grad);border:none;border-radius:8px;padding:13px 28px;cursor:pointer;
     box-shadow:0 6px 18px rgba(189,84,64,.32)}
   .lv-send:hover{filter:brightness(1.05)}
-  @media(max-width:1100px){ .lv-paper{padding:44px 36px 64px} .lv-subj{font-size:38px} .lv-body{font-size:28px} .lv-scene{flex-direction:column;align-items:stretch} .lv-label{padding-top:0} }
+  @media(max-width:1100px){ .lv-paper{padding:36px 28px 48px} .lv-subj{font-size:26px} .lv-body{font-size:16px} .lv-scene{flex-direction:column;align-items:stretch} .lv-label{padding-top:0} }
 
   /* ===== Studio Line — keeper chat ===== */
   .chat-fab{position:fixed;left:24px;bottom:24px;width:45px;height:45px;border-radius:50%;border:none;cursor:pointer;z-index:60;
@@ -1171,6 +1171,7 @@ async function startSynced(){
   await refresh();
   sb.channel("collectors-rt").on("postgres_changes",{event:"*",schema:"public",table:"collectors"},()=>refresh()).subscribe();
   loadTodoDone(); loadInquiries().then(()=>{ renderDrawer(); renderLetters(); if(tab==="enquiries") renderEnquiries(); });
+  loadLetterFonts();
   sb.channel("todos-rt").on("postgres_changes",{event:"*",schema:"public",table:"bureau_todos"},()=>loadTodoDone()).subscribe();
   sb.channel("inq-rt").on("postgres_changes",{event:"*",schema:"public",table:"inquiries"},()=>loadInquiries().then(()=>{ renderDrawer(); if(tab==="enquiries") renderEnquiries(); })).subscribe();
   initChat();
@@ -1907,6 +1908,26 @@ function openDraft(i, kind, qid){
    about how a letter is composed or how a follow-up is marked done is
    duplicated — only the presentation is new. */
 let letterQueue=[], letterIdx=0, letterToneIdx=0, letterVaultOpen=false;
+
+let _letterFontsReady=false;
+async function loadLetterFonts(){
+  if(_letterFontsReady || !sb) return;
+  try{
+    const [flap,birdie,gab]=await Promise.all([
+      invAsset("tay-flapjack.ttf"), invAsset("tay-birdie.ttf"), invAsset("gabriele-l.ttf")
+    ]);
+    const faces=[
+      new FontFace("TAY Flapjack", flap),
+      new FontFace("TAY Birdie", birdie),
+      new FontFace("Gabriele Light", gab),
+    ];
+    await Promise.all(faces.map(f=>f.load().then(loaded=>document.fonts.add(loaded))));
+    _letterFontsReady=true;
+    // font metrics changed, so the auto-sizing textareas need to re-measure
+    if(letterQueue.length) renderCurrentLetter();
+  }catch(e){ console.warn("[letters] studio fonts unavailable, using the fallback serif", e); }
+}
+
 
 function letterLabelFacts(x){
   const {d,q,kind}=x;
