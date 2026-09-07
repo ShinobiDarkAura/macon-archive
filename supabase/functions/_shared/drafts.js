@@ -119,7 +119,7 @@ export const TONES=[
     ].join("\n")
   })},
   {name:"Brief", build:c=>({
-    subject:`${c.piece} :)`,
+    subject:`${c.piece}`,
     body:[
       `Hi ${c.first},`,"",
       `{{SIGNOFF}} from Maçon here. Quick one: ${c.gift?`did your gift land okay?`:c.jewel?`has ${c.piece} been getting worn?`:`where's ${c.piece} ended up living?`}`,"",
@@ -153,13 +153,13 @@ export const CUSTOM_TONES=[
   {name:"Revive", build:q=>{
     const f=firstName(q.name), a=q.subject;
     return q.repeat_buyer ? {
-      subject:`Re: your ${a}`,
+      subject:`About your ${a}`,
       body:[`Hey ${f},`,"",
         `I never circled back about the ${a}, which I regret, it's a good one.`,"",
         `If you're still up for it, I'd like to draw a couple of options and send them over. No commitment, and no need to decide anything from a drawing.`,"",
         `{{SIGNOFF}}`].join("\n")
     } : {
-      subject:`Re: your ${a}`,
+      subject:`About your ${a}`,
       body:[`Hi ${f},`,"",
         `I never followed up on your ${a}, and I should have.`,"",
         `If it was the price or the size of the deposit, I would genuinely like to know, it helps us. And if you're still interested, I'd like to draw it for you before you decide anything at all.`,"",
@@ -168,7 +168,7 @@ export const CUSTOM_TONES=[
     };
   }},
   {name:"Nudge", build:q=>({
-    subject:`Re: your ${q.subject}`,
+    subject:`About your ${q.subject}`,
     body:[`Hi ${firstName(q.name)},`,"",
       `Still thinking about your ${q.subject}.`,"",
       `Want me to sketch something?`,"",
@@ -177,7 +177,7 @@ export const CUSTOM_TONES=[
   {name:"First reply", build:q=>{
     const f=firstName(q.name), a=q.subject;
     return q.repeat_buyer ? {
-      subject:`Re: your ${a}`,
+      subject:`About your ${a}`,
       body:[`Hey ${f},`,"",
         `Yes, a ${a}, absolutely.`,"",
         `Do you have a particular ${a} in mind, or should we invent one?`,"",
@@ -185,7 +185,7 @@ export const CUSTOM_TONES=[
         `Tell me about the ${a} and I'll get things moving.`,"",
         `{{SIGNOFF}}`].join("\n")
     } : {
-      subject:`Re: your ${a}`,
+      subject:`About your ${a}`,
       body:[`Hi ${f},`,"",
         `We'd love to make ${a.match(/^[aeiou]/i)?"an":"a"} ${a} for you.`,"",
         `Tell me about yours first. Is there a particular ${a} you have in mind, or would you rather we invent one? Photos help if you have any, though they are not necessary.`,"",
@@ -210,7 +210,7 @@ export function enquiryDraft(q, days, signoff="Alex"){
   // A hand-written prepared letter is stored text, not a template — it can't
   // carry a placeholder, so it is returned as written and does not respond
   // to the signature toggle.
-  if (q.draft) return { subject: "Re: " + (q.subject || "your commission"), body: q.draft };
+  if (q.draft) return { subject: "About your " + (q.subject || "commission"), body: q.draft };
   // A reply recorded in the note counts as contact: most replies happen in
   // Gmail and never touch the app.
   const answered = !!q.last_touched || /replied|reply|answered|wrote back|sent/i.test(String(q.note || ""));

@@ -149,32 +149,30 @@
      name-at-top-note-pushed-to-bottom. */
   /* Anchored back to the paper's own column, left side this time, 24px off
      its edge — a fixed offset from the sheet again, not from the viewport. */
-  .lv-label{grid-column:2;grid-row:1;justify-self:start;align-self:stretch;
-    transform:translateX(calc(-100% - 24px));z-index:2;
+  .lv-label{grid-column:1;grid-row:1;justify-self:center;align-self:center;z-index:2;
     display:flex;flex-direction:column;justify-content:center;
-    width:240px;padding:8px 0;font-size:11px;line-height:1.8;color:#8c7f68;letter-spacing:.06em;
+    width:272px;padding:16px;box-sizing:border-box;border-radius:6px;background:rgba(255,255,255,.42);
+    font-size:11px;line-height:1.8;color:#8c7f68;letter-spacing:.06em;
     transition:opacity .2s}
-  .lv-label .lv-name{font-family:"TAY Birdie",var(--serif-soul);font-style:normal;font-weight:400;font-size:26px;line-height:1.2;
-    color:var(--ink);margin-bottom:10px;text-transform:uppercase;letter-spacing:.02em}
+  .lv-label .lv-name{font-family:"TAY Birdie",var(--serif-soul);font-style:normal;font-weight:400;font-size:23px;line-height:1.2;
+    color:var(--ink);margin-bottom:2px;text-transform:uppercase;letter-spacing:0}
   .lv-label .lv-fact{opacity:.85}
   .lv-ctx{display:flex;gap:6px;margin:2px 0 8px}
   .lv-ctx-kind{font-family:"Public Sans",var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
-    color:#fff;background:var(--accent-grad);border-radius:999px;padding:3px 9px}
+    color:#5a5040;background:#dcd3c0;border-radius:999px;padding:3px 9px}
   .lv-ctx-pri{font-family:"Public Sans",var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
     border-radius:999px;padding:3px 9px;font-weight:600}
   .lv-pri-high{color:#fff;background:#c8452f}
   .lv-pri-medium{color:#fff;background:#b8935f}
   .lv-pri-low{color:#fff;background:#6fa15a}
-  .lv-quote,.lv-quote-edit{margin-top:18px;padding-top:16px;border-top:1px solid var(--rule);font-family:var(--serif-soul);
-    font-style:italic;font-size:17.5px;line-height:1.6;color:var(--slate);letter-spacing:0;text-transform:none}
-  .lv-quote::before{content:"\201C"}
-  .lv-quote::after{content:"\201D"}
+  .lv-quote,.lv-quote-edit{margin-top:18px;padding-top:16px;border-top:1px solid var(--rule);font-family:"Public Sans",var(--sans);
+    font-style:normal;font-size:13.5px;line-height:1.6;color:var(--slate);letter-spacing:0;text-transform:none}
   .lv-quote-edit{box-sizing:border-box;width:100%;border-width:1px 0 0;border-style:solid;border-color:var(--rule);
     background:transparent;resize:vertical;min-height:60px;padding-left:0;padding-right:0}
   .lv-quote-edit:focus{outline:none}
 
   .lv-paper{grid-column:2;grid-row:1;height:100%;max-height:100%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
-    box-shadow:0 26px 80px rgba(30,22,14,.15),0 2px 10px rgba(30,22,14,.09);
+    box-shadow:0 26px 80px rgba(30,22,14,.10),0 2px 10px rgba(30,22,14,.06);
     padding:44px 48px 0;box-sizing:border-box;position:relative;overflow:hidden;z-index:3;
     display:flex;flex-direction:column}
   .lv-paper::before{content:"";position:absolute;inset:14px;border:1px solid rgba(140,106,71,.12);pointer-events:none}
@@ -223,7 +221,11 @@
      Mark closed gets its own send-off — a checkmark, then the sheet slides
      away — before the next letter takes its place. */
   @keyframes lvEnter{ from{opacity:0;transform:translateY(10px) scale(.98)} to{opacity:1;transform:none} }
-  .lv-paper,.lv-ghost{ animation:lvEnter .28s cubic-bezier(.2,.8,.2,1) both }
+  .lv-paper{ animation:lvEnter .28s cubic-bezier(.2,.8,.2,1) both }
+  /* ghosts animate opacity only: a transform keyframe with fill "both" would
+     pin transform:none and erase their tilt for good */
+  @keyframes lvGhostIn{ from{opacity:0} to{opacity:1} }
+  .lv-ghost{ animation:lvGhostIn .28s ease both }
   @keyframes lvSlideAway{ to{ transform:translateX(-140%) rotate(-6deg); opacity:0 } }
   .lv-paper.lv-closing{ animation:lvSlideAway .45s cubic-bezier(.4,0,.2,1) forwards; pointer-events:none }
   @keyframes lvCheckPop{ 0%{transform:scale(.5);opacity:0} 60%{transform:scale(1.15);opacity:1} 100%{transform:scale(1)} }
@@ -239,12 +241,21 @@
      tilted, each with its own shadow, so the pile reads as physical */
   .lv-ghost{grid-column:2;grid-row:1;height:100%;aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
     box-shadow:0 14px 40px rgba(30,22,14,.16);pointer-events:none}
-  .lv-ghost:nth-of-type(1){transform:rotate(-2.5deg) translate(-10px,10px);z-index:1}
-  .lv-ghost:nth-of-type(2){transform:rotate(3deg) translate(14px,16px);z-index:0}
-  .lv-ghost:nth-of-type(3){transform:rotate(-4.5deg) translate(-18px,22px);z-index:-1}
+  .lv-ghost-1{transform:rotate(-2.5deg) translate(-10px,10px);z-index:1}
+  .lv-ghost-2{transform:rotate(3deg) translate(14px,16px);z-index:0}
+  .lv-ghost-3{transform:rotate(-4.5deg) translate(-18px,22px);z-index:-1}
+
+  /* chevrons sit just off the paper's own edges, in its grid cell */
+  .lv-chev{grid-column:2;grid-row:1;align-self:center;z-index:4;width:32px;height:32px;padding:0;border:none;
+    background:transparent;color:#a89d89;cursor:pointer;transition:color .15s,opacity .15s}
+  .lv-chev svg{width:32px;height:32px;display:block}
+  .lv-chev:hover{color:var(--ink)}
+  .lv-chev:disabled{opacity:.25;cursor:default}
+  .lv-chev-prev{justify-self:start;transform:translateX(calc(-100% - 16px))}
+  .lv-chev-next{justify-self:end;transform:translateX(calc(100% + 16px))}
 
   @media(max-width:1100px){ .lv-paper{padding:36px 28px 0} .lv-subj{font-size:24px} .lv-body{font-size:14px}
-    .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} }
+    .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} }
 
   /* ===== Studio Line — keeper chat ===== */
   .chat-fab{position:fixed;left:24px;bottom:24px;width:45px;height:45px;border-radius:50%;border:none;cursor:pointer;z-index:60;
@@ -2021,19 +2032,43 @@ async function composeBlankLetter(){
 // one of those exists, this is a manually-maintained list: known bad
 // characters get force-switched to the safe serif for the whole string,
 // rather than half-rendering in a mismatched font.
-const FONT_GLYPH_GAPS = {
-  "LOMA": new Set(["U","L"]),   // reported: mismatched mid-word
-  // Birdie was only ever drawn for pure-letter all-caps labels (ARTIFACT,
-  // MAÇON, BUREAU OF PROVENANCE) — confirmed missing "." and "@" back when it
-  // was used on the invoice. Treated conservatively: digits and punctuation
-  // it was never asked to draw before are excluded until proven otherwise.
-  "TAY Birdie": new Set(["0","1","2","3","4","5","6","7","8","9",".",",","@","'","&","-","!","?",":",";"]),
-};
+// The studio fonts are subsets: Birdie ships 33 characters (no H J K Q W X Y
+// Z), LOMA 29, Flapjack 13. Rather than guess, read each file's own cmap once
+// at load time; a string only gets the display font if every character is
+// actually in it.
+const FONT_CHARS = {};
+function fontCodepoints(bytes){
+  const dv=new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const have=new Set(); let cmap=0;
+  for(let i=0,n=dv.getUint16(4);i<n;i++){
+    const o=12+i*16;
+    if(String.fromCharCode(dv.getUint8(o),dv.getUint8(o+1),dv.getUint8(o+2),dv.getUint8(o+3))==="cmap") cmap=dv.getUint32(o+8);
+  }
+  if(!cmap) return have;
+  for(let i=0,n=dv.getUint16(cmap+2);i<n;i++){
+    const sub=cmap+dv.getUint32(cmap+4+i*8+4), fmt=dv.getUint16(sub);
+    if(fmt===4){
+      const segX2=dv.getUint16(sub+6), ends=sub+14, starts=ends+segX2+2;
+      for(let s=0;s<segX2/2;s++){
+        const e=dv.getUint16(ends+s*2), st=dv.getUint16(starts+s*2);
+        for(let c=st;c<=e&&c!==0xFFFF;c++) have.add(c);
+      }
+    }else if(fmt===12){
+      for(let g=0,ng=dv.getUint32(sub+12);g<ng;g++){
+        const b=sub+16+g*12;
+        for(let c=dv.getUint32(b),e=dv.getUint32(b+4);c<=e;c++) have.add(c);
+      }
+    }
+  }
+  return have;
+}
 function safeFont(family, fallback, text){
   if(!_letterFontsReady) return fallback;
-  const gaps = FONT_GLYPH_GAPS[family];
-  if(gaps){
-    for(const ch of String(text||"").toUpperCase()) if(gaps.has(ch)) return fallback;
+  const have=FONT_CHARS[family];
+  if(have){
+    for(const ch of String(text||"").toUpperCase()){
+      if(ch!==" " && !have.has(ch.codePointAt(0))) return fallback;
+    }
   }
   return `"${family}", ${fallback}`;
 }
@@ -2045,6 +2080,10 @@ async function loadLetterFonts(){
     const [flap,birdie,gab,loma]=await Promise.all([
       invAsset("tay-flapjack.ttf"), invAsset("tay-birdie.ttf"), invAsset("gabriele-l.ttf"), invAsset("loma.ttf")
     ]);
+    FONT_CHARS["TAY Flapjack"]=fontCodepoints(flap);
+    FONT_CHARS["TAY Birdie"]=fontCodepoints(birdie);
+    FONT_CHARS["Gabriele Light"]=fontCodepoints(gab);
+    FONT_CHARS["LOMA"]=fontCodepoints(loma);
     const faces=[
       new FontFace("TAY Flapjack", flap),
       new FontFace("TAY Birdie", birdie),
@@ -2163,8 +2202,10 @@ function renderCurrentLetter(){
 
   // A couple of blank sheets behind the real one, tilted, so the pile beneath
   // today's letters reads as an actual stack rather than a single page.
-  const ghostCount = composing ? 0 : Math.max(0, Math.min(letterQueue.length-1, 3));
-  const ghosts = Array.from({length:ghostCount}, () => `<div class="lv-ghost"></div>`).join("");
+  const ghostCount = (composing || letterQueue.length<=3) ? 0 : 3;
+  const ghosts = Array.from({length:ghostCount}, (_,i) => `<div class="lv-ghost lv-ghost-${i+1}"></div>`).join("");
+  const chevron = (dir,label) => `<button class="lv-chev lv-chev-${dir}" id="lvChev${dir}" title="${label}" aria-label="${label}">
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="${dir==="prev"?"M20 6 10 16l10 10":"M12 6l10 10-10 10"}"/></svg></button>`;
 
   host.innerHTML = `
     <div class="lv-topbar" id="lvTopbar">
@@ -2180,6 +2221,7 @@ function renderCurrentLetter(){
         ${quoteHTML}
       </div>
       ${ghosts}
+      ${composing||letterQueue.length<2?"":chevron("prev","Previous letter")+chevron("next","Next letter")}
       <div class="lv-paper">
         <img class="lv-stamp" src="logos/red-stamp-alt.png" alt="" aria-hidden="true">
         <div class="lv-to">${esc(email)}</div>
@@ -2209,6 +2251,9 @@ function renderCurrentLetter(){
     renderCurrentLetter();
   };
   host.querySelector("#lvNew").onclick=composeBlankLetter;
+  const prev=host.querySelector("#lvChevprev"), next=host.querySelector("#lvChevnext");
+  if(prev){ prev.onclick=()=>letterNavigate(-1); prev.disabled=letterIdx===0; }
+  if(next){ next.onclick=()=>letterNavigate(1); next.disabled=letterIdx>=letterQueue.length-1; }
   wireLetterNav(host);
   const exitCompose=()=>{ letterComposing=false; letterComposeItem=null; renderLetters(); };
   if(composing){
