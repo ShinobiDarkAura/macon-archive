@@ -2194,6 +2194,7 @@ function letterNavigate(dir){
    along for free. Read-only: replies still happen in Gmail. */
 const GMAIL_SCOPE="https://www.googleapis.com/auth/gmail.readonly";
 const GMAIL_KEY="macon.gmail";
+const STUDIO_INBOX="hello@studiomacon.co";
 let readerMsgs=null, readerOpen=null, readerErr="", readerLoading=false;
 function gmailSaveToken(s){
   try{ localStorage.setItem(GMAIL_KEY, JSON.stringify({token:s.provider_token, at:Date.now()})); }catch{}
@@ -2233,7 +2234,8 @@ async function loadReader(){
   if(!gmailToken() || readerLoading) { renderReader(); return; }
   readerLoading=true; readerErr=""; renderReader();
   try{
-    const q=encodeURIComponent("in:inbox newer_than:7d -category:promotions -category:social");
+    // only what was written to the studio, not the keeper's own mail
+    const q=encodeURIComponent(`(to:${STUDIO_INBOX} OR deliveredto:${STUDIO_INBOX}) newer_than:14d`);
     const list=await gmail(`messages?q=${q}&maxResults=20`);
     const metas=await Promise.all((list.messages||[]).map(m=>
       gmail(`messages/${m.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`)));
@@ -2274,7 +2276,7 @@ function renderReader(){
   el.innerHTML=`<div class="lv-reader-head lv-overline">Post
       <button class="lv-reader-refresh" id="lvReaderRefresh" title="Check again">${readerLoading?"…":"↻"}</button></div>
     ${readerErr?`<p class="lv-reader-note">${esc(readerErr)}</p>`:""}
-    ${readerMsgs&&!readerMsgs.length?`<p class="lv-reader-note">Nothing new this week.</p>`:""}
+    ${readerMsgs&&!readerMsgs.length?`<p class="lv-reader-note">Nothing to ${esc(STUDIO_INBOX)} in the last two weeks.</p>`:""}
     ${readerMsgs===null&&!readerLoading?`<p class="lv-reader-note">Fetching…</p>`:""}
     <div class="lv-reader-list">${rows}</div>`;
   el.querySelector("#lvReaderRefresh").onclick=loadReader;
@@ -2374,9 +2376,9 @@ function renderCurrentLetter(){
 
   // clicking the name cycles who signs — Alex, Hannah, or both — and simply
   // redraws the letter with the new choice baked in, the same way Tone does
-  host.querySelector("#lvSignoff").onclick=()=>{
+  host.querySelector("#lvSignoff").onclick=e=>{
     letterSignoff = SIGNOFFS[(SIGNOFFS.indexOf(letterSignoff)+1)%SIGNOFFS.length];
-    renderCurrentLetter();
+    e.currentTarget.textContent = letterSignoff;
   };
   host.querySelector("#lvNew").onclick=composeBlankLetter;
   const prev=host.querySelector("#lvChevprev"), next=host.querySelector("#lvChevnext");
@@ -2403,7 +2405,9 @@ function renderCurrentLetter(){
     };
   }
   host.querySelector("#lvSend").onclick=()=>{
-    const subj=host.querySelector("#lvSubj").value, body=host.querySelector("#lvBody").value;
+    const subj=host.querySelector("#lvSubj").value;
+    // the name lives on the button, not in the textarea — put it back for the send
+    const body=host.querySelector("#lvBody").value.replace(/\s+$/,"")+"\n\n"+letterSignoff;
     window.location.href=`mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
     if(composing){ exitCompose(); return; }
     completeFollowUp(i, q?q.id:"");
