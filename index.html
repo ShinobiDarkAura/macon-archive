@@ -283,6 +283,9 @@
     .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none} }
 
   /* ===== Studio Line — keeper chat ===== */
+  .diag-fab{position:fixed;right:24px;bottom:24px;width:32px;height:32px;border-radius:50%;border:1px solid var(--rule);
+    background:rgba(255,255,255,.7);color:#a89d89;font-family:var(--sans);font-size:14px;cursor:pointer;z-index:60}
+  .diag-fab:hover{color:var(--ink)}
   .chat-fab{position:fixed;left:24px;bottom:24px;width:45px;height:45px;border-radius:50%;border:none;cursor:pointer;z-index:60;
     background:var(--accent-grad);
     box-shadow:0 8px 22px color-mix(in srgb,var(--accent-deep) 42%,transparent),inset 0 1px 0 rgba(255,255,255,.18);
@@ -1052,6 +1055,11 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
      CONFIG — Supabase project values for cross-device sync.
 ==================================================================== -->
 <script>
+  // Diagnostics: the last few errors, kept so the ? button can report them
+  // without anyone opening a console.
+  const _errs=[];
+  addEventListener("error", e=>_errs.push(String(e.message||e.error)));
+  addEventListener("unhandledrejection", e=>_errs.push(String(e.reason&&e.reason.message||e.reason)));
   const CONFIG = {
     TICKER_URL: "https://berdrzxjoejirbhdgjer.supabase.co/functions/v1/calendar-ticker",
     SUPABASE_URL: "https://berdrzxjoejirbhdgjer.supabase.co",
@@ -1145,6 +1153,7 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
 <div class="rail-handle" id="railHandle" title="Follow-ups"></div>
 
 <!-- Studio Line — keeper-to-keeper chat -->
+<button class="diag-fab" id="diagFab" title="Copy diagnostics" aria-label="Copy diagnostics">?</button>
 <button class="chat-fab" id="chatFab" title="Studio Line" aria-label="Open chat">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.1 7.6L3 21l1.9-5.9A8.4 8.4 0 1 1 21 11.5z"/></svg>
   <span class="chat-badge" id="chatBadge">0</span>
@@ -3772,6 +3781,18 @@ async function gateSignIn(){
   document.getElementById("gateMsg").textContent = error ? error.message : "";
 }
 document.getElementById("gateBtn").onclick=gateSignIn;
+document.getElementById("diagFab").onclick=async()=>{
+  const lv=document.getElementById("lettersView");
+  let user="?"; try{ user=(await sb.auth.getUser()).data.user?.email||"none"; }catch(e){ user="err "+e.message; }
+  const info={ user, cls:document.body.className, lettersHTML:lv?lv.innerHTML.length:-1,
+    lettersOpacity:lv?getComputedStyle(lv).opacity:"-", lettersDisplay:lv?getComputedStyle(lv).display:"-",
+    queue:letterQueue.length, followUps:(()=>{ try{ return followUps().length; }catch(e){ return "err "+e.message; } })(),
+    collectors:(data&&data.length)||0, inquiries:(typeof inquiries!=="undefined"&&inquiries&&inquiries.length)||0,
+    fontsReady:_letterFontsReady, synced, errors:_errs.slice(-8), build:document.lastModified };
+  const text=JSON.stringify(info,null,2);
+  try{ await navigator.clipboard.writeText(text); }catch{}
+  alert("Copied to clipboard. Paste it to Claude.\n\n"+text);
+};
 document.getElementById("signOut").onclick=async()=>{
   try{ localStorage.removeItem(GMAIL_KEY); }catch{}
   if(sb) await sb.auth.signOut();
