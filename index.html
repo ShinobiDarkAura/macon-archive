@@ -124,10 +124,18 @@
     padding:48px 40px;box-sizing:border-box;gap:22px;overflow:hidden;
     background:radial-gradient(ellipse at 50% 30%,rgba(255,255,255,.6),rgba(180,166,140,.16) 78%)}
   .lv-empty{font-family:var(--serif-soul);font-style:italic;font-size:22px;color:#a89d89;text-align:center;max-width:460px}
-  .lv-new{position:absolute;top:-10px;right:26px;z-index:4;width:24px;height:24px;border-radius:50%;
-    border:1px solid var(--rule);background:#fff;color:#8c7f68;font-size:15px;line-height:1;cursor:pointer;
-    display:flex;align-items:center;justify-content:center}
+  /* Badge + compose live in the fixed top bar now, not on the paper — the
+     paper's own overflow:hidden (needed to clip the stamp) was clipping them
+     too whenever they bled past its edge. #lvTopbar's `right` is set in JS,
+     measured off the view toggle's actual rendered edge, so "+" always sits
+     just to its left regardless of the toggle's own width. */
+  .lv-topbar{position:fixed;top:46px;z-index:70;display:flex;align-items:center;gap:8px;height:30px}
+  .lv-new{width:26px;height:26px;border-radius:50%;border:1px solid var(--rule);background:#fff;
+    color:#8c7f68;font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
   .lv-new:hover{color:var(--ink);border-color:#a89d89}
+  .lv-badge{min-width:26px;height:26px;padding:0 7px;border-radius:999px;background:var(--accent-grad);color:#fff;
+    font-family:var(--sans);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 3px 10px rgba(189,84,64,.4)}
 
   /* Three columns, the outer two forced equal, so the paper in the middle is
      always exactly centered in the viewport regardless of the label's width —
@@ -136,14 +144,16 @@
   .lv-scene{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:40px;flex:1;min-height:0;width:100%}
   /* Anchored to the paper's own column and shifted fully to its left, rather
      than confined to column 1's leftover width — column 1 exists only to
-     balance the centering and can be narrower than the label needs. */
+     balance the centering and can be narrower than the label needs. Name and
+     quote are one block again, centered together as a unit rather than
+     name-at-top-note-pushed-to-bottom. */
   .lv-label{grid-column:2;grid-row:1;justify-self:start;align-self:stretch;
-    transform:translateX(calc(-100% - 40px));display:flex;flex-direction:column;
+    transform:translateX(calc(-100% - 40px));display:flex;flex-direction:column;justify-content:center;
     width:240px;padding:8px 0;font-size:11px;line-height:1.8;color:#8c7f68;letter-spacing:.06em}
   .lv-label .lv-name{font-family:"TAY Flapjack",var(--serif-soul);font-style:normal;font-weight:400;font-size:26px;line-height:1.2;
     color:var(--ink);margin-bottom:10px;text-transform:none;letter-spacing:0}
   .lv-label .lv-fact{opacity:.85}
-  .lv-quote,.lv-quote-edit{margin-top:auto;padding-top:16px;border-top:1px solid var(--rule);font-family:var(--serif-soul);
+  .lv-quote,.lv-quote-edit{margin-top:18px;padding-top:16px;border-top:1px solid var(--rule);font-family:var(--serif-soul);
     font-style:italic;font-size:17.5px;line-height:1.6;color:var(--slate);letter-spacing:0;text-transform:none}
   .lv-quote::before{content:"\201C"}
   .lv-quote::after{content:"\201D"}
@@ -158,27 +168,34 @@
   .lv-paper::before{content:"";position:absolute;inset:14px;border:1px solid rgba(140,106,71,.12);pointer-events:none}
   .lv-stamp{position:absolute;right:32px;top:-12px;width:140px;height:auto;opacity:.92;
     transform:rotate(-12deg);pointer-events:none;mix-blend-mode:multiply;z-index:2}
-  .lv-badge{position:absolute;top:-10px;right:-10px;min-width:24px;height:24px;padding:0 6px;border-radius:999px;
-    background:var(--accent-grad);color:#fff;font-family:var(--sans);font-size:11px;font-weight:600;
-    display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(189,84,64,.4);z-index:4}
-  .lv-to{font-family:"TAY Birdie",var(--sans);font-size:12px;letter-spacing:.18em;color:#9C8F76;margin-bottom:26px;text-transform:uppercase}
+  /* the email line reads like the margin's overline facts (Public Sans, plain
+     uppercase) rather than TAY Birdie, which has no glyphs for "." or "@" and
+     was falling back to a different, mismatched font for just those
+     characters — the "two sizes of caps" was that fallback, not a CSS bug */
+  .lv-to{font-family:"Public Sans",var(--sans);font-weight:400;font-size:12px;letter-spacing:.18em;
+    color:#9C8F76;margin-bottom:26px;text-transform:uppercase}
   .lv-subj{width:100%;border:none;background:transparent;font-family:"LOMA",var(--serif-soul);font-weight:400;
-    font-size:26px;line-height:1.3;color:#1C1A18;padding:0 0 14px;margin-bottom:18px;border-bottom:1px solid #E3DED0;
+    font-size:28px;line-height:1.3;color:#1C1A18;padding:0 0 14px;margin-bottom:18px;border-bottom:1px solid #E3DED0;
     resize:none;overflow:hidden;display:block;letter-spacing:.01em;flex:0 0 auto;text-transform:uppercase}
   .lv-subj:focus{outline:none;border-bottom-color:var(--accent)}
-  /* the body's own flex column centers the textarea vertically in whatever
-     room is left, rather than pinning it to the top of the frame */
-  .lv-body-wrap{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;overflow-y:auto}
-  .lv-body{width:95%;border:none;background:transparent;resize:none;font-family:"Gabriele Light",var(--serif-soul);font-size:15px;
+  /* Two flexible spacers rather than a single centered box: a 4:6 split
+     settles the block 10% above true center (50/50 would be dead center),
+     with the block itself unchanged otherwise — same auto height, same wrap. */
+  .lv-body-wrap{flex:1;min-height:0;display:flex;flex-direction:column;overflow-y:auto}
+  .lv-body-wrap::before{content:"";flex:4}
+  .lv-body-wrap::after{content:"";flex:6}
+  .lv-body{width:78%;border:none;background:transparent;resize:none;font-family:"Gabriele Light",var(--serif-soul);font-size:15px;
     line-height:1.7;color:#1C1A18;min-height:0;position:relative;z-index:1;overflow:hidden;flex:0 0 auto}
   .lv-body:focus{outline:none}
   .lv-signoff{align-self:flex-start;margin:6px 0 0;padding:1px 3px;border:none;background:transparent;cursor:pointer;
     font-family:"Gabriele Light",var(--serif-soul);font-size:15px;color:#1C1A18;border-bottom:1px dotted transparent}
   .lv-signoff:hover{border-bottom-color:#a89d89;color:var(--accent-deep)}
 
-  /* the footer is part of the sheet itself, not a row floating below it */
-  .lv-footer{flex:0 0 6%;min-height:44px;display:flex;align-items:center;justify-content:flex-end;gap:12px;
+  /* the footer is part of the sheet itself, not a row floating below it —
+     Tone and Mark closed on the left, Skip and Send on the right */
+  .lv-footer{flex:0 0 8%;min-height:44px;display:flex;align-items:center;gap:12px;
     border-top:1px solid #E3DED0;margin-top:8px}
+  .lv-footer-right{margin-left:auto;display:flex;align-items:center;gap:12px}
   .lv-tone{font-size:10.5px;letter-spacing:.1em;color:#a89d89;
     background:transparent;border:1px solid var(--rule);border-radius:999px;padding:6px 13px;cursor:pointer}
   .lv-tone:hover{border-color:#a89d89;color:var(--ink)}
@@ -197,7 +214,7 @@
   .lv-ghost:nth-of-type(1){transform:rotate(-2.5deg) translate(-10px,10px);z-index:1}
   .lv-ghost:nth-of-type(2){transform:rotate(3deg) translate(14px,16px);z-index:0}
 
-  @media(max-width:1100px){ .lv-paper{padding:36px 28px 0} .lv-subj{font-size:22px} .lv-body{font-size:14px}
+  @media(max-width:1100px){ .lv-paper{padding:36px 28px 0} .lv-subj{font-size:24px} .lv-body{font-size:14px}
     .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} }
 
   /* ===== Studio Line — keeper chat ===== */
@@ -2036,6 +2053,10 @@ function renderCurrentLetter(){
   const ghosts = Array.from({length:ghostCount}, () => `<div class="lv-ghost"></div>`).join("");
 
   host.innerHTML = `
+    <div class="lv-topbar" id="lvTopbar">
+      ${composing?"":`<div class="lv-badge" title="${letterQueue.length} waiting on you today">${letterQueue.length}</div>`}
+      <button class="lv-new" id="lvNew" title="Write to someone new">+</button>
+    </div>
     <div class="lv-scene">
       <div class="lv-label lv-overline">
         <div class="lv-name">${esc(name)}</div>
@@ -2045,8 +2066,6 @@ function renderCurrentLetter(){
       ${ghosts}
       <div class="lv-paper">
         <img class="lv-stamp" src="logos/red-stamp-alt.png" alt="" aria-hidden="true">
-        <button class="lv-new" id="lvNew" title="Write to someone new">+</button>
-        ${composing?"":`<div class="lv-badge" title="${letterQueue.length} waiting on you today">${letterQueue.length}</div>`}
         <div class="lv-to">${esc(email)}</div>
         <textarea class="lv-subj" id="lvSubj" rows="1">${esc(subject)}</textarea>
         <div class="lv-body-wrap"><textarea class="lv-body" id="lvBody">${esc(body)}</textarea></div>
@@ -2054,11 +2073,18 @@ function renderCurrentLetter(){
         <div class="lv-footer">
           ${composing?"":`<button class="lv-tone lv-overline" id="lvTone">Tone · ${esc(toneName)}</button>`}
           <button class="lv-close" id="lvClose">Mark closed</button>
-          <button class="lv-skip" id="lvSkip">Skip for now</button>
-          <button class="lv-send" id="lvSend">Send</button>
+          <div class="lv-footer-right">
+            <button class="lv-skip" id="lvSkip">Skip for now</button>
+            <button class="lv-send" id="lvSend">Send</button>
+          </div>
         </div>
       </div>
     </div>`;
+
+  // "+" sits just to the left of the Letters/Classic toggle, whatever that
+  // toggle's actual rendered width happens to be — measured, not guessed.
+  const toggle=document.getElementById("viewToggle"), topbar=document.getElementById("lvTopbar");
+  if(toggle && topbar) topbar.style.right = (innerWidth - toggle.getBoundingClientRect().left + 10) + "px";
 
   // clicking the name cycles who signs — Alex, Hannah, or both — and simply
   // redraws the letter with the new choice baked in, the same way Tone does
