@@ -88,7 +88,7 @@ export const TONES=[
       `Even a one-line reply would make our week. Truly no pressure.`,
       ...(c.vip?["","And if you ever catch it in good light, we'd love to see it."]:[]),
       "",
-      `Warmly,`,`Alex & Hannah`
+      `Warmly,`,`{{SIGNOFF}}`
     ].join("\n")
   })},
   {name:"Casual", build:c=>({
@@ -101,7 +101,7 @@ export const TONES=[
       :c.vip?`Where's it living these days? I keep wondering where it ended up.`
       :`Where'd it end up? Did it find a little spot yet?`,"",
       `No need to write much, a line or two would make my day.`,"",
-      `x Alex`
+      `x {{SIGNOFF}}`
     ].join("\n")
   })},
   {name:"Heartfelt", build:c=>({
@@ -115,15 +115,15 @@ export const TONES=[
       `Whatever you feel like sharing, we'd hold onto it.`,
       ...(c.vip?["","And if you ever snap a photo of it where it lives, we'd treasure that too."]:[]),
       "",
-      `With love,`,`Alex & Hannah`
+      `With love,`,`{{SIGNOFF}}`
     ].join("\n")
   })},
   {name:"Brief", build:c=>({
     subject:`${c.piece} :)`,
     body:[
       `Hi ${c.first},`,"",
-      `Alex & Hannah from Maçon here. Quick one: ${c.gift?`did your gift land okay?`:c.jewel?`has ${c.piece} been getting worn?`:`where's ${c.piece} ended up living?`}`,"",
-      `Thank you, really.`,`Alex & Hannah`
+      `{{SIGNOFF}} from Maçon here. Quick one: ${c.gift?`did your gift land okay?`:c.jewel?`has ${c.piece} been getting worn?`:`where's ${c.piece} ended up living?`}`,"",
+      `Thank you, really.`,`{{SIGNOFF}}`
     ].join("\n")
   })}
 ];
@@ -136,15 +136,15 @@ export const RECON_TONES=[
       `Hi ${c.first},`,"",
       `It's Alex and Hannah from Maçon. No news and no ask, you just crossed our minds today and we wanted to say hello${c.city?` over in ${c.city}`:""}.`,"",
       `We hope ${c.piece} is still keeping good company, and that you're well.`,"",
-      `Warmly,`,`Alex & Hannah`
+      `Warmly,`,`{{SIGNOFF}}`
     ].join("\n")
   })},
   {name:"Brief", build:c=>({
     subject:`Hello from Maçon`,
     body:[
       `Hi ${c.first},`,"",
-      `Just a quiet hello from Alex & Hannah, you've been on our minds. No need to reply, we only wanted you to know.`,"",
-      `Warmly,`,`Alex & Hannah`
+      `Just a quiet hello from {{SIGNOFF}}, you've been on our minds. No need to reply, we only wanted you to know.`,"",
+      `Warmly,`,`{{SIGNOFF}}`
     ].join("\n")
   })}
 ];
@@ -157,14 +157,14 @@ export const CUSTOM_TONES=[
       body:[`Hey ${f},`,"",
         `I never circled back about the ${a}, which I regret, it's a good one.`,"",
         `If you're still up for it, I'd like to draw a couple of options and send them over. No commitment, and no need to decide anything from a drawing.`,"",
-        `Hannah`].join("\n")
+        `{{SIGNOFF}}`].join("\n")
     } : {
       subject:`Re: your ${a}`,
       body:[`Hi ${f},`,"",
         `I never followed up on your ${a}, and I should have.`,"",
         `If it was the price or the size of the deposit, I would genuinely like to know, it helps us. And if you're still interested, I'd like to draw it for you before you decide anything at all.`,"",
         `Either way, thanks for writing in ${monthOf(q.first_seen)}.`,"",
-        `Hannah`].join("\n")
+        `{{SIGNOFF}}`].join("\n")
     };
   }},
   {name:"Nudge", build:q=>({
@@ -172,7 +172,7 @@ export const CUSTOM_TONES=[
     body:[`Hi ${firstName(q.name)},`,"",
       `Still thinking about your ${q.subject}.`,"",
       `Want me to sketch something?`,"",
-      `Hannah`].join("\n")
+      `{{SIGNOFF}}`].join("\n")
   })},
   {name:"First reply", build:q=>{
     const f=firstName(q.name), a=q.subject;
@@ -183,7 +183,7 @@ export const CUSTOM_TONES=[
         `Do you have a particular ${a} in mind, or should we invent one?`,"",
         `One thing worth mentioning since it has been a while: customs are $925 now. We slowed the process down a lot last year, more time on the carving and much more hand filing, and the price followed the work.`,"",
         `Tell me about the ${a} and I'll get things moving.`,"",
-        `Hannah`].join("\n")
+        `{{SIGNOFF}}`].join("\n")
     } : {
       subject:`Re: your ${a}`,
       body:[`Hi ${f},`,"",
@@ -192,7 +192,7 @@ export const CUSTOM_TONES=[
         `I've attached a few customs we've made so you can see where these tend to land.`,"",
         `How it works: Alex and I design the form together, I carve it in wax, it goes to our foundry here in L.A. to be lost-wax cast in bronze, then I file the whole surface by hand, honing the facets, and patinate and wax it. About three weeks from start to mailing, and a custom bronze totem is $925.`,"",
         `Nothing to decide yet. Tell me about your ${a} and we'll go from there.`,"",
-        `Hannah`].join("\n")
+        `{{SIGNOFF}}`].join("\n")
     };
   }}
 ];
@@ -200,17 +200,26 @@ export const CUSTOM_TONES=[
 /* ---------- what each surface asks for ---------- */
 
 // One letter per enquiry, chosen by where the thread actually is.
-export function enquiryDraft(q, days){
+// Every template ends in the placeholder {{SIGNOFF}} rather than a hardcoded
+// name, so who signs is decided here, once, by whichever consumer is asking —
+// the digest always resolves to "Alex"; the app can pass any of the three.
+function resolveSignoff(r, signoff){
+  return { ...r, body: String(r.body || "").split("{{SIGNOFF}}").join(signoff) };
+}
+export function enquiryDraft(q, days, signoff="Alex"){
+  // A hand-written prepared letter is stored text, not a template — it can't
+  // carry a placeholder, so it is returned as written and does not respond
+  // to the signature toggle.
   if (q.draft) return { subject: "Re: " + (q.subject || "your commission"), body: q.draft };
   // A reply recorded in the note counts as contact: most replies happen in
   // Gmail and never touch the app.
   const answered = !!q.last_touched || /replied|reply|answered|wrote back|sent/i.test(String(q.note || ""));
   const want = !answered ? "First reply" : days < 30 ? "Nudge" : "Revive";
   const set = CUSTOM_TONES.find(t => t.name === want) || CUSTOM_TONES[0];
-  return set.build(q);
+  return resolveSignoff(set.build(q), signoff);
 }
-export function collectorDraft(d, kind){
+export function collectorDraft(d, kind, signoff="Alex"){
   const c = emailCtx(d);
   const set = kind === "reconnect" ? RECON_TONES : TONES;
-  return pick(d.name || d.acc || "", set).build(c);
+  return resolveSignoff(pick(d.name || d.acc || "", set).build(c), signoff);
 }
