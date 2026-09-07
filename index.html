@@ -110,7 +110,7 @@
   #signOut{position:fixed;top:46px;right:16px;z-index:70;height:30px;border:none;background:transparent;cursor:pointer;padding:0 10px;
     font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8b8375;transition:.15s}
   #signOut:hover{color:var(--ink)}
-  #viewToggle{position:fixed;top:46px;right:104px;z-index:70;display:flex;gap:2px;
+  #viewToggle{position:fixed;top:16px;left:16px;z-index:70;display:flex;gap:2px;
     background:rgba(43,38,34,.06);border-radius:999px;padding:3px;backdrop-filter:blur(6px)}
   #viewToggle button{border:none;background:transparent;cursor:pointer;padding:7px 14px;border-radius:999px;
     font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:400;color:#8b8375;transition:.15s}
@@ -2366,10 +2366,10 @@ function renderCurrentLetter(){
     </div>`;
   renderReader();
 
-  // "+" sits just to the left of the Letters/Classic toggle, whatever that
-  // toggle's actual rendered width happens to be — measured, not guessed.
-  const toggle=document.getElementById("viewToggle"), topbar=document.getElementById("lvTopbar");
-  if(toggle && topbar) topbar.style.right = (innerWidth - toggle.getBoundingClientRect().left + 10) + "px";
+  // "+" sits just to the left of Sign out, whatever that button's actual
+  // rendered width happens to be — measured, not guessed.
+  const anchor=document.getElementById("signOut"), topbar=document.getElementById("lvTopbar");
+  if(anchor && topbar) topbar.style.right = (innerWidth - anchor.getBoundingClientRect().left + 10) + "px";
 
   // clicking the name cycles who signs — Alex, Hannah, or both — and simply
   // redraws the letter with the new choice baked in, the same way Tone does
