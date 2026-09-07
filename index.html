@@ -271,13 +271,13 @@
   .lv-reader-body{white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.6;color:var(--ink)}
 
   /* chevrons sit just off the paper's own edges, in its grid cell */
-  .lv-chev{grid-column:2;grid-row:1;align-self:center;z-index:4;width:32px;height:32px;padding:0;border:none;
-    background:transparent;color:#a89d89;cursor:pointer;transition:color .15s,opacity .15s}
-  .lv-chev svg{width:32px;height:32px;display:block}
+  .lv-chev{grid-column:2;grid-row:1;align-self:center;z-index:4;width:38px;height:38px;padding:0;border:none;
+    background:transparent;color:#cbc2b1;cursor:pointer;transition:color .15s,opacity .15s}
+  .lv-chev svg{width:38px;height:38px;display:block}
   .lv-chev:hover{color:var(--ink)}
   .lv-chev:disabled{opacity:.25;cursor:default}
-  .lv-chev-prev{justify-self:start;transform:translateX(calc(-100% - 16px))}
-  .lv-chev-next{justify-self:end;transform:translateX(calc(100% + 16px))}
+  .lv-chev-prev{justify-self:start;transform:translateX(calc(-100% - 40px))}
+  .lv-chev-next{justify-self:end;transform:translateX(calc(100% + 40px))}
 
   @media(max-width:1100px){ .lv-paper{padding:36px 28px 0} .lv-subj{font-size:24px} .lv-body{font-size:14px}
     .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none} }
@@ -2336,7 +2336,7 @@ function renderCurrentLetter(){
   const ghostCount = (composing || letterQueue.length<=3) ? 0 : 3;
   const ghosts = Array.from({length:ghostCount}, (_,i) => `<div class="lv-ghost lv-ghost-${i+1}"></div>`).join("");
   const chevron = (dir,label) => `<button class="lv-chev lv-chev-${dir}" id="lvChev${dir}" title="${label}" aria-label="${label}">
-      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="${dir==="prev"?"M20 6 10 16l10 10":"M12 6l10 10-10 10"}"/></svg></button>`;
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="${dir==="prev"?"M20 6 10 16l10 10":"M12 6l10 10-10 10"}"/></svg></button>`;
 
   host.innerHTML = `
     <div class="lv-topbar" id="lvTopbar">
