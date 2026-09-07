@@ -194,11 +194,11 @@
   .lv-body-wrap{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;overflow-y:auto;box-sizing:border-box}
   .lv-body-wrap::before{content:"";flex:4}
   .lv-body-wrap::after{content:"";flex:6}
-  .lv-body{width:78%;border:none;background:transparent;resize:none;font-family:"Gabriele Light",var(--serif-soul);font-size:18px;
+  .lv-body{width:78%;border:none;background:transparent;resize:none;font-family:"Gabriele Dark","Gabriele Light",var(--serif-soul);font-size:18px;
     line-height:1.7;color:#1C1A18;min-height:0;position:relative;z-index:1;overflow:hidden;flex:0 0 auto}
   .lv-body:focus{outline:none}
   .lv-signoff{width:78%;text-align:left;margin:30px 0 0;padding:1px 0 1px 6px;border:none;background:transparent;cursor:pointer;
-    font-family:"Gabriele Light",var(--serif-soul);font-size:18px;color:#1C1A18;border-bottom:1px dotted transparent}
+    font-family:"Gabriele Dark","Gabriele Light",var(--serif-soul);font-size:18px;color:#1C1A18;border-bottom:1px dotted transparent}
   .lv-signoff:hover{border-bottom-color:#a89d89;color:var(--accent-deep)}
 
   /* the footer is part of the sheet itself, not a row floating below it —
@@ -273,6 +273,9 @@
   .lv-reader-subject{font-size:15px;color:var(--ink);margin-bottom:4px}
   .lv-reader-meta{font-size:11px;color:#8c7f68;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--rule)}
   .lv-reader-body{white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.6;color:var(--ink)}
+  .lv-thread-msg{padding:12px 0;border-top:1px solid var(--rule)}
+  .lv-thread-msg .lv-reader-meta{margin-bottom:6px;padding-bottom:0;border-bottom:none}
+  .lv-thread-msg .lv-reader-body{max-height:260px;overflow-y:auto}
 
   /* chevrons sit just off the paper's own edges, in its grid cell */
   .lv-chev{grid-column:2;grid-row:1;align-self:center;z-index:4;width:38px;height:38px;padding:0;border:none;
@@ -2117,17 +2120,19 @@ let _letterFontsReady=false;
 async function loadLetterFonts(){
   if(_letterFontsReady || !sb) return;
   try{
-    const [flap,birdie,gab,loma]=await Promise.all([
-      invAsset("tay-flapjack.ttf"), invAsset("tay-birdie.ttf"), invAsset("gabriele-l.ttf"), invAsset("loma.ttf")
+    const [flap,birdie,gab,loma,gabd]=await Promise.all([
+      invAsset("tay-flapjack.ttf"), invAsset("tay-birdie.ttf"), invAsset("gabriele-l.ttf"), invAsset("loma.ttf"), invAsset("gabriele-d.ttf")
     ]);
     FONT_CHARS["TAY Flapjack"]=fontCodepoints(flap);
     FONT_CHARS["TAY Birdie"]=fontCodepoints(birdie);
     FONT_CHARS["Gabriele Light"]=fontCodepoints(gab);
+    FONT_CHARS["Gabriele Dark"]=fontCodepoints(gabd);
     FONT_CHARS["LOMA"]=fontCodepoints(loma);
     const faces=[
       new FontFace("TAY Flapjack", flap),
       new FontFace("TAY Birdie", birdie),
       new FontFace("Gabriele Light", gab),
+      new FontFace("Gabriele Dark", gabd),
       new FontFace("LOMA", loma),
     ];
     await Promise.all(faces.map(f=>f.load().then(loaded=>document.fonts.add(loaded))));
@@ -2201,6 +2206,8 @@ const GMAIL_SCOPE="https://www.googleapis.com/auth/gmail.readonly";
 const GMAIL_KEY="macon.gmail";
 const STUDIO_INBOX="hello@studiomacon.co";
 let readerMsgs=null, readerOpen=null, readerErr="", readerLoading=false;
+// the thread with whoever the current letter is to, when Gmail has one
+let readerMode="post", readerThread=null; const _threads=new Map();
 function gmailSaveToken(s){
   try{ localStorage.setItem(GMAIL_KEY, JSON.stringify({token:s.provider_token, at:Date.now()})); }catch{}
 }
@@ -2258,8 +2265,41 @@ async function openReaderMsg(id){
   }catch(e){ readerOpen={id, body:"Couldn't open this one: "+e.message}; }
   renderReader();
 }
+async function loadThreadFor(email, name){
+  if(!email || !gmailToken()){ readerMode="post"; readerThread=null; renderReader(); return; }
+  readerMode="thread";
+  if(_threads.has(email)){ readerThread=_threads.get(email); renderReader(); return; }
+  readerThread={email, name, loading:true}; renderReader();
+  try{
+    const q=encodeURIComponent(`from:${email} OR to:${email}`);
+    const list=await gmail(`threads?q=${q}&maxResults=1`);
+    let msgs=[];
+    if(list.threads&&list.threads.length){
+      const t=await gmail(`threads/${list.threads[0].id}?format=full`);
+      msgs=(t.messages||[]).map(m=>({ from:hdr(m,"From").replace(/\s*<.*>$/,"").replace(/^"|"$/g,""),
+        at:Number(m.internalDate), body:gmailPlainText(m.payload)||m.snippet||"", subject:hdr(m,"Subject") }));
+    }
+    readerThread={email, name, msgs};
+  }catch(e){ readerThread={email, name, msgs:[], err:e.message==="connect"?"":e.message}; }
+  if(readerThread.email===email) _threads.set(email, readerThread);
+  renderReader();
+}
 function renderReader(){
   const el=document.getElementById("lvReader"); if(!el) return;
+  if(gmailToken() && readerMode==="thread" && readerThread){
+    const t=readerThread;
+    const back=`<button class="lv-reader-back" id="lvReaderPost">‹ Post</button>`;
+    if(t.loading){ el.innerHTML=`${back}<div class="lv-reader-head lv-overline">Thread</div><p class="lv-reader-note">Looking for mail with ${esc(t.name||t.email)}…</p>`; }
+    else if(!t.msgs.length){ el.innerHTML=`${back}<div class="lv-reader-head lv-overline">Thread</div><p class="lv-reader-note">${t.err?esc(t.err):`No mail with ${esc(t.email)} yet.`}</p>`; }
+    else{
+      el.innerHTML=`${back}<div class="lv-reader-head lv-overline">Thread · ${esc(t.name||t.email)}</div>
+        <div class="lv-reader-subject">${esc(t.msgs[0].subject||"")}</div>
+        ${t.msgs.map(m=>`<div class="lv-thread-msg"><div class="lv-reader-meta">${esc(m.from)} · ${ago(m.at)}</div><div class="lv-reader-body">${esc(m.body)}</div></div>`).join("")}`;
+      el.scrollTop=el.scrollHeight;
+    }
+    el.querySelector("#lvReaderPost").onclick=()=>{ readerMode="post"; renderReader(); };
+    return;
+  }
   if(!gmailToken()){
     el.innerHTML=`<div class="lv-reader-head lv-overline">Post</div>
       <p class="lv-reader-note">Read what's come in beside what you're writing.</p>
@@ -2377,7 +2417,7 @@ function renderCurrentLetter(){
       </div>
       <aside class="lv-reader" id="lvReader"></aside>
     </div>`;
-  renderReader();
+  loadThreadFor(email, name);
 
   // clicking the name cycles who signs — Alex, Hannah, or both — and simply
   // redraws the letter with the new choice baked in, the same way Tone does
@@ -2953,7 +2993,7 @@ async function invAsset(name){
 }
 // Pull them down once so the first press is as quick as the rest.
 function invWarmAssets(){
-  ["tay-flapjack.ttf","tay-birdie.ttf","loma.ttf","gabriele-l.ttf","red-stamp-alt.png"]
+  ["tay-flapjack.ttf","tay-birdie.ttf","loma.ttf","gabriele-l.ttf","gabriele-d.ttf","red-stamp-alt.png"]
     .forEach(n=>invAsset(n).catch(()=>{}));
 }
 
