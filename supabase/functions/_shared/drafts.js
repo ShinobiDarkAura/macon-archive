@@ -83,8 +83,8 @@ export const TONES=[
       :`It's Alex and Hannah from Maçon. We were just thinking about you and wondering how ${c.piece} is settling in${c.city?` over in ${c.city}`:""}.`,"",
       c.gift?(c.jewel?`Did it land the way you hoped? Has it been worn yet?`:`Did it land the way you hoped with the person you gave it to?`)
       :c.repeat?`You've quietly built a little collection now, which honestly makes us so happy. What keeps pulling you back?`
-      :c.jewel?`Has it made it into the rotation yet? We love picturing where our pieces get worn.`
-      :`Where's it ended up living? On you, a shelf, somewhere it can keep an eye on things?`,"",
+      :c.jewel?`Has it made it into the rotation yet, and where does it usually end up going with you?`
+      :`Where has it ended up living, and what does it do there? Some of them get handled all day, some just keep an eye on things.`,"",
       `Even a one-line reply would make our week. Truly no pressure.`,
       ...(c.vip?["","And if you ever catch it in good light, we'd love to see it."]:[]),
       "",
@@ -98,8 +98,8 @@ export const TONES=[
       `Hope you're doing well! It's Alex from Maçon. ${c.piece} popped into my head today and I got curious.`,"",
       c.gift?`Did the person you gave it to take to it?`
       :c.jewel?`Where's it been going with you? Out a lot, or saving it for the right days?`
-      :c.vip?`Where's it living these days? I keep wondering where it ended up.`
-      :`Where'd it end up? Did it find a little spot yet?`,"",
+      :c.vip?`Where's it living these days, and what does it do there? I keep wondering where it ended up.`
+      :`Where'd it end up, and does it get picked up much? I'm always curious which ones turn into something you fidget with.`,"",
       `No need to write much, a line or two would make my day.`,"",
       `x {{SIGNOFF}}`
     ].join("\n")
@@ -111,7 +111,7 @@ export const TONES=[
       `It's Hannah, from Maçon. Making ${c.piece} for you meant a lot to us, and we love knowing where our little objects end up in people's lives.`,"",
       c.gift?`I've been wondering how it was received by the person you chose it for.`
       :c.jewel?`I'd love to know how it feels to wear, and where it's been with you.`
-      :`I'd love to know where it lives now, and what it's come to mean to you.`,"",
+      :`I'd love to know where it lives now, and what it has come to do for you day to day.`,"",
       `Whatever you feel like sharing, we'd hold onto it.`,
       ...(c.vip?["","And if you ever snap a photo of it where it lives, we'd treasure that too."]:[]),
       "",
@@ -122,7 +122,7 @@ export const TONES=[
     subject:`${c.piece}`,
     body:[
       `Hi ${c.first},`,"",
-      `{{SIGNOFF}} from Maçon here. Quick one: ${c.gift?`did your gift land okay?`:c.jewel?`has ${c.piece} been getting worn?`:`where's ${c.piece} ended up living?`}`,"",
+      `{{SIGNOFF}} from Maçon here. Quick one: ${c.gift?`did your gift land okay?`:c.jewel?`has ${c.piece} been getting worn?`:`where has ${c.piece} ended up living, and does it get handled much?`}`,"",
       `Thank you, really.`,`{{SIGNOFF}}`
     ].join("\n")
   })}

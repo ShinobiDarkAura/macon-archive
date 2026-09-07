@@ -157,7 +157,7 @@
   .lv-label .lv-name{font-family:"TAY Flapjack",var(--serif-soul);font-style:normal;font-weight:400;font-size:38px;line-height:1.2;
     color:var(--ink);margin-bottom:2px;text-transform:uppercase;letter-spacing:-.04em}
   .lv-label .lv-fact{opacity:.85}
-  .lv-ctx{display:flex;gap:6px;margin:2px 0 8px}
+  .lv-ctx{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px}
   .lv-ctx-kind{font-family:"Public Sans",var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
     color:#5a5040;background:#dcd3c0;border-radius:999px;padding:3px 9px}
   .lv-ctx-pri{font-family:"Public Sans",var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
@@ -165,6 +165,31 @@
   .lv-pri-high{color:#fff;background:#c8452f}
   .lv-pri-medium{color:#fff;background:#b8935f}
   .lv-pri-low{color:#fff;background:#6fa15a}
+  .lv-ctx-flag{font-family:"Public Sans",var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+    border-radius:999px;padding:3px 9px;font-weight:600}
+  .lv-flag-patron{color:#fff;background:#4a6b8a}
+  .lv-flag-comm{color:#fff;background:#6b5a8a}
+  .lv-flag-win{color:#5a5040;background:#dcd3c0}
+  .lv-aftercare{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px}
+  .lv-file-open,.lv-call{font-family:"Public Sans",var(--sans);font-size:11.5px;letter-spacing:.04em;
+    background:transparent;border:1px solid var(--rule);border-radius:999px;padding:5px 12px;
+    color:#8c7f68;cursor:pointer;text-decoration:none;text-transform:none}
+  .lv-file-open:hover,.lv-call:hover{border-color:var(--accent);color:var(--accent-deep)}
+  .lv-file{display:flex;flex-direction:column;gap:9px;margin-top:16px;padding-top:14px;border-top:1px solid var(--rule)}
+  .lv-file label{display:flex;flex-direction:column;gap:3px;font-family:"Public Sans",var(--sans);
+    font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#a89d89}
+  .lv-file textarea,.lv-file input{font-family:"Public Sans",var(--sans);font-size:13px;line-height:1.5;
+    color:var(--ink);background:rgba(255,255,255,.6);border:1px solid var(--rule);border-radius:3px;
+    padding:7px 9px;resize:vertical;text-transform:none;letter-spacing:0;width:100%;box-sizing:border-box}
+  .lv-file textarea:focus,.lv-file input:focus{outline:none;border-color:var(--accent)}
+  .lv-file-seg{display:flex;gap:6px}
+  .lv-file-seg button{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.06em;
+    border:1px solid var(--rule);background:transparent;color:#8c7f68;border-radius:999px;padding:4px 14px;cursor:pointer}
+  .lv-file-seg button.on{background:var(--accent-grad);color:#fff;border-color:transparent}
+  .lv-file-act{display:flex;gap:8px;justify-content:flex-end;margin-top:2px}
+  .lv-file-act button{font-family:"Public Sans",var(--sans);font-size:12px;border-radius:6px;padding:6px 13px;cursor:pointer}
+  #lvFileCancel{background:transparent;border:none;color:#a89d89}
+  #lvFileSave{background:var(--accent-grad);color:#fff;border:none}
   .lv-quote,.lv-quote-edit{margin-top:18px;padding-top:16px;border-top:1px solid var(--rule);font-family:"Public Sans",var(--sans);
     font-style:normal;font-size:15.5px;line-height:1.6;color:var(--slate);letter-spacing:0;text-transform:none}
   .lv-quote-edit{box-sizing:border-box;width:100%;border-width:1px 0 0;border-style:solid;border-color:var(--rule);
@@ -2036,6 +2061,7 @@ let letterQueue=[], letterIdx=0, letterToneIdx=0, letterVaultOpen=false;
 const SIGNOFFS=["Alex","Hannah","Alex & Hannah"];
 let letterSignoff="Alex";
 let letterComposing=false, letterComposeItem=null;
+let letterFilingOpen=false;
 
 // A blank letter to someone who isn't in the queue at all. Creates a real,
 // tracked inquiry (so it isn't lost the moment you close the tab), offers a
@@ -2141,6 +2167,23 @@ async function loadLetterFonts(){
 }
 
 
+// The archive's own arithmetic, made usable by the queue: a patron is one of
+// the collectors who carry the business, and the repeat window is the month-1
+// to month-6 stretch when nine of the twelve repeat buyers came back.
+function patronCut(){
+  const v=data.map(d=>num(d.ltv)).filter(n=>n>0).sort((a,b)=>b-a);
+  return v.length>=20 ? v[19] : (v[v.length-1]||0);
+}
+function letterFlags(x){
+  if(x.kind==="custom") return { patron:false, window:false, commissioner:false };
+  const d=x.d||{};
+  const since=d.last_buy?daysSince(d.last_buy):null;
+  return {
+    patron: num(d.ltv) >= patronCut() && num(d.ltv) > 0,
+    window: since!=null && since>=20 && since<=200,
+    commissioner: /custom/i.test(d.pieces||"")
+  };
+}
 function letterLabelFacts(x){
   const {d,q,kind}=x;
   if(kind==="custom"){
@@ -2192,7 +2235,7 @@ function letterNavigate(dir){
   if(letterComposing || !letterQueue.length) return;
   const next=letterIdx+dir;
   if(next<0 || next>=letterQueue.length) return;
-  letterIdx=next; letterToneIdx=0; renderCurrentLetter();
+  letterIdx=next; letterToneIdx=0; letterFilingOpen=false; renderCurrentLetter();
 }
 
 /* ---------- the reader: what came in, beside what goes out ----------
@@ -2322,6 +2365,14 @@ function renderLetters(){
   // The urgent, per-letter view stops at 3 months — anything older still
   // needs attention, but it belongs in Classic's drawer, not the front page.
   letterQueue = all.filter(x=>(x.state||"attention")==="attention" && (x.days==null || x.days<=90));
+  // Enquiries still lead (live money), then the collectors most worth an hour:
+  // patrons and past commissioners, and anyone inside the repeat window.
+  letterQueue.sort((a,b)=>{
+    if((a.kind==="custom")!==(b.kind==="custom")) return a.kind==="custom"?-1:1;
+    const fa=letterFlags(a), fb=letterFlags(b);
+    const score=f=>(f.patron?4:0)+(f.commissioner?2:0)+(f.window?1:0);
+    return score(fb)-score(fa);
+  });
   if(letterIdx>=letterQueue.length) letterIdx=0;
   if(!letterQueue.length){
     host.innerHTML=`<div class="lv-empty">Nothing needs you right now.<br>Come back once someone's due, or switch to Classic to browse everyone.</div>`;
@@ -2351,9 +2402,13 @@ function renderCurrentLetter(){
   // small-caps text itself is capped at two lines, so the piece/date facts
   // and the suggested tone are consolidated onto them rather than each
   // getting a line of their own.
+  const flags = letterFlags(x);
   const ctxHTML = ctx ? `<div class="lv-ctx">
       <span class="lv-ctx-kind">${esc(ctx.kindLabel)}</span>
       <span class="lv-ctx-pri lv-pri-${esc(ctx.priority.toLowerCase())}">${esc(ctx.priority)}</span>
+      ${flags.patron?`<span class="lv-ctx-flag lv-flag-patron" title="Among the collectors who carry the business">Patron</span>`:""}
+      ${flags.commissioner?`<span class="lv-ctx-flag lv-flag-comm" title="Has commissioned before">Commissioned</span>`:""}
+      ${flags.window?`<span class="lv-ctx-flag lv-flag-win" title="Inside the month 1 to 6 window when repeat buyers come back">In window</span>`:""}
     </div>` : "";
   const factLine1 = facts.join(" · ");
   const factLine2 = ctx ? `Suggested tone: ${ctx.suggestedTone}` : "";
@@ -2383,6 +2438,27 @@ function renderCurrentLetter(){
         ${factLine1?`<div class="lv-fact">${esc(factLine1)}</div>`:""}
         ${factLine2?`<div class="lv-fact">${esc(factLine2)}</div>`:""}
         ${quoteHTML}
+        ${composing||kind==="custom" ? "" : (letterFilingOpen ? `
+        <form class="lv-file" id="lvFile">
+          <label>What they said
+            <textarea id="lvFileStory" rows="3" placeholder="Paste their words, verbatim">${esc(d.story||"")}</textarea></label>
+          <label>Where it lives
+            <input id="lvFileLives" value="${esc(d.lives||"")}" placeholder="On his desk in Surrey"></label>
+          <label>Why they bought it
+            <input id="lvFileWhy" value="${esc(d.why||"")}" placeholder="Five years sober, buys himself something"></label>
+          <div class="lv-file-seg" role="group" aria-label="Gift or self">
+            <button type="button" data-gs="Self" class="${d.gift_self==="Self"?"on":""}">Self</button>
+            <button type="button" data-gs="Gift" class="${d.gift_self==="Gift"?"on":""}">Gift</button>
+          </div>
+          <div class="lv-file-act">
+            <button type="button" id="lvFileCancel">Cancel</button>
+            <button type="submit" id="lvFileSave">Save to record</button>
+          </div>
+        </form>` : `
+        <div class="lv-aftercare">
+          <button type="button" class="lv-file-open" id="lvFileOpen">${(d.story||d.lives||d.why)?"Edit what they said":"File a reply"}</button>
+          ${flags.patron && d.phone ? `<a class="lv-call" href="tel:${esc(String(d.phone).replace(/[^0-9+]/g,""))}" title="Email replies run about 3 percent. Ring them instead.">Call ${esc((d.name||"").split(" ")[0]||"them")}</a>` : ""}
+        </div>`)}
       </div>
       ${ghosts}
       ${composing||letterQueue.length<2?"":chevron("prev","Previous letter")+chevron("next","Next letter")}
@@ -2412,6 +2488,29 @@ function renderCurrentLetter(){
     e.currentTarget.textContent = letterSignoff;
   };
   host.querySelector("#lvNew").onclick=composeBlankLetter;
+  const fileOpen=host.querySelector("#lvFileOpen");
+  if(fileOpen) fileOpen.onclick=()=>{ letterFilingOpen=true; renderCurrentLetter(); };
+  const fileForm=host.querySelector("#lvFile");
+  if(fileForm){
+    let gs=d.gift_self||"";
+    fileForm.querySelectorAll("[data-gs]").forEach(b=>b.onclick=()=>{
+      gs = (gs===b.dataset.gs) ? "" : b.dataset.gs;
+      fileForm.querySelectorAll("[data-gs]").forEach(o=>o.classList.toggle("on", o.dataset.gs===gs));
+    });
+    host.querySelector("#lvFileCancel").onclick=()=>{ letterFilingOpen=false; renderCurrentLetter(); };
+    fileForm.onsubmit=async ev=>{
+      ev.preventDefault();
+      // Their own words, on their own record. This is the column the whole
+      // follow-up programme exists to fill.
+      await persist({...d,
+        story: host.querySelector("#lvFileStory").value.trim(),
+        lives: host.querySelector("#lvFileLives").value.trim(),
+        why:   host.querySelector("#lvFileWhy").value.trim(),
+        gift_self: gs }, false);
+      letterFilingOpen=false;
+      renderLetters();
+    };
+  }
   const prev=host.querySelector("#lvChevprev"), next=host.querySelector("#lvChevnext");
   if(prev){ prev.onclick=()=>letterNavigate(-1); prev.disabled=letterIdx===0; }
   if(next){ next.onclick=()=>letterNavigate(1); next.disabled=letterIdx>=letterQueue.length-1; }
@@ -2510,7 +2609,10 @@ function completeFollowUp(i, qid){
 function markContacted(i){
   const d=data[i]; if(!d) return;
   const today=new Date().toISOString().slice(0,10);
-  persist({...d, last_contact:today, story: d.story==="Yes"?d.story:"Asked"}, false);
+  // `story` holds what the collector actually said, nothing else. Whether we
+  // asked is already recorded by last_contact, and writing "Asked" in here is
+  // what left the story column full of workflow flags and empty of stories.
+  persist({...d, last_contact:today}, false);
 }
 
 /* ================= Invoice maker =================
