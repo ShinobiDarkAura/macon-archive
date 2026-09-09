@@ -135,6 +135,16 @@
      resolve their heights against different bases once the column caps the
      width, so deriving this in CSS drifts by a few pixels. */
   .lv-topbar{position:absolute;z-index:60;display:flex;align-items:center;gap:10px}
+  /* Mailbox connections sit where they cannot be missed, since a box that has
+     not consented is the difference between Send working and not. */
+  .lv-mailbar{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:70;
+    display:flex;align-items:center;gap:8px}
+  .lv-mailbar:empty{display:none}
+  .lv-mailbar button{font-family:var(--sans);font-size:11px;letter-spacing:.04em;cursor:pointer;
+    border-radius:999px;padding:6px 14px;transition:.15s}
+  .lv-mb-connect{color:#fff;background:var(--accent-grad);border:none;box-shadow:0 3px 10px rgba(189,84,64,.28)}
+  .lv-mb-reconnect{color:#a89d89;background:rgba(255,255,255,.72);border:1px solid var(--rule)}
+  .lv-mb-reconnect:hover{color:var(--accent-deep);border-color:var(--accent)}
   .lv-new{width:38px;height:38px;border-radius:50%;border:1px solid var(--rule);background:#fff;
     color:#8c7f68;font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
   .lv-new:hover{color:var(--ink);border-color:#a89d89}
@@ -214,8 +224,9 @@
      characters — the "two sizes of caps" was that fallback, not a CSS bug */
   .lv-to{font-family:"Public Sans",var(--sans);font-weight:400;font-size:10px;letter-spacing:.18em;
     color:#9C8F76;margin-bottom:10px;text-transform:uppercase;
-    display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+    display:flex;align-items:baseline;justify-content:flex-start;gap:16px}
   .lv-to-lab{color:#c3b9a3}
+  .lv-fromline::before{content:"\2022";margin-right:16px;color:#d5cbb6}
   .lv-subj{width:100%;border:none;background:transparent;font-family:"TAY Birdie",var(--serif-soul);font-weight:400;
     font-size:30px;line-height:1.3;color:#1C1A18;padding:0 0 14px;margin-bottom:18px;border-bottom:1px solid #E3DED0;
     resize:none;overflow:hidden;display:block;letter-spacing:.01em;flex:0 0 auto;text-transform:uppercase}
@@ -2240,8 +2251,8 @@ function placeLetterTopbar(){
   const paper=host.querySelector(".lv-paper"), tb=host.querySelector("#lvTopbar");
   if(!paper || !tb) return;
   const p=paper.getBoundingClientRect(), h=host.getBoundingClientRect();
-  tb.style.left = (p.right - h.left - tb.offsetWidth + 12) + "px";
-  tb.style.top  = (p.top  - h.top  - tb.offsetHeight - 10) + "px";
+  tb.style.left = (p.right - h.left - tb.offsetWidth + 18) + "px";
+  tb.style.top  = (p.top  - h.top  - tb.offsetHeight - 4) + "px";
 }
 addEventListener("resize", ()=>placeLetterTopbar());
 // Sent through the API rather than a compose window, so a reply carries the
@@ -2277,6 +2288,16 @@ async function sendLetter({subj, body, to}){
     if(confirm("Could not send from the app: "+e.message+"\n\nOpen a Gmail compose window instead?")) window.open(g.toString(),"_blank","noopener");
     return false;
   }
+}
+// Connect for a box that has never consented, reconnect for one that has but
+// may be holding an older, narrower grant.
+function renderMailbar(){
+  const el=document.getElementById("lvMailbar"); if(!el) return;
+  if(!gmailReady() || !readerConnected){ el.innerHTML=""; return; }
+  el.innerHTML = MAILBOXES.map(m=> readerConnected.includes(m)
+    ? `<button class="lv-mb-reconnect" data-box="${esc(m)}" title="Consent again, for example after the app asks for a new permission">Reconnect ${esc(boxLabel(m))}@</button>`
+    : `<button class="lv-mb-connect" data-box="${esc(m)}">Connect ${esc(boxLabel(m))}@</button>`).join("");
+  el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
 }
 function fromLabel(){ const f=letterFrom(); return "from "+boxLabel(f.from)+"@"+(f.cc?", cc "+boxLabel(f.cc)+"@":""); }
 function letterQuoteText(x){
@@ -2439,16 +2460,9 @@ function renderReader(){
   // Which box a letter leaves from depends on the thread, which arrives after
   // the letter has already been drawn.
   const fl=document.getElementById("lvFromLine"); if(fl) fl.textContent=fromLabel();
-  const unconnected = readerConnected ? MAILBOXES.filter(m=>!readerConnected.includes(m)) : [];
-  // Connected boxes keep a reconnect, because a box connected before sending
-  // was added still holds a read-only grant and cannot send until it consents
-  // again.
-  const connectRow = readerConnected ? MAILBOXES.map(m=>
-    unconnected.includes(m)
-      ? `<button class="lv-reader-connect small" data-box="${esc(m)}">Connect ${esc(boxLabel(m))}@</button>`
-      : `<button class="lv-reader-reconnect" data-box="${esc(m)}" title="Consent again, for example after the app asks for a new permission">Reconnect ${esc(boxLabel(m))}@</button>`
-  ).join("") : "";
+  const connectRow = "";
   const wireConnect = el => el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
+  renderMailbar();
   if(gmailReady() && readerMode==="thread" && readerThread){
     const t=readerThread;
     const back=`<button class="lv-reader-back" id="lvReaderPost">‹ Post</button>`;
@@ -2470,8 +2484,7 @@ function renderReader(){
   }
   if(readerConnected && !readerConnected.length){
     el.innerHTML=`<div class="lv-reader-head lv-overline">Post</div>
-      <p class="lv-reader-note">Connect a studio mailbox to read what has come in beside what you are writing. You will sign into each box once.</p>
-      ${MAILBOXES.map(m=>`<button class="lv-reader-connect" data-box="${esc(m)}">Connect ${esc(boxLabel(m))}@</button>`).join("")}`;
+      <p class="lv-reader-note">Connect a studio mailbox to read what has come in beside what you are writing. The buttons are at the top of the screen.</p>`;
     wireConnect(el);
     return;
   }
@@ -2493,7 +2506,7 @@ function renderReader(){
     ${readerMsgs&&!readerMsgs.length?`<p class="lv-reader-note">Nothing to ${esc(MAILBOXES.map(boxLabel).join(" or "))} in the last two weeks.</p>`:""}
     ${readerMsgs===null&&!readerLoading?`<p class="lv-reader-note">Fetching…</p>`:""}
     <div class="lv-reader-list">${rows}</div>
-    ${unconnected.map(m=>`<button class="lv-reader-connect small" data-box="${esc(m)}">Connect ${esc(boxLabel(m))}@ too</button>`).join("")}`;
+`;
   el.querySelector("#lvReaderRefresh").onclick=loadReader;
   el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
   el.querySelectorAll(".lv-reader-row").forEach(b=>b.onclick=()=>openReaderMsg(b.dataset.id));
@@ -2570,6 +2583,7 @@ function renderCurrentLetter(){
 
   host.innerHTML = `
     <div class="lv-scene">
+      <div class="lv-mailbar" id="lvMailbar"></div>
       <div class="lv-topbar" id="lvTopbar">
         <button class="lv-new" id="lvNew" title="Write to someone new">+</button>
         ${composing?"":`<div class="lv-badge" title="${letterQueue.length} waiting on you today">${letterQueue.length}</div>`}
