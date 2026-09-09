@@ -181,7 +181,7 @@
     box-shadow:0 1px 0 rgba(255,255,255,.85) inset,0 12px 26px rgba(60,48,30,.18);
     transition:opacity .2s}
   .lv-cnr{position:absolute;top:22px;left:22px;right:22px;display:flex;justify-content:space-between;gap:12px;
-    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:9px;letter-spacing:.16em;
+    font-family:"TAY Birdie",var(--serif-soul);font-size:11px;letter-spacing:.16em;
     text-transform:uppercase;color:#9A9280}
   .lv-cnr span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .lv-name{font-family:"Bodoni Moda",var(--serif-soul);font-weight:400;font-size:44px;line-height:.92;
@@ -341,8 +341,8 @@
       linear-gradient(178deg,#FCFAF4,#F4F0E4);
     box-shadow:0 1px 0 rgba(255,255,255,.9) inset,
       0 0 0 1px rgba(120,102,70,.13), 0 16px 40px rgba(60,48,28,.14)}
-  .lv-reader::-webkit-scrollbar{width:9px}
-  .lv-reader::-webkit-scrollbar-thumb{background:rgba(120,105,80,.20);border-radius:5px}
+  .lv-reader{scrollbar-width:none;-ms-overflow-style:none}
+  .lv-reader::-webkit-scrollbar{width:0;height:0;display:none}
   .lv-style{position:fixed;right:24px;bottom:18px;z-index:56;display:flex;gap:3px;
     background:rgba(255,255,255,.86);border:1px solid var(--rule);border-radius:999px;padding:3px}
   .lv-style button{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:9.5px;letter-spacing:.12em;
@@ -386,6 +386,29 @@
   .lv-reader-row.unread .lv-reader-row-subj{font-weight:600}
   .lv-reader-row-snip{font-size:12.5px;line-height:1.45;color:var(--ink-3);
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  /* The list takes the treatment as well, not only the thread. */
+  .rd-dispatch .lv-reader-head{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-spacing:.24em;
+    border-bottom:3px double var(--ink-1);padding-bottom:10px}
+  .rd-dispatch .lv-reader-row{border-radius:0;padding:14px 2px;background:transparent}
+  .rd-dispatch .lv-reader-row + .lv-reader-row{box-shadow:none;border-top:1px dashed var(--rl)}
+  .rd-dispatch .lv-reader-from,.rd-dispatch .lv-reader-ago{font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:400;color:var(--ink-3)}
+  .rd-dispatch .lv-reader-row-subj{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.02em}
+  .rd-dispatch .lv-reader-row-snip{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;line-height:1.65}
+  .rd-dispatch .lv-reader-row.unread{background:transparent}
+  .rd-dispatch .lv-reader-row.unread .lv-reader-row-subj{color:var(--accent-deep)}
+
+  .rd-docket .lv-reader-head{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-spacing:.18em;
+    border-bottom:1px solid var(--ink-1)}
+  .rd-docket .lv-reader-row{border-radius:0;padding:9px 2px;font-family:"IBM Plex Mono",ui-monospace,monospace}
+  .rd-docket .lv-reader-row + .lv-reader-row{box-shadow:none;border-top:1px dotted var(--rl)}
+  .rd-docket .lv-reader-from{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:500}
+  .rd-docket .lv-reader-ago{font-size:10px;letter-spacing:.06em}
+  .rd-docket .lv-reader-row-subj{font-size:11.5px;letter-spacing:0;margin:2px 0 1px}
+  .rd-docket .lv-reader-row-snip{font-size:10.5px;line-height:1.55;-webkit-line-clamp:1}
+  .rd-docket .lv-reader-row.unread{background:transparent}
+  .rd-docket .lv-reader-row.unread .lv-reader-row-subj{color:var(--accent-deep)}
+
   .rd-foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--rl);display:flex;flex-wrap:wrap;gap:6px}
   .rd-foot button{font-family:var(--sans);font-size:10.5px;letter-spacing:.06em;background:transparent;border:none;
     color:var(--ink-3);cursor:pointer;padding:3px 0;margin-right:14px;text-decoration:underline;text-underline-offset:3px}
@@ -2353,15 +2376,25 @@ function letterFlags(x){
     commissioner: /custom/i.test(d.pieces||"")
   };
 }
+// A stored name is sometimes a label rather than a person ("Chess enquiry",
+// "Thailand bronzes"). The card is headed by whoever wrote, so fall back to the
+// address before falling back to nothing.
+function personName(name, email){
+  const raw=String(name||"").trim();
+  if(raw && !/enquir|inquir|unknown|test|order|request/i.test(raw)) return raw;
+  const local=String(email||"").split("@")[0].replace(/[._-]+/g," ").replace(/\d+/g,"").trim();
+  if(local) return local.replace(/\b\w/g, c=>c.toUpperCase());
+  return "Unknown sender";
+}
 function letterLabelFacts(x){
   const {d,q,kind}=x;
   if(kind==="custom"){
     const when=fmtDate(q.first_seen);
-    return { name:q.name||"—", facts:[q.subject||"enquiry", when] };
+    return { name:personName(q.name, q.email), facts:[q.subject||"enquiry", when] };
   }
   const piece=firstPiece(d.pieces);
   const since=d.first_buy?fmtDate(d.first_buy):(d.last_buy?fmtDate(d.last_buy):"");
-  return { name:d.name||d.acc||"—",
+  return { name:personName(d.name, d.email)||d.acc||"—",
     facts:[piece||"collector", since?("carried since "+since):""].filter(Boolean) };
 }
 // What this letter is, how pressing it is, and which tone it opens on — the
@@ -2933,8 +2966,8 @@ function renderCurrentLetter(){
       </div>
       <div class="lv-label">
         <div class="lv-cnr">
-          <span>${ctx?esc(ctx.kindLabel+" \u00b7 "+ctx.priority):""}</span>
-          <span>${esc(cardMeta)}</span>
+          <span style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",ctx?ctx.kindLabel+ctx.priority:"")}">${ctx?esc(ctx.kindLabel+" \u00b7 "+ctx.priority):""}</span>
+          <span style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",cardMeta)}">${esc(cardMeta)}</span>
         </div>
         <div class="lv-name">${esc(name)}</div>
         <div class="lv-noteblock">${quoteHTML}</div>
