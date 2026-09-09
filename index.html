@@ -181,7 +181,7 @@
     box-shadow:0 1px 0 rgba(255,255,255,.85) inset,0 12px 26px rgba(60,48,30,.18);
     transition:opacity .2s}
   .lv-cnr{position:absolute;top:22px;left:22px;right:22px;display:flex;justify-content:space-between;gap:12px;
-    font-family:"TAY Birdie",var(--serif-soul);font-size:11px;letter-spacing:.16em;
+    font-family:"Gabriele Dark","Gabriele Light",var(--serif-soul);font-size:13px;letter-spacing:.14em;
     text-transform:uppercase;color:#9A9280}
   .lv-cnr span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .lv-name{font-family:"Bodoni Moda",var(--serif-soul);font-weight:400;font-size:44px;line-height:.92;
@@ -225,7 +225,7 @@
   #lvFileCancel{background:transparent;border:none;color:#a89d89}
   #lvFileSave{background:var(--accent-grad);color:#fff;border:none}
   .lv-quote,.lv-quote-edit{display:block;width:100%;margin:0;padding:0;border:none;background:transparent;
-    font-family:"Public Sans",var(--sans);font-style:normal;font-size:12.5px;line-height:1.5;
+    font-family:"Public Sans",var(--sans);font-style:normal;font-size:14.5px;line-height:1.55;
     color:#5D564A;letter-spacing:0;text-transform:none}
   .lv-quote-edit{resize:vertical;min-height:66px}
   .lv-quote-edit:focus{outline:none}
@@ -331,8 +331,8 @@
   /* The marginalia is pinned at the left edge and the drawer at the right, so
      the sheet centres in the space between them by giving the view a padding
      equal to each. Equal gaps fall out of that rather than being tuned. */
-  body.view-letters .letters-view{padding-left:440px;padding-right:476px}
-  .lv-reader{position:fixed;top:16px;right:16px;bottom:16px;width:444px;z-index:55;border-radius:12px;
+  body.view-letters .letters-view{padding-left:440px;padding-right:500px}
+  .lv-reader{position:fixed;top:28px;right:28px;bottom:28px;width:444px;z-index:55;border-radius:12px;
     overflow-y:auto;overflow-x:hidden;box-sizing:border-box;padding:34px 32px 90px;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
     background:
@@ -370,8 +370,7 @@
   .lv-reader-refresh{background:transparent;border:none;color:var(--ink-3);cursor:pointer;font-size:14px;padding:2px 4px}
   .lv-reader-refresh:hover{color:var(--ink-1)}
   /* Something to watch while Gmail is asked, centred in the drawer. */
-  .lv-load{display:flex;flex-direction:column;align-items:center;justify-content:center;
-    min-height:58vh;gap:8px;text-align:center}
+  .lv-load{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
   .lv-load img{width:200px;height:200px;object-fit:contain;mix-blend-mode:multiply;opacity:.92}
   .lv-load p{font-family:var(--sans);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--ink-3);margin:0}
@@ -381,20 +380,19 @@
   @keyframes lvDot{0%,60%,100%{opacity:.25}30%{opacity:1}}
   .lv-reader-list{display:flex;flex-direction:column}
   .lv-reader-row{display:block;width:100%;text-align:left;font-family:var(--sans);color:inherit;
-    background:transparent;border:none;border-radius:6px;padding:12px 10px;margin:0;cursor:pointer;
+    background:transparent;border:none;border-radius:6px;padding:18px 10px;margin:0;cursor:pointer;
     transition:background .12s}
-  .lv-reader-row + .lv-reader-row{box-shadow:0 -1px 0 var(--rl)}
-  .lv-reader-row:hover{background:rgba(255,255,255,.7);box-shadow:none}
-  .lv-reader-row:hover + .lv-reader-row{box-shadow:none}
+  .lv-reader-row + .lv-reader-row{border-top:1px dashed var(--rl)}
+  .lv-reader-row:hover{background:rgba(255,255,255,.7)}
   .lv-reader-row.unread{background:rgba(30,22,14,.03)}
   .lv-reader-row-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:3px}
-  .lv-reader-from{font-size:13px;font-weight:600;color:var(--ink-1);
+  .lv-reader-from{font-size:14.5px;font-weight:600;color:var(--ink-1);
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-  .lv-reader-ago{font-size:11px;color:var(--ink-3);flex:0 0 auto;white-space:nowrap}
-  .lv-reader-row-subj{font-size:13px;color:var(--ink-1);margin-bottom:2px;
+  .lv-reader-ago{font-size:12px;color:var(--ink-3);flex:0 0 auto;white-space:nowrap}
+  .lv-reader-row-subj{font-size:14.5px;color:var(--ink-1);margin-bottom:3px;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .lv-reader-row.unread .lv-reader-row-subj{font-weight:600}
-  .lv-reader-row-snip{font-size:12.5px;line-height:1.45;color:var(--ink-3);
+  .lv-reader-row-snip{font-size:13.5px;line-height:1.5;color:var(--ink-3);
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   /* The list takes the treatment as well, not only the thread. */
   .rd-dispatch .lv-reader-head{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-spacing:.24em;
@@ -2724,12 +2722,27 @@ function mailLinkify(escaped){
   });
 }
 
+// Marketing mail and long forwards arrive with quote markers scattered through
+// every line. Strip the leading chains, drop the lines that are nothing but
+// markers, and collapse what is left, or no amount of unwrapping will help.
+function mailDequote(t){
+  return String(t||"")
+    .split("\n")
+    .map(l=>l.replace(/^\s*(?:>\s*)+/,""))
+    .filter(l=>!/^\s*(?:>|\|)?\s*$/.test(l) || true)
+    .join("\n")
+    .replace(/(?:^|\s)>(?=\s|$)/g," ")
+    .replace(/[ \t]{2,}/g," ")
+    .replace(/\n{3,}/g,"\n\n");
+}
 function mailRender(text){
+  // Order matters: the quote detector reads the ">" markers, so the history has
+  // to be split off before those markers are stripped.
   const { body, sig } = mailSplitSignature(String(text||""));
   const { body:main, quoted } = mailSplitQuote(body);
-  const blocks = mailUnwrap(main).map(b=>
+  const blocks = mailUnwrap(mailDequote(main)).map(b=>
     `<p class="${b.pre?"mm-pre":""}">${mailLinkify(esc(b.t))}</p>`).join("");
-  return { html: blocks || "<p></p>", quoted, sig };
+  return { html: blocks || "<p></p>", quoted: mailDequote(quoted), sig };
 }
 
 // Today shows a time, this week a weekday, this year a date, older adds a year.
@@ -2864,16 +2877,21 @@ function renderReader(){
   }
   if(readerOpen){
     const o=readerOpen;
-    el.innerHTML=`<button class="lv-reader-back" id="lvReaderBack">‹ Post</button>
-      <div class="lv-reader-subject">${esc(o.subject||"")}</div>
-      <div class="lv-reader-meta">${esc(o.from||"")}${o.at?` · ${ago(o.at)}`:""}</div>
-      <div class="lv-reader-body">${esc(o.body)}</div>`;
+    const rr = o.body==="\u2026" ? {html:"<p>Opening\u2026</p>",quoted:"",sig:""} : mailRender(o.body);
+    el.innerHTML=`<button class="lv-reader-back" id="lvReaderBack">\u2039 Post</button>
+      <div class="rd-title">${esc(unent(o.subject||""))}</div>
+      <article class="rd-m">
+        <div class="rd-hd"><span class="rd-from">${esc(unent(o.from||""))}</span><span class="rd-when">${o.at?esc(mailDate(o.at)):""}</span></div>
+        <div class="rd-body">${rr.html}</div>
+        ${rr.quoted?`<button class="rd-more" data-q1>Earlier</button><div class="rd-quote" id="mmqOpen" hidden>${mailLinkify(esc(rr.quoted))}</div>`:""}
+        ${rr.sig?`<div class="rd-sig">${mailLinkify(esc(rr.sig))}</div>`:""}
+      </article>`;
+    const qb=el.querySelector("[data-q1]");
+    if(qb) qb.onclick=()=>{ const q=el.querySelector("#mmqOpen"); q.hidden=!q.hidden; qb.classList.toggle("on",!q.hidden); };
     el.querySelector("#lvReaderBack").onclick=()=>{ readerOpen=null; renderReader(); }; return;
   }
   if(readerLoading || (readerMsgs===null && !readerErr)){
-    el.innerHTML=`<div class="lv-reader-head lv-overline">Post</div>
-      <div class="lv-load"><img src="logos/walking.webp" alt="" width="200" height="200">
-      <p>Fetching the post<span class="lv-dots"><i>.</i><i>.</i><i>.</i></span></p></div>`;
+    el.innerHTML=`<div class="lv-load"><img src="logos/walking.webp" alt="Loading" width="200" height="200"></div>`;
     if(readerMsgs===null && !readerLoading) loadReader();
     return;
   }
@@ -2978,8 +2996,8 @@ function renderCurrentLetter(){
       </div>
       <div class="lv-label">
         <div class="lv-cnr">
-          <span style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",ctx?ctx.kindLabel+ctx.priority:"")}">${ctx?esc(ctx.kindLabel+" \u00b7 "+ctx.priority):""}</span>
-          <span style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",cardMeta)}">${esc(cardMeta)}</span>
+          <span style="font-family:${safeFont("Gabriele Dark","var(--serif-soul)",ctx?ctx.kindLabel+ctx.priority:"")}">${ctx?esc(ctx.kindLabel+" \u00b7 "+ctx.priority):""}</span>
+          <span style="font-family:${safeFont("Gabriele Dark","var(--serif-soul)",cardMeta)}">${esc(cardMeta)}</span>
         </div>
         <div class="lv-name">${esc(name)}</div>
         <div class="lv-noteblock">${quoteHTML}</div>
