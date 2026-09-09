@@ -1,0 +1,5 @@
+-- Placeholder. This version was applied directly to the remote database on
+-- 2026-08-25 (most likely from the dashboard SQL editor) and its text was never
+-- committed here. The file exists so local and remote migration histories line
+-- up; it is already recorded as applied, so nothing in it will ever run.
+-- Recover the real statements with `supabase db pull` if they are ever needed.

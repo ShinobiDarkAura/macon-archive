@@ -283,6 +283,10 @@
   .lv-reader-refresh:hover,.lv-reader-back:hover{color:var(--ink)}
   .lv-reader-back{margin:0 0 10px -4px}
   .lv-reader-note{margin:0 0 12px;color:#8c7f68}
+  .lv-reader-connect{font-family:var(--sans);font-size:12.5px;color:#fff;background:var(--accent-grad);border:none;
+    border-radius:8px;padding:8px 14px;cursor:pointer;margin:0 6px 6px 0}
+  .lv-reader-connect.small{font-size:11.5px;padding:5px 11px;background:transparent;color:#a89d89;border:1px solid var(--rule);margin-top:12px}
+  .lv-reader-connect.small:hover{border-color:var(--accent);color:var(--accent-deep)}
   .lv-reader-list{display:flex;flex-direction:column}
   .lv-reader-row{display:block;width:100%;text-align:left;border:none;border-top:1px solid var(--rule);background:transparent;
     padding:10px 0;cursor:pointer;font-family:inherit;color:inherit;transition:background .15s}
@@ -2251,6 +2255,7 @@ const boxLabel=m=>String(m).split("@")[0];
 let readerMsgs=null, readerOpen=null, readerErr="", readerLoading=false;
 // the thread with whoever the current letter is to, when Gmail has one
 let readerMode="post", readerThread=null; const _threads=new Map();
+let readerConnected=null;
 const gmailReady=()=>!!(sb&&synced);
 async function gmail(path, mailbox){
   const { data:{ session } }=await sb.auth.getSession();
@@ -2259,8 +2264,30 @@ async function gmail(path, mailbox){
   const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/gmail-reader?${qs}`,
     { headers:{ Authorization:"Bearer "+session.access_token, apikey:CONFIG.SUPABASE_ANON_KEY } });
   const j=await r.json().catch(()=>({}));
-  if(!r.ok) throw new Error(j.error||("Gmail "+r.status));
+  if(!r.ok) throw Object.assign(new Error(j.error||("Gmail "+r.status)), {code:j.error});
   return j;
+}
+// Which boxes have actually been consented to. A box with no token is not an
+// error, it just has not been connected yet.
+async function gmailStatus(){
+  try{
+    const { data:{ session } }=await sb.auth.getSession();
+    if(!session) return null;
+    const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/gmail-reader?action=status`,
+      { headers:{ Authorization:"Bearer "+session.access_token, apikey:CONFIG.SUPABASE_ANON_KEY } });
+    if(!r.ok) return null;
+    const j=await r.json();
+    readerConnected=j.connected||[];
+    return readerConnected;
+  }catch(e){ return null; }
+}
+async function gmailConnect(mailbox){
+  const { data:{ session } }=await sb.auth.getSession();
+  if(!session) return;
+  const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/gmail-reader?action=connect_url&mailbox=${encodeURIComponent(mailbox)}`,
+    { headers:{ Authorization:"Bearer "+session.access_token, apikey:CONFIG.SUPABASE_ANON_KEY } });
+  const j=await r.json().catch(()=>({}));
+  if(j.url) window.open(j.url, "_blank", "noopener");
 }
 const hdr=(m,n)=>((m.payload&&m.payload.headers)||[]).find(h=>h.name.toLowerCase()===n.toLowerCase())?.value||"";
 function gmailPlainText(payload){
@@ -2282,10 +2309,12 @@ function ago(ms){
 async function loadReader(){
   if(!gmailReady() || readerLoading) { renderReader(); return; }
   readerLoading=true; readerErr=""; renderReader();
+  if(readerConnected===null) await gmailStatus();
   try{
     // only what was written to the studio, not the keeper's own mail
     const q=encodeURIComponent("in:inbox newer_than:14d");
-    const perBox=await Promise.all(MAILBOXES.map(async box=>{
+    const boxes=(readerConnected&&readerConnected.length)?readerConnected:[];
+    const perBox=await Promise.all(boxes.map(async box=>{
       try{
         const list=await gmail(`messages?q=${q}&maxResults=15`, box);
         const metas=await Promise.all((list.messages||[]).map(m=>
@@ -2314,7 +2343,8 @@ async function loadThreadFor(email, name){
   readerThread={email, name, loading:true}; renderReader();
   try{
     const q=encodeURIComponent(`from:${email} OR to:${email}`);
-    const perBox=await Promise.all(MAILBOXES.map(async box=>{
+    const boxes=(readerConnected&&readerConnected.length)?readerConnected:[];
+    const perBox=await Promise.all(boxes.map(async box=>{
       try{
         const list=await gmail(`threads?q=${q}&maxResults=1`, box);
         if(!list.threads||!list.threads.length) return [];
@@ -2352,6 +2382,14 @@ function renderReader(){
   if(!gmailReady()){
     el.innerHTML=`<div class="lv-reader-head lv-overline">Post</div><p class="lv-reader-note">Sign in to read the studio inbox.</p>`; return;
   }
+  const unconnected = readerConnected ? MAILBOXES.filter(m=>!readerConnected.includes(m)) : [];
+  if(readerConnected && !readerConnected.length){
+    el.innerHTML=`<div class="lv-reader-head lv-overline">Post</div>
+      <p class="lv-reader-note">Connect a studio mailbox to read what has come in beside what you are writing. You will sign into each box once.</p>
+      ${MAILBOXES.map(m=>`<button class="lv-reader-connect" data-box="${esc(m)}">Connect ${esc(boxLabel(m))}@</button>`).join("")}`;
+    el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
+    return;
+  }
   if(readerOpen){
     const o=readerOpen;
     el.innerHTML=`<button class="lv-reader-back" id="lvReaderBack">‹ Post</button>
@@ -2369,8 +2407,10 @@ function renderReader(){
     ${readerErr?`<p class="lv-reader-note">${esc(readerErr)}</p>`:""}
     ${readerMsgs&&!readerMsgs.length?`<p class="lv-reader-note">Nothing to ${esc(MAILBOXES.map(boxLabel).join(" or "))} in the last two weeks.</p>`:""}
     ${readerMsgs===null&&!readerLoading?`<p class="lv-reader-note">Fetching…</p>`:""}
-    <div class="lv-reader-list">${rows}</div>`;
+    <div class="lv-reader-list">${rows}</div>
+    ${unconnected.map(m=>`<button class="lv-reader-connect small" data-box="${esc(m)}">Connect ${esc(boxLabel(m))}@ too</button>`).join("")}`;
   el.querySelector("#lvReaderRefresh").onclick=loadReader;
+  el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
   el.querySelectorAll(".lv-reader-row").forEach(b=>b.onclick=()=>openReaderMsg(b.dataset.id));
   if(readerMsgs===null && !readerLoading) loadReader();
 }
