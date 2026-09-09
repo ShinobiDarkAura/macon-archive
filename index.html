@@ -134,7 +134,7 @@
   /* Placed from the sheet's measured rect: the sheet and an aspect-ratio box
      resolve their heights against different bases once the column caps the
      width, so deriving this in CSS drifts by a few pixels. */
-  .lv-topbar{position:absolute;z-index:60;display:flex;align-items:center;gap:10px}
+  .lv-topbar{position:absolute;z-index:60;display:flex;align-items:center;gap:7px}
   /* Mailbox connections sit where they cannot be missed, since a box that has
      not consented is the difference between Send working and not. */
   .lv-mailbar{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:70;
@@ -2253,7 +2253,7 @@ function placeLetterTopbar(){
   if(!paper || !tb) return;
   const p=paper.getBoundingClientRect(), h=host.getBoundingClientRect();
   tb.style.left = (p.right - h.left - tb.offsetWidth + 18) + "px";
-  tb.style.top  = (p.top  - h.top  - tb.offsetHeight - 4) + "px";
+  tb.style.top  = (p.top  - h.top  - tb.offsetHeight - 1) + "px";
 }
 addEventListener("resize", ()=>placeLetterTopbar());
 // Sent through the API rather than a compose window, so a reply carries the
