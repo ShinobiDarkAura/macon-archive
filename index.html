@@ -233,6 +233,12 @@
   .lv-to{font-family:"Public Sans",var(--sans);font-weight:400;font-size:10px;letter-spacing:.18em;
     color:#9C8F76;margin-bottom:10px;text-transform:uppercase;
     display:flex;align-items:baseline;justify-content:flex-start;gap:16px}
+  .lv-draft{position:absolute;left:0;right:0;top:0;z-index:5;background:#F6ECD8;border-bottom:1px solid #E4D4B0;
+    font-family:var(--sans);font-size:12px;color:#6E6045;padding:8px 14px;display:flex;align-items:center;gap:8px;
+    text-transform:none;letter-spacing:0}
+  .lv-draft button{font:inherit;background:transparent;border:none;color:var(--accent-deep);cursor:pointer;
+    text-decoration:underline;text-underline-offset:2px;padding:0}
+  .lv-draft button[data-x]{color:#a89d89;margin-left:auto}
   .lv-to-lab{color:#c3b9a3;flex:0 0 auto}
   .lv-to-l{display:flex;align-items:baseline;gap:7px;min-width:0;flex:1}
   .lv-to-in{font:inherit;letter-spacing:inherit;text-transform:inherit;color:#9C8F76;background:transparent;
@@ -2359,9 +2365,12 @@ async function sendLetter({subj, body, to}){
     const j=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(j.error||("send failed ("+r.status+")"));
     if(btn){ btn.textContent="Sent"; }
+    try{ localStorage.removeItem("macon.draft"); }catch{}
     return true;
   }catch(e){
     if(btn){ btn.disabled=false; btn.textContent="Send"; }
+    // Hold the text so a reload or a stray re-render cannot lose it.
+    try{ localStorage.setItem("macon.draft", JSON.stringify({to, subj, body, at:Date.now()})); }catch{}
     // A compose window is the honest fallback: nothing was sent, and the
     // letter is not lost.
     const g=new URL("https://mail.google.com/mail/");
@@ -2921,6 +2930,23 @@ function renderCurrentLetter(){
   host.querySelector("#lvNew").onclick=composeBlankLetter;
   const toIn=host.querySelector("#lvTo");
   if(toIn && !toIn.value) setTimeout(()=>toIn.focus(), 60);
+  // A letter whose send failed is kept and offered back rather than lost.
+  try{
+    const d=JSON.parse(localStorage.getItem("macon.draft")||"null");
+    if(d && Date.now()-d.at < 7*864e5 && (!email || d.to===email)){
+      const bar=document.createElement("div");
+      bar.className="lv-draft";
+      bar.innerHTML=`Unsent letter to ${esc(d.to||"someone")} kept from earlier. <button>Restore</button><button data-x>Discard</button>`;
+      host.querySelector(".lv-paper").prepend(bar);
+      bar.querySelector("button").onclick=()=>{
+        host.querySelector("#lvTo").value=d.to;
+        host.querySelector("#lvSubj").value=d.subj;
+        host.querySelector("#lvBody").value=d.body;
+        bar.remove();
+      };
+      bar.querySelector("[data-x]").onclick=()=>{ try{ localStorage.removeItem("macon.draft"); }catch{} bar.remove(); };
+    }
+  }catch{}
   placeLetterTopbar();
   const fileOpen=host.querySelector("#lvFileOpen");
   if(fileOpen) fileOpen.onclick=()=>{ letterFilingOpen=true; renderCurrentLetter(); };
@@ -2968,7 +2994,7 @@ function renderCurrentLetter(){
       });
     };
   }
-  host.querySelector("#lvSend").onclick=()=>{
+  host.querySelector("#lvSend").onclick=async ()=>{
     const subj=host.querySelector("#lvSubj").value;
     // the name lives on the button, not in the textarea — put it back for the send
     const body=host.querySelector("#lvBody").value.replace(/\s+$/,"")+"\n\n"+letterSignoff;
@@ -2976,7 +3002,10 @@ function renderCurrentLetter(){
     const to=(toEl?toEl.value:email).trim();
     if(!to){ toEl && toEl.focus(); alert("This letter has no recipient yet. Add an address after To."); return; }
     if(!subj.trim()){ host.querySelector("#lvSubj").focus(); alert("Give the letter a subject before sending."); return; }
-    sendLetter({subj, body, to});
+    // Nothing moves until the letter has actually gone. Advancing the queue on
+    // a send that failed is what threw a written letter away.
+    const ok = await sendLetter({subj, body, to});
+    if(!ok) return;
     if(composing){ exitCompose(); return; }
     completeFollowUp(i, q?q.id:"");
     letterQueue.splice(letterIdx,1);
