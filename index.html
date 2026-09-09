@@ -172,13 +172,14 @@
      name-at-top-note-pushed-to-bottom. */
   /* Anchored back to the paper's own column, left side this time, 24px off
      its edge — a fixed offset from the sheet again, not from the viewport. */
-  .lv-label{grid-column:1;grid-row:1;justify-self:center;align-self:center;z-index:2;
+  .lv-label{grid-column:2;grid-row:1;justify-self:start;align-self:center;z-index:2;
+    transform:translateX(calc(-100% - 22px));
     display:flex;flex-direction:column;justify-content:center;
-    width:313px;padding:28px;box-sizing:border-box;border-radius:6px;background:rgba(255,255,255,.42);
+    width:286px;padding:24px;box-sizing:border-box;border-radius:6px;background:rgba(255,255,255,.42);
     font-size:11px;line-height:1.8;color:#8c7f68;letter-spacing:.06em;
     transition:opacity .2s}
-  .lv-label .lv-name{font-family:"TAY Flapjack",var(--serif-soul);font-style:normal;font-weight:400;font-size:38px;line-height:1.2;
-    color:var(--ink);margin-bottom:2px;text-transform:uppercase;letter-spacing:-.04em}
+  .lv-label .lv-name{font-family:"TAY Birdie",var(--serif-soul);font-style:normal;font-weight:400;font-size:26px;line-height:1.3;
+    color:var(--ink);margin-bottom:2px;text-transform:uppercase;letter-spacing:-.02em}
   .lv-label .lv-fact{opacity:.85}
   .lv-ctx{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px}
   .lv-ctx-kind{font-family:"Public Sans",var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
@@ -236,8 +237,8 @@
   .lv-to-lab{color:#c3b9a3}
   .lv-fromline::before{content:"\2022";margin-right:16px;color:#d5cbb6}
   .lv-subj{width:100%;border:none;background:transparent;font-family:"TAY Birdie",var(--serif-soul);font-weight:400;
-    font-size:30px;line-height:1.3;color:#1C1A18;padding:0 0 14px;margin-bottom:18px;border-bottom:1px solid #E3DED0;
-    resize:none;overflow:hidden;display:block;letter-spacing:.01em;flex:0 0 auto;text-transform:uppercase}
+    font-size:26px;line-height:1.3;color:#1C1A18;padding:0 0 14px;margin-bottom:18px;border-bottom:1px solid #E3DED0;
+    resize:none;overflow:hidden;display:block;letter-spacing:-.02em;flex:0 0 auto;text-transform:uppercase}
   .lv-subj:focus{outline:none;border-bottom-color:var(--accent)}
   /* Two flexible spacers rather than a single centered box: a 4:6 split
      settles the block 10% above true center (50/50 would be dead center),
@@ -254,7 +255,7 @@
 
   /* the footer is part of the sheet itself, not a row floating below it —
      Tone and Mark closed on the left, Skip and Send on the right */
-  .lv-footer{flex:0 0 8%;min-height:44px;display:flex;align-items:center;gap:12px;
+  .lv-footer{flex:0 0 auto;min-height:70px;display:flex;align-items:center;gap:12px;
     border-top:1px solid rgba(227,222,208,.5);margin-top:8px;margin-bottom:12px}
   .lv-footer-right{margin-left:auto;display:flex;align-items:center;gap:12px}
   .lv-tone{font-size:11.5px;letter-spacing:.1em;color:#a89d89;
@@ -264,14 +265,14 @@
   .lv-close,.lv-skip{font-family:var(--sans);font-size:13.75px;color:#a89d89;background:transparent;border:none;cursor:pointer;
     padding:8.8px 4.4px}
   .lv-close:hover,.lv-skip:hover{color:var(--ink)}
-  .lv-send{font-family:var(--sans);font-size:14.3px;letter-spacing:.02em;font-weight:500;color:#fff;
-    background:var(--accent-grad);border:none;border-radius:8px;padding:12px 24px;cursor:pointer;
-    box-shadow:0 6px 18px rgba(189,84,64,.32)}
-  .lv-send{display:inline-flex;align-items:center}
+  .lv-send{font-family:var(--sans);font-size:14.3px;letter-spacing:.02em;font-weight:500;color:#a89d89;
+    background:transparent;border:1px solid var(--rule);border-radius:8px;padding:11px 24px;cursor:pointer;
+    display:inline-flex;align-items:center;transition:background .15s,color .15s,border-color .15s}
   .lv-send::after{content:"\2192";display:inline-block;max-width:0;opacity:0;margin-left:0;overflow:hidden;
     transform:translateX(-4px);transition:max-width .2s ease,opacity .2s ease,margin-left .2s ease,transform .2s ease}
-  .lv-send:hover{filter:brightness(1.05)}
+  .lv-send:hover{background:#1C1A18;border-color:#1C1A18;color:#fff}
   .lv-send:hover::after{max-width:1.2em;opacity:1;margin-left:8px;transform:none}
+  .lv-send:disabled{opacity:.5;cursor:default;background:transparent;color:#a89d89;border-color:var(--rule)}
 
   /* Motion: the paper enters with a small settle rather than popping in, and
      Mark closed gets its own send-off — a checkmark, then the sheet slides
@@ -302,8 +303,8 @@
   .lv-ghost-3{transform:rotate(-4.5deg) translate(-18px,22px);z-index:-1}
 
   /* ---------- the post drawer, hung on the right edge ---------- */
-  body.view-letters .letters-view{padding-right:480px}
-  .lv-reader{position:fixed;top:0;right:0;bottom:0;width:440px;z-index:55;
+  body.view-letters .letters-view{padding-right:428px}
+  .lv-reader{position:fixed;top:0;right:0;bottom:0;width:404px;z-index:55;
     overflow-y:auto;overflow-x:hidden;box-sizing:border-box;padding:26px 24px 90px;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
     background:linear-gradient(#FCFAF4,#F6F2E8);
@@ -2814,7 +2815,7 @@ function renderCurrentLetter(){
         ${composing?"":`<div class="lv-badge" title="${letterQueue.length} waiting on you today">${letterQueue.length}</div>`}
       </div>
       <div class="lv-label lv-overline">
-        <div class="lv-name" style="font-family:${safeFont("TAY Flapjack","var(--serif-soul)",name)}">${esc(name)}</div>
+        <div class="lv-name" style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",name)}">${esc(name)}</div>
         ${ctxHTML}
         ${factLine1?`<div class="lv-fact">${esc(factLine1)}</div>`:""}
         ${factLine2?`<div class="lv-fact">${esc(factLine2)}</div>`:""}
