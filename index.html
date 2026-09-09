@@ -120,7 +120,7 @@
 
   .lv-overline{font-family:"Public Sans",var(--sans);text-transform:uppercase;font-weight:400}
 
-  .letters-view{height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;
+  .letters-view{position:relative;height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;
     padding:48px 40px;box-sizing:border-box;gap:22px;overflow:hidden;
     background:radial-gradient(ellipse at 50% 30%,rgba(255,255,255,.6),rgba(180,166,140,.16) 78%)}
   .lv-empty{font-family:var(--serif-soul);font-style:italic;font-size:22px;color:#a89d89;text-align:center;max-width:460px}
@@ -129,12 +129,17 @@
      too whenever they bled past its edge. #lvTopbar's `right` is set in JS,
      measured off the view toggle's actual rendered edge, so "+" always sits
      just to its left regardless of the toggle's own width. */
-  .lv-topbar{position:fixed;top:46px;right:16px;z-index:70;display:flex;align-items:center;gap:8px;height:30px}
-  .lv-new{width:26px;height:26px;border-radius:50%;border:1px solid var(--rule);background:#fff;
-    color:#8c7f68;font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  /* Same box as the sheet, so the buttons ride its actual top-right corner
+     rather than the top of the grid row, which sits higher. */
+  /* Placed from the sheet's measured rect: the sheet and an aspect-ratio box
+     resolve their heights against different bases once the column caps the
+     width, so deriving this in CSS drifts by a few pixels. */
+  .lv-topbar{position:absolute;z-index:60;display:flex;align-items:center;gap:10px}
+  .lv-new{width:33px;height:33px;border-radius:50%;border:1px solid var(--rule);background:#fff;
+    color:#8c7f68;font-size:19px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
   .lv-new:hover{color:var(--ink);border-color:#a89d89}
-  .lv-badge{min-width:26px;height:26px;padding:0 7px;border-radius:999px;background:var(--accent-grad);color:#fff;
-    font-family:var(--sans);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;
+  .lv-badge{min-width:33px;height:33px;padding:0 9px;border-radius:999px;background:var(--accent-grad);color:#fff;
+    font-family:var(--sans);font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center;
     box-shadow:0 3px 10px rgba(189,84,64,.4)}
 
   /* Three columns, the outer two forced equal, so the paper in the middle is
@@ -234,6 +239,7 @@
   .lv-tone{font-size:11.5px;letter-spacing:.1em;color:#a89d89;
     background:transparent;border:1px solid var(--rule);border-radius:999px;padding:6.5px 14px;cursor:pointer}
   .lv-tone:hover{border-color:#a89d89;color:var(--ink)}
+  .lv-fromline{font-family:var(--sans);font-size:11px;letter-spacing:.04em;color:#b7ac97;white-space:nowrap}
   .lv-close,.lv-skip{font-family:var(--sans);font-size:13.75px;color:#a89d89;background:transparent;border:none;cursor:pointer;
     padding:8.8px 4.4px}
   .lv-close:hover,.lv-skip:hover{color:var(--ink)}
@@ -2063,6 +2069,20 @@ function openDraft(i, kind, qid){
    duplicated — only the presentation is new. */
 let letterQueue=[], letterIdx=0, letterToneIdx=0, letterVaultOpen=false;
 const SIGNOFFS=["Alex","Hannah","Alex & Hannah"];
+// Who signs decides who sends. "Alex & Hannah" goes from Hannah with Alex
+// copied, so a reply reaches them both.
+const SIGNOFF_FROM={ "Alex":"alex@studiomacon.co", "Hannah":"hannah@studiomacon.co", "Alex & Hannah":"hannah@studiomacon.co" };
+const SIGNOFF_CC={ "Alex & Hannah":"alex@studiomacon.co" };
+let letterSignoffTouched=false;
+// An existing conversation carries on from whichever box it already lives in,
+// so the customer sees one thread. A fresh letter comes from Alex. Choosing a
+// signature by hand overrides both.
+function letterFrom(){
+  if(letterSignoffTouched) return { from:SIGNOFF_FROM[letterSignoff]||"alex@studiomacon.co", cc:SIGNOFF_CC[letterSignoff]||"" };
+  const t=readerThread;
+  if(t && t.box && t.msgs && t.msgs.length) return { from:t.box, cc:"" };
+  return { from:"alex@studiomacon.co", cc:"" };
+}
 let letterSignoff="Alex";
 let letterComposing=false, letterComposeItem=null;
 let letterFilingOpen=false;
@@ -2209,6 +2229,17 @@ function letterContext(x){
   try{ suggestedTone = draftEmail(x.d, 0, x.kind, x.q, "Alex").toneName; }catch(e){}
   return { kindLabel, priority, suggestedTone };
 }
+// The badge and compose button ride the sheet's own top-right corner.
+function placeLetterTopbar(){
+  const host=document.getElementById("lettersView"); if(!host) return;
+  const paper=host.querySelector(".lv-paper"), tb=host.querySelector("#lvTopbar");
+  if(!paper || !tb) return;
+  const p=paper.getBoundingClientRect(), h=host.getBoundingClientRect();
+  tb.style.left = (p.right - h.left - tb.offsetWidth) + "px";
+  tb.style.top  = (p.top  - h.top  - tb.offsetHeight - 10) + "px";
+}
+addEventListener("resize", ()=>placeLetterTopbar());
+function fromLabel(){ const f=letterFrom(); return "from "+boxLabel(f.from)+"@"+(f.cc?", cc "+boxLabel(f.cc)+"@":""); }
 function letterQuoteText(x){
   const raw = x.kind==="custom" ? x.q.note : (x.d.story||x.d.notes||"");
   const t=String(raw||"").trim();
@@ -2228,12 +2259,9 @@ function wireLetterNav(host){
     const dx=e.changedTouches[0].clientX-touchStartX; touchStartX=null;
     if(Math.abs(dx)>60) letterNavigate(dx<0?1:-1);
   }, {passive:true});
-  let wheelCooldown=false;
-  host.addEventListener("wheel", e=>{
-    if(wheelCooldown || Math.abs(e.deltaY)<30) return;
-    wheelCooldown=true; setTimeout(()=>wheelCooldown=false, 450);
-    letterNavigate(e.deltaY>0?1:-1);
-  }, {passive:true});
+  // Deliberately no wheel handler: scrolling belongs to whatever is under the
+  // pointer, usually the thread in the reader. Letters change by the chevrons
+  // or a horizontal swipe.
 }
 function letterNavigate(dir){
   if(letterComposing || !letterQueue.length) return;
@@ -2359,13 +2387,20 @@ async function loadThreadFor(email, name){
     const seen=new Set();
     const msgs=perBox.flat().sort((a,b)=>a.at-b.at)
       .filter(m=>{ const k=m.at+"|"+m.from; if(seen.has(k)) return false; seen.add(k); return true; });
-    readerThread={email, name, msgs};
+    readerThread={email, name, msgs, box: msgs.length?msgs[msgs.length-1].box:""};
   }catch(e){ readerThread={email, name, msgs:[], err:e.message}; }
   if(readerThread.email===email) _threads.set(email, readerThread);
   renderReader();
 }
 function renderReader(){
   const el=document.getElementById("lvReader"); if(!el) return;
+  // Which box a letter leaves from depends on the thread, which arrives after
+  // the letter has already been drawn.
+  const fl=document.getElementById("lvFromLine"); if(fl) fl.textContent=fromLabel();
+  const unconnected = readerConnected ? MAILBOXES.filter(m=>!readerConnected.includes(m)) : [];
+  const connectRow = unconnected.map(m=>
+    `<button class="lv-reader-connect small" data-box="${esc(m)}">Connect ${esc(boxLabel(m))}@</button>`).join("");
+  const wireConnect = el => el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
   if(gmailReady() && readerMode==="thread" && readerThread){
     const t=readerThread;
     const back=`<button class="lv-reader-back" id="lvReaderPost">‹ Post</button>`;
@@ -2377,13 +2412,14 @@ function renderReader(){
         ${t.msgs.map(m=>`<div class="lv-thread-msg"><div class="lv-reader-meta">${esc(m.from)} · ${esc(boxLabel(m.box||""))} · ${ago(m.at)}</div><div class="lv-reader-body">${esc(m.body)}</div></div>`).join("")}`;
       el.scrollTop=el.scrollHeight;
     }
+    el.insertAdjacentHTML("beforeend", connectRow);
     el.querySelector("#lvReaderPost").onclick=()=>{ readerMode="post"; renderReader(); };
+    wireConnect(el);
     return;
   }
   if(!gmailReady()){
     el.innerHTML=`<div class="lv-reader-head lv-overline">Post</div><p class="lv-reader-note">Sign in to read the studio inbox.</p>`; return;
   }
-  const unconnected = readerConnected ? MAILBOXES.filter(m=>!readerConnected.includes(m)) : [];
   if(readerConnected && !readerConnected.length){
     el.innerHTML=`<div class="lv-reader-head lv-overline">Post</div>
       <p class="lv-reader-note">Connect a studio mailbox to read what has come in beside what you are writing. You will sign into each box once.</p>
@@ -2485,11 +2521,11 @@ function renderCurrentLetter(){
       <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="${dir==="prev"?"M20 6 10 16l10 10":"M12 6l10 10-10 10"}"/></svg></button>`;
 
   host.innerHTML = `
-    <div class="lv-topbar" id="lvTopbar">
-      ${composing?"":`<div class="lv-badge" title="${letterQueue.length} waiting on you today">${letterQueue.length}</div>`}
-      <button class="lv-new" id="lvNew" title="Write to someone new">+</button>
-    </div>
     <div class="lv-scene">
+      <div class="lv-topbar" id="lvTopbar">
+        <button class="lv-new" id="lvNew" title="Write to someone new">+</button>
+        ${composing?"":`<div class="lv-badge" title="${letterQueue.length} waiting on you today">${letterQueue.length}</div>`}
+      </div>
       <div class="lv-label lv-overline">
         <div class="lv-name" style="font-family:${safeFont("TAY Flapjack","var(--serif-soul)",name)}">${esc(name)}</div>
         ${ctxHTML}
@@ -2529,6 +2565,7 @@ function renderCurrentLetter(){
         <div class="lv-footer">
           ${composing?"":`<button class="lv-tone lv-overline" id="lvTone">Tone · ${esc(toneName)}</button>`}
           <button class="lv-close" id="lvClose">Mark closed</button>
+          <span class="lv-fromline" id="lvFromLine" title="Which address this goes out from">${esc(fromLabel())}</span>
           <div class="lv-footer-right">
             <button class="lv-skip" id="lvSkip">Skip for now</button>
             <button class="lv-send" id="lvSend">Send</button>
@@ -2543,9 +2580,12 @@ function renderCurrentLetter(){
   // redraws the letter with the new choice baked in, the same way Tone does
   host.querySelector("#lvSignoff").onclick=e=>{
     letterSignoff = SIGNOFFS[(SIGNOFFS.indexOf(letterSignoff)+1)%SIGNOFFS.length];
+    letterSignoffTouched = true;
     e.currentTarget.textContent = letterSignoff;
+    const fl=host.querySelector("#lvFromLine"); if(fl) fl.textContent = fromLabel();
   };
   host.querySelector("#lvNew").onclick=composeBlankLetter;
+  placeLetterTopbar();
   const fileOpen=host.querySelector("#lvFileOpen");
   if(fileOpen) fileOpen.onclick=()=>{ letterFilingOpen=true; renderCurrentLetter(); };
   const fileForm=host.querySelector("#lvFile");
@@ -2596,7 +2636,15 @@ function renderCurrentLetter(){
     const subj=host.querySelector("#lvSubj").value;
     // the name lives on the button, not in the textarea — put it back for the send
     const body=host.querySelector("#lvBody").value.replace(/\s+$/,"")+"\n\n"+letterSignoff;
-    window.location.href=`mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+    // Gmail compose rather than mailto, because mailto cannot choose which
+    // address a letter leaves from and that is the whole point here.
+    const {from,cc}=letterFrom();
+    const g=new URL("https://mail.google.com/mail/");
+    g.searchParams.set("authuser",from);
+    g.searchParams.set("view","cm"); g.searchParams.set("fs","1");
+    g.searchParams.set("to",email); g.searchParams.set("su",subj); g.searchParams.set("body",body);
+    if(cc) g.searchParams.set("cc",cc);
+    window.open(g.toString(),"_blank","noopener");
     if(composing){ exitCompose(); return; }
     completeFollowUp(i, q?q.id:"");
     letterQueue.splice(letterIdx,1);
