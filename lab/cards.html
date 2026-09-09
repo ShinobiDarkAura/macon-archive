@@ -1,0 +1,241 @@
+<title>Ten Rolodex Cards</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ink-1:#26221C; --ink-2:#5D564A; --ink-3:#9A9280;
+    --rule:#DED8C8; --accent:#BD5440; --accent-deep:#9B402E; --brass:#A8874E;
+    --sans:"Public Sans",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+    --serif:"EB Garamond",Georgia,serif;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;font-family:var(--sans);color:var(--ink-1);
+    background:
+      radial-gradient(ellipse at 50% 16%, rgba(255,255,255,.66), rgba(228,220,203,.30) 60%, rgba(196,183,157,.30) 100%),
+      repeating-linear-gradient(92deg, rgba(170,148,110,.038) 0 2px, rgba(255,255,255,0) 2px 8px),
+      repeating-linear-gradient(92deg, rgba(140,116,78,.026) 0 1px, rgba(255,255,255,0) 1px 27px),
+      linear-gradient(178deg,#EFEADD,#E6E0D0);
+    background-attachment:fixed;
+  }
+  .page{max-width:1440px;margin:0 auto;padding:0 32px 110px}
+  header.top{padding:52px 0 24px;border-bottom:1px solid var(--ink-1);margin-bottom:44px}
+  .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-deep);margin:0 0 12px}
+  h1{font-family:var(--serif);font-weight:400;font-size:clamp(34px,5vw,54px);line-height:1.03;margin:0 0 14px;letter-spacing:-.01em}
+  h1 em{font-style:italic;color:var(--accent-deep)}
+  .stand{max-width:62ch;font-size:15px;line-height:1.6;color:var(--ink-2);margin:0}
+  .grid{display:grid;gap:44px 32px;grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+  figure{margin:0;min-width:0}
+  .num{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--accent-deep)}
+  .name{font-family:var(--serif);font-size:22px;line-height:1.2;margin:3px 0 4px}
+  .why{font-size:13px;line-height:1.55;color:var(--ink-2);margin:0 0 16px;max-width:46ch}
+  .bay{display:flex;align-items:flex-start;justify-content:center;padding:14px 0 6px}
+
+  /* ============ shared card scaffold ============ */
+  .card{width:286px;position:relative;padding:22px 22px 26px;
+    font-family:var(--sans);background:#F7F3E9;color:var(--ink-1)}
+  .k{font-family:var(--serif);font-size:26px;line-height:1.25;letter-spacing:-.02em;text-transform:uppercase;margin:0 0 9px}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+  .chip{font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:999px;font-weight:600}
+  .c-en{background:#DCD3C0;color:#5A5040}
+  .c-hi{background:#C8452F;color:#fff}
+  .meta{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);line-height:1.75}
+  .note{font-size:13px;line-height:1.55;color:var(--ink-2);margin-top:12px;padding-top:11px;border-top:1px solid var(--rule)}
+
+  /* notches: the two cut-outs a rolodex card sits on */
+  .notch::before,.notch::after{content:"";position:absolute;bottom:-1px;width:26px;height:13px;
+    background:inherit;border-radius:13px 13px 0 0;box-shadow:0 0 0 99px transparent}
+  .notch-mask::before,.notch-mask::after{content:"";position:absolute;bottom:-2px;width:30px;height:15px;
+    background:radial-gradient(circle at 50% 100%, rgba(0,0,0,0) 14px, transparent 15px)}
+
+  /* 01 classic notch */
+  .v1{border-radius:9px 9px 2px 2px;box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 10px 22px rgba(60,48,30,.16)}
+  .v1 .cut{position:absolute;left:0;right:0;bottom:0;height:16px;display:flex;justify-content:center;gap:52px}
+  .v1 .cut i{width:30px;height:16px;background:#E9E3D4;border-radius:16px 16px 0 0;box-shadow:0 -1px 1px rgba(60,48,30,.10) inset}
+
+  /* 02 letterpress */
+  .v2{background:#F2EDE0;border-radius:8px 8px 2px 2px;box-shadow:0 8px 20px rgba(60,48,30,.14)}
+  .v2 .k{color:#3A342A;text-shadow:0 1px 0 rgba(255,255,255,.85),0 -1px 0 rgba(90,74,50,.30)}
+  .v2 .chip{box-shadow:0 1px 0 rgba(255,255,255,.5) inset}
+  .v2 .note{text-shadow:0 1px 0 rgba(255,255,255,.7)}
+
+  /* 03 stacked edges */
+  .v3{border-radius:9px 9px 2px 2px;box-shadow:
+    0 10px 22px rgba(60,48,30,.16),
+    0 3px 0 -1px #EFE9DA, 0 5px 0 -1px rgba(120,100,70,.22),
+    0 8px 0 -2px #EDE7D6, 0 10px 0 -2px rgba(120,100,70,.18),
+    0 13px 0 -3px #EAE4D2, 0 15px 0 -3px rgba(120,100,70,.14)}
+
+  /* 04 tabbed */
+  .v4{border-radius:8px 8px 2px 2px;box-shadow:0 10px 22px rgba(60,48,30,.16);margin-top:16px}
+  .v4 .tab{position:absolute;top:-16px;right:22px;background:#EDE6D4;color:var(--ink-2);
+    font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+    padding:4px 12px 3px;border-radius:5px 5px 0 0;box-shadow:0 -2px 5px rgba(60,48,30,.10)}
+
+  /* 05 ruled */
+  .v5{border-radius:8px 8px 2px 2px;box-shadow:0 10px 22px rgba(60,48,30,.16);
+    background-image:repeating-linear-gradient(180deg,transparent 0 25px,rgba(140,120,86,.13) 25px 26px);
+    background-position:0 78px}
+  .v5 .k{border-bottom:2px solid rgba(189,84,64,.34);padding-bottom:6px}
+
+  /* 06 kraft */
+  .v6{background:linear-gradient(#EADFC6,#E2D5B8);border-radius:8px 8px 2px 2px;
+    box-shadow:0 10px 22px rgba(60,48,30,.20),0 0 0 1px rgba(120,96,58,.20)}
+  .v6 .k,.v6 .note{color:#3E3627}
+  .v6 .meta{color:#7C6E52}
+  .v6 .note{border-top-color:rgba(120,96,58,.28)}
+
+  /* 07 perforated */
+  .v7{border-radius:2px;box-shadow:0 10px 22px rgba(60,48,30,.16);padding-top:30px}
+  .v7 .perf{position:absolute;top:13px;left:14px;right:14px;height:2px;
+    background-image:radial-gradient(circle,rgba(120,100,70,.42) 1.1px,transparent 1.3px);
+    background-size:7px 2px;background-repeat:repeat-x}
+
+  /* 08 brass rail */
+  .v8{border-radius:3px;box-shadow:0 10px 22px rgba(60,48,30,.16);padding-top:32px}
+  .v8 .rail{position:absolute;top:15px;left:-8px;right:-8px;height:5px;border-radius:3px;
+    background:linear-gradient(#D6BC85,#A8874E 55%,#7E6234);box-shadow:0 1px 2px rgba(50,38,18,.35)}
+  .v8 .rail i{position:absolute;top:-3px;width:11px;height:11px;border-radius:50%;
+    background:linear-gradient(#E0C994,#9B7C42);box-shadow:0 1px 2px rgba(50,38,18,.4)}
+  .v8 .rail i:first-child{left:64px} .v8 .rail i:last-child{right:64px}
+
+  /* 09 deckled */
+  .v9{box-shadow:0 10px 22px rgba(60,48,30,.15);
+    -webkit-mask-image:radial-gradient(circle at 3px 3px, #000 2.4px, transparent 2.6px);
+    -webkit-mask-size:6px 6px;-webkit-mask-composite:destination-out;
+    border-radius:2px}
+  .v9-wrap{filter:drop-shadow(0 10px 18px rgba(60,48,30,.18))}
+  .v9-inner{background:#F7F3E9;padding:22px 22px 26px;
+    clip-path:polygon(0% 1%,2% 0%,6% 1.4%,12% .2%,20% 1.6%,30% .3%,42% 1.5%,55% .2%,68% 1.6%,80% .4%,90% 1.5%,96% .3%,100% 1.2%,100% 99%,96% 100%,88% 98.6%,76% 99.8%,64% 98.4%,50% 99.7%,36% 98.5%,24% 99.8%,14% 98.6%,6% 99.7%,0% 98.8%)}
+
+  /* 10 embossed frame */
+  .v10{border-radius:8px 8px 2px 2px;box-shadow:0 10px 22px rgba(60,48,30,.16)}
+  .v10 .frame{position:absolute;inset:9px;border:1px solid rgba(140,106,71,.20);border-radius:5px 5px 1px 1px;
+    box-shadow:0 1px 0 rgba(255,255,255,.8);pointer-events:none}
+
+  .foot{margin-top:60px;padding-top:22px;border-top:1px solid var(--ink-1);
+    font-family:var(--mono);font-size:11px;color:var(--ink-3);line-height:1.9}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="page">
+  <header class="top">
+    <p class="eyebrow">Bureau of Provenance · Letters · Lab 02</p>
+    <h1>Ten ways to cut <em>a card</em></h1>
+    <p class="stand">The marginalia panel as a rolodex card in its own right, with no rolodex drawn around it. Same content in all ten, all built in CSS so they take live data and animate. Shown at the real 286px.</p>
+  </header>
+
+  <div class="grid">
+
+    <figure><span class="num">01</span><div class="name">Classic Notch</div>
+      <p class="why">Rounded top, two spindle cut-outs bitten out of the bottom edge. The single most recognisable rolodex silhouette, and it needs nothing else to read as one.</p>
+      <div class="bay"><div class="card v1">
+        <div class="k">Matt Hotson</div>
+        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
+        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
+        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
+        <div class="cut"><i></i><i></i></div>
+      </div></div>
+    </figure>
+
+    <figure><span class="num">02</span><div class="name">Letterpress</div>
+      <p class="why">The name pressed into the stock rather than printed on it, with a light catching the top of each letterform. Quietest of the ten and the closest to the studio's actual printed matter.</p>
+      <div class="bay"><div class="card v2">
+        <div class="k">Matt Hotson</div>
+        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
+        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
+        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
+      </div></div>
+    </figure>
+
+    <figure><span class="num">03</span><div class="name">Stacked Edges</div>
+      <p class="why">Card edges visible beneath, so the panel reads as the top of a file rather than a single sheet. Doubles as the count: more waiting, more edges.</p>
+      <div class="bay"><div class="card v3">
+        <div class="k">Matt Hotson</div>
+        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
+        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
+        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
+      </div></div>
+    </figure>
+
+    <figure><span class="num">04</span><div class="name">Tabbed</div>
+      <p class="why">An index tab protruding from the top edge, carrying whatever you file by. Gives you somewhere to put the surname letter or the kind of enquiry without spending room inside the card.</p>
+      <div class="bay"><div class="card v4">
+        <div class="tab">H · Enquiry</div>
+        <div class="k">Matt Hotson</div>
+        <div class="chips"><span class="chip c-hi">High</span></div>
+        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
+        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
+      </div></div>
+    </figure>
+
+    <figure><span class="num">05</span><div class="name">Ruled</div>
+      <p class="why">Faint horizontal rules under the note, as an index card actually has, with a red rule under the name. Makes the handwritten note feel written rather than typed.</p>
+      <div class="bay"><div class="card v5">
+        <div class="k">Matt Hotson</div>
+        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
+        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
+        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
+      </div></div>
+    </figure>
+
+    <figure><span class="num">06</span><div class="name">Kraft</div>
+      <p class="why">A darker, browner stock that separates the card from the letter instead of echoing it. The only one that reads as a different material from the sheet you are writing.</p>
+      <div class="bay"><div class="card v6">
+        <div class="k">Matt Hotson</div>
+        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
+        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
+        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
+      </div></div>
+    </figure>
+
+    <figure><span class="num">07</span><div class="name">Perforated</div>
+      <p class="why">A tear line across the top, as though the card came off a continuous roll. Suits the idea that each letter is torn off and dealt with.</p>
+      <div class="bay"><div class="card v7">
+        <div class="perf"></div>
+        <div class="k">Matt Hotson</div>
+        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
+        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
+        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
+      </div></div>
+    </figure>
+
+    <figure><span class="num">08</span><div class="name">Brass Rail</div>
+      <p class="why">The spindle itself, drawn across the top of the card and running off both edges, with the two retaining collars. All of the rolodex you actually need.</p>
+      <div class="bay"><div class="card v8">
+        <div class="rail"><i></i><i></i></div>
+        <div class="k">Matt Hotson</div>
+        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
+        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
+        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
+      </div></div>
+    </figure>
+
+    <figure><span class="num">09</span><div class="name">Deckled</div>
+      <p class="why">A torn, irregular edge top and bottom, handmade paper rather than machine cut. Softest of the ten and the least mechanical, which cuts against the rolodex idea rather than with it.</p>
+      <div class="bay"><div class="v9-wrap"><div class="card v9-inner" style="width:286px;position:relative">
+        <div class="k">Matt Hotson</div>
+        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
+        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
+        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
+      </div></div></div>
+    </figure>
+
+    <figure><span class="num">10</span><div class="name">Embossed Frame</div>
+      <p class="why">A blind embossed rule set in from the edge, the same move the letter already makes inside its own border. The card and the sheet become obviously the same stationery.</p>
+      <div class="bay"><div class="card v10">
+        <div class="frame"></div>
+        <div class="k">Matt Hotson</div>
+        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
+        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
+        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
+      </div></div>
+    </figure>
+
+  </div>
+
+  <footer class="foot">
+    Lab 02 · Ten card studies · All CSS, no images, so each takes live data and can animate on the spindle<br>
+    EB Garamond stands in for the studio serif. Real card is 286px wide in the app.
+  </footer>
+</div>

@@ -1,0 +1,379 @@
+<title>Ten Post Drawers</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --paper:#EFEDE5; --sheet:#FFFEFC; --card:#F7F4EC;
+    --ink-1:#26221C; --ink-2:#5D564A; --ink-3:#9A9280;
+    --rule:#DED8C8; --rule-2:#EBE6DA;
+    --accent:#BD5440; --accent-deep:#9B402E; --brass:#A8874E;
+    --sans:"Public Sans",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+    --serif:"EB Garamond",Georgia,serif;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:var(--sans);
+    color:var(--ink-1);
+    background:
+      repeating-linear-gradient(90deg, rgba(180,160,120,.030) 0 2px, rgba(255,255,255,0) 2px 7px),
+      repeating-linear-gradient(90deg, rgba(150,125,85,.022) 0 1px, rgba(255,255,255,0) 1px 23px),
+      linear-gradient(178deg,#F2EFE6,#EBE7DB);
+  }
+  .page{max-width:1500px;margin:0 auto;padding:0 32px 100px}
+  header.top{padding:52px 0 26px;border-bottom:1px solid var(--ink-1);margin-bottom:40px}
+  .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-deep);margin:0 0 12px}
+  h1{font-family:var(--serif);font-weight:400;font-size:clamp(34px,5vw,54px);line-height:1.03;margin:0 0 14px;letter-spacing:-.01em}
+  h1 em{font-style:italic;color:var(--accent-deep)}
+  .stand{max-width:60ch;font-size:15px;line-height:1.6;color:var(--ink-2);margin:0}
+  .grid{display:grid;gap:40px 34px;grid-template-columns:1fr}
+  @media(min-width:1080px){.grid{grid-template-columns:1fr 1fr}}
+  .slot{min-width:0}
+  .slot > figcaption{margin:0 0 12px}
+  .num{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--accent-deep)}
+  .name{font-family:var(--serif);font-size:23px;line-height:1.2;margin:3px 0 4px}
+  .why{font-size:13.5px;line-height:1.55;color:var(--ink-2);max-width:56ch;margin:0}
+  .wm{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.08em;margin-top:6px}
+  .stage{
+    height:520px;border-radius:3px;overflow:hidden;position:relative;
+    box-shadow:0 1px 0 rgba(255,255,255,.7) inset, 0 18px 40px rgba(50,40,25,.10), 0 2px 6px rgba(50,40,25,.06);
+  }
+  .drawer{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden}
+  .drawer::-webkit-scrollbar{width:8px}
+  .drawer::-webkit-scrollbar-thumb{background:rgba(120,105,80,.22);border-radius:4px}
+
+  /* ---------- 01 REGISTER ---------- */
+  .d1{background:var(--sheet);padding:0}
+  .d1 .hd{padding:16px 20px 10px;border-bottom:2px solid var(--ink-1)}
+  .d1 .ttl{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3)}
+  .d1 .sub{font-family:var(--serif);font-size:20px;margin-top:4px}
+  .d1 .row{display:grid;grid-template-columns:78px 1fr;gap:14px;padding:13px 20px;border-bottom:1px solid var(--rule-2);align-items:start}
+  .d1 .no{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.08em;padding-top:3px}
+  .d1 .who{font-size:13px;font-weight:600}
+  .d1 .bd{font-family:var(--serif);font-size:16px;line-height:1.5;color:var(--ink-1);margin-top:5px}
+  .d1 .bd p{margin:0 0 .6em}
+
+  /* ---------- 02 INDEX CARDS ---------- */
+  .d2{background:linear-gradient(#E9E4D6,#E3DDCC);padding:22px 18px}
+  .d2 .c{background:var(--card);border-radius:2px;padding:14px 16px;margin-bottom:12px;
+    box-shadow:0 1px 0 #fff inset,0 6px 14px rgba(60,48,30,.13);border-top:3px solid var(--brass)}
+  .d2 .c:nth-child(odd){transform:rotate(-.35deg)}
+  .d2 .c:nth-child(even){transform:rotate(.3deg)}
+  .d2 .tab{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass)}
+  .d2 .who{font-family:var(--serif);font-size:19px;margin:2px 0 6px}
+  .d2 .bd{font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+  .d2 .bd p{margin:0 0 .7em}
+
+  /* ---------- 03 DISPATCH ---------- */
+  .d3{background:#FBF8F0;padding:20px}
+  .d3 .band{border-top:3px double var(--ink-1);border-bottom:3px double var(--ink-1);padding:9px 0;text-align:center;
+    font-family:var(--mono);font-size:10px;letter-spacing:.28em;text-transform:uppercase}
+  .d3 .m{padding:16px 2px;border-bottom:1px dashed var(--rule)}
+  .d3 .hd{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+    display:flex;justify-content:space-between;gap:10px}
+  .d3 .bd{font-family:var(--mono);font-size:12.5px;line-height:1.72;margin-top:10px;white-space:pre-wrap}
+  .d3 .ends{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--ink-3);margin-top:10px}
+
+  /* ---------- 04 DOCKET ---------- */
+  .d4{background:#FCFAF4;padding:18px 16px;font-family:var(--mono)}
+  .d4 .r{display:flex;justify-content:space-between;gap:10px;font-size:10.5px;color:var(--ink-2);padding:3px 0}
+  .d4 .dots{border-bottom:1px dotted var(--rule);flex:1;margin:0 6px 4px}
+  .d4 .hr{border-top:1px solid var(--ink-1);margin:11px 0}
+  .d4 .bd{font-size:12px;line-height:1.75;color:var(--ink-1);white-space:pre-wrap;margin:12px 0}
+  .d4 .stamp{display:inline-block;border:1.5px solid var(--accent);color:var(--accent);
+    font-size:9.5px;letter-spacing:.18em;padding:4px 9px;transform:rotate(-3deg);margin-top:8px}
+
+  /* ---------- 05 QUIET ---------- */
+  .d5{background:var(--sheet);padding:24px 22px}
+  .d5 .subj{font-family:var(--serif);font-size:22px;line-height:1.25;margin-bottom:3px}
+  .d5 .meta{font-size:12px;color:var(--ink-3);margin-bottom:22px}
+  .d5 .m{margin-bottom:22px}
+  .d5 .who{font-size:13.5px;font-weight:600}
+  .d5 .when{font-size:12px;color:var(--ink-3);margin-left:8px;font-weight:400}
+  .d5 .bd{font-size:15px;line-height:1.62;color:var(--ink-1);margin-top:7px}
+  .d5 .bd p{margin:0 0 .8em}
+  .d5 .shut{color:var(--ink-3);font-size:13px;padding:9px 0;border-top:1px solid var(--rule-2)}
+
+  /* ---------- 06 MARGINAL GLOSS ---------- */
+  .d6{background:var(--sheet);padding:22px 20px}
+  .d6 .m{display:grid;grid-template-columns:96px 1fr;gap:18px;padding:16px 0;border-top:1px solid var(--rule-2)}
+  .d6 .m:first-of-type{border-top:none}
+  .d6 .gut{text-align:right}
+  .d6 .who{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);line-height:1.5}
+  .d6 .when{font-family:var(--mono);font-size:9.5px;color:var(--ink-3);margin-top:4px}
+  .d6 .bd{font-family:var(--serif);font-size:17px;line-height:1.55}
+  .d6 .bd p{margin:0 0 .65em}
+
+  /* ---------- 07 FOLDER ---------- */
+  .d7{background:linear-gradient(#DFD6BE,#D8CEB2);padding:0}
+  .d7 .tabs{display:flex;gap:3px;padding:10px 12px 0}
+  .d7 .t{background:#CFC3A2;color:#6B5F45;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
+    padding:6px 12px;border-radius:3px 3px 0 0;text-transform:uppercase}
+  .d7 .t.on{background:var(--sheet);color:var(--ink-1)}
+  .d7 .inner{background:var(--sheet);margin:0 12px 12px;padding:18px 18px 22px;border-radius:0 3px 3px 3px;
+    min-height:440px;box-shadow:0 6px 16px rgba(60,48,30,.14)}
+  .d7 .subj{font-family:var(--serif);font-size:20px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  .d7 .who{font-size:12.5px;font-weight:600;margin-top:14px}
+  .d7 .when{font-size:11px;color:var(--ink-3)}
+  .d7 .bd{font-size:14px;line-height:1.6;color:var(--ink-2);margin-top:6px}
+  .d7 .bd p{margin:0 0 .7em}
+
+  /* ---------- 08 CORRESPONDENCE SHEET ---------- */
+  .d8{background:#E7E2D4;padding:20px 16px}
+  .d8 .sheet{background:var(--sheet);padding:22px 20px;margin-bottom:16px;position:relative;
+    box-shadow:0 10px 26px rgba(50,40,25,.13);border-radius:1px}
+  .d8 .sheet::before{content:"";position:absolute;inset:7px;border:1px solid rgba(140,106,71,.13);pointer-events:none}
+  .d8 .to{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3)}
+  .d8 .subj{font-family:var(--serif);font-size:19px;margin:6px 0 12px;padding-bottom:9px;border-bottom:1px solid var(--rule-2)}
+  .d8 .bd{font-family:var(--mono);font-size:12px;line-height:1.75;color:var(--ink-1);white-space:pre-wrap}
+  .d8 .sign{font-family:var(--serif);font-style:italic;font-size:16px;margin-top:14px}
+
+  /* ---------- 09 TRANSCRIPT ---------- */
+  .d9{background:var(--sheet);padding:26px 24px}
+  .d9 .hd{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3);
+    padding-bottom:12px;border-bottom:1px solid var(--ink-1);margin-bottom:20px}
+  .d9 .sp{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-deep);
+    display:block;margin:18px 0 5px}
+  .d9 .bd{font-family:var(--serif);font-size:17px;line-height:1.6}
+  .d9 .bd p{margin:0 0 .6em}
+  .d9 .q{color:var(--ink-3);font-size:15px;border-left:2px solid var(--rule);padding-left:12px}
+
+  /* ---------- 10 ARCHIVE DRAWER ---------- */
+  .d10{background:linear-gradient(#D9CFB6,#CFC4A6);padding:0}
+  .d10 .pull{height:34px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(#E4DBC4,#D3C8AB);border-bottom:1px solid rgba(90,74,45,.24)}
+  .d10 .grip{width:64px;height:9px;border-radius:5px;
+    background:linear-gradient(#C9A868,#9C7F45);box-shadow:0 1px 0 rgba(255,255,255,.55) inset,0 1px 2px rgba(0,0,0,.24)}
+  .d10 .well{padding:16px 14px}
+  .d10 .c{background:var(--sheet);border-radius:2px;margin-bottom:10px;overflow:hidden;
+    box-shadow:0 4px 10px rgba(60,48,30,.16)}
+  .d10 .c .top{background:#F2EDE0;padding:7px 13px;display:flex;justify-content:space-between;
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);
+    border-bottom:1px solid var(--rule-2)}
+  .d10 .c .bd{padding:12px 13px;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+  .d10 .c .bd p{margin:0 0 .7em}
+  .d10 .c .bd p:last-child{margin:0}
+
+  .foot{margin-top:56px;padding-top:22px;border-top:1px solid var(--ink-1);
+    font-family:var(--mono);font-size:11px;color:var(--ink-3);line-height:1.9}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="page">
+  <header class="top">
+    <p class="eyebrow">Bureau of Provenance · Letters · Lab 01</p>
+    <h1>Ten ways to read <em>the post</em></h1>
+    <p class="stand">The same thread, drawn ten ways. One message from the studio, one long reply from a collector with a quoted history and a signature underneath, because that mess is what the design actually has to solve. Widths run 420 to 650. Each panel scrolls.</p>
+  </header>
+
+  <div class="grid">
+
+    <!-- 01 -->
+    <figure class="slot" style="margin:0">
+      <figcaption><span class="num">01</span><div class="name">The Register</div>
+      <p class="why">Correspondence as a bound ledger. Every message is a numbered entry on a ruled line, the way the Bureau would actually keep it. Hierarchy comes from the rule, not from boxes.</p>
+      <p class="wm">560px · serif body · ruled rows</p></figcaption>
+      <div class="stage" style="max-width:560px"><div class="drawer d1">
+        <div class="hd"><div class="ttl">Correspondence · Entry 0114</div><div class="sub">About your Pip</div></div>
+        <div class="row"><div class="no">i.<br>6 SEP</div><div>
+          <div class="who">Studio Maçon</div>
+          <div class="bd"><p>Where has it ended up living, and what does it do there? Some of them get handled all day, some just keep an eye on things.</p></div>
+        </div></div>
+        <div class="row"><div class="no">ii.<br>9 SEP</div><div>
+          <div class="who">Matt Hotson</div>
+          <div class="bd">
+            <p>I really like what you are doing, lovely objects.</p>
+            <p>I quit alcohol five years ago and every year on the anniversary of quitting I buy myself something. Pip was this year's gift.</p>
+            <p>He sits on my desk in Surrey and acts as a distraction when I am sitting on endless work calls. As I fidget with him, his patina is developing nicely.</p>
+          </div>
+        </div></div>
+      </div></div>
+    </figure>
+
+    <!-- 02 -->
+    <figure class="slot" style="margin:0">
+      <figcaption><span class="num">02</span><div class="name">Index Cards</div>
+      <p class="why">Each message is a filing card with a brass edge, tilted a half degree so the stack reads as physical. The one that pairs with a rolodex if you go that way.</p>
+      <p class="wm">480px · card stack · tactile</p></figcaption>
+      <div class="stage" style="max-width:480px"><div class="drawer d2">
+        <div class="c"><div class="tab">Studio · 6 Sep</div><div class="who">Studio Maçon</div>
+          <div class="bd"><p>Where has it ended up living, and what does it do there?</p></div></div>
+        <div class="c"><div class="tab">Collector · 9 Sep</div><div class="who">Matt Hotson</div>
+          <div class="bd">
+            <p>I really like what you are doing, lovely objects.</p>
+            <p>I quit alcohol five years ago and every year on the anniversary of quitting I buy myself something. Pip was this year's gift.</p>
+            <p>He sits on my desk in Surrey and acts as a distraction when I am sitting on endless work calls. As I fidget with him, his patina is developing nicely.</p>
+          </div></div>
+      </div></div>
+    </figure>
+
+    <!-- 03 -->
+    <figure class="slot" style="margin:0">
+      <figcaption><span class="num">03</span><div class="name">Dispatch</div>
+      <p class="why">A wire service transmission. Double rules top and bottom, everything monospaced, each message closed with MESSAGE ENDS. Leans hardest into the archival conceit.</p>
+      <p class="wm">520px · monospace · rules</p></figcaption>
+      <div class="stage" style="max-width:520px"><div class="drawer d3">
+        <div class="band">Incoming · Hello@</div>
+        <div class="m"><div class="hd"><span>Studio Maçon</span><span>6 Sep 14:02</span></div>
+          <div class="bd">Where has it ended up living, and what does it do there?</div>
+          <div class="ends">Message ends</div></div>
+        <div class="m"><div class="hd"><span>Matt Hotson</span><span>9 Sep 09:41</span></div>
+          <div class="bd">I really like what you are doing, lovely objects.
+
+I quit alcohol five years ago and every year on the anniversary of quitting I buy myself something. Pip was this year's gift.
+
+He sits on my desk in Surrey and acts as a distraction when I am sitting on endless work calls. As I fidget with him, his patina is developing nicely.</div>
+          <div class="ends">Message ends</div></div>
+      </div></div>
+    </figure>
+
+    <!-- 04 -->
+    <figure class="slot" style="margin:0">
+      <figcaption><span class="num">04</span><div class="name">The Docket</div>
+      <p class="why">A till receipt or shipping docket. Dotted leaders, everything aligned to two columns, a rubber stamp at the foot. The most compact of the ten and the most severe.</p>
+      <p class="wm">420px · monospace · dense</p></figcaption>
+      <div class="stage" style="max-width:420px"><div class="drawer d4">
+        <div class="r"><span>BUREAU OF PROVENANCE</span><span>No. 0114</span></div>
+        <div class="r"><span>THREAD</span><span class="dots"></span><span>ABOUT YOUR PIP</span></div>
+        <div class="r"><span>WITH</span><span class="dots"></span><span>M. HOTSON</span></div>
+        <div class="r"><span>MESSAGES</span><span class="dots"></span><span>2</span></div>
+        <div class="hr"></div>
+        <div class="r"><span>STUDIO MAÇON</span><span>6 SEP</span></div>
+        <div class="bd">Where has it ended up living, and what does it do there?</div>
+        <div class="hr"></div>
+        <div class="r"><span>M. HOTSON</span><span>9 SEP</span></div>
+        <div class="bd">I really like what you are doing, lovely objects.
+
+I quit alcohol five years ago and every year on the anniversary of quitting I buy myself something. Pip was this year's gift.
+
+He sits on my desk in Surrey and acts as a distraction when I am sitting on endless work calls.</div>
+        <div class="hr"></div>
+        <div class="stamp">AWAITING REPLY</div>
+      </div></div>
+    </figure>
+
+    <!-- 05 -->
+    <figure class="slot" style="margin:0">
+      <figcaption><span class="num">05</span><div class="name">Quiet</div>
+      <p class="why">No chrome at all. One type size, hierarchy from weight and three levels of ink, older messages collapsed to a single grey line. The most legible and the least characterful.</p>
+      <p class="wm">560px · sans · restraint</p></figcaption>
+      <div class="stage" style="max-width:560px"><div class="drawer d5">
+        <div class="subj">About your Pip</div>
+        <div class="meta">2 messages with Matt Hotson</div>
+        <div class="shut">Studio Maçon · Where has it ended up living, and what…</div>
+        <div class="m" style="margin-top:18px">
+          <div><span class="who">Matt Hotson</span><span class="when">9 Sep, 09:41</span></div>
+          <div class="bd">
+            <p>I really like what you are doing, lovely objects.</p>
+            <p>I quit alcohol five years ago and every year on the anniversary of quitting I buy myself something. Pip was this year's gift.</p>
+            <p>He sits on my desk in Surrey and acts as a distraction when I am sitting on endless work calls. As I fidget with him, his patina is developing nicely.</p>
+          </div>
+        </div>
+      </div></div>
+    </figure>
+
+    <!-- 06 -->
+    <figure class="slot" style="margin:0">
+      <figcaption><span class="num">06</span><div class="name">Marginal Gloss</div>
+      <p class="why">Attribution lives in a narrow right-aligned gutter, the way a critical edition glosses a text. The message itself gets the full measure in the serif, so it reads like a book rather than an inbox.</p>
+      <p class="wm">600px · gutter + measure</p></figcaption>
+      <div class="stage" style="max-width:600px"><div class="drawer d6">
+        <div class="m"><div class="gut"><div class="who">Studio<br>Maçon</div><div class="when">6 SEP</div></div>
+          <div class="bd"><p>Where has it ended up living, and what does it do there? Some of them get handled all day, some just keep an eye on things.</p></div></div>
+        <div class="m"><div class="gut"><div class="who">Matt<br>Hotson</div><div class="when">9 SEP</div></div>
+          <div class="bd">
+            <p>I really like what you are doing, lovely objects.</p>
+            <p>I quit alcohol five years ago and every year on the anniversary of quitting I buy myself something. Pip was this year's gift.</p>
+            <p>He sits on my desk in Surrey and acts as a distraction when I am sitting on endless work calls. As I fidget with him, his patina is developing nicely.</p>
+          </div></div>
+      </div></div>
+    </figure>
+
+    <!-- 07 -->
+    <figure class="slot" style="margin:0">
+      <figcaption><span class="num">07</span><div class="name">The Folder</div>
+      <p class="why">A manila file with tabs across the top, one per correspondent. Scales to several open threads at once, which none of the others do.</p>
+      <p class="wm">560px · tabbed · multi-thread</p></figcaption>
+      <div class="stage" style="max-width:560px"><div class="drawer d7">
+        <div class="tabs"><div class="t on">Hotson</div><div class="t">Fried</div><div class="t">Reeve</div><div class="t">+4</div></div>
+        <div class="inner">
+          <div class="subj">About your Pip</div>
+          <div class="who">Studio Maçon</div><div class="when">6 Sep</div>
+          <div class="bd"><p>Where has it ended up living, and what does it do there?</p></div>
+          <div class="who">Matt Hotson</div><div class="when">9 Sep</div>
+          <div class="bd">
+            <p>I really like what you are doing, lovely objects.</p>
+            <p>I quit alcohol five years ago and every year on the anniversary of quitting I buy myself something. Pip was this year's gift.</p>
+            <p>He sits on my desk in Surrey and acts as a distraction when I am sitting on endless work calls.</p>
+          </div>
+        </div>
+      </div></div>
+    </figure>
+
+    <!-- 08 -->
+    <figure class="slot" style="margin:0">
+      <figcaption><span class="num">08</span><div class="name">Correspondence Sheet</div>
+      <p class="why">Incoming mail drawn as a letter in its own right, on the same paper with the same inner rule as the one you are writing. The two halves of the screen become the same object.</p>
+      <p class="wm">500px · mirrors the composer</p></figcaption>
+      <div class="stage" style="max-width:500px"><div class="drawer d8">
+        <div class="sheet"><div class="to">From · Studio Maçon · 6 Sep</div>
+          <div class="subj">About your Pip</div>
+          <div class="bd">Where has it ended up living, and what does it do there?</div>
+          <div class="sign">Alex</div></div>
+        <div class="sheet"><div class="to">From · Matt Hotson · 9 Sep</div>
+          <div class="subj">Re: About your Pip</div>
+          <div class="bd">I really like what you are doing, lovely objects.
+
+I quit alcohol five years ago and every year on the anniversary of quitting I buy myself something. Pip was this year's gift.
+
+He sits on my desk in Surrey and acts as a distraction when I am sitting on endless work calls.</div>
+          <div class="sign">Matt</div></div>
+      </div></div>
+    </figure>
+
+    <!-- 09 -->
+    <figure class="slot" style="margin:0">
+      <figcaption><span class="num">09</span><div class="name">Transcript</div>
+      <p class="why">No cards, no boxes. One continuous document with speakers named in small caps, the way a recorded conversation is set. The quoted history stays visible but recedes.</p>
+      <p class="wm">600px · continuous · serif</p></figcaption>
+      <div class="stage" style="max-width:600px"><div class="drawer d9">
+        <div class="hd">Thread · Hotson, M. · two messages</div>
+        <span class="sp">Studio Maçon, 6 September</span>
+        <div class="bd"><p>Where has it ended up living, and what does it do there? Some of them get handled all day, some just keep an eye on things.</p></div>
+        <span class="sp">Matt Hotson, 9 September</span>
+        <div class="bd">
+          <p>I really like what you are doing, lovely objects.</p>
+          <p>I quit alcohol five years ago and every year on the anniversary of quitting I buy myself something. Pip was this year's gift.</p>
+          <p>He sits on my desk in Surrey and acts as a distraction when I am sitting on endless work calls. As I fidget with him, his patina is developing nicely.</p>
+          <p class="q">On 6 Sep, Studio Maçon wrote: Where has it ended up living…</p>
+        </div>
+      </div></div>
+    </figure>
+
+    <!-- 10 -->
+    <figure class="slot" style="margin:0">
+      <figcaption><span class="num">10</span><div class="name">Archive Drawer</div>
+      <p class="why">An actual drawer with a brass pull, sliding out of the right edge. Messages are cards in the well, each with a ruled header strip. The most literal reading of the brief.</p>
+      <p class="wm">650px · full width · physical</p></figcaption>
+      <div class="stage" style="max-width:650px"><div class="drawer d10">
+        <div class="pull"><div class="grip"></div></div>
+        <div class="well">
+          <div class="c"><div class="top"><span>Studio Maçon</span><span>6 Sep</span></div>
+            <div class="bd"><p>Where has it ended up living, and what does it do there? Some of them get handled all day, some just keep an eye on things.</p></div></div>
+          <div class="c"><div class="top"><span>Matt Hotson</span><span>9 Sep</span></div>
+            <div class="bd">
+              <p>I really like what you are doing, lovely objects.</p>
+              <p>I quit alcohol five years ago and every year on the anniversary of quitting I buy myself something. Pip was this year's gift.</p>
+              <p>He sits on my desk in Surrey and acts as a distraction when I am sitting on endless work calls. As I fidget with him, his patina is developing nicely.</p>
+            </div></div>
+        </div>
+      </div></div>
+    </figure>
+
+  </div>
+
+  <footer class="foot">
+    Lab 01 · Ten drawer studies · Sample thread is collector M-002's real reply, lightly trimmed<br>
+    Substitute faces: EB Garamond stands in for the studio serif, IBM Plex Mono for Gabriele. Public Sans is the real one.
+  </footer>
+</div>
