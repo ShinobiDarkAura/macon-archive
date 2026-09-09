@@ -135,11 +135,11 @@
      resolve their heights against different bases once the column caps the
      width, so deriving this in CSS drifts by a few pixels. */
   .lv-topbar{position:absolute;z-index:60;display:flex;align-items:center;gap:10px}
-  .lv-new{width:33px;height:33px;border-radius:50%;border:1px solid var(--rule);background:#fff;
-    color:#8c7f68;font-size:19px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .lv-new{width:38px;height:38px;border-radius:50%;border:1px solid var(--rule);background:#fff;
+    color:#8c7f68;font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
   .lv-new:hover{color:var(--ink);border-color:#a89d89}
-  .lv-badge{min-width:33px;height:33px;padding:0 9px;border-radius:999px;background:var(--accent-grad);color:#fff;
-    font-family:var(--sans);font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center;
+  .lv-badge{min-width:38px;height:38px;padding:0 10px;border-radius:999px;background:var(--accent-grad);color:#fff;
+    font-family:var(--sans);font-size:15.5px;font-weight:600;display:flex;align-items:center;justify-content:center;
     box-shadow:0 3px 10px rgba(189,84,64,.4)}
 
   /* Three columns, the outer two forced equal, so the paper in the middle is
@@ -213,7 +213,9 @@
      was falling back to a different, mismatched font for just those
      characters — the "two sizes of caps" was that fallback, not a CSS bug */
   .lv-to{font-family:"Public Sans",var(--sans);font-weight:400;font-size:10px;letter-spacing:.18em;
-    color:#9C8F76;margin-bottom:10px;text-transform:uppercase}
+    color:#9C8F76;margin-bottom:10px;text-transform:uppercase;
+    display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+  .lv-to-lab{color:#c3b9a3}
   .lv-subj{width:100%;border:none;background:transparent;font-family:"TAY Birdie",var(--serif-soul);font-weight:400;
     font-size:30px;line-height:1.3;color:#1C1A18;padding:0 0 14px;margin-bottom:18px;border-bottom:1px solid #E3DED0;
     resize:none;overflow:hidden;display:block;letter-spacing:.01em;flex:0 0 auto;text-transform:uppercase}
@@ -239,7 +241,7 @@
   .lv-tone{font-size:11.5px;letter-spacing:.1em;color:#a89d89;
     background:transparent;border:1px solid var(--rule);border-radius:999px;padding:6.5px 14px;cursor:pointer}
   .lv-tone:hover{border-color:#a89d89;color:var(--ink)}
-  .lv-fromline{font-family:var(--sans);font-size:11px;letter-spacing:.04em;color:#b7ac97;white-space:nowrap}
+  .lv-fromline{font-size:10px;letter-spacing:.18em;color:#c3b9a3;white-space:nowrap;text-transform:uppercase}
   .lv-close,.lv-skip{font-family:var(--sans);font-size:13.75px;color:#a89d89;background:transparent;border:none;cursor:pointer;
     padding:8.8px 4.4px}
   .lv-close:hover,.lv-skip:hover{color:var(--ink)}
@@ -2235,10 +2237,44 @@ function placeLetterTopbar(){
   const paper=host.querySelector(".lv-paper"), tb=host.querySelector("#lvTopbar");
   if(!paper || !tb) return;
   const p=paper.getBoundingClientRect(), h=host.getBoundingClientRect();
-  tb.style.left = (p.right - h.left - tb.offsetWidth) + "px";
+  tb.style.left = (p.right - h.left - tb.offsetWidth + 12) + "px";
   tb.style.top  = (p.top  - h.top  - tb.offsetHeight - 10) + "px";
 }
 addEventListener("resize", ()=>placeLetterTopbar());
+// Sent through the API rather than a compose window, so a reply carries the
+// original thread id and In-Reply-To and lands inside the conversation the
+// customer already has. Falls back to a compose window if the box cannot send.
+async function sendLetter({subj, body, to}){
+  const {from,cc}=letterFrom();
+  const t=readerThread;
+  const inThread = t && t.box===from && t.threadId;
+  const btn=document.getElementById("lvSend");
+  if(btn){ btn.disabled=true; btn.textContent="Sending…"; }
+  try{
+    const { data:{ session } }=await sb.auth.getSession();
+    if(!session) throw new Error("not signed in");
+    const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/gmail-reader?action=send`,{
+      method:"POST",
+      headers:{ Authorization:"Bearer "+session.access_token, apikey:CONFIG.SUPABASE_ANON_KEY, "Content-Type":"application/json" },
+      body:JSON.stringify({ mailbox:from, to, cc, subject:subj, body,
+        threadId: inThread?t.threadId:"", inReplyTo: inThread?t.inReplyTo:"", references: inThread?(t.references||t.inReplyTo):"" })
+    });
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(j.error||("send failed ("+r.status+")"));
+    if(btn){ btn.textContent="Sent"; }
+    return true;
+  }catch(e){
+    if(btn){ btn.disabled=false; btn.textContent="Send"; }
+    // A compose window is the honest fallback: nothing was sent, and the
+    // letter is not lost.
+    const g=new URL("https://mail.google.com/mail/");
+    g.searchParams.set("authuser",from); g.searchParams.set("view","cm"); g.searchParams.set("fs","1");
+    g.searchParams.set("to",to); g.searchParams.set("su",subj); g.searchParams.set("body",body);
+    if(cc) g.searchParams.set("cc",cc);
+    if(confirm("Could not send from the app: "+e.message+"\n\nOpen a Gmail compose window instead?")) window.open(g.toString(),"_blank","noopener");
+    return false;
+  }
+}
 function fromLabel(){ const f=letterFrom(); return "from "+boxLabel(f.from)+"@"+(f.cc?", cc "+boxLabel(f.cc)+"@":""); }
 function letterQuoteText(x){
   const raw = x.kind==="custom" ? x.q.note : (x.d.story||x.d.notes||"");
@@ -2379,7 +2415,8 @@ async function loadThreadFor(email, name){
         if(!list.threads||!list.threads.length) return [];
         const t=await gmail(`threads/${list.threads[0].id}?format=full`, box);
         return (t.messages||[]).map(m=>({ box, from:hdr(m,"From").replace(/\s*<.*>$/,"").replace(/^"|"$/g,""),
-          at:Number(m.internalDate), body:gmailPlainText(m.payload)||m.snippet||"", subject:hdr(m,"Subject") }));
+          at:Number(m.internalDate), body:gmailPlainText(m.payload)||m.snippet||"", subject:hdr(m,"Subject"),
+          threadId:t.id, msgId:hdr(m,"Message-ID"), refs:hdr(m,"References") }));
       }catch(e){ return []; }
     }));
     // One conversation even when it crossed both boxes, de-duped where a
@@ -2387,7 +2424,9 @@ async function loadThreadFor(email, name){
     const seen=new Set();
     const msgs=perBox.flat().sort((a,b)=>a.at-b.at)
       .filter(m=>{ const k=m.at+"|"+m.from; if(seen.has(k)) return false; seen.add(k); return true; });
-    readerThread={email, name, msgs, box: msgs.length?msgs[msgs.length-1].box:""};
+    const last = msgs.length ? msgs[msgs.length-1] : null;
+    readerThread={email, name, msgs, box: last?last.box:"",
+      threadId: last?last.threadId:"", inReplyTo: last?last.msgId:"", references: last?last.refs:""};
   }catch(e){ readerThread={email, name, msgs:[], err:e.message}; }
   if(readerThread.email===email) _threads.set(email, readerThread);
   renderReader();
@@ -2558,14 +2597,13 @@ function renderCurrentLetter(){
       ${composing||letterQueue.length<2?"":chevron("prev","Previous letter")+chevron("next","Next letter")}
       <div class="lv-paper">
         <img class="lv-stamp" src="logos/red-stamp-alt.png" alt="" aria-hidden="true">
-        <div class="lv-to">${esc(email)}</div>
+        <div class="lv-to"><span><span class="lv-to-lab">To:</span> ${esc(email)}</span><span class="lv-fromline" id="lvFromLine">${esc(fromLabel())}</span></div>
         <textarea class="lv-subj" id="lvSubj" rows="1" style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",subject)}">${esc(subject)}</textarea>
         <div class="lv-body-wrap"><textarea class="lv-body" id="lvBody">${esc(body)}</textarea>
         <button class="lv-signoff" id="lvSignoff" title="Click to change who signs">${esc(letterSignoff)}</button></div>
         <div class="lv-footer">
           ${composing?"":`<button class="lv-tone lv-overline" id="lvTone">Tone · ${esc(toneName)}</button>`}
           <button class="lv-close" id="lvClose">Mark closed</button>
-          <span class="lv-fromline" id="lvFromLine" title="Which address this goes out from">${esc(fromLabel())}</span>
           <div class="lv-footer-right">
             <button class="lv-skip" id="lvSkip">Skip for now</button>
             <button class="lv-send" id="lvSend">Send</button>
@@ -2636,15 +2674,7 @@ function renderCurrentLetter(){
     const subj=host.querySelector("#lvSubj").value;
     // the name lives on the button, not in the textarea — put it back for the send
     const body=host.querySelector("#lvBody").value.replace(/\s+$/,"")+"\n\n"+letterSignoff;
-    // Gmail compose rather than mailto, because mailto cannot choose which
-    // address a letter leaves from and that is the whole point here.
-    const {from,cc}=letterFrom();
-    const g=new URL("https://mail.google.com/mail/");
-    g.searchParams.set("authuser",from);
-    g.searchParams.set("view","cm"); g.searchParams.set("fs","1");
-    g.searchParams.set("to",email); g.searchParams.set("su",subj); g.searchParams.set("body",body);
-    if(cc) g.searchParams.set("cc",cc);
-    window.open(g.toString(),"_blank","noopener");
+    sendLetter({subj, body, to:email}).then(ok=>{ if(!ok) return; });
     if(composing){ exitCompose(); return; }
     completeFollowUp(i, q?q.id:"");
     letterQueue.splice(letterIdx,1);

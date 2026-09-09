@@ -23,13 +23,16 @@ const STATE_SECRET = Deno.env.get("OAUTH_STATE_SECRET") || SERVICE_KEY;
 const MAILBOXES = (Deno.env.get("GMAIL_USERS") || "hello@studiomacon.co,hannah@studiomacon.co")
   .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
 const KEEPERS = ["alex@studiomacon.co", "hannah@studiomacon.co"];
-const SCOPE = "https://www.googleapis.com/auth/gmail.readonly";
+// Reading plus sending as the connected box. Adding send here is what lets a
+// reply land inside the customer's existing thread rather than starting a new
+// one, which a compose window opened from a URL can never do.
+const SCOPE = "https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send";
 const REDIRECT_URI = `${SUPABASE_URL}/functions/v1/gmail-reader/callback`;
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json", "Cache-Control": "no-store" } });
@@ -71,6 +74,11 @@ async function storeList(): Promise<string[]> {
 /* ---------- signed state, so only a link we minted can complete ----------- */
 
 const enc = new TextEncoder();
+const b64 = (t: string) => {
+  const bytes = enc.encode(t);
+  let s = ""; for (const c of bytes) s += String.fromCharCode(c);
+  return btoa(s);
+};
 const b64url = (b: ArrayBuffer | string) => {
   const bytes = typeof b === "string" ? enc.encode(b) : new Uint8Array(b);
   let s = ""; for (const c of bytes) s += String.fromCharCode(c);
@@ -177,6 +185,48 @@ Deno.serve(async (req) => {
     try { await storeSet(wanted, j.refresh_token, String(st.by || "")); }
     catch { return backTo(back, { gmail: "error", detail: "store_failed" }); }
     return backTo(back, { gmail: "connected", mailbox: wanted });
+  }
+
+  // Sending is the one write this function does, so it is the one POST.
+  if (req.method === "POST") {
+    try {
+      const who = await keeperEmail(req);
+      if (!who) return json({ error: "keepers only" }, 401);
+      const b = await req.json();
+      const from = String(b.mailbox || "").toLowerCase();
+      if (!MAILBOXES.includes(from)) return json({ error: "mailbox not allowed" }, 400);
+      if (!b.to || !b.subject) return json({ error: "need a recipient and a subject" }, 400);
+
+      // RFC 2047 for the subject and base64 for the body, so accents and the
+      // studio's own name survive the trip.
+      const enc2047 = (t: string) => /^[\x20-\x7E]*$/.test(t) ? t : `=?UTF-8?B?${b64(t)}?=`;
+      const headers = [
+        `From: ${from}`,
+        `To: ${b.to}`,
+        ...(b.cc ? [`Cc: ${b.cc}`] : []),
+        `Subject: ${enc2047(String(b.subject))}`,
+        ...(b.inReplyTo ? [`In-Reply-To: ${b.inReplyTo}`, `References: ${b.references || b.inReplyTo}`] : []),
+        "MIME-Version: 1.0",
+        'Content-Type: text/plain; charset="UTF-8"',
+        "Content-Transfer-Encoding: base64",
+        "",
+      ].join("\r\n");
+      const raw = b64url(headers + "\r\n" + b64(String(b.body || "")));
+
+      const token = await accessToken(from);
+      const g = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify(b.threadId ? { raw, threadId: b.threadId } : { raw }),
+      });
+      const out = await g.json();
+      if (!g.ok) return json({ error: out?.error?.message || "send failed" }, g.status);
+      return json({ ok: true, id: out.id, threadId: out.threadId });
+    } catch (e) {
+      const err = e as Error & { code?: string };
+      if (err.code === "not_connected") return json({ error: "not_connected" }, 409);
+      return json({ error: String(err.message || err) }, 500);
+    }
   }
 
   if (req.method !== "GET") return new Response("GET only", { status: 405, headers: cors });
