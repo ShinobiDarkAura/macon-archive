@@ -310,46 +310,21 @@
     border:none;color:#c3b9a3;cursor:pointer;padding:4px 6px;margin-top:10px;text-decoration:underline;text-underline-offset:2px}
   .lv-reader-reconnect:hover{color:var(--accent-deep)}
   .lv-reader-list{display:flex;flex-direction:column}
-  .lv-reader-row{display:block;width:100%;text-align:left;border:none;background:transparent;border-radius:4px;
-    padding:9px 8px;cursor:pointer;font-family:"Public Sans",var(--sans);color:inherit;transition:background .12s}
-  .lv-reader-row:hover{background:rgba(255,255,255,.66)}
-  .lv-reader-row.unread{background:rgba(30,22,14,.028)}
-  .lv-reader-row-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
-  .lv-reader-from{font-size:13px;font-weight:600;color:var(--ink-1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .lv-reader-ago{font-size:11.5px;color:var(--ink-3);flex:0 0 auto}
-  .lv-reader-row-subj{font-size:13px;color:var(--ink-1);margin:1px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lv-reader-row{display:block;width:100%;text-align:left;border:none;border-top:1px solid var(--rule);background:transparent;
+    padding:10px 0;cursor:pointer;font-family:inherit;color:inherit;transition:background .15s}
+  .lv-reader-row:first-child{border-top:none}
+  .lv-reader-row:hover{background:rgba(255,255,255,.5)}
+  .lv-reader-row-top{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#8c7f68}
+  .lv-reader-from{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lv-reader-row-subj{color:var(--ink);margin:2px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .lv-reader-row.unread .lv-reader-row-subj{font-weight:600}
-  .lv-reader-row-snip{font-size:12.5px;color:var(--ink-3);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  /* Reading pane. One type size throughout; hierarchy comes from weight and a
-     three step ink ladder, which is what the clients that feel calm all do. */
-  .lv-reader{--ink-1:#26221c;--ink-2:#5d564a;--ink-3:#98907f}
-  .mm-head{font-family:var(--serif-soul);font-size:16.5px;line-height:1.3;color:var(--ink-1);
-    margin:2px 0 2px;letter-spacing:0;text-transform:none}
-  .mm-sub{font-family:"Public Sans",var(--sans);font-size:11.5px;color:var(--ink-3);margin-bottom:14px}
-  .mm{background:#fff;border-radius:4px;padding:12px 13px;margin-bottom:6px;
-    box-shadow:0 0 0 .5px rgba(30,22,14,.16), 0 1px 2px rgba(30,22,14,.06)}
-  .mm-shut{background:rgba(255,255,255,.5);cursor:pointer;box-shadow:0 0 0 .5px rgba(30,22,14,.1)}
-  .mm-shut:hover{background:#fff}
-  .mm-line{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-  .mm-from{font-family:"Public Sans",var(--sans);font-size:13px;font-weight:600;color:var(--ink-1);
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .mm-when{font-family:"Public Sans",var(--sans);font-size:11.5px;color:var(--ink-3);flex:0 0 auto}
-  .mm-meta{font-family:"Public Sans",var(--sans);font-size:11.5px;color:var(--ink-3);margin-top:1px}
-  .mm-snip{font-family:"Public Sans",var(--sans);font-size:12.5px;color:var(--ink-3);margin-top:3px;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .mm-body{font-family:"Public Sans",var(--sans);font-size:15px;line-height:1.55;color:var(--ink-1);
-    margin-top:9px;overflow-wrap:break-word}
-  .mm-body p{margin:0 0 .85em}
-  .mm-body p:last-child{margin-bottom:0}
-  .mm-body .mm-pre{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.5}
-  .mm-body a,.mm-quote a{color:var(--accent-deep);overflow-wrap:anywhere}
-  .mm-more{display:block;margin:8px 0 0;padding:1px 8px 3px;border:1px solid var(--rule);border-radius:999px;
-    background:transparent;color:var(--ink-3);cursor:pointer;font-size:12px;line-height:1.1;letter-spacing:.08em}
-  .mm-more:hover,.mm-more.on{color:var(--ink-1);border-color:var(--ink-3)}
-  .mm-quote{white-space:pre-wrap;font-family:"Public Sans",var(--sans);font-size:12.5px;line-height:1.5;
-    color:var(--ink-3);margin-top:9px;padding-left:9px;border-left:2px solid var(--rule);overflow-wrap:break-word}
-  .mm-sig{white-space:pre-wrap;font-family:"Public Sans",var(--sans);font-size:12.5px;line-height:1.45;
-    color:var(--ink-3);margin-top:11px}
+  .lv-reader-row-snip{font-size:11.5px;color:#8c7f68;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .lv-reader-subject{font-size:15px;color:var(--ink);margin-bottom:4px}
+  .lv-reader-meta{font-size:11px;color:#8c7f68;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--rule)}
+  .lv-reader-body{white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.6;color:var(--ink)}
+  .lv-thread-msg{padding:12px 0;border-top:1px solid var(--rule)}
+  .lv-thread-msg .lv-reader-meta{margin-bottom:6px;padding-bottom:0;border-bottom:none}
+  .lv-thread-msg .lv-reader-body{max-height:260px;overflow-y:auto}
 
   /* chevrons sit just off the paper's own edges, in its grid cell */
   .lv-chev{grid-column:2;grid-row:1;align-self:center;z-index:4;width:38px;height:38px;padding:0;border:none;
@@ -2369,7 +2344,6 @@ const boxLabel=m=>String(m).split("@")[0];
 let readerMsgs=null, readerOpen=null, readerErr="", readerLoading=false;
 // the thread with whoever the current letter is to, when Gmail has one
 let readerMode="post", readerThread=null; const _threads=new Map();
-const readerOpenMsgs=new Set();
 let readerConnected=null, _statusPending=false;
 const gmailReady=()=>!!(sb&&synced);
 async function gmail(path, mailbox){
@@ -2452,127 +2426,9 @@ async function openReaderMsg(id){
   }catch(e){ readerOpen={id, body:"Couldn't open this one: "+e.message}; }
   renderReader();
 }
-/* ---------- making a raw plain-text mail readable ----------
-   Mail arrives hard-wrapped at 72 columns, trailing a quoted copy of the whole
-   previous thread and a signature. Rendered literally it is a wall. Three
-   passes fix it: honour RFC 3676 format=flowed where the sender marked it,
-   heuristically rejoin hard-wrapped prose where they did not, and fold the
-   quoted history and signature away. */
-
-// RFC 3676: a line ending in a space is a soft break and joins the next.
-function mailFlowed(text, delsp){
-  const out=[]; let buf="", depth=null;
-  for(const raw of String(text).split("\n")){
-    const m=/^(>*)\s?([\s\S]*)$/.exec(raw);
-    const d=m[1].length, line=m[2];
-    if(depth!==null && d!==depth){ out.push({d:depth, t:buf}); buf=""; }
-    depth=d;
-    if(/ $/.test(line)){ buf += delsp ? line.slice(0,-1) : line; }
-    else { buf += line; out.push({d, t:buf}); buf=""; depth=null; }
-  }
-  if(buf) out.push({d:depth||0, t:buf});
-  return out.map(o=>(o.d?">".repeat(o.d)+" ":"")+o.t).join("\n");
-}
-
-// Everything from "-- " onward is a signature and must keep its own breaks.
-function mailSplitSignature(text){
-  const m=/^-- ?$/m.exec(text);
-  if(!m) return { body:text, sig:"" };
-  return { body:text.slice(0, m.index).replace(/\s+$/,""), sig:text.slice(m.index+m[0].length).replace(/^\n/,"") };
-}
-
-const QUOTE_MARKERS=[
-  /^-{2,}\s*Original Message\s*-{2,}/im,
-  /^-{2,}\s*Forwarded message\s*-{2,}/im,
-  /^_{5,}\s*$/m,
-  /^From:\s.+\nSent:\s/im,
-];
-// Walk back from the end: the "On <date>, X wrote:" preamble belongs to the
-// quote, not to the message.
-function mailSplitQuote(text){
-  const lines=text.split("\n");
-  let cut=-1;
-  for(const re of QUOTE_MARKERS){ const m=re.exec(text); if(m){ const i=text.slice(0,m.index).split("\n").length-1; if(cut<0||i<cut) cut=i; } }
-  if(cut<0){
-    for(let i=0;i<lines.length;i++){
-      if(/^>/.test(lines[i])){ cut=i; break; }
-    }
-    // pull the "On ... wrote:" line (and its wrapped first half) into the quote
-    if(cut>0){
-      let j=cut-1;
-      while(j>=0 && lines[j].trim()==="") j--;
-      if(j>=0 && /wrote:\s*$/.test(lines[j])){
-        cut=j;
-        if(cut>0 && /^On\s/.test(lines[cut])===false && /^On\s/.test(lines[cut-1])) cut=cut-1;
-      }
-    }
-  }
-  if(cut<0) return { body:text, quoted:"" };
-  const body=lines.slice(0,cut).join("\n").replace(/\s+$/,"");
-  const quoted=lines.slice(cut).join("\n").trim();
-  // A quote with nothing above it is the whole message: show it.
-  if(!body.trim()) return { body:text, quoted:"" };
-  return { body, quoted };
-}
-
-// Rejoin prose that a 72-column composer broke, and leave everything that
-// depends on its line breaks alone.
-function mailUnwrap(text){
-  return String(text).replace(/\r\n/g,"\n").split(/\n{2,}/).map(block=>{
-    const lines=block.split("\n");
-    if(lines.length<3) return {pre:false, t:block};
-    const max=Math.max(...lines.map(l=>l.length));
-    const nonFinal=lines.slice(0,-1);
-    const longish=nonFinal.filter(l=>l.length>=62).length;
-    const wrapped = max<=80 && longish >= Math.ceil(nonFinal.length*0.6);
-    const looksPre = lines.some(l=>/^\s{2,}\S/.test(l))
-      || lines.filter(l=>/^\s*([-*\u2022]|\d+[.)])\s/.test(l)).length>=2
-      || lines.some(l=>/\S {3,}\S/.test(l));
-    if(!wrapped || looksPre) return {pre:true, t:block};
-    let out="";
-    lines.forEach((l,i)=>{
-      out += l;
-      if(i===lines.length-1) return;
-      const next=lines[i+1];
-      out += (/^\s*([-*\u2022]|\d+[.)])\s/.test(next) || /:$/.test(l)) ? "\n" : " ";
-    });
-    return {pre:false, t:out};
-  });
-}
-
-const URL_RE=/\bhttps?:\/\/[^\s<>"')]+/g;
-function mailLinkify(escaped){
-  return escaped.replace(URL_RE, u=>{
-    const clean=u.replace(/[.,;:]$/,"");
-    let label=clean.replace(/^https?:\/\//,"");
-    if(label.length>34) label=label.slice(0,32)+"\u2026";
-    return `<a href="${clean}" target="_blank" rel="noopener" title="${clean}">${label}</a>`;
-  });
-}
-
-function mailRender(text){
-  const { body, sig } = mailSplitSignature(String(text||""));
-  const { body:main, quoted } = mailSplitQuote(body);
-  const blocks = mailUnwrap(main).map(b=>
-    `<p class="${b.pre?"mm-pre":""}">${mailLinkify(esc(b.t))}</p>`).join("");
-  return { html: blocks || "<p></p>", quoted, sig };
-}
-
-// Today shows a time, this week a weekday, this year a date, older adds a year.
-function mailDate(ms){
-  const d=new Date(ms), now=new Date();
-  const sameDay=d.toDateString()===now.toDateString();
-  if(sameDay) return d.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
-  const days=(now-d)/86400000;
-  if(days<7) return d.toLocaleDateString([], {weekday:"short"});
-  if(d.getFullYear()===now.getFullYear()) return d.toLocaleDateString([], {month:"short", day:"numeric"});
-  return d.toLocaleDateString([], {month:"short", day:"numeric", year:"numeric"});
-}
-
 async function loadThreadFor(email, name){
   if(!email || !gmailReady()){ readerMode="post"; readerThread=null; renderReader(); return; }
   readerMode="thread";
-  readerOpenMsgs.clear();
   if(_threads.has(email)){ readerThread=_threads.get(email); renderReader(); return; }
   readerThread={email, name, loading:true}; renderReader();
   try{
@@ -2618,39 +2474,13 @@ function renderReader(){
   if(gmailReady() && readerMode==="thread" && readerThread){
     const t=readerThread;
     const back=`<button class="lv-reader-back" id="lvReaderPost">‹ Post</button>`;
-    if(t.loading){ el.innerHTML=`${back}<div class="mm-head">Thread</div><p class="lv-reader-note">Looking for mail with ${esc(t.name||t.email)}\u2026</p>`; }
-    else if(!t.msgs.length){ el.innerHTML=`${back}<div class="mm-head">Thread</div><p class="lv-reader-note">${t.err?esc(t.err):`No mail with ${esc(t.email)} yet.`}</p>`; }
+    if(t.loading){ el.innerHTML=`${back}<div class="lv-reader-head lv-overline">Thread</div><p class="lv-reader-note">Looking for mail with ${esc(t.name||t.email)}…</p>`; }
+    else if(!t.msgs.length){ el.innerHTML=`${back}<div class="lv-reader-head lv-overline">Thread</div><p class="lv-reader-note">${t.err?esc(t.err):`No mail with ${esc(t.email)} yet.`}</p>`; }
     else{
-      const n=t.msgs.length;
-      const cards=t.msgs.map((m,idx)=>{
-        const newest = idx===n-1;
-        const open = newest || readerOpenMsgs.has(idx);
-        const r=mailRender(m.body);
-        if(!open){
-          return `<article class="mm mm-shut" data-msg="${idx}">
-            <div class="mm-line"><span class="mm-from">${esc(m.from)}</span><span class="mm-when">${esc(mailDate(m.at))}</span></div>
-            <div class="mm-snip">${esc(String(m.body||"").replace(/\s+/g," ").slice(0,90))}</div>
-          </article>`;
-        }
-        return `<article class="mm" data-msg="${idx}">
-          <div class="mm-line"><span class="mm-from">${esc(m.from)}</span><span class="mm-when" title="${esc(new Date(m.at).toLocaleString())}">${esc(mailDate(m.at))}</span></div>
-          <div class="mm-meta">to ${esc(boxLabel(m.box||""))}@</div>
-          <div class="mm-body">${r.html}</div>
-          ${r.quoted?`<button class="mm-more" data-quote="${idx}">\u2026</button><div class="mm-quote" id="mmq${idx}" hidden>${mailLinkify(esc(r.quoted))}</div>`:""}
-          ${r.sig?`<div class="mm-sig">${mailLinkify(esc(r.sig))}</div>`:""}
-        </article>`;
-      }).join("");
-      el.innerHTML=`${back}
-        <div class="mm-head">${esc(t.msgs[0].subject||"Thread")}</div>
-        <div class="mm-sub">${n} message${n>1?"s":""} with ${esc(t.name||t.email)}</div>
-        ${cards}`;
-      el.querySelectorAll("[data-msg].mm-shut").forEach(a=>a.onclick=()=>{
-        readerOpenMsgs.add(Number(a.dataset.msg)); renderReader();
-      });
-      el.querySelectorAll("[data-quote]").forEach(b=>b.onclick=()=>{
-        const q=el.querySelector("#mmq"+b.dataset.quote);
-        q.hidden=!q.hidden; b.classList.toggle("on", !q.hidden);
-      });
+      el.innerHTML=`${back}<div class="lv-reader-head lv-overline">Thread · ${esc(t.name||t.email)}</div>
+        <div class="lv-reader-subject">${esc(t.msgs[0].subject||"")}</div>
+        ${t.msgs.map(m=>`<div class="lv-thread-msg"><div class="lv-reader-meta">${esc(m.from)} · ${esc(boxLabel(m.box||""))} · ${ago(m.at)}</div><div class="lv-reader-body">${esc(m.body)}</div></div>`).join("")}`;
+      el.scrollTop=el.scrollHeight;
     }
     el.insertAdjacentHTML("beforeend", connectRow);
     el.querySelector("#lvReaderPost").onclick=()=>{ readerMode="post"; renderReader(); };
@@ -2669,15 +2499,13 @@ function renderReader(){
   if(readerOpen){
     const o=readerOpen;
     el.innerHTML=`<button class="lv-reader-back" id="lvReaderBack">‹ Post</button>
-      <div class="mm-head">${esc(o.subject||"")}</div>
-      <article class="mm">
-        <div class="mm-line"><span class="mm-from">${esc(o.from||"")}</span><span class="mm-when">${o.at?esc(mailDate(o.at)):""}</span></div>
-        <div class="mm-body">${o.body==="\u2026" ? "<p>Opening\u2026</p>" : mailRender(o.body).html}</div>
-      </article>`;
+      <div class="lv-reader-subject">${esc(o.subject||"")}</div>
+      <div class="lv-reader-meta">${esc(o.from||"")}${o.at?` · ${ago(o.at)}`:""}</div>
+      <div class="lv-reader-body">${esc(o.body)}</div>`;
     el.querySelector("#lvReaderBack").onclick=()=>{ readerOpen=null; renderReader(); }; return;
   }
   const rows=(readerMsgs||[]).map(m=>`<button class="lv-reader-row${m.unread?" unread":""}" data-id="${m.id}">
-      <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(m.from)}</span><span class="lv-reader-ago">${esc(boxLabel(m.box||""))} · ${esc(mailDate(m.at))}</span></div>
+      <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(m.from)}</span><span class="lv-reader-ago">${esc(boxLabel(m.box||""))} · ${ago(m.at)}</span></div>
       <div class="lv-reader-row-subj">${esc(m.subject)}</div>
       <div class="lv-reader-row-snip">${esc(m.snippet)}</div></button>`).join("");
   el.innerHTML=`<div class="lv-reader-head lv-overline">Post
