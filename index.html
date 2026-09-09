@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" href="logos/crest.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&family=Public+Sans:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   @font-face{font-family:"Louize";src:url("fonts/louize.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
   @font-face{font-family:"Louize";src:url("fonts/louize-italic.woff2") format("woff2");font-weight:400;font-style:italic;font-display:swap}
@@ -170,20 +170,26 @@
      name-at-top-note-pushed-to-bottom. */
   /* Anchored back to the paper's own column, left side this time, 24px off
      its edge — a fixed offset from the sheet again, not from the viewport. */
-  /* Study 03b: the name carries the card, the note sits below a perforation
-     that runs full bleed so the foot reads as a tear-off stub. */
+  /* Study 03b, copied: corner meta in mono caps, the name carrying the card,
+     and the note behind a perforation that bleeds past the card's padding.
+     The perforation lives on a wrapper because a textarea, being a replaced
+     element, renders no pseudo-element of its own. */
   .lv-label{position:fixed;left:40px;top:50%;transform:translateY(-50%);z-index:2;
     display:flex;flex-direction:column;justify-content:flex-end;
-    width:400px;padding:22px 22px 0;box-sizing:border-box;border-radius:3px;
+    width:400px;padding:22px;box-sizing:border-box;border-radius:2px;
     background:#F7F3E9;overflow:hidden;
-    box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 12px 26px rgba(60,48,30,.16);
-    font-size:11px;line-height:1.8;color:#8c7f68;letter-spacing:.06em;
+    box-shadow:0 1px 0 rgba(255,255,255,.85) inset,0 12px 26px rgba(60,48,30,.18);
     transition:opacity .2s}
-  .lv-label .lv-ctx{order:-2;justify-content:space-between;margin:0 0 auto}
-  .lv-label .lv-fact{order:-1;display:none}
-  .lv-label .lv-name{font-family:"TAY Birdie",var(--serif-soul);font-style:normal;font-weight:400;
-    font-size:44px;line-height:.98;color:var(--ink);margin:0;text-transform:uppercase;letter-spacing:-.03em}
-  .lv-label .lv-fact{opacity:.85}
+  .lv-cnr{position:absolute;top:22px;left:22px;right:22px;display:flex;justify-content:space-between;gap:12px;
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:9px;letter-spacing:.16em;
+    text-transform:uppercase;color:#9A9280}
+  .lv-cnr span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lv-name{font-family:"Bodoni Moda",var(--serif-soul);font-weight:400;font-size:44px;line-height:.92;
+    letter-spacing:-.03em;color:#26221C;margin:74px 0 0;text-transform:none}
+  .lv-noteblock{position:relative;margin:24px -22px 0;padding:22px 22px 0}
+  .lv-noteblock::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;
+    background-image:radial-gradient(circle,rgba(140,116,78,.5) 1.1px,transparent 1.3px);
+    background-size:7px 2px;background-repeat:repeat-x}
   .lv-ctx{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px}
   .lv-aftercare{padding-bottom:20px}
   .lv-ctx-kind{font-family:"Public Sans",var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
@@ -218,14 +224,10 @@
   .lv-file-act button{font-family:"Public Sans",var(--sans);font-size:12px;border-radius:6px;padding:6px 13px;cursor:pointer}
   #lvFileCancel{background:transparent;border:none;color:#a89d89}
   #lvFileSave{background:var(--accent-grad);color:#fff;border:none}
-  /* The perforation, carried out past the card's own padding. */
-  .lv-quote,.lv-quote-edit{position:relative;margin:24px -22px 0;padding:22px 22px 22px;border-top:none;
-    font-family:"Public Sans",var(--sans);font-style:normal;font-size:13.5px;line-height:1.55;
-    color:var(--slate);letter-spacing:0;text-transform:none}
-  .lv-quote::before,.lv-quote-edit::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;
-    background-image:radial-gradient(circle,rgba(140,116,78,.5) 1.1px,transparent 1.3px);
-    background-size:7px 2px;background-repeat:repeat-x}
-  .lv-quote-edit{box-sizing:border-box;width:calc(100% + 44px);background:transparent;resize:vertical;min-height:74px}
+  .lv-quote,.lv-quote-edit{display:block;width:100%;margin:0;padding:0;border:none;background:transparent;
+    font-family:"Public Sans",var(--sans);font-style:normal;font-size:12.5px;line-height:1.5;
+    color:#5D564A;letter-spacing:0;text-transform:none}
+  .lv-quote-edit{resize:vertical;min-height:66px}
   .lv-quote-edit:focus{outline:none}
 
   .lv-paper{grid-column:2;grid-row:1;height:92%;max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
@@ -329,12 +331,16 @@
   /* The marginalia is pinned at the left edge and the drawer at the right, so
      the sheet centres in the space between them by giving the view a padding
      equal to each. Equal gaps fall out of that rather than being tuned. */
-  body.view-letters .letters-view{padding-left:440px;padding-right:444px}
-  .lv-reader{position:fixed;top:0;right:0;bottom:0;width:444px;z-index:55;
-    overflow-y:auto;overflow-x:hidden;box-sizing:border-box;padding:38px 36px 96px;
+  body.view-letters .letters-view{padding-left:440px;padding-right:476px}
+  .lv-reader{position:fixed;top:16px;right:16px;bottom:16px;width:444px;z-index:55;border-radius:12px;
+    overflow-y:auto;overflow-x:hidden;box-sizing:border-box;padding:34px 32px 90px;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
-    background:linear-gradient(#FCFAF4,#F6F2E8);
-    box-shadow:-1px 0 0 rgba(120,102,70,.16), -18px 0 44px rgba(60,48,28,.10)}
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0) 220px),
+      repeating-linear-gradient(92deg, rgba(170,148,110,.030) 0 2px, rgba(255,255,255,0) 2px 8px),
+      linear-gradient(178deg,#FCFAF4,#F4F0E4);
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset,
+      0 0 0 1px rgba(120,102,70,.13), 0 16px 40px rgba(60,48,28,.14)}
   .lv-reader::-webkit-scrollbar{width:9px}
   .lv-reader::-webkit-scrollbar-thumb{background:rgba(120,105,80,.20);border-radius:5px}
   .lv-style{position:fixed;right:24px;bottom:18px;z-index:56;display:flex;gap:3px;
@@ -2895,6 +2901,14 @@ function renderCurrentLetter(){
       ${flags.window?`<span class="lv-ctx-flag lv-flag-win" title="Inside the month 1 to 6 window when repeat buyers come back">In window</span>`:""}
     </div>` : "";
   const factLine1 = facts.join(" · ");
+  // The corner meta has about twenty characters before the two ends crowd, so
+  // it carries the piece and a short date rather than the full fact line.
+  const cardMeta = (()=>{
+    const piece = facts[0] || "";
+    const when = String(facts[1]||"").match(/[A-Z][a-z]{2}\s+\d{1,2},?\s*(\d{4})/);
+    const short = when ? when[0].replace(/\s+\d{1,2},?\s*/, " ") : "";
+    return [piece, short].filter(Boolean).join(" \u00b7 ");
+  })();
   const factLine2 = ctx ? `Suggested tone: ${ctx.suggestedTone}` : "";
 
   // The margin quote IS an enquiry's note, editable in place — there is no
@@ -2917,12 +2931,13 @@ function renderCurrentLetter(){
         <button class="lv-new" id="lvNew" title="Write to someone new">+</button>
         ${composing?"":`<div class="lv-badge" title="${letterQueue.length} waiting on you today">${letterQueue.length}</div>`}
       </div>
-      <div class="lv-label lv-overline">
-        <div class="lv-name" style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",name)}">${esc(name)}</div>
-        ${ctxHTML}
-        ${factLine1?`<div class="lv-fact">${esc(factLine1)}</div>`:""}
-        ${factLine2?`<div class="lv-fact">${esc(factLine2)}</div>`:""}
-        ${quoteHTML}
+      <div class="lv-label">
+        <div class="lv-cnr">
+          <span>${ctx?esc(ctx.kindLabel+" \u00b7 "+ctx.priority):""}</span>
+          <span>${esc(cardMeta)}</span>
+        </div>
+        <div class="lv-name">${esc(name)}</div>
+        <div class="lv-noteblock">${quoteHTML}</div>
         ${composing||kind==="custom" ? "" : (letterFilingOpen ? `
         <form class="lv-file" id="lvFile">
           <label>What they said
