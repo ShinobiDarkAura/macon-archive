@@ -231,7 +231,7 @@
      was falling back to a different, mismatched font for just those
      characters — the "two sizes of caps" was that fallback, not a CSS bug */
   .lv-to{font-family:"Public Sans",var(--sans);font-weight:400;font-size:10px;letter-spacing:.18em;
-    color:#9C8F76;margin-bottom:3px;text-transform:uppercase;
+    color:#9C8F76;margin-bottom:2px;text-transform:uppercase;
     display:flex;align-items:baseline;justify-content:flex-start;gap:16px}
   .lv-draft{position:absolute;left:0;right:0;top:0;z-index:5;background:#F6ECD8;border-bottom:1px solid #E4D4B0;
     font-family:var(--sans);font-size:12px;color:#6E6045;padding:8px 14px;display:flex;align-items:center;gap:8px;
@@ -241,8 +241,9 @@
   .lv-draft button[data-x]{color:#a89d89;margin-left:auto}
   .lv-to-lab{color:#c3b9a3;flex:0 0 auto}
   .lv-to-l{display:flex;align-items:baseline;gap:7px;min-width:0;flex:1}
-  .lv-to-in{font:inherit;letter-spacing:inherit;text-transform:inherit;color:#9C8F76;background:transparent;
-    border:none;border-bottom:1px solid transparent;padding:0 0 1px;min-width:0;flex:1;max-width:26em}
+  .lv-to-in{font:inherit;line-height:1.25;letter-spacing:inherit;text-transform:inherit;color:#9C8F76;
+    background:transparent;border:none;border-bottom:1px solid transparent;padding:0 0 3px;
+    min-width:0;flex:0 1 auto;width:24ch;max-width:100%}
   .lv-to-in:hover{border-bottom-color:var(--rule)}
   .lv-to-in:focus{outline:none;border-bottom-color:var(--accent);color:var(--ink)}
   .lv-to-in::placeholder{color:#cfc5b0;text-transform:none;letter-spacing:.06em}
@@ -273,7 +274,7 @@
     background:transparent;border:1px solid var(--rule);border-radius:999px;padding:6.5px 14px;cursor:pointer}
   .lv-tone:hover{border-color:#a89d89;color:var(--ink)}
   .lv-fromline{font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.18em;color:#c3b9a3;
-    white-space:nowrap;text-transform:uppercase;margin-bottom:10px}
+    white-space:nowrap;text-transform:uppercase;margin:0 0 10px;line-height:1.25}
   .lv-fromline::before{content:none}
   .lv-close,.lv-skip{font-family:var(--sans);font-size:13.75px;color:#a89d89;background:transparent;border:none;cursor:pointer;
     padding:8.8px 4.4px}
