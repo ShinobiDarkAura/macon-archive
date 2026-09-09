@@ -120,17 +120,15 @@
 
   .lv-overline{font-family:"Public Sans",var(--sans);text-transform:uppercase;font-weight:400}
 
-  /* A desk to put the letter on. The wash over the grain keeps it quiet enough
-     to read against, and the light at the top gives everything on it a reason
-     to cast a shadow downward. */
+  /* The ground from the card studies: a very fine CSS grain rather than a
+     photograph, so it stays crisp at any size and costs nothing to load. */
   .letters-view{position:relative;height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;
     padding:48px 40px;box-sizing:border-box;gap:22px;overflow:hidden;
-    background-color:#EDE7DA;
-    background-image:radial-gradient(ellipse at 50% 24%,rgba(255,255,255,.70),rgba(228,220,203,.30) 62%,rgba(196,183,157,.28) 100%),
-      url("logos/desk.jpg");
-    background-size:auto, cover;
-    background-position:center, center;
-    background-repeat:no-repeat, no-repeat}
+    background:
+      radial-gradient(ellipse at 50% 16%, rgba(255,255,255,.66), rgba(228,220,203,.28) 60%, rgba(196,183,157,.30) 100%),
+      repeating-linear-gradient(92deg, rgba(170,148,110,.038) 0 2px, rgba(255,255,255,0) 2px 8px),
+      repeating-linear-gradient(92deg, rgba(140,116,78,.026) 0 1px, rgba(255,255,255,0) 1px 27px),
+      linear-gradient(178deg,#EFEADD,#E6E0D0)}
   .lv-empty{font-family:var(--serif-soul);font-style:italic;font-size:22px;color:#a89d89;text-align:center;max-width:460px}
   /* Badge + compose live in the fixed top bar now, not on the paper — the
      paper's own overflow:hidden (needed to clip the stamp) was clipping them
@@ -172,15 +170,22 @@
      name-at-top-note-pushed-to-bottom. */
   /* Anchored back to the paper's own column, left side this time, 24px off
      its edge — a fixed offset from the sheet again, not from the viewport. */
+  /* Study 03b: the name carries the card, the note sits below a perforation
+     that runs full bleed so the foot reads as a tear-off stub. */
   .lv-label{position:fixed;left:40px;top:50%;transform:translateY(-50%);z-index:2;
-    display:flex;flex-direction:column;justify-content:center;
-    width:286px;padding:24px;box-sizing:border-box;border-radius:6px;background:rgba(255,255,255,.42);
+    display:flex;flex-direction:column;justify-content:flex-end;
+    width:400px;padding:22px 22px 0;box-sizing:border-box;border-radius:3px;
+    background:#F7F3E9;overflow:hidden;
+    box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 12px 26px rgba(60,48,30,.16);
     font-size:11px;line-height:1.8;color:#8c7f68;letter-spacing:.06em;
     transition:opacity .2s}
-  .lv-label .lv-name{font-family:"TAY Birdie",var(--serif-soul);font-style:normal;font-weight:400;font-size:26px;line-height:1.3;
-    color:var(--ink);margin-bottom:2px;text-transform:uppercase;letter-spacing:-.02em}
+  .lv-label .lv-ctx{order:-2;justify-content:space-between;margin:0 0 auto}
+  .lv-label .lv-fact{order:-1;display:none}
+  .lv-label .lv-name{font-family:"TAY Birdie",var(--serif-soul);font-style:normal;font-weight:400;
+    font-size:44px;line-height:.98;color:var(--ink);margin:0;text-transform:uppercase;letter-spacing:-.03em}
   .lv-label .lv-fact{opacity:.85}
   .lv-ctx{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px}
+  .lv-aftercare{padding-bottom:20px}
   .lv-ctx-kind{font-family:"Public Sans",var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
     color:#5a5040;background:#dcd3c0;border-radius:999px;padding:3px 9px}
   .lv-ctx-pri{font-family:"Public Sans",var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
@@ -213,10 +218,14 @@
   .lv-file-act button{font-family:"Public Sans",var(--sans);font-size:12px;border-radius:6px;padding:6px 13px;cursor:pointer}
   #lvFileCancel{background:transparent;border:none;color:#a89d89}
   #lvFileSave{background:var(--accent-grad);color:#fff;border:none}
-  .lv-quote,.lv-quote-edit{margin-top:18px;padding-top:16px;border-top:1px solid var(--rule);font-family:"Public Sans",var(--sans);
-    font-style:normal;font-size:15.5px;line-height:1.6;color:var(--slate);letter-spacing:0;text-transform:none}
-  .lv-quote-edit{box-sizing:border-box;width:100%;border-width:1px 0 0;border-style:solid;border-color:var(--rule);
-    background:transparent;resize:vertical;min-height:60px;padding-left:0;padding-right:0}
+  /* The perforation, carried out past the card's own padding. */
+  .lv-quote,.lv-quote-edit{position:relative;margin:24px -22px 0;padding:22px 22px 22px;border-top:none;
+    font-family:"Public Sans",var(--sans);font-style:normal;font-size:13.5px;line-height:1.55;
+    color:var(--slate);letter-spacing:0;text-transform:none}
+  .lv-quote::before,.lv-quote-edit::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;
+    background-image:radial-gradient(circle,rgba(140,116,78,.5) 1.1px,transparent 1.3px);
+    background-size:7px 2px;background-repeat:repeat-x}
+  .lv-quote-edit{box-sizing:border-box;width:calc(100% + 44px);background:transparent;resize:vertical;min-height:74px}
   .lv-quote-edit:focus{outline:none}
 
   .lv-paper{grid-column:2;grid-row:1;height:92%;max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
@@ -320,7 +329,7 @@
   /* The marginalia is pinned at the left edge and the drawer at the right, so
      the sheet centres in the space between them by giving the view a padding
      equal to each. Equal gaps fall out of that rather than being tuned. */
-  body.view-letters .letters-view{padding-left:326px;padding-right:444px}
+  body.view-letters .letters-view{padding-left:440px;padding-right:444px}
   .lv-reader{position:fixed;top:0;right:0;bottom:0;width:444px;z-index:55;
     overflow-y:auto;overflow-x:hidden;box-sizing:border-box;padding:38px 36px 96px;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
@@ -349,6 +358,28 @@
   .rd-body p{margin:0 0 .8em}
   .rd-body p:last-child{margin-bottom:0}
   .rd-body .mm-pre{white-space:pre-wrap;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;line-height:1.55}
+  .lv-reader-head{display:flex;align-items:center;justify-content:space-between;
+    font-family:var(--sans);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);
+    padding-bottom:14px;margin-bottom:6px;border-bottom:1px solid var(--rl)}
+  .lv-reader-refresh{background:transparent;border:none;color:var(--ink-3);cursor:pointer;font-size:14px;padding:2px 4px}
+  .lv-reader-refresh:hover{color:var(--ink-1)}
+  .lv-reader-list{display:flex;flex-direction:column}
+  .lv-reader-row{display:block;width:100%;text-align:left;font-family:var(--sans);color:inherit;
+    background:transparent;border:none;border-radius:6px;padding:12px 10px;margin:0;cursor:pointer;
+    transition:background .12s}
+  .lv-reader-row + .lv-reader-row{box-shadow:0 -1px 0 var(--rl)}
+  .lv-reader-row:hover{background:rgba(255,255,255,.7);box-shadow:none}
+  .lv-reader-row:hover + .lv-reader-row{box-shadow:none}
+  .lv-reader-row.unread{background:rgba(30,22,14,.03)}
+  .lv-reader-row-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:3px}
+  .lv-reader-from{font-size:13px;font-weight:600;color:var(--ink-1);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  .lv-reader-ago{font-size:11px;color:var(--ink-3);flex:0 0 auto;white-space:nowrap}
+  .lv-reader-row-subj{font-size:13px;color:var(--ink-1);margin-bottom:2px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lv-reader-row.unread .lv-reader-row-subj{font-weight:600}
+  .lv-reader-row-snip{font-size:12.5px;line-height:1.45;color:var(--ink-3);
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .rd-foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--rl);display:flex;flex-wrap:wrap;gap:6px}
   .rd-foot button{font-family:var(--sans);font-size:10.5px;letter-spacing:.06em;background:transparent;border:none;
     color:var(--ink-3);cursor:pointer;padding:3px 0;margin-right:14px;text-decoration:underline;text-underline-offset:3px}
@@ -2489,13 +2520,27 @@ async function gmailConnect(mailbox){
   const j=await r.json().catch(()=>({}));
   if(j.url) location.href=j.url;
 }
-const hdr=(m,n)=>((m.payload&&m.payload.headers)||[]).find(h=>h.name.toLowerCase()===n.toLowerCase())?.value||"";
+// Gmail returns snippets and headers already HTML-escaped. Escaping them a
+// second time on the way in is what put &#39; on screen instead of an
+// apostrophe, so they are decoded before anything else touches them.
+const ENT={amp:"&",lt:"<",gt:">",quot:'"',apos:"'",nbsp:" ",mdash:"\u2014",ndash:"\u2013",hellip:"\u2026",rsquo:"\u2019",lsquo:"\u2018",ldquo:"\u201c",rdquo:"\u201d"};
+function unent(v){
+  return String(v==null?"":v).replace(/&(#\d+|#[xX][0-9a-fA-F]+|[a-zA-Z]+);/g,(m,e)=>{
+    if(e[0]==="#"){
+      const n = (e[1]==="x"||e[1]==="X") ? parseInt(e.slice(2),16) : parseInt(e.slice(1),10);
+      return Number.isFinite(n) ? String.fromCodePoint(n) : m;
+    }
+    const hit=ENT[e.toLowerCase()];
+    return hit===undefined ? m : hit;
+  });
+}
+const hdr=(m,n)=>unent(((m.payload&&m.payload.headers)||[]).find(h=>h.name.toLowerCase()===n.toLowerCase())?.value||"");
 function gmailPlainText(payload){
   if(!payload) return "";
   if(payload.mimeType==="text/plain" && payload.body&&payload.body.data) return gmailDecode(payload.body.data);
   for(const p of payload.parts||[]){ const t=gmailPlainText(p); if(t) return t; }
   if(payload.mimeType==="text/html" && payload.body&&payload.body.data)
-    return gmailDecode(payload.body.data).replace(/<style[\s\S]*?<\/style>/gi,"").replace(/<[^>]+>/g," ").replace(/\s{3,}/g,"\n\n").trim();
+    return unent(gmailDecode(payload.body.data).replace(/<style[\s\S]*?<\/style>/gi,"").replace(/<[^>]+>/g," ").replace(/\s{3,}/g,"\n\n").trim());
   return "";
 }
 function gmailDecode(b64){
@@ -2520,7 +2565,7 @@ async function loadReader(){
         const metas=await Promise.all((list.messages||[]).map(m=>
           gmail(`messages/${m.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`, box)));
         return metas.map(m=>({ id:m.id, box, from:hdr(m,"From").replace(/\s*<.*>$/,"").replace(/^"|"$/g,""),
-          subject:hdr(m,"Subject")||"(no subject)", snippet:m.snippet||"", at:Number(m.internalDate),
+          subject:hdr(m,"Subject")||"(no subject)", snippet:unent(m.snippet||""), at:Number(m.internalDate),
           unread:(m.labelIds||[]).includes("UNREAD") }));
       }catch(e){ return []; }
     }));
@@ -2532,7 +2577,7 @@ async function openReaderMsg(id){
   readerOpen={id, body:"…"}; renderReader();
   try{
     const m=await gmail(`messages/${id}?format=full`);
-    readerOpen={ id, from:hdr(m,"From"), subject:hdr(m,"Subject"), at:Number(m.internalDate), body:gmailPlainText(m.payload)||m.snippet||"" };
+    readerOpen={ id, from:hdr(m,"From"), subject:hdr(m,"Subject"), at:Number(m.internalDate), body:gmailPlainText(m.payload)||unent(m.snippet||"") };
   }catch(e){ readerOpen={id, body:"Couldn't open this one: "+e.message}; }
   renderReader();
 }
@@ -2668,7 +2713,7 @@ async function loadThreadFor(email, name){
         if(!list.threads||!list.threads.length) return [];
         const t=await gmail(`threads/${list.threads[0].id}?format=full`, box);
         return (t.messages||[]).map(m=>({ box, from:hdr(m,"From").replace(/\s*<.*>$/,"").replace(/^"|"$/g,""),
-          at:Number(m.internalDate), body:gmailPlainText(m.payload)||m.snippet||"", subject:hdr(m,"Subject"),
+          at:Number(m.internalDate), body:gmailPlainText(m.payload)||unent(m.snippet||""), subject:hdr(m,"Subject"),
           threadId:t.id, msgId:hdr(m,"Message-ID"), refs:hdr(m,"References") }));
       }catch(e){ return []; }
     }));
@@ -2781,7 +2826,7 @@ function renderReader(){
     el.querySelector("#lvReaderBack").onclick=()=>{ readerOpen=null; renderReader(); }; return;
   }
   const rows=(readerMsgs||[]).map(m=>`<button class="lv-reader-row${m.unread?" unread":""}" data-id="${m.id}">
-      <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(m.from)}</span><span class="lv-reader-ago">${esc(boxLabel(m.box||""))} · ${ago(m.at)}</span></div>
+      <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(m.from)}</span><span class="lv-reader-ago">${esc(boxLabel(m.box||""))} · ${esc(mailDate(m.at))}</span></div>
       <div class="lv-reader-row-subj">${esc(m.subject)}</div>
       <div class="lv-reader-row-snip">${esc(m.snippet)}</div></button>`).join("");
   el.innerHTML=`<div class="lv-reader-head lv-overline">Post
