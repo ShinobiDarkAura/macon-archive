@@ -255,6 +255,39 @@ Deno.serve(async (req) => {
       return json({ url: auth.toString() });
     }
 
+    // The browser was making one request to list ids and then one per message
+    // for its headers, thirty-odd round trips through here for a single inbox.
+    // The fan-out belongs on this side, next to Google, in parallel, returning
+    // one assembled answer.
+    if (action === "inbox") {
+      const q = url.searchParams.get("q") || "in:inbox newer_than:14d";
+      const per = Math.min(Number(url.searchParams.get("per") || 12), 25);
+      const boxes = MAILBOXES;
+      const all = await Promise.all(boxes.map(async (box) => {
+        try {
+          const token = await accessToken(box);
+          const h = { Authorization: `Bearer ${token}` };
+          const lr = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(q)}&maxResults=${per}`, { headers: h });
+          if (!lr.ok) return [];
+          const list = await lr.json();
+          const ids = (list.messages || []).map((m: { id: string }) => m.id);
+          const metas = await Promise.all(ids.map(async (id: string) => {
+            const r = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`, { headers: h });
+            if (!r.ok) return null;
+            const m = await r.json();
+            const head = (n: string) => ((m.payload && m.payload.headers) || [])
+              .find((x: { name: string }) => x.name.toLowerCase() === n.toLowerCase())?.value || "";
+            return { id: m.id, box, from: head("From"), subject: head("Subject"),
+                     snippet: m.snippet || "", at: Number(m.internalDate),
+                     unread: (m.labelIds || []).includes("UNREAD") };
+          }));
+          return metas.filter(Boolean);
+        } catch { return []; }
+      }));
+      const rows = all.flat().sort((a, b) => (b as {at:number}).at - (a as {at:number}).at);
+      return json({ messages: rows });
+    }
+
     const path = url.searchParams.get("path") || "";
     if (!ALLOWED.test(path)) return json({ error: "path not allowed" }, 400);
     const mailbox = (url.searchParams.get("mailbox") || MAILBOXES[0]).toLowerCase();

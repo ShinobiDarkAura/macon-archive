@@ -369,6 +369,16 @@
     padding-bottom:14px;margin-bottom:6px;border-bottom:1px solid var(--rl)}
   .lv-reader-refresh{background:transparent;border:none;color:var(--ink-3);cursor:pointer;font-size:14px;padding:2px 4px}
   .lv-reader-refresh:hover{color:var(--ink-1)}
+  /* Something to watch while Gmail is asked, centred in the drawer. */
+  .lv-load{display:flex;flex-direction:column;align-items:center;justify-content:center;
+    min-height:58vh;gap:8px;text-align:center}
+  .lv-load img{width:200px;height:200px;object-fit:contain;mix-blend-mode:multiply;opacity:.92}
+  .lv-load p{font-family:var(--sans);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-3);margin:0}
+  .lv-dots i{font-style:normal;opacity:.25;animation:lvDot 1.2s infinite}
+  .lv-dots i:nth-child(2){animation-delay:.2s}
+  .lv-dots i:nth-child(3){animation-delay:.4s}
+  @keyframes lvDot{0%,60%,100%{opacity:.25}30%{opacity:1}}
   .lv-reader-list{display:flex;flex-direction:column}
   .lv-reader-row{display:block;width:100%;text-align:left;font-family:var(--sans);color:inherit;
     background:transparent;border:none;border-radius:6px;padding:12px 10px;margin:0;cursor:pointer;
@@ -2596,19 +2606,15 @@ async function loadReader(){
   if(readerConnected===null) await gmailStatus();
   try{
     // only what was written to the studio, not the keeper's own mail
-    const q=encodeURIComponent("in:inbox newer_than:14d");
-    const boxes=(readerConnected&&readerConnected.length)?readerConnected:[];
-    const perBox=await Promise.all(boxes.map(async box=>{
-      try{
-        const list=await gmail(`messages?q=${q}&maxResults=15`, box);
-        const metas=await Promise.all((list.messages||[]).map(m=>
-          gmail(`messages/${m.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`, box)));
-        return metas.map(m=>({ id:m.id, box, from:hdr(m,"From").replace(/\s*<.*>$/,"").replace(/^"|"$/g,""),
-          subject:hdr(m,"Subject")||"(no subject)", snippet:unent(m.snippet||""), at:Number(m.internalDate),
-          unread:(m.labelIds||[]).includes("UNREAD") }));
-      }catch(e){ return []; }
-    }));
-    readerMsgs=perBox.flat().sort((a,b)=>b.at-a.at);
+    const { data:{ session } }=await sb.auth.getSession();
+    if(!session) throw new Error("connect");
+    const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/gmail-reader?action=inbox&per=12`,
+      { headers:{ Authorization:"Bearer "+session.access_token, apikey:CONFIG.SUPABASE_ANON_KEY } });
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(j.error||("Gmail "+r.status));
+    readerMsgs=(j.messages||[]).map(m=>({ ...m,
+      from:unent(m.from).replace(/\s*<.*>$/,"").replace(/^"|"$/g,""),
+      subject:unent(m.subject)||"(no subject)", snippet:unent(m.snippet) }));
   }catch(e){ readerErr=e.message; readerMsgs=readerMsgs||[]; }
   readerLoading=false; renderReader();
 }
@@ -2864,6 +2870,13 @@ function renderReader(){
       <div class="lv-reader-body">${esc(o.body)}</div>`;
     el.querySelector("#lvReaderBack").onclick=()=>{ readerOpen=null; renderReader(); }; return;
   }
+  if(readerLoading || (readerMsgs===null && !readerErr)){
+    el.innerHTML=`<div class="lv-reader-head lv-overline">Post</div>
+      <div class="lv-load"><img src="logos/walking.webp" alt="" width="200" height="200">
+      <p>Fetching the post<span class="lv-dots"><i>.</i><i>.</i><i>.</i></span></p></div>`;
+    if(readerMsgs===null && !readerLoading) loadReader();
+    return;
+  }
   const rows=(readerMsgs||[]).map(m=>`<button class="lv-reader-row${m.unread?" unread":""}" data-id="${m.id}">
       <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(m.from)}</span><span class="lv-reader-ago">${esc(boxLabel(m.box||""))} · ${esc(mailDate(m.at))}</span></div>
       <div class="lv-reader-row-subj">${esc(m.subject)}</div>
@@ -2872,7 +2885,6 @@ function renderReader(){
       <button class="lv-reader-refresh" id="lvReaderRefresh" title="Check again">${readerLoading?"…":"↻"}</button></div>
     ${readerErr?`<p class="lv-reader-note">${esc(readerErr)}</p>`:""}
     ${readerMsgs&&!readerMsgs.length?`<p class="lv-reader-note">Nothing to ${esc(MAILBOXES.map(boxLabel).join(" or "))} in the last two weeks.</p>`:""}
-    ${readerMsgs===null&&!readerLoading?`<p class="lv-reader-note">Fetching…</p>`:""}
     <div class="lv-reader-list">${rows}</div>
 `;
   el.querySelector("#lvReaderRefresh").onclick=loadReader;
