@@ -120,9 +120,17 @@
 
   .lv-overline{font-family:"Public Sans",var(--sans);text-transform:uppercase;font-weight:400}
 
+  /* A desk to put the letter on. The wash over the grain keeps it quiet enough
+     to read against, and the light at the top gives everything on it a reason
+     to cast a shadow downward. */
   .letters-view{position:relative;height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;
     padding:48px 40px;box-sizing:border-box;gap:22px;overflow:hidden;
-    background:radial-gradient(ellipse at 50% 30%,rgba(255,255,255,.6),rgba(180,166,140,.16) 78%)}
+    background-color:#EDE7DA;
+    background-image:radial-gradient(ellipse at 50% 24%,rgba(255,255,255,.70),rgba(228,220,203,.30) 62%,rgba(196,183,157,.28) 100%),
+      url("logos/desk.jpg");
+    background-size:auto, cover;
+    background-position:center, center;
+    background-repeat:no-repeat, no-repeat}
   .lv-empty{font-family:var(--serif-soul);font-style:italic;font-size:22px;color:#a89d89;text-align:center;max-width:460px}
   /* Badge + compose live in the fixed top bar now, not on the paper — the
      paper's own overflow:hidden (needed to clip the stamp) was clipping them
@@ -293,38 +301,77 @@
   .lv-ghost-2{transform:rotate(3deg) translate(14px,16px);z-index:0}
   .lv-ghost-3{transform:rotate(-4.5deg) translate(-18px,22px);z-index:-1}
 
-  /* the reader: incoming post in the right gutter, same panel as the marginalia */
-  .lv-reader{grid-column:3;grid-row:1;justify-self:center;align-self:center;width:320px;max-height:100%;overflow-y:auto;
-    box-sizing:border-box;padding:16px;border-radius:6px;background:rgba(255,255,255,.42);
-    font-family:"Public Sans",var(--sans);font-size:12.5px;line-height:1.5;color:var(--slate)}
-  .lv-reader-head{display:flex;align-items:center;justify-content:space-between;font-size:11px;letter-spacing:.14em;color:#8c7f68;margin-bottom:10px}
-  .lv-reader-refresh,.lv-reader-back{border:none;background:transparent;color:#a89d89;cursor:pointer;font-family:var(--sans);font-size:13px;padding:2px 4px}
-  .lv-reader-refresh:hover,.lv-reader-back:hover{color:var(--ink)}
-  .lv-reader-back{margin:0 0 10px -4px}
-  .lv-reader-note{margin:0 0 12px;color:#8c7f68}
-  .lv-reader-connect{font-family:var(--sans);font-size:12.5px;color:#fff;background:var(--accent-grad);border:none;
-    border-radius:8px;padding:8px 14px;cursor:pointer;margin:0 6px 6px 0}
-  .lv-reader-connect.small{font-size:11.5px;padding:5px 11px;background:transparent;color:#a89d89;border:1px solid var(--rule);margin-top:12px}
-  .lv-reader-connect.small:hover{border-color:var(--accent);color:var(--accent-deep)}
-  .lv-reader-reconnect{font-family:var(--sans);font-size:10.5px;letter-spacing:.04em;background:transparent;
-    border:none;color:#c3b9a3;cursor:pointer;padding:4px 6px;margin-top:10px;text-decoration:underline;text-underline-offset:2px}
-  .lv-reader-reconnect:hover{color:var(--accent-deep)}
-  .lv-reader-list{display:flex;flex-direction:column}
-  .lv-reader-row{display:block;width:100%;text-align:left;border:none;border-top:1px solid var(--rule);background:transparent;
-    padding:10px 0;cursor:pointer;font-family:inherit;color:inherit;transition:background .15s}
-  .lv-reader-row:first-child{border-top:none}
-  .lv-reader-row:hover{background:rgba(255,255,255,.5)}
-  .lv-reader-row-top{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#8c7f68}
-  .lv-reader-from{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .lv-reader-row-subj{color:var(--ink);margin:2px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .lv-reader-row.unread .lv-reader-row-subj{font-weight:600}
-  .lv-reader-row-snip{font-size:11.5px;color:#8c7f68;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .lv-reader-subject{font-size:15px;color:var(--ink);margin-bottom:4px}
-  .lv-reader-meta{font-size:11px;color:#8c7f68;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--rule)}
-  .lv-reader-body{white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.6;color:var(--ink)}
-  .lv-thread-msg{padding:12px 0;border-top:1px solid var(--rule)}
-  .lv-thread-msg .lv-reader-meta{margin-bottom:6px;padding-bottom:0;border-bottom:none}
-  .lv-thread-msg .lv-reader-body{max-height:260px;overflow-y:auto}
+  /* ---------- the post drawer, hung on the right edge ---------- */
+  body.view-letters .letters-view{padding-right:480px}
+  .lv-reader{position:fixed;top:0;right:0;bottom:0;width:440px;z-index:55;
+    overflow-y:auto;overflow-x:hidden;box-sizing:border-box;padding:26px 24px 90px;
+    --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
+    background:linear-gradient(#FCFAF4,#F6F2E8);
+    box-shadow:-1px 0 0 rgba(120,102,70,.16), -18px 0 44px rgba(60,48,28,.10)}
+  .lv-reader::-webkit-scrollbar{width:9px}
+  .lv-reader::-webkit-scrollbar-thumb{background:rgba(120,105,80,.20);border-radius:5px}
+  .lv-style{position:fixed;right:24px;bottom:18px;z-index:56;display:flex;gap:3px;
+    background:rgba(255,255,255,.86);border:1px solid var(--rule);border-radius:999px;padding:3px}
+  .lv-style button{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:9.5px;letter-spacing:.12em;
+    text-transform:uppercase;border:none;background:transparent;color:#a89d89;border-radius:999px;
+    padding:5px 11px;cursor:pointer}
+  .lv-style button.on{background:var(--accent-grad);color:#fff}
+  .lv-reader-back{font-family:var(--sans);font-size:12px;color:#a89d89;background:transparent;border:none;
+    cursor:pointer;padding:2px 0;margin-bottom:12px;display:block}
+  .lv-reader-back:hover{color:var(--ink)}
+  .lv-reader-note{font-size:13px;color:var(--ink-3);margin:0 0 12px;font-family:var(--sans)}
+  .rd-more{display:inline-block;margin:9px 0 0;padding:2px 10px 3px;border:1px solid var(--rl);border-radius:999px;
+    background:transparent;color:var(--ink-3);cursor:pointer;font-family:var(--sans);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase}
+  .rd-more:hover,.rd-more.on{color:var(--ink-1);border-color:var(--ink-3)}
+  .rd-quote{white-space:pre-wrap;font-size:12.5px;line-height:1.55;color:var(--ink-3);margin-top:9px;
+    padding-left:10px;border-left:2px solid var(--rl);overflow-wrap:break-word}
+  .rd-sig{white-space:pre-wrap;font-size:12px;line-height:1.5;color:var(--ink-3);margin-top:12px}
+  .rd-body a,.rd-quote a{color:var(--accent-deep);overflow-wrap:anywhere}
+  .rd-body{overflow-wrap:break-word}
+  .rd-body p{margin:0 0 .8em}
+  .rd-body p:last-child{margin-bottom:0}
+  .rd-body .mm-pre{white-space:pre-wrap;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;line-height:1.55}
+  .rd-shut{opacity:.62;cursor:pointer}
+  .rd-shut:hover{opacity:1}
+  .rd-snip{font-family:var(--sans);font-size:12px;color:var(--ink-3);margin-top:2px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* 03 DISPATCH */
+  .rd-dispatch .rd-band{border-top:3px double var(--ink-1);border-bottom:3px double var(--ink-1);padding:9px 0;
+    text-align:center;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.28em;text-transform:uppercase}
+  .rd-dispatch .rd-title{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--ink-2);text-align:center;margin:12px 0 4px}
+  .rd-dispatch .rd-m{padding:16px 0;border-bottom:1px dashed var(--rl)}
+  .rd-dispatch .rd-hd{display:flex;justify-content:space-between;gap:10px;
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+  .rd-dispatch .rd-body{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;line-height:1.72;
+    color:var(--ink-1);margin-top:11px}
+  .rd-dispatch .rd-to{display:none}
+  .rd-dispatch .rd-ends{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:9.5px;letter-spacing:.2em;
+    color:var(--ink-3);margin-top:11px;text-transform:uppercase}
+
+  /* 04 DOCKET */
+  .rd-docket{font-family:"IBM Plex Mono",ui-monospace,monospace}
+  .rd-docket .rd-dk{display:flex;align-items:flex-end;gap:6px;font-size:10.5px;color:var(--ink-2);padding:3px 0;letter-spacing:.06em}
+  .rd-docket .rd-dk i{flex:1;border-bottom:1px dotted var(--rl);margin-bottom:3px}
+  .rd-docket .rd-m{border-top:1px solid var(--ink-1);margin-top:11px;padding-top:11px}
+  .rd-docket .rd-hd{display:flex;justify-content:space-between;gap:10px;font-size:10.5px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-2)}
+  .rd-docket .rd-body{font-size:12px;line-height:1.75;color:var(--ink-1);margin-top:10px}
+  .rd-docket .rd-to{display:none}
+  .rd-docket .rd-stamp{display:inline-block;border:1.5px solid var(--accent);color:var(--accent);
+    font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;padding:5px 10px;transform:rotate(-3deg);margin-top:18px}
+
+  /* 05 QUIET */
+  .rd-quiet .rd-title{font-family:var(--serif-soul);font-size:23px;line-height:1.25;color:var(--ink-1);margin-bottom:3px}
+  .rd-quiet .rd-sub{font-family:var(--sans);font-size:12px;color:var(--ink-3);margin-bottom:22px}
+  .rd-quiet .rd-m{margin-bottom:24px;font-family:var(--sans)}
+  .rd-quiet .rd-hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .rd-quiet .rd-from{font-size:13.5px;font-weight:600;color:var(--ink-1)}
+  .rd-quiet .rd-when{font-size:12px;color:var(--ink-3);flex:0 0 auto}
+  .rd-quiet .rd-to{font-size:12px;color:var(--ink-3);margin-top:1px}
+  .rd-quiet .rd-body{font-family:var(--sans);font-size:15px;line-height:1.62;color:var(--ink-1);margin-top:9px}
+  .rd-quiet .rd-shut{border-top:1px solid var(--rl);padding-top:11px}
 
   /* chevrons sit just off the paper's own edges, in its grid cell */
   .lv-chev{grid-column:2;grid-row:1;align-self:center;z-index:4;width:38px;height:38px;padding:0;border:none;
@@ -336,7 +383,8 @@
   .lv-chev-next{justify-self:end;transform:translateX(calc(100% + 40px))}
 
   @media(max-width:1100px){ .lv-paper{padding:36px 28px 0} .lv-subj{font-size:24px} .lv-body{font-size:14px}
-    .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none} }
+    .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none} .lv-style{display:none}
+    body.view-letters .letters-view{padding-right:40px} }
 
   /* ===== Studio Line — keeper chat ===== */
   .diag-fab{display:none} body.diag .diag-fab{display:block}
@@ -2292,6 +2340,16 @@ async function sendLetter({subj, body, to}){
 }
 // Connect for a box that has never consented, reconnect for one that has but
 // may be holding an older, narrower grant.
+function renderReaderSwitch(){
+  const el=document.getElementById("lvStyle"); if(!el) return;
+  el.innerHTML = READER_STYLES.map(v=>
+    `<button class="${v===readerStyle?"on":""}" data-style="${v}">${v}</button>`).join("");
+  el.querySelectorAll("[data-style]").forEach(b=>b.onclick=()=>{
+    readerStyle=b.dataset.style;
+    try{ localStorage.setItem("macon_reader", readerStyle); }catch{}
+    renderReader();
+  });
+}
 function renderMailbar(){
   const el=document.getElementById("lvMailbar"); if(!el) return;
   if(!gmailReady() || !readerConnected){ el.innerHTML=""; return; }
@@ -2344,6 +2402,11 @@ const boxLabel=m=>String(m).split("@")[0];
 let readerMsgs=null, readerOpen=null, readerErr="", readerLoading=false;
 // the thread with whoever the current letter is to, when Gmail has one
 let readerMode="post", readerThread=null; const _threads=new Map();
+const readerOpenMsgs=new Set();
+// Three drawer treatments to try in place. Kept in localStorage so the choice
+// survives a reload while it is being judged.
+const READER_STYLES=["dispatch","docket","quiet"];
+let readerStyle=(()=>{ try{ return localStorage.getItem("macon_reader")||"quiet"; }catch{ return "quiet"; } })();
 let readerConnected=null, _statusPending=false;
 const gmailReady=()=>!!(sb&&synced);
 async function gmail(path, mailbox){
@@ -2426,9 +2489,127 @@ async function openReaderMsg(id){
   }catch(e){ readerOpen={id, body:"Couldn't open this one: "+e.message}; }
   renderReader();
 }
+/* ---------- making a raw plain-text mail readable ----------
+   Mail arrives hard-wrapped at 72 columns, trailing a quoted copy of the whole
+   previous thread and a signature. Rendered literally it is a wall. Three
+   passes fix it: honour RFC 3676 format=flowed where the sender marked it,
+   heuristically rejoin hard-wrapped prose where they did not, and fold the
+   quoted history and signature away. */
+
+// RFC 3676: a line ending in a space is a soft break and joins the next.
+function mailFlowed(text, delsp){
+  const out=[]; let buf="", depth=null;
+  for(const raw of String(text).split("\n")){
+    const m=/^(>*)\s?([\s\S]*)$/.exec(raw);
+    const d=m[1].length, line=m[2];
+    if(depth!==null && d!==depth){ out.push({d:depth, t:buf}); buf=""; }
+    depth=d;
+    if(/ $/.test(line)){ buf += delsp ? line.slice(0,-1) : line; }
+    else { buf += line; out.push({d, t:buf}); buf=""; depth=null; }
+  }
+  if(buf) out.push({d:depth||0, t:buf});
+  return out.map(o=>(o.d?">".repeat(o.d)+" ":"")+o.t).join("\n");
+}
+
+// Everything from "-- " onward is a signature and must keep its own breaks.
+function mailSplitSignature(text){
+  const m=/^-- ?$/m.exec(text);
+  if(!m) return { body:text, sig:"" };
+  return { body:text.slice(0, m.index).replace(/\s+$/,""), sig:text.slice(m.index+m[0].length).replace(/^\n/,"") };
+}
+
+const QUOTE_MARKERS=[
+  /^-{2,}\s*Original Message\s*-{2,}/im,
+  /^-{2,}\s*Forwarded message\s*-{2,}/im,
+  /^_{5,}\s*$/m,
+  /^From:\s.+\nSent:\s/im,
+];
+// Walk back from the end: the "On <date>, X wrote:" preamble belongs to the
+// quote, not to the message.
+function mailSplitQuote(text){
+  const lines=text.split("\n");
+  let cut=-1;
+  for(const re of QUOTE_MARKERS){ const m=re.exec(text); if(m){ const i=text.slice(0,m.index).split("\n").length-1; if(cut<0||i<cut) cut=i; } }
+  if(cut<0){
+    for(let i=0;i<lines.length;i++){
+      if(/^>/.test(lines[i])){ cut=i; break; }
+    }
+    // pull the "On ... wrote:" line (and its wrapped first half) into the quote
+    if(cut>0){
+      let j=cut-1;
+      while(j>=0 && lines[j].trim()==="") j--;
+      if(j>=0 && /wrote:\s*$/.test(lines[j])){
+        cut=j;
+        if(cut>0 && /^On\s/.test(lines[cut])===false && /^On\s/.test(lines[cut-1])) cut=cut-1;
+      }
+    }
+  }
+  if(cut<0) return { body:text, quoted:"" };
+  const body=lines.slice(0,cut).join("\n").replace(/\s+$/,"");
+  const quoted=lines.slice(cut).join("\n").trim();
+  // A quote with nothing above it is the whole message: show it.
+  if(!body.trim()) return { body:text, quoted:"" };
+  return { body, quoted };
+}
+
+// Rejoin prose that a 72-column composer broke, and leave everything that
+// depends on its line breaks alone.
+function mailUnwrap(text){
+  return String(text).replace(/\r\n/g,"\n").split(/\n{2,}/).map(block=>{
+    const lines=block.split("\n");
+    if(lines.length<3) return {pre:false, t:block};
+    const max=Math.max(...lines.map(l=>l.length));
+    const nonFinal=lines.slice(0,-1);
+    const longish=nonFinal.filter(l=>l.length>=62).length;
+    const wrapped = max<=80 && longish >= Math.ceil(nonFinal.length*0.6);
+    const looksPre = lines.some(l=>/^\s{2,}\S/.test(l))
+      || lines.filter(l=>/^\s*([-*\u2022]|\d+[.)])\s/.test(l)).length>=2
+      || lines.some(l=>/\S {3,}\S/.test(l));
+    if(!wrapped || looksPre) return {pre:true, t:block};
+    let out="";
+    lines.forEach((l,i)=>{
+      out += l;
+      if(i===lines.length-1) return;
+      const next=lines[i+1];
+      out += (/^\s*([-*\u2022]|\d+[.)])\s/.test(next) || /:$/.test(l)) ? "\n" : " ";
+    });
+    return {pre:false, t:out};
+  });
+}
+
+const URL_RE=/\bhttps?:\/\/[^\s<>"')]+/g;
+function mailLinkify(escaped){
+  return escaped.replace(URL_RE, u=>{
+    const clean=u.replace(/[.,;:]$/,"");
+    let label=clean.replace(/^https?:\/\//,"");
+    if(label.length>34) label=label.slice(0,32)+"\u2026";
+    return `<a href="${clean}" target="_blank" rel="noopener" title="${clean}">${label}</a>`;
+  });
+}
+
+function mailRender(text){
+  const { body, sig } = mailSplitSignature(String(text||""));
+  const { body:main, quoted } = mailSplitQuote(body);
+  const blocks = mailUnwrap(main).map(b=>
+    `<p class="${b.pre?"mm-pre":""}">${mailLinkify(esc(b.t))}</p>`).join("");
+  return { html: blocks || "<p></p>", quoted, sig };
+}
+
+// Today shows a time, this week a weekday, this year a date, older adds a year.
+function mailDate(ms){
+  const d=new Date(ms), now=new Date();
+  const sameDay=d.toDateString()===now.toDateString();
+  if(sameDay) return d.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+  const days=(now-d)/86400000;
+  if(days<7) return d.toLocaleDateString([], {weekday:"short"});
+  if(d.getFullYear()===now.getFullYear()) return d.toLocaleDateString([], {month:"short", day:"numeric"});
+  return d.toLocaleDateString([], {month:"short", day:"numeric", year:"numeric"});
+}
+
 async function loadThreadFor(email, name){
   if(!email || !gmailReady()){ readerMode="post"; readerThread=null; renderReader(); return; }
   readerMode="thread";
+  readerOpenMsgs.clear();
   if(_threads.has(email)){ readerThread=_threads.get(email); renderReader(); return; }
   readerThread={email, name, loading:true}; renderReader();
   try{
@@ -2458,6 +2639,8 @@ async function loadThreadFor(email, name){
 }
 function renderReader(){
   const el=document.getElementById("lvReader"); if(!el) return;
+  el.className = "lv-reader rd-"+readerStyle;
+  renderReaderSwitch();
   // Which box a letter leaves from depends on the thread, which arrives after
   // the letter has already been drawn.
   const fl=document.getElementById("lvFromLine"); if(fl) fl.textContent=fromLabel();
@@ -2474,13 +2657,47 @@ function renderReader(){
   if(gmailReady() && readerMode==="thread" && readerThread){
     const t=readerThread;
     const back=`<button class="lv-reader-back" id="lvReaderPost">‹ Post</button>`;
-    if(t.loading){ el.innerHTML=`${back}<div class="lv-reader-head lv-overline">Thread</div><p class="lv-reader-note">Looking for mail with ${esc(t.name||t.email)}…</p>`; }
-    else if(!t.msgs.length){ el.innerHTML=`${back}<div class="lv-reader-head lv-overline">Thread</div><p class="lv-reader-note">${t.err?esc(t.err):`No mail with ${esc(t.email)} yet.`}</p>`; }
+    const S=readerStyle;
+    if(t.loading){ el.innerHTML=`${back}<p class="lv-reader-note">Looking for mail with ${esc(t.name||t.email)}\u2026</p>`; }
+    else if(!t.msgs.length){ el.innerHTML=`${back}<p class="lv-reader-note">${t.err?esc(t.err):`No mail with ${esc(t.email)} yet.`}</p>`; }
     else{
-      el.innerHTML=`${back}<div class="lv-reader-head lv-overline">Thread · ${esc(t.name||t.email)}</div>
-        <div class="lv-reader-subject">${esc(t.msgs[0].subject||"")}</div>
-        ${t.msgs.map(m=>`<div class="lv-thread-msg"><div class="lv-reader-meta">${esc(m.from)} · ${esc(boxLabel(m.box||""))} · ${ago(m.at)}</div><div class="lv-reader-body">${esc(m.body)}</div></div>`).join("")}`;
-      el.scrollTop=el.scrollHeight;
+      const n=t.msgs.length;
+      const who=esc(t.name||t.email);
+      const subj=esc(t.msgs[0].subject||"Thread");
+      const msg=(m,idx)=>{
+        const newest=idx===n-1, open=newest||readerOpenMsgs.has(idx);
+        const r=mailRender(m.body);
+        const when=esc(mailDate(m.at)), from=esc(m.from);
+        const tail = (r.quoted?`<button class="rd-more" data-quote="${idx}">Earlier</button><div class="rd-quote" id="mmq${idx}" hidden>${mailLinkify(esc(r.quoted))}</div>`:"")
+                   + (r.sig?`<div class="rd-sig">${mailLinkify(esc(r.sig))}</div>`:"");
+        if(!open) return `<article class="rd-m rd-shut" data-msg="${idx}">
+            <div class="rd-hd"><span class="rd-from">${from}</span><span class="rd-when">${when}</span></div>
+            <div class="rd-snip">${esc(String(m.body||"").replace(/\s+/g," ").slice(0,88))}</div></article>`;
+        if(S==="dispatch") return `<article class="rd-m" data-msg="${idx}">
+            <div class="rd-hd"><span class="rd-from">${from}</span><span class="rd-when">${when}</span></div>
+            <div class="rd-body">${r.html}</div>${tail}
+            <div class="rd-ends">Message ends</div></article>`;
+        if(S==="docket") return `<article class="rd-m" data-msg="${idx}">
+            <div class="rd-hd"><span class="rd-from">${from}</span><span class="rd-when">${when}</span></div>
+            <div class="rd-body">${r.html}</div>${tail}</article>`;
+        return `<article class="rd-m" data-msg="${idx}">
+            <div class="rd-hd"><span class="rd-from">${from}</span><span class="rd-when" title="${esc(new Date(m.at).toLocaleString())}">${when}</span></div>
+            <div class="rd-to">to ${esc(boxLabel(m.box||""))}@</div>
+            <div class="rd-body">${r.html}</div>${tail}</article>`;
+      };
+      const cards=t.msgs.map(msg).join("");
+      const head = S==="dispatch"
+        ? `<div class="rd-band">Incoming \u00b7 ${esc(boxLabel(t.box||MAILBOXES[0]))}@</div><div class="rd-title">${subj}</div>`
+        : S==="docket"
+        ? `<div class="rd-dk"><span>THREAD</span><i></i><span>${subj.toUpperCase()}</span></div>
+           <div class="rd-dk"><span>WITH</span><i></i><span>${who.toUpperCase()}</span></div>
+           <div class="rd-dk"><span>MESSAGES</span><i></i><span>${n}</span></div>`
+        : `<div class="rd-title">${subj}</div><div class="rd-sub">${n} message${n>1?"s":""} with ${who}</div>`;
+      el.innerHTML=`${back}${head}${cards}${S==="docket"?`<div class="rd-stamp">Awaiting reply</div>`:""}`;
+      el.querySelectorAll(".rd-shut").forEach(a=>a.onclick=()=>{ readerOpenMsgs.add(Number(a.dataset.msg)); renderReader(); });
+      el.querySelectorAll("[data-quote]").forEach(b=>b.onclick=()=>{
+        const q=el.querySelector("#mmq"+b.dataset.quote); q.hidden=!q.hidden; b.classList.toggle("on",!q.hidden);
+      });
     }
     el.insertAdjacentHTML("beforeend", connectRow);
     el.querySelector("#lvReaderPost").onclick=()=>{ readerMode="post"; renderReader(); };
@@ -2642,6 +2859,7 @@ function renderCurrentLetter(){
         </div>
       </div>
       <aside class="lv-reader" id="lvReader"></aside>
+      <div class="lv-style" id="lvStyle"></div>
     </div>`;
   loadThreadFor(email, name);
 
