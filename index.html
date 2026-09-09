@@ -2343,7 +2343,7 @@ const boxLabel=m=>String(m).split("@")[0];
 let readerMsgs=null, readerOpen=null, readerErr="", readerLoading=false;
 // the thread with whoever the current letter is to, when Gmail has one
 let readerMode="post", readerThread=null; const _threads=new Map();
-let readerConnected=null;
+let readerConnected=null, _statusPending=false;
 const gmailReady=()=>!!(sb&&synced);
 async function gmail(path, mailbox){
   const { data:{ session } }=await sb.auth.getSession();
@@ -2460,6 +2460,13 @@ function renderReader(){
   // Which box a letter leaves from depends on the thread, which arrives after
   // the letter has already been drawn.
   const fl=document.getElementById("lvFromLine"); if(fl) fl.textContent=fromLabel();
+  // Which boxes are connected has to be known in every reader state, not just
+  // the inbox one: a letter opens straight into the thread view, so loading
+  // this only in loadReader left the connect buttons permanently hidden.
+  if(gmailReady() && readerConnected===null && !_statusPending){
+    _statusPending=true;
+    gmailStatus().finally(()=>{ _statusPending=false; renderMailbar(); });
+  }
   const connectRow = "";
   const wireConnect = el => el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
   renderMailbar();
