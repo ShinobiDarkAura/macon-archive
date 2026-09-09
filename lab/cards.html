@@ -63,10 +63,15 @@
   .r-big-a{align-items:flex-end;gap:18px}
   .r-big-a .k{flex:0 0 auto}
   .r-big-a .side{font-size:11.5px;line-height:1.5;color:var(--ink-3);padding-bottom:5px;max-width:38%}
-  .r-big-b{height:232px;flex-direction:column;align-items:stretch;justify-content:flex-end}
+  .r-big-b{height:262px;flex-direction:column;align-items:stretch;justify-content:flex-end;overflow:hidden}
   .r-big-b .k{font-size:44px}
-  .r-big-b .under{margin-top:12px;padding-top:10px;border-top:1px solid var(--rule);
+  /* The perforation runs the full width so the foot reads as a tear-off stub.
+     Negative margins carry it out past the card's own padding. */
+  .r-big-b .under{margin:24px -22px 0;padding:22px 22px 0;position:relative;
     font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+  .r-big-b .under::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;
+    background-image:radial-gradient(circle,rgba(140,116,78,.50) 1.1px,transparent 1.3px);
+    background-size:7px 2px;background-repeat:repeat-x}
   .slip{width:372px;margin-left:14px;margin-top:-6px;background:#EFE9DA;border-radius:0 0 3px 3px;
     padding:16px 20px 14px;font-size:12.5px;line-height:1.55;color:var(--ink-2);
     box-shadow:0 6px 14px rgba(60,48,30,.14)}
