@@ -172,8 +172,7 @@
      name-at-top-note-pushed-to-bottom. */
   /* Anchored back to the paper's own column, left side this time, 24px off
      its edge — a fixed offset from the sheet again, not from the viewport. */
-  .lv-label{grid-column:2;grid-row:1;justify-self:start;align-self:center;z-index:2;
-    transform:translateX(calc(-100% - 22px));
+  .lv-label{position:fixed;left:40px;top:50%;transform:translateY(-50%);z-index:2;
     display:flex;flex-direction:column;justify-content:center;
     width:286px;padding:24px;box-sizing:border-box;border-radius:6px;background:rgba(255,255,255,.42);
     font-size:11px;line-height:1.8;color:#8c7f68;letter-spacing:.06em;
@@ -234,7 +233,13 @@
   .lv-to{font-family:"Public Sans",var(--sans);font-weight:400;font-size:10px;letter-spacing:.18em;
     color:#9C8F76;margin-bottom:10px;text-transform:uppercase;
     display:flex;align-items:baseline;justify-content:flex-start;gap:16px}
-  .lv-to-lab{color:#c3b9a3}
+  .lv-to-lab{color:#c3b9a3;flex:0 0 auto}
+  .lv-to-l{display:flex;align-items:baseline;gap:7px;min-width:0;flex:1}
+  .lv-to-in{font:inherit;letter-spacing:inherit;text-transform:inherit;color:#9C8F76;background:transparent;
+    border:none;border-bottom:1px solid transparent;padding:0 0 1px;min-width:0;flex:1;max-width:26em}
+  .lv-to-in:hover{border-bottom-color:var(--rule)}
+  .lv-to-in:focus{outline:none;border-bottom-color:var(--accent);color:var(--ink)}
+  .lv-to-in::placeholder{color:#cfc5b0;text-transform:none;letter-spacing:.06em}
   .lv-fromline::before{content:"\2022";margin-right:16px;color:#d5cbb6}
   .lv-subj{width:100%;border:none;background:transparent;font-family:"TAY Birdie",var(--serif-soul);font-weight:400;
     font-size:26px;line-height:1.3;color:#1C1A18;padding:0 0 14px;margin-bottom:18px;border-bottom:1px solid #E3DED0;
@@ -303,9 +308,12 @@
   .lv-ghost-3{transform:rotate(-4.5deg) translate(-18px,22px);z-index:-1}
 
   /* ---------- the post drawer, hung on the right edge ---------- */
-  body.view-letters .letters-view{padding-right:428px}
-  .lv-reader{position:fixed;top:0;right:0;bottom:0;width:404px;z-index:55;
-    overflow-y:auto;overflow-x:hidden;box-sizing:border-box;padding:26px 24px 90px;
+  /* The marginalia is pinned at the left edge and the drawer at the right, so
+     the sheet centres in the space between them by giving the view a padding
+     equal to each. Equal gaps fall out of that rather than being tuned. */
+  body.view-letters .letters-view{padding-left:326px;padding-right:444px}
+  .lv-reader{position:fixed;top:0;right:0;bottom:0;width:444px;z-index:55;
+    overflow-y:auto;overflow-x:hidden;box-sizing:border-box;padding:38px 36px 96px;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
     background:linear-gradient(#FCFAF4,#F6F2E8);
     box-shadow:-1px 0 0 rgba(120,102,70,.16), -18px 0 44px rgba(60,48,28,.10)}
@@ -332,6 +340,10 @@
   .rd-body p{margin:0 0 .8em}
   .rd-body p:last-child{margin-bottom:0}
   .rd-body .mm-pre{white-space:pre-wrap;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;line-height:1.55}
+  .rd-foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--rl);display:flex;flex-wrap:wrap;gap:6px}
+  .rd-foot button{font-family:var(--sans);font-size:10.5px;letter-spacing:.06em;background:transparent;border:none;
+    color:var(--ink-3);cursor:pointer;padding:3px 0;margin-right:14px;text-decoration:underline;text-underline-offset:3px}
+  .rd-foot button:hover{color:var(--accent-deep)}
   .rd-shut{opacity:.62;cursor:pointer}
   .rd-shut:hover{opacity:1}
   .rd-snip{font-family:var(--sans);font-size:12px;color:var(--ink-3);margin-top:2px;
@@ -364,15 +376,36 @@
     font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;padding:5px 10px;transform:rotate(-3deg);margin-top:18px}
 
   /* 05 QUIET */
-  .rd-quiet .rd-title{font-family:var(--serif-soul);font-size:23px;line-height:1.25;color:var(--ink-1);margin-bottom:3px}
-  .rd-quiet .rd-sub{font-family:var(--sans);font-size:12px;color:var(--ink-3);margin-bottom:22px}
-  .rd-quiet .rd-m{margin-bottom:24px;font-family:var(--sans)}
-  .rd-quiet .rd-hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-  .rd-quiet .rd-from{font-size:13.5px;font-weight:600;color:var(--ink-1)}
-  .rd-quiet .rd-when{font-size:12px;color:var(--ink-3);flex:0 0 auto}
-  .rd-quiet .rd-to{font-size:12px;color:var(--ink-3);margin-top:1px}
-  .rd-quiet .rd-body{font-family:var(--sans);font-size:15px;line-height:1.62;color:var(--ink-1);margin-top:9px}
-  .rd-quiet .rd-shut{border-top:1px solid var(--rl);padding-top:11px}
+  .rd-quiet .rd-title{font-family:var(--serif-soul);font-size:30px;line-height:1.18;color:var(--ink-1);
+    letter-spacing:-.015em;margin-bottom:7px}
+  .rd-quiet .rd-sub{font-family:var(--sans);font-size:12px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink-3);margin-bottom:34px}
+  /* A day marker between runs, so a gap of weeks is visible rather than implied */
+  .rd-quiet .rd-day{display:flex;align-items:center;gap:12px;margin:0 0 20px;
+    font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+  .rd-quiet .rd-day::before,.rd-quiet .rd-day::after{content:"";height:1px;background:var(--rl);flex:1}
+  .rd-quiet .rd-day span{background:rgba(255,255,255,.7);border:1px solid var(--rl);border-radius:999px;padding:3px 11px}
+  /* Sender at a glance: the studio's own messages sit on a tinted ground with a
+     rust initial, everyone else on white. */
+  .rd-quiet .rd-m{margin-bottom:30px;font-family:var(--sans);background:#fff;border-radius:9px;
+    padding:16px 17px 17px;box-shadow:0 0 0 1px rgba(120,102,70,.09),0 2px 5px rgba(60,48,28,.05)}
+  .rd-quiet .rd-m.rd-us{background:#F6F1E6;box-shadow:0 0 0 1px rgba(150,120,70,.13)}
+  .rd-quiet .rd-hd{display:flex;align-items:center;gap:10px}
+  .rd-quiet .rd-av{width:30px;height:30px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;
+    justify-content:center;font-size:11.5px;font-weight:600;letter-spacing:.02em;
+    background:#E6DFCE;color:#6E6450}
+  .rd-quiet .rd-us .rd-av{background:var(--accent-grad);color:#fff}
+  .rd-quiet .rd-who{min-width:0;flex:1}
+  .rd-quiet .rd-from{display:block;font-size:15px;font-weight:600;color:var(--ink-1);line-height:1.25;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rd-quiet .rd-when{font-size:12px;color:var(--ink-3);flex:0 0 auto;align-self:flex-start;padding-top:2px}
+  .rd-quiet .rd-to{font-size:11.5px;color:var(--ink-3);line-height:1.3;margin-top:1px}
+  .rd-quiet .rd-body{font-family:var(--sans);font-size:15.5px;line-height:1.68;color:var(--ink-1);margin-top:14px}
+  .rd-quiet .rd-body p{margin:0 0 1em}
+  .rd-quiet .rd-shut{background:transparent;box-shadow:none;padding:0 0 4px;margin-bottom:22px;
+    border-bottom:1px solid var(--rl)}
+  .rd-quiet .rd-shut .rd-from{font-size:13.5px}
+  .rd-quiet .rd-snip{margin-top:5px;padding-left:40px}
 
   /* chevrons sit just off the paper's own edges, in its grid cell */
   .lv-chev{grid-column:2;grid-row:1;align-self:center;z-index:4;width:38px;height:38px;padding:0;border:none;
@@ -2354,9 +2387,10 @@ function renderReaderSwitch(){
 function renderMailbar(){
   const el=document.getElementById("lvMailbar"); if(!el) return;
   if(!gmailReady() || !readerConnected){ el.innerHTML=""; return; }
-  el.innerHTML = MAILBOXES.map(m=> readerConnected.includes(m)
-    ? `<button class="lv-mb-reconnect" data-box="${esc(m)}" title="Consent again, for example after the app asks for a new permission">Reconnect ${esc(boxLabel(m))}@</button>`
-    : `<button class="lv-mb-connect" data-box="${esc(m)}">Connect ${esc(boxLabel(m))}@</button>`).join("");
+  // Only boxes that still need connecting. A box already connected has nothing
+  // to say up here; its reconnect lives quietly at the foot of the drawer.
+  el.innerHTML = MAILBOXES.filter(m=>!readerConnected.includes(m))
+    .map(m=>`<button class="lv-mb-connect" data-box="${esc(m)}">Connect ${esc(boxLabel(m))}@</button>`).join("");
   el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
 }
 function fromLabel(){ const f=letterFrom(); return "from "+boxLabel(f.from)+"@"+(f.cc?", cc "+boxLabel(f.cc)+"@":""); }
@@ -2665,6 +2699,9 @@ function renderReader(){
       const n=t.msgs.length;
       const who=esc(t.name||t.email);
       const subj=esc(t.msgs[0].subject||"Thread");
+      const initials=x=>String(x||"?").trim().split(/\s+/).map(w=>w[0]||"").slice(0,2).join("").toUpperCase()||"?";
+      const isUs=m=>/ma[\u00e7c]on/i.test(m.from||"") || MAILBOXES.some(b=>String(m.from||"").toLowerCase().includes(boxLabel(b)));
+      let lastDay="";
       const msg=(m,idx)=>{
         const newest=idx===n-1, open=newest||readerOpenMsgs.has(idx);
         const r=mailRender(m.body);
@@ -2681,9 +2718,15 @@ function renderReader(){
         if(S==="docket") return `<article class="rd-m" data-msg="${idx}">
             <div class="rd-hd"><span class="rd-from">${from}</span><span class="rd-when">${when}</span></div>
             <div class="rd-body">${r.html}</div>${tail}</article>`;
-        return `<article class="rd-m" data-msg="${idx}">
-            <div class="rd-hd"><span class="rd-from">${from}</span><span class="rd-when" title="${esc(new Date(m.at).toLocaleString())}">${when}</span></div>
-            <div class="rd-to">to ${esc(boxLabel(m.box||""))}@</div>
+        const day=new Date(m.at).toLocaleDateString([], {day:"numeric", month:"long"});
+        const rule = day!==lastDay ? `<div class="rd-day"><span>${esc(day)}</span></div>` : "";
+        lastDay=day;
+        return `${rule}<article class="rd-m ${isUs(m)?"rd-us":""}" data-msg="${idx}">
+            <div class="rd-hd">
+              <span class="rd-av">${esc(initials(m.from))}</span>
+              <span class="rd-who"><span class="rd-from">${from}</span><span class="rd-to">to ${esc(boxLabel(m.box||""))}@</span></span>
+              <span class="rd-when" title="${esc(new Date(m.at).toLocaleString())}">${when}</span>
+            </div>
             <div class="rd-body">${r.html}</div>${tail}</article>`;
       };
       const cards=t.msgs.map(msg).join("");
@@ -2694,7 +2737,10 @@ function renderReader(){
            <div class="rd-dk"><span>WITH</span><i></i><span>${who.toUpperCase()}</span></div>
            <div class="rd-dk"><span>MESSAGES</span><i></i><span>${n}</span></div>`
         : `<div class="rd-title">${subj}</div><div class="rd-sub">${n} message${n>1?"s":""} with ${who}</div>`;
-      el.innerHTML=`${back}${head}${cards}${S==="docket"?`<div class="rd-stamp">Awaiting reply</div>`:""}`;
+      const foot=`<div class="rd-foot">${MAILBOXES.map(m=>
+        `<button data-box="${esc(m)}">Reconnect ${esc(boxLabel(m))}@</button>`).join("")}</div>`;
+      el.innerHTML=`${back}${head}${cards}${S==="docket"?`<div class="rd-stamp">Awaiting reply</div>`:""}${foot}`;
+      el.querySelectorAll(".rd-foot [data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
       el.querySelectorAll(".rd-shut").forEach(a=>a.onclick=()=>{ readerOpenMsgs.add(Number(a.dataset.msg)); renderReader(); });
       el.querySelectorAll("[data-quote]").forEach(b=>b.onclick=()=>{
         const q=el.querySelector("#mmq"+b.dataset.quote); q.hidden=!q.hidden; b.classList.toggle("on",!q.hidden);
@@ -2846,7 +2892,7 @@ function renderCurrentLetter(){
       ${composing||letterQueue.length<2?"":chevron("prev","Previous letter")+chevron("next","Next letter")}
       <div class="lv-paper">
         <img class="lv-stamp" src="logos/red-stamp-alt.png" alt="" aria-hidden="true">
-        <div class="lv-to"><span><span class="lv-to-lab">To:</span> ${esc(email)}</span><span class="lv-fromline" id="lvFromLine">${esc(fromLabel())}</span></div>
+        <div class="lv-to"><span class="lv-to-l"><span class="lv-to-lab">To:</span><input class="lv-to-in" id="lvTo" value="${esc(email)}" placeholder="who is this going to" spellcheck="false"></span><span class="lv-fromline" id="lvFromLine">${esc(fromLabel())}</span></div>
         <textarea class="lv-subj" id="lvSubj" rows="1" style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",subject)}">${esc(subject)}</textarea>
         <div class="lv-body-wrap"><textarea class="lv-body" id="lvBody">${esc(body)}</textarea>
         <button class="lv-signoff" id="lvSignoff" title="Click to change who signs">${esc(letterSignoff)}</button></div>
@@ -2873,6 +2919,8 @@ function renderCurrentLetter(){
     const fl=host.querySelector("#lvFromLine"); if(fl) fl.textContent = fromLabel();
   };
   host.querySelector("#lvNew").onclick=composeBlankLetter;
+  const toIn=host.querySelector("#lvTo");
+  if(toIn && !toIn.value) setTimeout(()=>toIn.focus(), 60);
   placeLetterTopbar();
   const fileOpen=host.querySelector("#lvFileOpen");
   if(fileOpen) fileOpen.onclick=()=>{ letterFilingOpen=true; renderCurrentLetter(); };
@@ -2924,7 +2972,11 @@ function renderCurrentLetter(){
     const subj=host.querySelector("#lvSubj").value;
     // the name lives on the button, not in the textarea — put it back for the send
     const body=host.querySelector("#lvBody").value.replace(/\s+$/,"")+"\n\n"+letterSignoff;
-    sendLetter({subj, body, to:email}).then(ok=>{ if(!ok) return; });
+    const toEl=host.querySelector("#lvTo");
+    const to=(toEl?toEl.value:email).trim();
+    if(!to){ toEl && toEl.focus(); alert("This letter has no recipient yet. Add an address after To."); return; }
+    if(!subj.trim()){ host.querySelector("#lvSubj").focus(); alert("Give the letter a subject before sending."); return; }
+    sendLetter({subj, body, to});
     if(composing){ exitCompose(); return; }
     completeFollowUp(i, q?q.id:"");
     letterQueue.splice(letterIdx,1);
