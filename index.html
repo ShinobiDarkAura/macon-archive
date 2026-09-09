@@ -295,6 +295,9 @@
     border-radius:8px;padding:8px 14px;cursor:pointer;margin:0 6px 6px 0}
   .lv-reader-connect.small{font-size:11.5px;padding:5px 11px;background:transparent;color:#a89d89;border:1px solid var(--rule);margin-top:12px}
   .lv-reader-connect.small:hover{border-color:var(--accent);color:var(--accent-deep)}
+  .lv-reader-reconnect{font-family:var(--sans);font-size:10.5px;letter-spacing:.04em;background:transparent;
+    border:none;color:#c3b9a3;cursor:pointer;padding:4px 6px;margin-top:10px;text-decoration:underline;text-underline-offset:2px}
+  .lv-reader-reconnect:hover{color:var(--accent-deep)}
   .lv-reader-list{display:flex;flex-direction:column}
   .lv-reader-row{display:block;width:100%;text-align:left;border:none;border-top:1px solid var(--rule);background:transparent;
     padding:10px 0;cursor:pointer;font-family:inherit;color:inherit;transition:background .15s}
@@ -2437,8 +2440,14 @@ function renderReader(){
   // the letter has already been drawn.
   const fl=document.getElementById("lvFromLine"); if(fl) fl.textContent=fromLabel();
   const unconnected = readerConnected ? MAILBOXES.filter(m=>!readerConnected.includes(m)) : [];
-  const connectRow = unconnected.map(m=>
-    `<button class="lv-reader-connect small" data-box="${esc(m)}">Connect ${esc(boxLabel(m))}@</button>`).join("");
+  // Connected boxes keep a reconnect, because a box connected before sending
+  // was added still holds a read-only grant and cannot send until it consents
+  // again.
+  const connectRow = readerConnected ? MAILBOXES.map(m=>
+    unconnected.includes(m)
+      ? `<button class="lv-reader-connect small" data-box="${esc(m)}">Connect ${esc(boxLabel(m))}@</button>`
+      : `<button class="lv-reader-reconnect" data-box="${esc(m)}" title="Consent again, for example after the app asks for a new permission">Reconnect ${esc(boxLabel(m))}@</button>`
+  ).join("") : "";
   const wireConnect = el => el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
   if(gmailReady() && readerMode==="thread" && readerThread){
     const t=readerThread;
@@ -2463,7 +2472,7 @@ function renderReader(){
     el.innerHTML=`<div class="lv-reader-head lv-overline">Post</div>
       <p class="lv-reader-note">Connect a studio mailbox to read what has come in beside what you are writing. You will sign into each box once.</p>
       ${MAILBOXES.map(m=>`<button class="lv-reader-connect" data-box="${esc(m)}">Connect ${esc(boxLabel(m))}@</button>`).join("")}`;
-    el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
+    wireConnect(el);
     return;
   }
   if(readerOpen){
