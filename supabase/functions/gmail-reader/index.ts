@@ -128,15 +128,25 @@ async function accessToken(mailbox: string): Promise<string> {
 }
 
 const ALLOWED = /^(messages|threads)(\/[A-Za-z0-9_-]+)?(\?[^#]*)?$/;
-const page = (title: string, body: string) => new Response(
-  `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-   <title>${title}</title>
-   <style>body{font-family:-apple-system,system-ui,sans-serif;background:#F4F1EA;color:#1C1A18;
-     display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center}
-     div{max-width:30rem;padding:2rem}h1{font-weight:500;font-size:1.4rem;margin:0 0 .6rem}
-     p{color:#6b6355;line-height:1.6;margin:0}</style>
-   <div><h1>${title}</h1><p>${body}</p></div>`,
-  { status: 200, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } });
+
+// Supabase's gateway rewrites our Content-Type to text/plain and sends
+// nosniff, so an HTML confirmation page can never render. Send the keeper back
+// to the archive instead, which is a better ending anyway.
+const APP_HOSTS = ["shinobidarkaura.github.io", "localhost", "127.0.0.1"];
+function safeOrigin(raw: string): string | null {
+  try {
+    const u = new URL(raw);
+    if (!APP_HOSTS.includes(u.hostname)) return null;
+    if (u.protocol !== "https:" && u.hostname !== "localhost" && u.hostname !== "127.0.0.1") return null;
+    return u.origin + u.pathname;
+  } catch { return null; }
+}
+const backTo = (origin: string | null, params: Record<string, string>) => {
+  const base = origin || "https://shinobidarkaura.github.io/macon-archive/";
+  const u = new URL(base);
+  for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
+  return new Response(null, { status: 302, headers: { Location: u.toString(), "Cache-Control": "no-store" } });
+};
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
@@ -145,10 +155,11 @@ Deno.serve(async (req) => {
   // Google's redirect lands here with no auth header of its own, so the signed
   // state is what proves this flow started from a keeper's own session.
   if (url.pathname.endsWith("/callback")) {
-    const err = url.searchParams.get("error");
-    if (err) return page("Not connected", `Google said: ${err}. You can close this tab and try again.`);
     const st = await readState(url.searchParams.get("state") || "");
-    if (!st) return page("Link expired", "That connect link is no longer valid. Start again from the archive.");
+    const back = st ? safeOrigin(String(st.origin || "")) : null;
+    const err = url.searchParams.get("error");
+    if (err) return backTo(back, { gmail: "error", detail: err });
+    if (!st) return backTo(null, { gmail: "error", detail: "expired" });
     const code = url.searchParams.get("code") || "";
     const r = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -156,21 +167,16 @@ Deno.serve(async (req) => {
         redirect_uri: REDIRECT_URI, grant_type: "authorization_code" }),
     });
     const j = await r.json();
-    if (!r.ok || !j.refresh_token) {
-      return page("Not connected",
-        "Google did not return a refresh token. This usually means the mailbox was already connected to this app: remove it at myaccount.google.com/permissions and try again.");
-    }
+    if (!r.ok || !j.refresh_token) return backTo(back, { gmail: "error", detail: "no_refresh_token" });
     // Whoever actually signed in must be the mailbox that was asked for,
     // otherwise a slip at the account chooser silently connects the wrong box.
     let signedIn = "";
     try { signedIn = String(JSON.parse(unb64url(String(j.id_token).split(".")[1])).email || "").toLowerCase(); } catch { /* id_token is optional */ }
     const wanted = String(st.mailbox).toLowerCase();
-    if (signedIn && signedIn !== wanted) {
-      return page("Wrong account", `You signed in as ${signedIn}, but this link was for ${wanted}. Nothing was saved. Sign out of Google, or use a private window, and try again.`);
-    }
+    if (signedIn && signedIn !== wanted) return backTo(back, { gmail: "error", detail: "wrong_account", got: signedIn });
     try { await storeSet(wanted, j.refresh_token, String(st.by || "")); }
-    catch (e) { return page("Not connected", String((e as Error).message)); }
-    return page("Connected", `${wanted} is connected. You can close this tab and go back to the archive.`);
+    catch { return backTo(back, { gmail: "error", detail: "store_failed" }); }
+    return backTo(back, { gmail: "connected", mailbox: wanted });
   }
 
   if (req.method !== "GET") return new Response("GET only", { status: 405, headers: cors });
@@ -188,7 +194,8 @@ Deno.serve(async (req) => {
     if (action === "connect_url") {
       const mailbox = (url.searchParams.get("mailbox") || "").toLowerCase();
       if (!MAILBOXES.includes(mailbox)) return json({ error: "mailbox not allowed" }, 400);
-      const state = await signState({ mailbox, by: who, exp: Date.now() + 15 * 60_000 });
+      const origin = safeOrigin(url.searchParams.get("origin") || "") || "";
+      const state = await signState({ mailbox, by: who, origin, exp: Date.now() + 15 * 60_000 });
       const auth = new URL("https://accounts.google.com/o/oauth2/v2/auth");
       auth.search = new URLSearchParams({
         client_id: CLIENT_ID, redirect_uri: REDIRECT_URI, response_type: "code", scope: SCOPE,

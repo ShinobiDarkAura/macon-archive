@@ -2284,10 +2284,11 @@ async function gmailStatus(){
 async function gmailConnect(mailbox){
   const { data:{ session } }=await sb.auth.getSession();
   if(!session) return;
-  const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/gmail-reader?action=connect_url&mailbox=${encodeURIComponent(mailbox)}`,
+  const origin=encodeURIComponent(location.origin+location.pathname);
+  const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/gmail-reader?action=connect_url&mailbox=${encodeURIComponent(mailbox)}&origin=${origin}`,
     { headers:{ Authorization:"Bearer "+session.access_token, apikey:CONFIG.SUPABASE_ANON_KEY } });
   const j=await r.json().catch(()=>({}));
-  if(j.url) window.open(j.url, "_blank", "noopener");
+  if(j.url) location.href=j.url;
 }
 const hdr=(m,n)=>((m.payload&&m.payload.headers)||[]).find(h=>h.name.toLowerCase()===n.toLowerCase())?.value||"";
 function gmailPlainText(payload){
@@ -3976,6 +3977,22 @@ async function gateSignIn(){
 }
 document.getElementById("gateBtn").onclick=gateSignIn;
 if(location.search.includes("diag")) document.body.classList.add("diag");
+// Google returns here after a mailbox consents. Say how it went, drop the
+// params so a reload does not repeat the message, and re-read the post.
+(function(){
+  const p=new URLSearchParams(location.search), st=p.get("gmail");
+  if(!st) return;
+  const MSG={ no_refresh_token:"That mailbox has authorised this app before. Remove it at myaccount.google.com/permissions while signed in as that box, then connect again.",
+    wrong_account:"You signed in as "+(p.get("got")||"another account")+", not the mailbox that link was for. Nothing was saved, try again in a private window.",
+    expired:"That connect link had expired. Start again from the Post panel.",
+    store_failed:"Google said yes but the token could not be saved. Try again.",
+    access_denied:"Consent was declined, so nothing was connected." };
+  const detail=p.get("detail")||"";
+  const note = st==="connected" ? (p.get("mailbox")||"That mailbox")+" is connected."
+    : (MSG[detail] || ("Could not connect: "+detail));
+  history.replaceState(null,"",location.pathname);
+  setTimeout(()=>{ readerConnected=null; if(document.getElementById("lvReader")) loadReader(); alert(note); }, 400);
+})();
 document.getElementById("diagFab").onclick=async()=>{
   const lv=document.getElementById("lettersView");
   let user="?"; try{ user=(await sb.auth.getUser()).data.user?.email||"none"; }catch(e){ user="err "+e.message; }
