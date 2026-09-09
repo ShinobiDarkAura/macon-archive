@@ -1,5 +1,5 @@
 <title>Ten Rolodex Cards</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Bodoni+Moda:opsz,wght@6..96,400;6..96,600&family=Archivo+Narrow:wght@400;600&display=swap">
 <style>
   :root{
     --ink-1:#26221C; --ink-2:#5D564A; --ink-3:#9A9280;
@@ -7,235 +7,250 @@
     --sans:"Public Sans",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
     --serif:"EB Garamond",Georgia,serif;
     --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+    --stock:#F7F3E9;
   }
   *{box-sizing:border-box}
-  body{
-    margin:0;font-family:var(--sans);color:var(--ink-1);
+  body{margin:0;font-family:var(--sans);color:var(--ink-1);
     background:
-      radial-gradient(ellipse at 50% 16%, rgba(255,255,255,.66), rgba(228,220,203,.30) 60%, rgba(196,183,157,.30) 100%),
+      radial-gradient(ellipse at 50% 14%, rgba(255,255,255,.66), rgba(228,220,203,.28) 60%, rgba(196,183,157,.30) 100%),
       repeating-linear-gradient(92deg, rgba(170,148,110,.038) 0 2px, rgba(255,255,255,0) 2px 8px),
-      repeating-linear-gradient(92deg, rgba(140,116,78,.026) 0 1px, rgba(255,255,255,0) 1px 27px),
       linear-gradient(178deg,#EFEADD,#E6E0D0);
-    background-attachment:fixed;
-  }
-  .page{max-width:1440px;margin:0 auto;padding:0 32px 110px}
-  header.top{padding:52px 0 24px;border-bottom:1px solid var(--ink-1);margin-bottom:44px}
+    background-attachment:fixed}
+  .page{max-width:1480px;margin:0 auto;padding:0 32px 110px}
+  header.top{padding:52px 0 24px;border-bottom:1px solid var(--ink-1);margin-bottom:20px}
   .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-deep);margin:0 0 12px}
   h1{font-family:var(--serif);font-weight:400;font-size:clamp(34px,5vw,54px);line-height:1.03;margin:0 0 14px;letter-spacing:-.01em}
   h1 em{font-style:italic;color:var(--accent-deep)}
-  .stand{max-width:62ch;font-size:15px;line-height:1.6;color:var(--ink-2);margin:0}
-  .grid{display:grid;gap:44px 32px;grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+  .stand{max-width:64ch;font-size:15px;line-height:1.6;color:var(--ink-2);margin:0}
+  .note-box{background:rgba(255,255,255,.55);border-left:2px solid var(--accent);padding:16px 18px;margin:26px 0 44px;max-width:76ch}
+  .note-box p{margin:0 0 9px;font-size:14px;line-height:1.6;color:var(--ink-2)}
+  .note-box p:last-child{margin:0}
+  .note-box b{color:var(--ink-1)}
+  .grid{display:grid;gap:52px 34px;grid-template-columns:repeat(auto-fill,minmax(390px,1fr))}
   figure{margin:0;min-width:0}
   .num{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--accent-deep)}
-  .name{font-family:var(--serif);font-size:22px;line-height:1.2;margin:3px 0 4px}
-  .why{font-size:13px;line-height:1.55;color:var(--ink-2);margin:0 0 16px;max-width:46ch}
-  .bay{display:flex;align-items:flex-start;justify-content:center;padding:14px 0 6px}
+  .cname{font-family:var(--serif);font-size:22px;line-height:1.2;margin:3px 0 4px}
+  .why{font-size:13px;line-height:1.55;color:var(--ink-2);margin:0 0 8px;max-width:48ch}
+  .spec{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-3);margin:0 0 18px}
+  .bay{display:flex;align-items:flex-start;justify-content:flex-start;min-height:270px}
+  .shadow{filter:drop-shadow(0 10px 18px rgba(60,48,30,.20))}
 
-  /* ============ shared card scaffold ============ */
-  .card{width:286px;position:relative;padding:22px 22px 26px;
-    font-family:var(--sans);background:#F7F3E9;color:var(--ink-1)}
-  .k{font-family:var(--serif);font-size:26px;line-height:1.25;letter-spacing:-.02em;text-transform:uppercase;margin:0 0 9px}
-  .chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
-  .chip{font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:999px;font-weight:600}
+  /* ============ 01 TRUE ROLODEX ============
+     4 x 2.25 landscape, two tabs hanging BELOW the bottom edge with necks,
+     copied off a real refill card. */
+  .r-true{width:400px;height:241px;background:var(--stock);position:relative;
+    clip-path:polygon(0 0,100% 0,100% 93.4%,66% 93.4%,66% 100%,58% 100%,58% 93.4%,42% 93.4%,42% 100%,34% 100%,34% 93.4%,0 93.4%);
+    padding:20px 22px}
+  .r-true .k{font-family:var(--sans);font-size:24px;font-weight:300;letter-spacing:.03em;text-transform:uppercase;margin:0 0 3px}
+  .r-true .sub{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+  .r-true .rule{height:1px;background:var(--rule);margin:12px 0 10px}
+  .r-true .n{font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+  .r-true .cnr{position:absolute;right:22px;top:20px;font-family:var(--mono);font-size:9.5px;color:var(--accent);letter-spacing:.1em}
+
+  /* 02 TALL INDEX */
+  .r-tall{width:230px;height:330px;background:var(--stock);border-radius:2px;padding:20px 18px;position:relative;
+    background-image:repeating-linear-gradient(180deg,transparent 0 22px,rgba(140,120,86,.14) 22px 23px);
+    background-position:0 112px}
+  .r-tall .k{font-family:var(--serif);font-size:27px;line-height:1.1;margin:0 0 6px}
+  .r-tall .red{height:2px;background:rgba(189,84,64,.5);margin-bottom:12px}
+  .r-tall .n{font-family:var(--serif);font-size:14.5px;line-height:1.58;color:var(--ink-2)}
+
+  /* 03 NAME DOMINANT */
+  .r-big{width:400px;height:210px;background:var(--stock);border-radius:2px;padding:22px;position:relative;display:flex;align-items:flex-end}
+  .r-big .k{font-family:"Bodoni Moda",var(--serif);font-size:52px;line-height:.92;letter-spacing:-.03em;margin:0}
+  .r-big .cnr{position:absolute;top:20px;left:22px;right:22px;display:flex;justify-content:space-between;
+    font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+
+  /* 04 SPLIT */
+  .r-split{width:420px;height:220px;background:var(--stock);border-radius:2px;display:grid;grid-template-columns:150px 1fr}
+  .r-split .l{padding:20px 16px;border-right:1px solid var(--rule);display:flex;flex-direction:column;justify-content:space-between}
+  .r-split .k{font-family:"Archivo Narrow",var(--sans);font-weight:600;font-size:21px;line-height:1.1;text-transform:uppercase;letter-spacing:.01em}
+  .r-split .meta{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);line-height:1.7}
+  .r-split .r{padding:20px 18px;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+
+  /* 05 HEADER BAND */
+  .r-band{width:400px;height:215px;background:var(--stock);border-radius:2px;overflow:hidden}
+  .r-band .bar{background:linear-gradient(100deg,#BD5440,#9B402E);color:#fff;padding:15px 20px;
+    display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .r-band .k{font-family:var(--sans);font-weight:600;font-size:19px;letter-spacing:.01em}
+  .r-band .w{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;opacity:.85}
+  .r-band .bd{padding:16px 20px}
+  .r-band .meta{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:9px}
+  .r-band .n{font-size:13.5px;line-height:1.55;color:var(--ink-2)}
+
+  /* 06 TICKET */
+  .r-ticket{width:180px;height:330px;background:var(--stock);position:relative;padding:18px 14px 18px 34px;
+    clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}
+  .r-ticket .stub{position:absolute;left:0;top:0;bottom:0;width:24px;border-right:2px dotted rgba(140,116,78,.45);
+    display:flex;align-items:center;justify-content:center}
+  .r-ticket .stub span{font-family:var(--mono);font-size:9px;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--ink-3);writing-mode:vertical-rl;transform:rotate(180deg)}
+  .r-ticket .k{font-family:"Archivo Narrow",var(--sans);font-weight:600;font-size:22px;line-height:1.08;
+    text-transform:uppercase;margin:0 0 10px}
+  .r-ticket .n{font-size:12.5px;line-height:1.55;color:var(--ink-2)}
+
+  /* 07 CALLING CARD */
+  .r-calling{width:360px;height:206px;background:#FBF8F1;border-radius:1px;padding:28px;text-align:center;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+  .r-calling .frame{position:absolute;inset:11px;border:1px solid rgba(140,106,71,.22);box-shadow:0 1px 0 rgba(255,255,255,.9)}
+  .r-calling .k{font-family:"Bodoni Moda",var(--serif);font-size:26px;letter-spacing:.06em;margin:0 0 8px;
+    text-shadow:0 1px 0 rgba(255,255,255,.9),0 -1px 0 rgba(90,74,50,.22)}
+  .r-calling .meta{font-family:var(--mono);font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-3)}
+  .r-calling .n{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--ink-2);margin-top:14px;max-width:24em}
+
+  /* 08 TAB TOP */
+  .r-tab{width:250px;height:310px;background:var(--stock);border-radius:0 0 2px 2px;padding:18px;position:relative;margin-top:26px}
+  .r-tab .tab{position:absolute;top:-26px;left:0;width:118px;height:27px;background:var(--stock);
+    border-radius:3px 10px 0 0;display:flex;align-items:center;padding:0 12px;
+    font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+  .r-tab .k{font-family:var(--serif);font-size:25px;line-height:1.12;margin:0 0 10px}
+  .r-tab .n{font-size:13px;line-height:1.55;color:var(--ink-2)}
+
+  /* 09 LEDGER STRIP */
+  .r-strip{width:520px;height:78px;background:var(--stock);border-radius:2px;display:flex;align-items:center;
+    gap:18px;padding:0 20px;border-left:4px solid var(--accent)}
+  .r-strip .k{font-family:"Archivo Narrow",var(--sans);font-weight:600;font-size:19px;text-transform:uppercase;
+    white-space:nowrap;letter-spacing:.01em}
+  .r-strip .meta{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);white-space:nowrap}
+  .r-strip .n{font-size:12.5px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+
+  /* 10 SQUARE MINI */
+  .r-mini{width:210px;height:210px;background:var(--stock);border-radius:2px;padding:20px;
+    display:flex;flex-direction:column;justify-content:space-between}
+  .r-mini .k{font-family:var(--sans);font-weight:700;font-size:23px;line-height:1.06;letter-spacing:-.02em;text-transform:uppercase}
+  .r-mini .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);margin-bottom:14px}
+  .r-mini .meta{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);line-height:1.8}
+
+  .chip{font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:999px;font-weight:600;font-family:var(--sans)}
   .c-en{background:#DCD3C0;color:#5A5040}
   .c-hi{background:#C8452F;color:#fff}
-  .meta{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);line-height:1.75}
-  .note{font-size:13px;line-height:1.55;color:var(--ink-2);margin-top:12px;padding-top:11px;border-top:1px solid var(--rule)}
-
-  /* notches: the two cut-outs a rolodex card sits on */
-  .notch::before,.notch::after{content:"";position:absolute;bottom:-1px;width:26px;height:13px;
-    background:inherit;border-radius:13px 13px 0 0;box-shadow:0 0 0 99px transparent}
-  .notch-mask::before,.notch-mask::after{content:"";position:absolute;bottom:-2px;width:30px;height:15px;
-    background:radial-gradient(circle at 50% 100%, rgba(0,0,0,0) 14px, transparent 15px)}
-
-  /* 01 classic notch */
-  .v1{border-radius:9px 9px 2px 2px;box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 10px 22px rgba(60,48,30,.16)}
-  .v1 .cut{position:absolute;left:0;right:0;bottom:0;height:16px;display:flex;justify-content:center;gap:52px}
-  .v1 .cut i{width:30px;height:16px;background:#E9E3D4;border-radius:16px 16px 0 0;box-shadow:0 -1px 1px rgba(60,48,30,.10) inset}
-
-  /* 02 letterpress */
-  .v2{background:#F2EDE0;border-radius:8px 8px 2px 2px;box-shadow:0 8px 20px rgba(60,48,30,.14)}
-  .v2 .k{color:#3A342A;text-shadow:0 1px 0 rgba(255,255,255,.85),0 -1px 0 rgba(90,74,50,.30)}
-  .v2 .chip{box-shadow:0 1px 0 rgba(255,255,255,.5) inset}
-  .v2 .note{text-shadow:0 1px 0 rgba(255,255,255,.7)}
-
-  /* 03 stacked edges */
-  .v3{border-radius:9px 9px 2px 2px;box-shadow:
-    0 10px 22px rgba(60,48,30,.16),
-    0 3px 0 -1px #EFE9DA, 0 5px 0 -1px rgba(120,100,70,.22),
-    0 8px 0 -2px #EDE7D6, 0 10px 0 -2px rgba(120,100,70,.18),
-    0 13px 0 -3px #EAE4D2, 0 15px 0 -3px rgba(120,100,70,.14)}
-
-  /* 04 tabbed */
-  .v4{border-radius:8px 8px 2px 2px;box-shadow:0 10px 22px rgba(60,48,30,.16);margin-top:16px}
-  .v4 .tab{position:absolute;top:-16px;right:22px;background:#EDE6D4;color:var(--ink-2);
-    font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
-    padding:4px 12px 3px;border-radius:5px 5px 0 0;box-shadow:0 -2px 5px rgba(60,48,30,.10)}
-
-  /* 05 ruled */
-  .v5{border-radius:8px 8px 2px 2px;box-shadow:0 10px 22px rgba(60,48,30,.16);
-    background-image:repeating-linear-gradient(180deg,transparent 0 25px,rgba(140,120,86,.13) 25px 26px);
-    background-position:0 78px}
-  .v5 .k{border-bottom:2px solid rgba(189,84,64,.34);padding-bottom:6px}
-
-  /* 06 kraft */
-  .v6{background:linear-gradient(#EADFC6,#E2D5B8);border-radius:8px 8px 2px 2px;
-    box-shadow:0 10px 22px rgba(60,48,30,.20),0 0 0 1px rgba(120,96,58,.20)}
-  .v6 .k,.v6 .note{color:#3E3627}
-  .v6 .meta{color:#7C6E52}
-  .v6 .note{border-top-color:rgba(120,96,58,.28)}
-
-  /* 07 perforated */
-  .v7{border-radius:2px;box-shadow:0 10px 22px rgba(60,48,30,.16);padding-top:30px}
-  .v7 .perf{position:absolute;top:13px;left:14px;right:14px;height:2px;
-    background-image:radial-gradient(circle,rgba(120,100,70,.42) 1.1px,transparent 1.3px);
-    background-size:7px 2px;background-repeat:repeat-x}
-
-  /* 08 brass rail */
-  .v8{border-radius:3px;box-shadow:0 10px 22px rgba(60,48,30,.16);padding-top:32px}
-  .v8 .rail{position:absolute;top:15px;left:-8px;right:-8px;height:5px;border-radius:3px;
-    background:linear-gradient(#D6BC85,#A8874E 55%,#7E6234);box-shadow:0 1px 2px rgba(50,38,18,.35)}
-  .v8 .rail i{position:absolute;top:-3px;width:11px;height:11px;border-radius:50%;
-    background:linear-gradient(#E0C994,#9B7C42);box-shadow:0 1px 2px rgba(50,38,18,.4)}
-  .v8 .rail i:first-child{left:64px} .v8 .rail i:last-child{right:64px}
-
-  /* 09 deckled */
-  .v9{box-shadow:0 10px 22px rgba(60,48,30,.15);
-    -webkit-mask-image:radial-gradient(circle at 3px 3px, #000 2.4px, transparent 2.6px);
-    -webkit-mask-size:6px 6px;-webkit-mask-composite:destination-out;
-    border-radius:2px}
-  .v9-wrap{filter:drop-shadow(0 10px 18px rgba(60,48,30,.18))}
-  .v9-inner{background:#F7F3E9;padding:22px 22px 26px;
-    clip-path:polygon(0% 1%,2% 0%,6% 1.4%,12% .2%,20% 1.6%,30% .3%,42% 1.5%,55% .2%,68% 1.6%,80% .4%,90% 1.5%,96% .3%,100% 1.2%,100% 99%,96% 100%,88% 98.6%,76% 99.8%,64% 98.4%,50% 99.7%,36% 98.5%,24% 99.8%,14% 98.6%,6% 99.7%,0% 98.8%)}
-
-  /* 10 embossed frame */
-  .v10{border-radius:8px 8px 2px 2px;box-shadow:0 10px 22px rgba(60,48,30,.16)}
-  .v10 .frame{position:absolute;inset:9px;border:1px solid rgba(140,106,71,.20);border-radius:5px 5px 1px 1px;
-    box-shadow:0 1px 0 rgba(255,255,255,.8);pointer-events:none}
+  .chips{display:flex;gap:5px;flex-wrap:wrap}
 
   .foot{margin-top:60px;padding-top:22px;border-top:1px solid var(--ink-1);
     font-family:var(--mono);font-size:11px;color:var(--ink-3);line-height:1.9}
-  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
 <div class="page">
   <header class="top">
-    <p class="eyebrow">Bureau of Provenance · Letters · Lab 02</p>
+    <p class="eyebrow">Bureau of Provenance · Letters · Lab 02, second pass</p>
     <h1>Ten ways to cut <em>a card</em></h1>
-    <p class="stand">The marginalia panel as a rolodex card in its own right, with no rolodex drawn around it. Same content in all ten, all built in CSS so they take live data and animate. Shown at the real 286px.</p>
+    <p class="stand">Ten genuinely different cards this time: different proportions, orientations, typefaces and hierarchies, not one layout in ten finishes.</p>
   </header>
+
+  <div class="note-box">
+    <p><b>Two corrections from looking at a real refill card.</b></p>
+    <p>The notches are on the <b>bottom</b> edge, not the top, and they are not bites taken out of it. They are two small tabs that <b>hang below</b> the bottom edge on narrow necks, and they hook over the two wire rails. Card 01 copies that geometry exactly.</p>
+    <p>And a real card is <b>landscape, 4 by 2.25 inches</b>. Every card I drew last time was portrait, which is why none of them read as a rolodex card. At your 286px column a true card would be only 161px tall, so the faithful ones here are drawn wider than the current marginalia. That is a real decision: a correct card wants a wider left column than the app currently gives it.</p>
+  </div>
 
   <div class="grid">
 
-    <figure><span class="num">01</span><div class="name">Classic Notch</div>
-      <p class="why">Rounded top, two spindle cut-outs bitten out of the bottom edge. The single most recognisable rolodex silhouette, and it needs nothing else to read as one.</p>
-      <div class="bay"><div class="card v1">
+    <figure><span class="num">01</span><div class="cname">True Rolodex</div>
+      <p class="why">The reference, copied. Correct 4:2.25 landscape, correct hanging tabs with necks. Thin uppercase sans so the name fits the short measure.</p>
+      <p class="spec">400 × 241 · landscape 4:2.25 · Public Sans 300</p>
+      <div class="bay"><div class="shadow"><div class="r-true">
+        <div class="cnr">M-002</div>
         <div class="k">Matt Hotson</div>
-        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
-        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
-        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
-        <div class="cut"><i></i><i></i></div>
-      </div></div>
-    </figure>
-
-    <figure><span class="num">02</span><div class="name">Letterpress</div>
-      <p class="why">The name pressed into the stock rather than printed on it, with a light catching the top of each letterform. Quietest of the ten and the closest to the studio's actual printed matter.</p>
-      <div class="bay"><div class="card v2">
-        <div class="k">Matt Hotson</div>
-        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
-        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
-        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
-      </div></div>
-    </figure>
-
-    <figure><span class="num">03</span><div class="name">Stacked Edges</div>
-      <p class="why">Card edges visible beneath, so the panel reads as the top of a file rather than a single sheet. Doubles as the count: more waiting, more edges.</p>
-      <div class="bay"><div class="card v3">
-        <div class="k">Matt Hotson</div>
-        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
-        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
-        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
-      </div></div>
-    </figure>
-
-    <figure><span class="num">04</span><div class="name">Tabbed</div>
-      <p class="why">An index tab protruding from the top edge, carrying whatever you file by. Gives you somewhere to put the surname letter or the kind of enquiry without spending room inside the card.</p>
-      <div class="bay"><div class="card v4">
-        <div class="tab">H · Enquiry</div>
-        <div class="k">Matt Hotson</div>
-        <div class="chips"><span class="chip c-hi">High</span></div>
-        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
-        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
-      </div></div>
-    </figure>
-
-    <figure><span class="num">05</span><div class="name">Ruled</div>
-      <p class="why">Faint horizontal rules under the note, as an index card actually has, with a red rule under the name. Makes the handwritten note feel written rather than typed.</p>
-      <div class="bay"><div class="card v5">
-        <div class="k">Matt Hotson</div>
-        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
-        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
-        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
-      </div></div>
-    </figure>
-
-    <figure><span class="num">06</span><div class="name">Kraft</div>
-      <p class="why">A darker, browner stock that separates the card from the letter instead of echoing it. The only one that reads as a different material from the sheet you are writing.</p>
-      <div class="bay"><div class="card v6">
-        <div class="k">Matt Hotson</div>
-        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
-        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
-        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
-      </div></div>
-    </figure>
-
-    <figure><span class="num">07</span><div class="name">Perforated</div>
-      <p class="why">A tear line across the top, as though the card came off a continuous roll. Suits the idea that each letter is torn off and dealt with.</p>
-      <div class="bay"><div class="card v7">
-        <div class="perf"></div>
-        <div class="k">Matt Hotson</div>
-        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
-        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
-        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
-      </div></div>
-    </figure>
-
-    <figure><span class="num">08</span><div class="name">Brass Rail</div>
-      <p class="why">The spindle itself, drawn across the top of the card and running off both edges, with the two retaining collars. All of the rolodex you actually need.</p>
-      <div class="bay"><div class="card v8">
-        <div class="rail"><i></i><i></i></div>
-        <div class="k">Matt Hotson</div>
-        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
-        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
-        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
-      </div></div>
-    </figure>
-
-    <figure><span class="num">09</span><div class="name">Deckled</div>
-      <p class="why">A torn, irregular edge top and bottom, handmade paper rather than machine cut. Softest of the ten and the least mechanical, which cuts against the rolodex idea rather than with it.</p>
-      <div class="bay"><div class="v9-wrap"><div class="card v9-inner" style="width:286px;position:relative">
-        <div class="k">Matt Hotson</div>
-        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
-        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
-        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
+        <div class="sub">Pip · carried since Jul 2026</div>
+        <div class="rule"></div>
+        <div class="n">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
       </div></div></div>
     </figure>
 
-    <figure><span class="num">10</span><div class="name">Embossed Frame</div>
-      <p class="why">A blind embossed rule set in from the edge, the same move the letter already makes inside its own border. The card and the sheet become obviously the same stationery.</p>
-      <div class="bay"><div class="card v10">
+    <figure><span class="num">02</span><div class="cname">Tall Index</div>
+      <p class="why">A 3×5 library card stood upright. Ruled lines under a red header rule, serif throughout, note set as running prose rather than metadata.</p>
+      <p class="spec">230 × 330 · portrait · EB Garamond</p>
+      <div class="bay"><div class="shadow"><div class="r-tall">
+        <div class="k">Matt<br>Hotson</div>
+        <div class="red"></div>
+        <div class="n">Wrote in off the custom orders post. Replied same day with the six step process. Nothing since.</div>
+      </div></div></div>
+    </figure>
+
+    <figure><span class="num">03</span><div class="cname">Name Dominant</div>
+      <p class="why">The name is the card. Set in a high contrast didone at 52px, everything else demoted to nine point monospace in the top corners. Reads across a room.</p>
+      <p class="spec">400 × 210 · landscape · Bodoni Moda</p>
+      <div class="bay"><div class="shadow"><div class="r-big">
+        <div class="cnr"><span>Enquiry · High</span><span>Pip · Jul 2026</span></div>
+        <div class="k">Matt<br>Hotson</div>
+      </div></div></div>
+    </figure>
+
+    <figure><span class="num">04</span><div class="cname">Split</div>
+      <p class="why">A vertical rule divides identity from note. Condensed uppercase on the left, the note breathing on the right. Two columns rather than a stack.</p>
+      <p class="spec">420 × 220 · landscape · Archivo Narrow</p>
+      <div class="bay"><div class="shadow"><div class="r-split">
+        <div class="l"><div class="k">Matt<br>Hotson</div>
+          <div class="meta">Enquiry · High<br>Pip · Jul 2026</div></div>
+        <div class="r">Wrote in off the custom orders post. Replied same day with the six step process and the price. Nothing since.</div>
+      </div></div></div>
+    </figure>
+
+    <figure><span class="num">05</span><div class="cname">Header Band</div>
+      <p class="why">A rust band across the top with the name reversed out of it. The only one where the accent carries the name rather than a chip, which makes urgency a property of the whole card.</p>
+      <p class="spec">400 × 215 · landscape · reversed head</p>
+      <div class="bay"><div class="shadow"><div class="r-band">
+        <div class="bar"><span class="k">Matt Hotson</span><span class="w">High</span></div>
+        <div class="bd"><div class="meta">Pip · carried since Jul 2026 · tone: warm</div>
+          <div class="n">Wrote in off the custom orders post. Replied same day. Nothing since.</div></div>
+      </div></div></div>
+    </figure>
+
+    <figure><span class="num">06</span><div class="cname">Ticket</div>
+      <p class="why">Tall and narrow with a perforated stub running up the left edge, the account code set vertically in it. Fits a narrow column where nothing else this tall would.</p>
+      <p class="spec">180 × 330 · portrait · vertical stub</p>
+      <div class="bay"><div class="shadow"><div class="r-ticket">
+        <div class="stub"><span>M-002 · Enquiry</span></div>
+        <div class="k">Matt Hotson</div>
+        <div class="n">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
+      </div></div></div>
+    </figure>
+
+    <figure><span class="num">07</span><div class="cname">Calling Card</div>
+      <p class="why">Centred, framed, letterpressed, with the note in italic beneath. Formal rather than clerical, and the closest of the ten to the studio's printed matter.</p>
+      <p class="spec">360 × 206 · landscape 7:4 · centred</p>
+      <div class="bay"><div class="shadow"><div class="r-calling">
         <div class="frame"></div>
         <div class="k">Matt Hotson</div>
-        <div class="chips"><span class="chip c-en">Enquiry</span><span class="chip c-hi">High</span></div>
-        <div class="meta">Pip · carried since Jul 10, 2026<br>Suggested tone: Warm</div>
-        <div class="note">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
-      </div></div>
+        <div class="meta">Pip · Surrey</div>
+        <div class="n">Wrote in off the custom orders post. Nothing since.</div>
+      </div></div></div>
+    </figure>
+
+    <figure><span class="num">08</span><div class="cname">Tab Top</div>
+      <p class="why">A file card with the tab built into the top left rather than applied to it. Portrait, so the note gets real depth, and the tab carries whatever you sort by.</p>
+      <p class="spec">250 × 336 · portrait · integral tab</p>
+      <div class="bay"><div class="shadow"><div class="r-tab">
+        <div class="tab">H · Enquiry</div>
+        <div class="k">Matt Hotson</div>
+        <div class="chips" style="margin-bottom:10px"><span class="chip c-hi">High</span></div>
+        <div class="n">Wrote in off the custom orders post. Replied same day with the six step process. Nothing since.</div>
+      </div></div></div>
+    </figure>
+
+    <figure><span class="num">09</span><div class="cname">Ledger Strip</div>
+      <p class="why">Everything on one line with an accent edge. Not a card at all: a row. The one that would let several collectors stack down the left instead of one at a time.</p>
+      <p class="spec">520 × 78 · strip · single line</p>
+      <div class="bay"><div class="shadow"><div class="r-strip">
+        <div class="k">Matt Hotson</div>
+        <div class="meta">Pip · Jul 2026</div>
+        <div class="n">Wrote in off the custom orders post. Nothing since.</div>
+      </div></div></div>
+    </figure>
+
+    <figure><span class="num">10</span><div class="cname">Square Mini</div>
+      <p class="why">Square, heavy grotesque, one rust dot for urgency and nothing else. Strips the card to a name and a signal, which is arguably all the marginalia has to do.</p>
+      <p class="spec">210 × 210 · square · Public Sans 700</p>
+      <div class="bay"><div class="shadow"><div class="r-mini">
+        <div><div class="dot"></div><div class="k">Matt Hotson</div></div>
+        <div class="meta">Enquiry · high<br>Pip · Jul 2026</div>
+      </div></div></div>
     </figure>
 
   </div>
 
   <footer class="foot">
-    Lab 02 · Ten card studies · All CSS, no images, so each takes live data and can animate on the spindle<br>
-    EB Garamond stands in for the studio serif. Real card is 286px wide in the app.
+    Lab 02, second pass · All CSS, no images · Card 01 traced off a Rolodex 67558 refill card<br>
+    Bodoni Moda and Archivo Narrow stand in for display faces; EB Garamond for the studio serif.
   </footer>
 </div>

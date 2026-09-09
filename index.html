@@ -231,7 +231,7 @@
      was falling back to a different, mismatched font for just those
      characters — the "two sizes of caps" was that fallback, not a CSS bug */
   .lv-to{font-family:"Public Sans",var(--sans);font-weight:400;font-size:10px;letter-spacing:.18em;
-    color:#9C8F76;margin-bottom:10px;text-transform:uppercase;
+    color:#9C8F76;margin-bottom:3px;text-transform:uppercase;
     display:flex;align-items:baseline;justify-content:flex-start;gap:16px}
   .lv-draft{position:absolute;left:0;right:0;top:0;z-index:5;background:#F6ECD8;border-bottom:1px solid #E4D4B0;
     font-family:var(--sans);font-size:12px;color:#6E6045;padding:8px 14px;display:flex;align-items:center;gap:8px;
@@ -272,7 +272,9 @@
   .lv-tone{font-size:11.5px;letter-spacing:.1em;color:#a89d89;
     background:transparent;border:1px solid var(--rule);border-radius:999px;padding:6.5px 14px;cursor:pointer}
   .lv-tone:hover{border-color:#a89d89;color:var(--ink)}
-  .lv-fromline{font-size:10px;letter-spacing:.18em;color:#c3b9a3;white-space:nowrap;text-transform:uppercase}
+  .lv-fromline{font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.18em;color:#c3b9a3;
+    white-space:nowrap;text-transform:uppercase;margin-bottom:10px}
+  .lv-fromline::before{content:none}
   .lv-close,.lv-skip{font-family:var(--sans);font-size:13.75px;color:#a89d89;background:transparent;border:none;cursor:pointer;
     padding:8.8px 4.4px}
   .lv-close:hover,.lv-skip:hover{color:var(--ink)}
@@ -2901,7 +2903,8 @@ function renderCurrentLetter(){
       ${composing||letterQueue.length<2?"":chevron("prev","Previous letter")+chevron("next","Next letter")}
       <div class="lv-paper">
         <img class="lv-stamp" src="logos/red-stamp-alt.png" alt="" aria-hidden="true">
-        <div class="lv-to"><span class="lv-to-l"><span class="lv-to-lab">To:</span><input class="lv-to-in" id="lvTo" value="${esc(email)}" placeholder="who is this going to" spellcheck="false"></span><span class="lv-fromline" id="lvFromLine">${esc(fromLabel())}</span></div>
+        <div class="lv-to"><span class="lv-to-l"><span class="lv-to-lab">To:</span><input class="lv-to-in" id="lvTo" value="${esc(email)}" placeholder="who is this going to" spellcheck="false"></span></div>
+        <div class="lv-fromline" id="lvFromLine">${esc(fromLabel())}</div>
         <textarea class="lv-subj" id="lvSubj" rows="1" style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",subject)}">${esc(subject)}</textarea>
         <div class="lv-body-wrap"><textarea class="lv-body" id="lvBody">${esc(body)}</textarea>
         <button class="lv-signoff" id="lvSignoff" title="Click to change who signs">${esc(letterSignoff)}</button></div>
