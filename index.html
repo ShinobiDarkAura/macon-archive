@@ -2243,15 +2243,20 @@ function letterNavigate(dir){
    which acts as that mailbox via a service account — nothing to connect in
    the browser, and both keepers see the same threads. Read-only: replies
    still happen in Gmail. */
-const STUDIO_INBOX="hello@studiomacon.co";
+// Both studio boxes read as one stream of incoming post: a customer writes to
+// hello@ and Hannah answers from her own address, so a thread lives across the
+// two and is only whole when both are read.
+const MAILBOXES=["hello@studiomacon.co","hannah@studiomacon.co"];
+const boxLabel=m=>String(m).split("@")[0];
 let readerMsgs=null, readerOpen=null, readerErr="", readerLoading=false;
 // the thread with whoever the current letter is to, when Gmail has one
 let readerMode="post", readerThread=null; const _threads=new Map();
 const gmailReady=()=>!!(sb&&synced);
-async function gmail(path){
+async function gmail(path, mailbox){
   const { data:{ session } }=await sb.auth.getSession();
   if(!session) throw new Error("connect");
-  const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/gmail-reader?path=${encodeURIComponent(path)}`,
+  const qs=`path=${encodeURIComponent(path)}`+(mailbox?`&mailbox=${encodeURIComponent(mailbox)}`:"");
+  const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/gmail-reader?${qs}`,
     { headers:{ Authorization:"Bearer "+session.access_token, apikey:CONFIG.SUPABASE_ANON_KEY } });
   const j=await r.json().catch(()=>({}));
   if(!r.ok) throw new Error(j.error||("Gmail "+r.status));
@@ -2280,12 +2285,17 @@ async function loadReader(){
   try{
     // only what was written to the studio, not the keeper's own mail
     const q=encodeURIComponent("in:inbox newer_than:14d");
-    const list=await gmail(`messages?q=${q}&maxResults=20`);
-    const metas=await Promise.all((list.messages||[]).map(m=>
-      gmail(`messages/${m.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`)));
-    readerMsgs=metas.map(m=>({ id:m.id, from:hdr(m,"From").replace(/\s*<.*>$/,"").replace(/^"|"$/g,""),
-      subject:hdr(m,"Subject")||"(no subject)", snippet:m.snippet||"", at:Number(m.internalDate),
-      unread:(m.labelIds||[]).includes("UNREAD") }));
+    const perBox=await Promise.all(MAILBOXES.map(async box=>{
+      try{
+        const list=await gmail(`messages?q=${q}&maxResults=15`, box);
+        const metas=await Promise.all((list.messages||[]).map(m=>
+          gmail(`messages/${m.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`, box)));
+        return metas.map(m=>({ id:m.id, box, from:hdr(m,"From").replace(/\s*<.*>$/,"").replace(/^"|"$/g,""),
+          subject:hdr(m,"Subject")||"(no subject)", snippet:m.snippet||"", at:Number(m.internalDate),
+          unread:(m.labelIds||[]).includes("UNREAD") }));
+      }catch(e){ return []; }
+    }));
+    readerMsgs=perBox.flat().sort((a,b)=>b.at-a.at);
   }catch(e){ readerErr=e.message; readerMsgs=readerMsgs||[]; }
   readerLoading=false; renderReader();
 }
@@ -2304,13 +2314,20 @@ async function loadThreadFor(email, name){
   readerThread={email, name, loading:true}; renderReader();
   try{
     const q=encodeURIComponent(`from:${email} OR to:${email}`);
-    const list=await gmail(`threads?q=${q}&maxResults=1`);
-    let msgs=[];
-    if(list.threads&&list.threads.length){
-      const t=await gmail(`threads/${list.threads[0].id}?format=full`);
-      msgs=(t.messages||[]).map(m=>({ from:hdr(m,"From").replace(/\s*<.*>$/,"").replace(/^"|"$/g,""),
-        at:Number(m.internalDate), body:gmailPlainText(m.payload)||m.snippet||"", subject:hdr(m,"Subject") }));
-    }
+    const perBox=await Promise.all(MAILBOXES.map(async box=>{
+      try{
+        const list=await gmail(`threads?q=${q}&maxResults=1`, box);
+        if(!list.threads||!list.threads.length) return [];
+        const t=await gmail(`threads/${list.threads[0].id}?format=full`, box);
+        return (t.messages||[]).map(m=>({ box, from:hdr(m,"From").replace(/\s*<.*>$/,"").replace(/^"|"$/g,""),
+          at:Number(m.internalDate), body:gmailPlainText(m.payload)||m.snippet||"", subject:hdr(m,"Subject") }));
+      }catch(e){ return []; }
+    }));
+    // One conversation even when it crossed both boxes, de-duped where a
+    // message was addressed to both and sorted oldest first.
+    const seen=new Set();
+    const msgs=perBox.flat().sort((a,b)=>a.at-b.at)
+      .filter(m=>{ const k=m.at+"|"+m.from; if(seen.has(k)) return false; seen.add(k); return true; });
     readerThread={email, name, msgs};
   }catch(e){ readerThread={email, name, msgs:[], err:e.message}; }
   if(readerThread.email===email) _threads.set(email, readerThread);
@@ -2326,7 +2343,7 @@ function renderReader(){
     else{
       el.innerHTML=`${back}<div class="lv-reader-head lv-overline">Thread · ${esc(t.name||t.email)}</div>
         <div class="lv-reader-subject">${esc(t.msgs[0].subject||"")}</div>
-        ${t.msgs.map(m=>`<div class="lv-thread-msg"><div class="lv-reader-meta">${esc(m.from)} · ${ago(m.at)}</div><div class="lv-reader-body">${esc(m.body)}</div></div>`).join("")}`;
+        ${t.msgs.map(m=>`<div class="lv-thread-msg"><div class="lv-reader-meta">${esc(m.from)} · ${esc(boxLabel(m.box||""))} · ${ago(m.at)}</div><div class="lv-reader-body">${esc(m.body)}</div></div>`).join("")}`;
       el.scrollTop=el.scrollHeight;
     }
     el.querySelector("#lvReaderPost").onclick=()=>{ readerMode="post"; renderReader(); };
@@ -2344,13 +2361,13 @@ function renderReader(){
     el.querySelector("#lvReaderBack").onclick=()=>{ readerOpen=null; renderReader(); }; return;
   }
   const rows=(readerMsgs||[]).map(m=>`<button class="lv-reader-row${m.unread?" unread":""}" data-id="${m.id}">
-      <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(m.from)}</span><span class="lv-reader-ago">${ago(m.at)}</span></div>
+      <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(m.from)}</span><span class="lv-reader-ago">${esc(boxLabel(m.box||""))} · ${ago(m.at)}</span></div>
       <div class="lv-reader-row-subj">${esc(m.subject)}</div>
       <div class="lv-reader-row-snip">${esc(m.snippet)}</div></button>`).join("");
   el.innerHTML=`<div class="lv-reader-head lv-overline">Post
       <button class="lv-reader-refresh" id="lvReaderRefresh" title="Check again">${readerLoading?"…":"↻"}</button></div>
     ${readerErr?`<p class="lv-reader-note">${esc(readerErr)}</p>`:""}
-    ${readerMsgs&&!readerMsgs.length?`<p class="lv-reader-note">Nothing to ${esc(STUDIO_INBOX)} in the last two weeks.</p>`:""}
+    ${readerMsgs&&!readerMsgs.length?`<p class="lv-reader-note">Nothing to ${esc(MAILBOXES.map(boxLabel).join(" or "))} in the last two weeks.</p>`:""}
     ${readerMsgs===null&&!readerLoading?`<p class="lv-reader-note">Fetching…</p>`:""}
     <div class="lv-reader-list">${rows}</div>`;
   el.querySelector("#lvReaderRefresh").onclick=loadReader;
