@@ -60,11 +60,21 @@
   .r-big .k{font-family:"Bodoni Moda",var(--serif);font-size:52px;line-height:.92;letter-spacing:-.03em;margin:0}
   .r-big .cnr{position:absolute;top:20px;left:22px;right:22px;display:flex;justify-content:space-between;
     font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+  .r-big-a{align-items:flex-end;gap:18px}
+  .r-big-a .k{flex:0 0 auto}
+  .r-big-a .side{font-size:11.5px;line-height:1.5;color:var(--ink-3);padding-bottom:5px;max-width:38%}
+  .r-big-b{height:232px;flex-direction:column;align-items:stretch;justify-content:flex-end}
+  .r-big-b .k{font-size:44px}
+  .r-big-b .under{margin-top:12px;padding-top:10px;border-top:1px solid var(--rule);
+    font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+  .slip{width:372px;margin-left:14px;margin-top:-6px;background:#EFE9DA;border-radius:0 0 3px 3px;
+    padding:16px 20px 14px;font-size:12.5px;line-height:1.55;color:var(--ink-2);
+    box-shadow:0 6px 14px rgba(60,48,30,.14)}
 
   /* 04 SPLIT */
   .r-split{width:420px;height:220px;background:var(--stock);border-radius:2px;display:grid;grid-template-columns:150px 1fr}
   .r-split .l{padding:20px 16px;border-right:1px solid var(--rule);display:flex;flex-direction:column;justify-content:space-between}
-  .r-split .k{font-family:"Archivo Narrow",var(--sans);font-weight:600;font-size:21px;line-height:1.1;text-transform:uppercase;letter-spacing:.01em}
+  .r-split .k{font-family:"Archivo Narrow",var(--sans);font-weight:600;font-size:32px;line-height:1.02;text-transform:uppercase;letter-spacing:-.01em}
   .r-split .meta{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);line-height:1.7}
   .r-split .r{padding:20px 18px;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
 
@@ -167,20 +177,43 @@
       </div></div></div>
     </figure>
 
-    <figure><span class="num">03</span><div class="cname">Name Dominant</div>
-      <p class="why">The name is the card. Set in a high contrast didone at 52px, everything else demoted to nine point monospace in the top corners. Reads across a room.</p>
-      <p class="spec">400 × 210 · landscape · Bodoni Moda</p>
-      <div class="bay"><div class="shadow"><div class="r-big">
+    <figure><span class="num">03a</span><div class="cname">Name Dominant · note beside</div>
+      <p class="why">The note tucks into the right third at nine point, so the name keeps the full height. Holds about twelve words before it crowds, which is most of your notes.</p>
+      <p class="spec">400 × 210 · note in a 40% column</p>
+      <div class="bay"><div class="shadow"><div class="r-big r-big-a">
         <div class="cnr"><span>Enquiry · High</span><span>Pip · Jul 2026</span></div>
-        <div class="k">Matt<br>Hotson</div>
+        <div class="k">Ashcroft</div>
+        <div class="side">Wrote in off the custom orders post. Replied same day. Nothing since.</div>
       </div></div></div>
+    </figure>
+
+    <figure><span class="num">03b</span><div class="cname">Name Dominant · note under a rule</div>
+      <p class="why">The name gives up a little size and the note runs full width beneath a hairline. The most readable of the three and the least dramatic.</p>
+      <p class="spec">400 × 232 · name 44px · full width note</p>
+      <div class="bay"><div class="shadow"><div class="r-big r-big-b">
+        <div class="cnr"><span>Enquiry · High</span><span>Pip · Jul 2026</span></div>
+        <div class="k">Ashcroft</div>
+        <div class="under">Wrote in off the custom orders post. Replied same day with the six step process. Nothing since.</div>
+      </div></div></div>
+    </figure>
+
+    <figure><span class="num">03c</span><div class="cname">Name Dominant · note on a second card</div>
+      <p class="why">The note is not on the card at all. It sits on a slip behind it, so the name stays absolute and the note can run as long as it likes.</p>
+      <p class="spec">400 × 210 card + slip · two surfaces</p>
+      <div class="bay"><div style="display:flex;flex-direction:column;align-items:flex-start">
+        <div class="shadow" style="position:relative;z-index:2"><div class="r-big">
+          <div class="cnr"><span>Enquiry · High</span><span>Pip · Jul 2026</span></div>
+          <div class="k">Ashcroft</div>
+        </div></div>
+        <div class="slip">Wrote in off the custom orders post. Replied same day with the six step process and the price. Nothing since.</div>
+      </div></div>
     </figure>
 
     <figure><span class="num">04</span><div class="cname">Split</div>
       <p class="why">A vertical rule divides identity from note. Condensed uppercase on the left, the note breathing on the right. Two columns rather than a stack.</p>
       <p class="spec">420 × 220 · landscape · Archivo Narrow</p>
       <div class="bay"><div class="shadow"><div class="r-split">
-        <div class="l"><div class="k">Matt<br>Hotson</div>
+        <div class="l"><div class="k">Ashcroft</div>
           <div class="meta">Enquiry · High<br>Pip · Jul 2026</div></div>
         <div class="r">Wrote in off the custom orders post. Replied same day with the six step process and the price. Nothing since.</div>
       </div></div></div>
