@@ -283,11 +283,11 @@
   .lv-body-wrap{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;overflow-y:auto;box-sizing:border-box}
   .lv-body-wrap::before{content:"";flex:4}
   .lv-body-wrap::after{content:"";flex:6}
-  .lv-body{width:78%;border:none;background:transparent;resize:none;font-family:"Gabriele Dark","Gabriele Light",var(--serif-soul);font-size:16px;
+  .lv-body{width:78%;border:none;background:transparent;resize:none;font-family:"Gabriele Dark","Gabriele Light",var(--serif-soul);font-size:17px;
     line-height:1.48;color:#1C1A18;min-height:0;position:relative;z-index:1;overflow:hidden;flex:0 0 auto}
   .lv-body:focus{outline:none}
   .lv-signoff{width:78%;text-align:left;margin:30px 0 0;padding:1px 0 1px 10px;border:none;background:transparent;cursor:pointer;
-    font-family:"Gabriele Black","Gabriele Dark",var(--serif-soul);font-size:16px;color:#1C1A18;border-bottom:1px dotted transparent}
+    font-family:"Gabriele Black","Gabriele Dark",var(--serif-soul);font-size:17px;color:#1C1A18;border-bottom:1px dotted transparent}
   .lv-signoff:hover{border-bottom-color:#a89d89;color:var(--accent-deep)}
 
   /* the footer is part of the sheet itself, not a row floating below it —
@@ -342,6 +342,10 @@
   .lv-checkmark{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;
     background:rgba(255,254,252,.92);animation:lvCheckPop .35s cubic-bezier(.2,.8,.2,1)}
   .lv-checkmark svg{width:88px;height:88px;color:#6f9c5a}
+  .lv-checkmark.lv-sending svg{color:#8E2E1E}
+  /* The sheet keeps its own transform while it flies, so the flight is set
+     inline in JS from the two rectangles rather than guessed at here. */
+  .lv-paper.lv-flying{pointer-events:none;z-index:40}
   .lv-subj,.lv-body,.lv-quote-edit{transition:height .18s ease}
   /* view switch: a quick cross-fade instead of a hard cut */
   .wrap,.letters-view{transition:opacity .18s ease}
@@ -418,6 +422,13 @@
     font-family:var(--sans);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);
     border-bottom:2px solid transparent;margin-bottom:-1px}
   .rd-tabs button.on{color:var(--accent-deep);border-bottom-color:var(--accent)}
+  /* What has gone out lately. Two weeks after a letter is sent it stops
+     counting, so the number reads as recent work rather than a running total. */
+  .rd-tab-badge{display:inline-block;margin-left:7px;min-width:17px;padding:1px 5px;border-radius:999px;
+    background:#E7DFCB;color:#6E6450;font-size:10px;font-weight:700;letter-spacing:.04em;
+    line-height:15px;text-align:center;vertical-align:1px}
+  .rd-tab-badge.pop{animation:lvBadgePop .5s cubic-bezier(.2,.8,.2,1)}
+  @keyframes lvBadgePop{0%{transform:scale(0);opacity:0}55%{transform:scale(1.35)}100%{transform:scale(1)}}
   .rd-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:22px 30px 80px;position:relative;
     scrollbar-width:none}
   .rd-scroll::-webkit-scrollbar{width:0;display:none}
@@ -2890,6 +2901,20 @@ async function loadThreadFor(email, name){
   renderReader();
 }
 // The header is permanent: title, unread count, refresh and the two folders.
+/* A letter sent counts for a fortnight. Kept in localStorage rather than the
+   database: it is a note to ourselves about this week, not a record. */
+const SENT_BADGE_DAYS = 14;
+function sentRecent(){
+  let a=[]; try{ a=JSON.parse(localStorage.getItem("macon.sent")||"[]"); }catch{}
+  const cut=Date.now()-SENT_BADGE_DAYS*86400000;
+  const keep=a.filter(t=>Number(t)>cut);
+  if(keep.length!==a.length){ try{ localStorage.setItem("macon.sent", JSON.stringify(keep)); }catch{} }
+  return keep;
+}
+function noteSent(){
+  const a=sentRecent(); a.push(Date.now());
+  try{ localStorage.setItem("macon.sent", JSON.stringify(a)); }catch{}
+}
 function renderReaderTop(){
   const t=document.getElementById("rdTop"); if(!t) return;
   const unread=(readerMsgs||[]).filter(m=>m.unread && (readerShowBulk||!m.bulk)).length;
@@ -2902,8 +2927,9 @@ function renderReaderTop(){
     </div>
     <div class="rd-tabs">
       <button data-folder="inbox" class="${readerFolder==="inbox"?"on":""}">Received</button>
-      <button data-folder="sent" class="${readerFolder==="sent"?"on":""}">Sent</button>
+      <button data-folder="sent" class="${readerFolder==="sent"?"on":""}">Sent${(()=>{const n=sentRecent().length;return n?`<span class="rd-tab-badge${letterJustSent?" pop":""}">${n}</span>`:"";})()}</button>
     </div>`;
+  letterJustSent=false;
   const rb=t.querySelector("#rdRefresh");
   if(readerLoading) rb.classList.add("spin");
   rb.onclick=()=>{ readerMsgs=null; readerOpen=null; readerMode="post"; loadReader(); };
@@ -3317,6 +3343,10 @@ function renderCurrentLetter(){
     // a send that failed is what threw a written letter away.
     const ok = await sendLetter({subj, body, to});
     if(!ok) return;
+    // It has actually gone, so it can be counted and flown into the Sent tab.
+    noteSent(); letterJustSent=true;
+    await new Promise(res=>playSendAnimation(res));
+    renderReaderTop();
     if(composing){ exitCompose(); return; }
     completeFollowUp(i, q?q.id:"");
     letterQueue.splice(letterIdx,1);
@@ -3375,6 +3405,59 @@ function setView(v){
 }
 // Mark closed gets a send-off: a checkmark over the sheet, then it slides
 // away, and only once that's played does the actual state change happen.
+let letterJustSent=false;
+/* Sent: the sheet whites out behind a paper plane, then flies into the Sent
+   tab it is now filed under. The whoosh is synthesised rather than loaded, so
+   there is no audio file to ship and nothing to fail to download. */
+function whoosh(){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    const ctx=new AC(); const dur=0.55;
+    const buf=ctx.createBuffer(1, Math.floor(ctx.sampleRate*dur), ctx.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1);
+    const src=ctx.createBufferSource(); src.buffer=buf;
+    const bp=ctx.createBiquadFilter(); bp.type="bandpass"; bp.Q.value=1.1;
+    bp.frequency.setValueAtTime(380, ctx.currentTime);
+    bp.frequency.exponentialRampToValueAtTime(2600, ctx.currentTime+0.22);
+    bp.frequency.exponentialRampToValueAtTime(520, ctx.currentTime+dur);
+    const g=ctx.createGain();
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.16, ctx.currentTime+0.09);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+dur);
+    src.connect(bp).connect(g).connect(ctx.destination);
+    src.start(); src.stop(ctx.currentTime+dur);
+    src.onended=()=>ctx.close();
+  }catch{}
+}
+function playSendAnimation(onDone){
+  const paper=document.querySelector(".lv-paper");
+  if(!paper){ onDone(); return; }
+  const btn=document.getElementById("lvSend");
+  if(btn) btn.disabled=true;
+  const mark=document.createElement("div");
+  mark.className="lv-checkmark lv-sending";
+  mark.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg>`;
+  paper.appendChild(mark);
+  setTimeout(()=>{
+    const tab=document.querySelector('.rd-tabs [data-folder="sent"]');
+    const p=paper.getBoundingClientRect();
+    if(tab && p.width){
+      const t=tab.getBoundingClientRect();
+      const sc=Math.max(t.width/p.width, .05);
+      paper.classList.add("lv-flying");
+      paper.style.transformOrigin="top left";
+      paper.style.transition="transform .8s cubic-bezier(.45,0,.7,.25), opacity .8s ease-in";
+      paper.style.transform=`translate(${t.left-p.left+(t.width-p.width*sc)/2}px, `
+        + `${t.top-p.top+(t.height-p.height*sc)/2}px) scale(${sc}) rotate(-10deg)`;
+      paper.style.opacity="0";
+    } else {
+      paper.classList.add("lv-closing");
+    }
+    whoosh();
+    setTimeout(onDone, 820);
+  }, 700);
+}
 function playCloseAnimation(onDone){
   const btn=document.getElementById("lvClose");
   if(btn){ btn.classList.add("done"); btn.disabled=true; }
