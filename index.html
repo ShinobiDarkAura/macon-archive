@@ -179,10 +179,17 @@
   /* The card is laid on the sheet, overlapping its right quarter, tilted a
      little anticlockwise as though dropped there. Placed from the sheet's own
      rect, so it follows whatever size the sheet resolves to. */
-  .lv-labelwrap{position:absolute;z-index:6;transform:rotate(-2.5deg);transform-origin:80% 30%;
+  .lv-cardstack{position:absolute;z-index:6;width:320px;display:flex;flex-direction:column;gap:20px}
+  .lv-labelwrap{position:relative;
     filter:drop-shadow(2px 4px 3px rgba(28,20,10,.34));transition:opacity .2s}
+  /* The pinned message is a second card with no tab cutouts: it is filed
+     behind the first, not hung beside it. */
+  .lv-card2 .lv-label{-webkit-mask-image:none;mask-image:none;padding:26px 20px 26px}
+  .lv-card2 .lv-cnr{margin-bottom:14px}
+  .lv-msgtext{white-space:pre-wrap;font-family:"Public Sans",var(--sans);font-size:14.5px;
+    line-height:1.55;color:#4A443A;margin:0}
   .lv-label{display:flex;flex-direction:column;justify-content:flex-start;
-    width:320px;padding:52px 20px 34px;box-sizing:border-box;background:#F7F3E9;
+    width:320px;padding:52px 20px 30px;box-sizing:border-box;background:#F7F3E9;
     -webkit-mask-image:
       radial-gradient(circle 21px at 22% 0, transparent 21px, #000 21.5px),
       radial-gradient(circle 21px at 78% 0, transparent 21px, #000 21.5px);
@@ -206,7 +213,7 @@
     background-image:radial-gradient(circle,rgba(140,116,78,.5) 1.1px,transparent 1.3px);
     background-size:7px 2px;background-repeat:repeat-x}
   .lv-ctx{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px}
-  .lv-aftercare{padding-bottom:20px}
+  .lv-aftercare{padding-bottom:0}
   .lv-ctx-kind,.lv-ctx-pri{font-family:"Public Sans",var(--sans);font-size:11px;font-weight:700;
     letter-spacing:.12em;text-transform:uppercase;background:none;padding:0;border-radius:0}
   .lv-ctx-kind{color:#8b8069}
@@ -218,7 +225,7 @@
   .lv-flag-patron{color:#fff;background:#4a6b8a}
   .lv-flag-comm{color:#fff;background:#6b5a8a}
   .lv-flag-win{color:#5a5040;background:#dcd3c0}
-  .lv-aftercare{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px}
+  .lv-aftercare{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:8px}
   .lv-file-open,.lv-call{font-family:"Public Sans",var(--sans);font-size:11.5px;letter-spacing:.04em;
     background:transparent;border:1px solid var(--rule);border-radius:999px;padding:5px 12px;
     color:#8c7f68;cursor:pointer;text-decoration:none;text-transform:none}
@@ -362,7 +369,7 @@
      equal to each. Equal gaps fall out of that rather than being tuned. */
   /* The card hangs off the sheet's left edge, so the page has to reserve room
      for it or it runs off screen. */
-  body.view-letters .letters-view{padding-left:300px;padding-right:552px}
+  body.view-letters .letters-view{padding-left:364px;padding-right:552px}
   .lv-reader{position:fixed;top:28px;right:28px;bottom:28px;width:488px;z-index:55;border-radius:12px;
     overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
@@ -387,7 +394,9 @@
   .rd-body{overflow-wrap:break-word}
   .rd-body p{margin:0 0 .8em}
   .rd-body p:last-child{margin-bottom:0}
-  .rd-body .mm-pre{white-space:pre-wrap;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;line-height:1.55}
+  /* A hard-wrapped block keeps its own line breaks, but not its own
+     typeface: a monospace override made half a thread look like a log. */
+  .rd-body .mm-pre{white-space:pre-wrap}
   .lv-reader-head{display:flex;align-items:center;justify-content:space-between;
     font-family:var(--sans);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);
     padding-bottom:14px;margin-bottom:6px;border-bottom:1px solid var(--rl)}
@@ -404,7 +413,7 @@
   .lv-dots i:nth-child(2){animation-delay:.2s}
   .lv-dots i:nth-child(3){animation-delay:.4s}
   @keyframes lvDot{0%,60%,100%{opacity:.25}30%{opacity:1}}
-  .rd-top{flex:0 0 auto;min-height:10%;padding:22px 30px 0;background:#F6F3EC;border-bottom:1px solid var(--rl);
+  .rd-top{flex:0 0 auto;min-height:10%;padding:34px 30px 0;background:#F6F3EC;border-bottom:1px solid var(--rl);
     display:flex;flex-direction:column;justify-content:space-between}
   .rd-top-row{display:flex;align-items:center;gap:11px}
   .rd-top h2{margin:0;font-size:44px;line-height:1;letter-spacing:.02em;text-transform:uppercase;color:var(--ink-1);font-weight:400}
@@ -2499,12 +2508,12 @@ function placeLetterTopbar(){
   // sheet and half off it, in both axes.
   tb.style.left = (p.right - h.left - tb.offsetWidth/2) + "px";
   tb.style.top  = (p.top  - h.top  - tb.offsetHeight/2) + "px";
-  const card=host.querySelector(".lv-labelwrap");
-  if(card){
-    // Overlaps the sheet's left quarter: the card's right edge lands a quarter
-    // of the way across it.
-    card.style.left = (p.left - h.left + p.width*0.08 - card.offsetWidth) + "px";
-    card.style.top  = (p.top  - h.top  + p.height*0.20) + "px";
+  // The cards clear the sheet entirely, 24px off its left edge, and the pair
+  // centres on the page rather than on the sheet.
+  const cards=host.querySelector(".lv-cardstack");
+  if(cards){
+    cards.style.left = (p.left - h.left - 24 - cards.offsetWidth) + "px";
+    cards.style.top  = Math.max(12, (h.height - cards.offsetHeight)/2) + "px";
   }
 }
 addEventListener("resize", ()=>placeLetterTopbar());
@@ -2869,11 +2878,32 @@ async function letterFromThread(t, x){
   return { subject: short(j.subject), body: String(j.body||"") };
 }
 
+/* The second card pins the most recent thing THEY wrote, never our own reply,
+   so the letter is written with their last words still on the desk. */
+function renderPinnedMessage(){
+  const host=document.getElementById("lettersView"); if(!host) return;
+  const card=host.querySelector("#lvCard2"); if(!card) return;
+  const t=readerThread;
+  const ours=m=>/ma[\u00e7c]on/i.test(m.from||"") || MAILBOXES.some(b=>String(m.from||"").toLowerCase().includes(boxLabel(b)));
+  const theirs=(t && t.msgs ? t.msgs.filter(m=>!ours(m)) : []);
+  const last=theirs.length ? theirs[theirs.length-1] : null;
+  if(!last){ card.hidden=true; placeLetterTopbar(); return; }
+  const { body:b1 } = mailSplitSignature(String(last.body||""));
+  const { body:main } = mailSplitQuote(b1);
+  const text = mailDequote(main).replace(/\n{3,}/g,"\n\n").trim();
+  if(!text){ card.hidden=true; placeLetterTopbar(); return; }
+  card.querySelector(".lv-cnr-l").innerHTML=`They wrote<i>${esc(mailDate(last.at))}</i>`;
+  card.querySelector(".lv-cnr-r").textContent="";
+  card.querySelector(".lv-msgtext").textContent = text.length>420 ? text.slice(0,417)+"\u2026" : text;
+  card.hidden=false;
+  placeLetterTopbar();
+}
+
 async function loadThreadFor(email, name){
-  if(!email || !gmailReady()){ readerMode="post"; readerThread=null; renderReader(); return; }
+  if(!email || !gmailReady()){ readerMode="post"; readerThread=null; renderPinnedMessage(); renderReader(); return; }
   readerMode="thread";
   readerOpenMsgs.clear();
-  if(_threads.has(email)){ readerThread=_threads.get(email); renderReader(); return; }
+  if(_threads.has(email)){ readerThread=_threads.get(email); renderPinnedMessage(); renderReader(); return; }
   readerThread={email, name, loading:true}; renderReader();
   try{
     const q=encodeURIComponent(`from:${email} OR to:${email}`);
@@ -2898,6 +2928,7 @@ async function loadThreadFor(email, name){
       threadId: last?last.threadId:"", inReplyTo: last?last.msgId:"", references: last?last.refs:""};
   }catch(e){ readerThread={email, name, msgs:[], err:e.message}; }
   if(readerThread.email===email) _threads.set(email, readerThread);
+  renderPinnedMessage();
   renderReader();
 }
 // The header is permanent: title, unread count, refresh and the two folders.
@@ -3155,6 +3186,7 @@ function renderCurrentLetter(){
       <div class="lv-mailbar" id="lvMailbar"></div>
       <div class="lv-topbar" id="lvTopbar"></div>
       <button class="lv-new" id="lvNew" title="Write to someone new">+ New letter</button>
+      <div class="lv-cardstack" id="lvCards">
       <div class="lv-labelwrap"><div class="lv-label">
         <div class="lv-cnr">
           <span class="lv-cnr-l" style="font-family:${safeFont("Gabriele Dark","var(--serif-soul)",ctx?ctx.kindLabel+ctx.priority:"")}">
@@ -3193,6 +3225,11 @@ function renderCurrentLetter(){
           ${flags.patron && d.phone ? `<a class="lv-call" href="tel:${esc(String(d.phone).replace(/[^0-9+]/g,""))}" title="Email replies run about 3 percent. Ring them instead.">Call ${esc((d.name||"").split(" ")[0]||"them")}</a>` : ""}
         </div>`)}
       </div></div>
+      <div class="lv-labelwrap lv-card2" id="lvCard2" hidden><div class="lv-label">
+        <div class="lv-cnr"><span class="lv-cnr-l"></span><span class="lv-cnr-r"></span></div>
+        <p class="lv-msgtext"></p>
+      </div></div>
+      </div>
       ${ghosts}
       ${composing||letterQueue.length<2?"":chevron("prev","Previous letter")+chevron("next","Next letter")}
       <div class="lv-paper${letterNoEnter?" lv-noenter":""}">
@@ -3247,6 +3284,7 @@ function renderCurrentLetter(){
     }
   }catch{}
   placeLetterTopbar();
+  renderPinnedMessage();
   letterNoEnter=false;
   const fileOpen=host.querySelector("#lvFileOpen");
   if(fileOpen) fileOpen.onclick=()=>{ letterFilingOpen=true; renderCurrentLetter(); };
