@@ -207,8 +207,8 @@
   .lv-pin::after{content:"";position:absolute;top:23%;left:24%;width:7px;height:5px;border-radius:50%;
     background:rgba(255,255,255,.55)}
   .lv-n1,.lv-n2{display:block}
-  .lv-n1{font-size:.72em;line-height:1.04}
-  .lv-noteblock{position:relative;margin:24px -22px 0;padding:22px 22px 0}
+  .lv-n1{font-size:.61em;line-height:1.04;margin-bottom:-6px}
+  .lv-noteblock{position:relative;margin:22px -22px 0;padding:22px 22px 0}
   .lv-noteblock::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;
     background-image:radial-gradient(circle,rgba(140,116,78,.5) 1.1px,transparent 1.3px);
     background-size:7px 2px;background-repeat:repeat-x}
@@ -356,9 +356,6 @@
      tilted, each with its own shadow, so the pile reads as physical */
   .lv-ghost{grid-column:2;grid-row:1;height:92%;aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
     box-shadow:0 14px 40px rgba(30,22,14,.16);pointer-events:none}
-  .lv-ghost-1{transform:rotate(-2.5deg) translate(-10px,10px);z-index:1}
-  .lv-ghost-2{transform:rotate(3deg) translate(14px,16px);z-index:0}
-  .lv-ghost-3{transform:rotate(-4.5deg) translate(-18px,22px);z-index:-1}
 
   /* ---------- the post drawer, hung on the right edge ---------- */
   /* The marginalia is pinned at the left edge and the drawer at the right, so
@@ -2274,6 +2271,7 @@ let letterSignoff="Alex";
 let letterComposing=false, letterComposeItem=null;
 let letterFilingOpen=false;
 let letterNoEnter=false;
+let letterTypeIn=false;
 
 // A blank letter to someone who isn't in the queue at all. Creates a real,
 // tracked inquiry (so it isn't lost the moment you close the tab), offers a
@@ -2435,6 +2433,24 @@ function letterContext(x){
 // Unpick the old draft and lay in the new one, rather than redrawing the sheet
 // underneath it. Timed rather than per character, so a long letter and a short
 // one take the same beat.
+// Lay the text back in from the top, as though it were being written now.
+function typeOut(el, resize, ms){
+  if(!el) return;
+  const isField = el.tagName==="TEXTAREA" || el.tagName==="INPUT";
+  const text = isField ? el.value : el.textContent;
+  const set = v => { if(isField) el.value=v; else el.textContent=v; };
+  if(!text || matchMedia("(prefers-reduced-motion: reduce)").matches){ resize && resize(); return; }
+  const dur = ms || Math.min(1200, 380 + text.length*1.7);
+  const t0 = performance.now();
+  set(""); resize && resize();
+  (function step(n){
+    const q=Math.min((n-t0)/dur,1);
+    const e=1-Math.pow(1-q,2);
+    set(text.slice(0, Math.round(text.length*e)));
+    resize && resize();
+    if(q<1) requestAnimationFrame(step); else { set(text); resize && resize(); }
+  })(performance.now());
+}
 function retypeInto(el, next, resize, done){
   if(!el){ done && done(); return; }
   const slow = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -2560,7 +2576,7 @@ function letterNavigate(dir){
   if(letterComposing || !letterQueue.length) return;
   const next=letterIdx+dir;
   if(next<0 || next>=letterQueue.length) return;
-  letterIdx=next; letterToneIdx=0; letterFilingOpen=false; letterNoEnter=true; renderCurrentLetter();
+  letterIdx=next; letterToneIdx=0; letterFilingOpen=false; letterNoEnter=true; letterTypeIn=true; renderCurrentLetter();
 }
 
 /* ---------- the reader: what came in, beside what goes out ----------
@@ -3023,7 +3039,7 @@ function renderLetters(){
     host.innerHTML=`<div class="lv-empty">Nothing needs you right now.<br>Come back once someone's due, or switch to Classic to browse everyone.</div>`;
     return;
   }
-  letterToneIdx=0; letterVaultOpen=false;
+  letterToneIdx=0; letterVaultOpen=false; letterTypeIn=true;
   renderCurrentLetter();
 }
 
@@ -3075,7 +3091,15 @@ function renderCurrentLetter(){
   // A couple of blank sheets behind the real one, tilted, so the pile beneath
   // today's letters reads as an actual stack rather than a single page.
   const ghostCount = (composing || letterQueue.length<=3) ? 0 : 3;
-  const ghosts = Array.from({length:ghostCount}, (_,i) => `<div class="lv-ghost lv-ghost-${i+1}"></div>`).join("");
+  const ghosts = (()=>{
+    let seed=(letterIdx+1)*2654435761 >>> 0;
+    const rnd=()=>{ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; };
+    return Array.from({length:ghostCount}, (_,i)=>{
+      const rot=(rnd()*9-4.5).toFixed(2);
+      const tx=Math.round(rnd()*40-20), ty=Math.round(8+rnd()*20);
+      return `<div class="lv-ghost" style="transform:rotate(${rot}deg) translate(${tx}px,${ty}px);z-index:${-i}"></div>`;
+    }).join("");
+  })();
   const chevron = (dir,label) => `<button class="lv-chev lv-chev-${dir}" id="lvChev${dir}" title="${label}" aria-label="${label}">
       <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="${dir==="prev"?"M20 6 10 16l10 10":"M12 6l10 10-10 10"}"/></svg></button>`;
 
@@ -3225,7 +3249,7 @@ function renderCurrentLetter(){
       retypeInto(subjEl, r.subject, autosizeSubj);
       retypeInto(bodyEl, nextBody, autosizeBody, ()=>{ delete btn.dataset.busy; });
     };
-    host.querySelector("#lvSkip").onclick=()=>{ letterIdx=(letterIdx+1)%letterQueue.length; letterToneIdx=0; renderCurrentLetter(); };
+    host.querySelector("#lvSkip").onclick=()=>{ letterIdx=(letterIdx+1)%letterQueue.length; letterToneIdx=0; letterNoEnter=true; letterTypeIn=true; renderCurrentLetter(); };
     host.querySelector("#lvClose").onclick=()=>{
       playCloseAnimation(()=>{
         if(q) inqSet(q.id,{status:"closed"}); else markContacted(i);
@@ -3261,6 +3285,15 @@ function renderCurrentLetter(){
   const bodyEl=host.querySelector("#lvBody");
   const autosizeBody=()=>{ bodyEl.style.height="auto"; bodyEl.style.height=bodyEl.scrollHeight+"px"; };
   requestAnimationFrame(autosizeBody); bodyEl.addEventListener("input",autosizeBody);
+  // Arriving at a letter writes it out; editing it does not.
+  if(letterTypeIn){
+    letterTypeIn=false;
+    typeOut(bodyEl, autosizeBody);
+    const cardNote=host.querySelector(".lv-quote, .lv-quote-edit");
+    if(cardNote) typeOut(cardNote, ()=>{ if(cardNote.tagName==="TEXTAREA"){ cardNote.style.height="auto"; cardNote.style.height=cardNote.scrollHeight+"px"; } }, 760);
+    const cardName=host.querySelector(".lv-n2");
+    if(cardName) typeOut(cardName, null, 420);
+  }
   const noteEl=host.querySelector("#lvNote");
   if(noteEl){
     const autosizeNote=()=>{ noteEl.style.height="auto"; noteEl.style.height=noteEl.scrollHeight+"px"; };
