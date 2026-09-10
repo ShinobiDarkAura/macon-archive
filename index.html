@@ -375,7 +375,7 @@
       0 0 0 1px rgba(120,102,70,.13), 0 16px 40px rgba(60,48,28,.14)}
   .lv-reader{scrollbar-width:none;-ms-overflow-style:none}
   .lv-reader::-webkit-scrollbar{width:0;height:0;display:none}
-  .lv-reader-back{background:transparent;border:1px solid var(--rl);border-radius:50%;cursor:pointer;
+  .lv-reader-back{background:transparent;border:1.5px solid var(--rl);border-radius:50%;cursor:pointer;
     width:44px;height:44px;padding:0;margin:5px 0 28px;display:flex;align-items:center;justify-content:center;
     color:var(--ink-3);opacity:.55;transition:opacity .15s,color .15s,border-color .15s}
   .lv-reader-back svg{width:28px;height:28px;display:block}
@@ -2864,7 +2864,7 @@ function renderReader(){
   renderMailbar();
   if(gmailReady() && readerMode==="thread" && readerThread){
     const t=readerThread;
-    const back=`<button class="lv-reader-back" id="lvReaderPost" title="Back to the post" aria-label="Back to the post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>`;
+    const back=`<button class="lv-reader-back" id="lvReaderPost" title="Back to the post" aria-label="Back to the post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>`;
     if(t.loading){ el.innerHTML=`${back}<div class="lv-load"><img src="logos/walking.webp" alt="Loading" width="300" height="300"></div>`; }
     else if(!t.msgs.length){
       el.innerHTML=`${back}
@@ -2936,7 +2936,7 @@ function renderReader(){
   if(readerOpen){
     const o=readerOpen;
     const rr = o.body==="\u2026" ? {html:"<p>Opening\u2026</p>",quoted:"",sig:""} : mailRender(o.body);
-    el.innerHTML=`<button class="lv-reader-back" id="lvReaderBack" title="Back to the post" aria-label="Back to the post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>
+    el.innerHTML=`<button class="lv-reader-back" id="lvReaderBack" title="Back to the post" aria-label="Back to the post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>
       <div class="rd-title">${esc(unent(o.subject||""))}</div>
       <article class="rd-m">
         <div class="rd-hd"><span class="rd-from">${esc(cleanName(o.from||""))}</span><span class="rd-when">${o.at?esc(mailDate(o.at)):""}</span></div>
