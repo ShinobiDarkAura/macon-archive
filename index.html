@@ -2613,8 +2613,8 @@ function wireLetterNav(host){
 }
 function letterNavigate(dir){
   if(letterComposing || !letterQueue.length) return;
-  const next=letterIdx+dir;
-  if(next<0 || next>=letterQueue.length) return;
+  const n=letterQueue.length;
+  const next=((letterIdx+dir)%n+n)%n;
   letterIdx=next; letterToneIdx=0; letterFilingOpen=false; letterNoEnter=true; letterTypeIn=true; renderCurrentLetter();
 }
 
@@ -3360,8 +3360,8 @@ function renderCurrentLetter(){
     }
   };
   const prev=host.querySelector("#lvChevprev"), next=host.querySelector("#lvChevnext");
-  if(prev){ prev.onclick=()=>letterNavigate(-1); prev.disabled=letterIdx===0; }
-  if(next){ next.onclick=()=>letterNavigate(1); next.disabled=letterIdx>=letterQueue.length-1; }
+  if(prev) prev.onclick=()=>letterNavigate(-1);
+  if(next) next.onclick=()=>letterNavigate(1);
   wireLetterNav(host);
   const exitCompose=()=>{ letterComposing=false; letterComposeItem=null; renderLetters(); };
   if(composing){
