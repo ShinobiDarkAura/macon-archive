@@ -373,9 +373,9 @@
   .lv-reader{scrollbar-width:none;-ms-overflow-style:none}
   .lv-reader::-webkit-scrollbar{width:0;height:0;display:none}
   .lv-reader-back{background:transparent;border:1.5px solid var(--rl);border-radius:50%;cursor:pointer;
-    width:44px;height:44px;padding:0;margin:5px 0 28px;display:flex;align-items:center;justify-content:center;
+    width:37px;height:37px;padding:0;margin:5px 0 28px;display:flex;align-items:center;justify-content:center;
     color:var(--ink-3);opacity:.55;transition:opacity .15s,color .15s,border-color .15s}
-  .lv-reader-back svg{width:28px;height:28px;display:block}
+  .lv-reader-back svg{width:24px;height:24px;display:block}
   .lv-reader-back:hover{opacity:1;color:var(--ink-1);border-color:var(--ink-3)}
   .lv-reader-note{font-size:13px;color:var(--ink-3);margin:0 0 12px;font-family:var(--sans)}
   .rd-more{display:inline-block;margin:9px 0 0;padding:2px 10px 3px;border:1px solid var(--rl);border-radius:999px;
@@ -462,7 +462,7 @@
 
   /* 05 QUIET */
   .lv-reader .rd-title{font-family:"TAY Flapjack",var(--serif-soul);font-size:36px;line-height:0.98;
-    color:var(--ink-1);letter-spacing:-.005em;margin-bottom:26px;text-wrap:balance}
+    color:var(--ink-1);letter-spacing:-.005em;margin-bottom:2px;text-wrap:balance}
   .lv-reader .rd-sub{font-family:var(--sans);font-size:12px;letter-spacing:.06em;text-transform:uppercase;
     color:var(--ink-3);margin-bottom:34px}
   /* A day marker between runs, so a gap of weeks is visible rather than implied */
@@ -472,14 +472,15 @@
   .lv-reader .rd-day span{background:rgba(255,255,255,.7);border:1px solid var(--rl);border-radius:999px;padding:3px 11px}
   /* Sender at a glance: the studio's own messages sit on a tinted ground with a
      rust initial, everyone else on white. */
-  .lv-reader .rd-m{margin-bottom:30px;font-family:var(--sans);background:#fff;border-radius:9px;
+  .lv-reader .rd-m{margin-bottom:18px;font-family:var(--sans);background:#fff;border-radius:9px;
     padding:16px 17px 17px;box-shadow:0 1px 2px rgba(24,17,8,.26)}
-  .lv-reader .rd-m.rd-us{background:rgba(38,34,28,.045);box-shadow:0 1px 2px rgba(24,17,8,.26)}
+  .lv-reader .rd-m.rd-us{background:#fff;box-shadow:0 1px 2px rgba(24,17,8,.26)}
   .lv-reader .rd-hd{display:flex;align-items:center;gap:10px}
   .lv-reader .rd-av{width:30px;height:30px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;
     justify-content:center;font-size:11.5px;font-weight:600;letter-spacing:.02em;
     background:#E6DFCE;color:#6E6450}
-  .lv-reader .rd-us .rd-av{background:var(--accent-grad);color:#fff}
+  .lv-reader .rd-us .rd-av{background:#F2EDE1;padding:0;overflow:hidden}
+  .lv-reader .rd-av img{width:100%;height:100%;object-fit:contain;display:block}
   .lv-reader .rd-who{min-width:0;flex:1}
   .lv-reader .rd-from{display:block;font-size:15px;font-weight:600;color:var(--ink-1);line-height:1.25;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -2434,12 +2435,12 @@ function letterContext(x){
 // underneath it. Timed rather than per character, so a long letter and a short
 // one take the same beat.
 // Lay the text back in from the top, as though it were being written now.
-function typeOut(el, resize, ms){
-  if(!el) return;
+function typeOut(el, resize, ms, done){
+  if(!el){ done && done(); return; }
   const isField = el.tagName==="TEXTAREA" || el.tagName==="INPUT";
   const text = isField ? el.value : el.textContent;
   const set = v => { if(isField) el.value=v; else el.textContent=v; };
-  if(!text || matchMedia("(prefers-reduced-motion: reduce)").matches){ resize && resize(); return; }
+  if(!text || matchMedia("(prefers-reduced-motion: reduce)").matches){ resize && resize(); done && done(); return; }
   const dur = ms || Math.min(1200, 380 + text.length*1.7);
   const t0 = performance.now();
   set(""); resize && resize();
@@ -2448,7 +2449,7 @@ function typeOut(el, resize, ms){
     const e=1-Math.pow(1-q,2);
     set(text.slice(0, Math.round(text.length*e)));
     resize && resize();
-    if(q<1) requestAnimationFrame(step); else { set(text); resize && resize(); }
+    if(q<1) requestAnimationFrame(step); else { set(text); resize && resize(); done && done(); }
   })(performance.now());
 }
 function retypeInto(el, next, resize, done){
@@ -2948,7 +2949,7 @@ function renderReader(){
         lastDay=day;
         return `${rule}<article class="rd-m ${isUs(m)?"rd-us":""}" data-msg="${idx}">
             <div class="rd-hd">
-              <span class="rd-av">${esc(initials(m.from))}</span>
+              <span class="rd-av">${isUs(m)?`<img src="logos/mark.png" alt="">`:esc(initials(m.from))}</span>
               <span class="rd-who"><span class="rd-from">${from}</span><span class="rd-to">to ${esc(boxLabel(m.box||""))}@</span></span>
               <span class="rd-when" title="${esc(new Date(m.at).toLocaleString())}">${when}</span>
             </div>
@@ -3288,11 +3289,23 @@ function renderCurrentLetter(){
   // Arriving at a letter writes it out; editing it does not.
   if(letterTypeIn){
     letterTypeIn=false;
-    typeOut(bodyEl, autosizeBody);
+    // The card fills in first, then the letter it belongs to. Each element is
+    // emptied up front so nothing sits fully written while it waits its turn.
     const cardNote=host.querySelector(".lv-quote, .lv-quote-edit");
-    if(cardNote) typeOut(cardNote, ()=>{ if(cardNote.tagName==="TEXTAREA"){ cardNote.style.height="auto"; cardNote.style.height=cardNote.scrollHeight+"px"; } }, 760);
     const cardName=host.querySelector(".lv-n2");
-    if(cardName) typeOut(cardName, null, 420);
+    const noteIsField = cardNote && cardNote.tagName==="TEXTAREA";
+    const noteText = cardNote ? (noteIsField ? cardNote.value : cardNote.textContent) : "";
+    const bodyText = bodyEl.value;
+    const sizeNote = ()=>{ if(noteIsField){ cardNote.style.height="auto"; cardNote.style.height=cardNote.scrollHeight+"px"; } };
+    if(cardNote){ if(noteIsField) cardNote.value=""; else cardNote.textContent=""; sizeNote(); }
+    bodyEl.value=""; autosizeBody();
+    const writeNote=()=>{
+      if(!cardNote) return writeLetter();
+      if(noteIsField) cardNote.value=noteText; else cardNote.textContent=noteText;
+      typeOut(cardNote, sizeNote, 760, writeLetter);
+    };
+    const writeLetter=()=>{ bodyEl.value=bodyText; typeOut(bodyEl, autosizeBody); };
+    typeOut(cardName, null, 420, writeNote);
   }
   const noteEl=host.querySelector("#lvNote");
   if(noteEl){
