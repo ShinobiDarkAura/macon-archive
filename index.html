@@ -179,13 +179,13 @@
   /* The card is laid on the sheet, overlapping its right quarter, tilted a
      little anticlockwise as though dropped there. Placed from the sheet's own
      rect, so it follows whatever size the sheet resolves to. */
-  .lv-cardstack{position:absolute;z-index:6;width:320px;display:flex;flex-direction:column;gap:20px}
+  .lv-cardstack{position:absolute;z-index:6;width:320px}
   .lv-labelwrap{position:relative;
     filter:drop-shadow(2px 4px 3px rgba(28,20,10,.34));transition:opacity .2s}
-  /* The pinned message is a second card with no tab cutouts: it is filed
-     behind the first, not hung beside it. */
-  .lv-card2 .lv-label{-webkit-mask-image:none;mask-image:none;padding:26px 20px 26px}
-  .lv-card2 .lv-cnr{margin-bottom:26px}
+  /* Their last message is another section of the same card, torn off below the
+     details by the same perforation. */
+  .lv-pinned{margin-top:28px;padding-top:26px}
+  .lv-pinned .lv-cnr{margin-bottom:26px}
   .lv-msgtext{white-space:pre-wrap;font-family:"Public Sans",var(--sans);font-size:14.5px;
     line-height:1.55;color:#4A443A;margin:0}
   .lv-label{display:flex;flex-direction:column;justify-content:flex-start;
@@ -2831,6 +2831,9 @@ const QUOTE_MARKERS=[
   /^-{2,}\s*Forwarded message\s*-{2,}/im,
   /^_{5,}\s*$/m,
   /^From:\s.+\nSent:\s/im,
+  // Yahoo and friends quote without ">" markers at all, leaving only this
+  // preamble, which wraps across lines before it reaches "wrote:".
+  /^On\s[\s\S]{0,300}?\bwrote:\s*$/m,
 ];
 // Walk back from the end: the "On <date>, X wrote:" preamble belongs to the
 // quote, not to the message.
@@ -3372,10 +3375,10 @@ function renderCurrentLetter(){
           <button type="button" class="lv-file-open" id="lvFileOpen">${(d.story||d.lives||d.why)?"Edit what they said":"File a reply"}</button>
           ${flags.patron && d.phone ? `<a class="lv-call" href="tel:${esc(String(d.phone).replace(/[^0-9+]/g,""))}" title="Email replies run about 3 percent. Ring them instead.">Call ${esc((d.name||"").split(" ")[0]||"them")}</a>` : ""}
         </div>`)}
-      </div></div>
-      <div class="lv-labelwrap lv-card2" id="lvCard2" hidden><div class="lv-label">
-        <div class="lv-cnr"><span class="lv-cnr-l"></span><span class="lv-cnr-r"></span></div>
-        <p class="lv-msgtext"></p>
+        <div class="lv-noteblock lv-pinned" id="lvCard2" hidden>
+          <div class="lv-cnr"><span class="lv-cnr-l"></span><span class="lv-cnr-r"></span></div>
+          <p class="lv-msgtext"></p>
+        </div>
       </div></div>
       </div>
       ${ghosts}
