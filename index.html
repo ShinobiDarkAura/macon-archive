@@ -369,7 +369,7 @@
      equal to each. Equal gaps fall out of that rather than being tuned. */
   /* The card hangs off the sheet's left edge, so the page has to reserve room
      for it or it runs off screen. */
-  body.view-letters .letters-view{padding-left:364px;padding-right:552px}
+  body.view-letters .letters-view{padding-left:388px;padding-right:552px}
   .lv-reader{position:fixed;top:28px;right:28px;bottom:28px;width:488px;z-index:55;border-radius:12px;
     overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
@@ -2508,11 +2508,11 @@ function placeLetterTopbar(){
   // sheet and half off it, in both axes.
   tb.style.left = (p.right - h.left - tb.offsetWidth/2) + "px";
   tb.style.top  = (p.top  - h.top  - tb.offsetHeight/2) + "px";
-  // The cards clear the sheet entirely, 24px off its left edge, and the pair
+  // The cards clear the sheet entirely, 48px off its left edge, and the pair
   // centres on the page rather than on the sheet.
   const cards=host.querySelector(".lv-cardstack");
   if(cards){
-    cards.style.left = (p.left - h.left - 24 - cards.offsetWidth) + "px";
+    cards.style.left = (p.left - h.left - 48 - cards.offsetWidth) + "px";
     cards.style.top  = Math.max(12, (h.height - cards.offsetHeight)/2) + "px";
   }
 }
