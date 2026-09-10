@@ -275,7 +275,12 @@
   .lv-to-l{display:flex;align-items:baseline;gap:7px;min-width:0;flex:1}
   .lv-to-in{font:inherit;line-height:1.25;letter-spacing:inherit;text-transform:inherit;color:#9C8F76;
     background:transparent;border:none;border-bottom:1px solid transparent;padding:0 0 3px;
-    min-width:0;flex:0 1 auto;width:auto;max-width:100%}
+    height:auto;min-width:0;flex:0 1 auto;width:auto;max-width:100%}
+  /* Chrome paints its own pale blue behind a field it has filled, and it
+     outlives the focus. The long transition is the only way to hold it off. */
+  .lv-to-in:-webkit-autofill,.lv-to-in:-webkit-autofill:hover,.lv-to-in:-webkit-autofill:focus{
+    -webkit-text-fill-color:#9C8F76;-webkit-box-shadow:0 0 0 40px #FFFEFC inset;
+    transition:background-color 600000s 0s,color 600000s 0s}
   .lv-to-in:hover{border-bottom-color:var(--rule)}
   .lv-to-in:focus{outline:none;border-bottom-color:var(--accent);color:var(--ink)}
   .lv-to-in::placeholder{color:#cfc5b0;text-transform:none;letter-spacing:.06em}
@@ -349,7 +354,6 @@
   .lv-checkmark{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;
     background:rgba(255,254,252,.92);animation:lvCheckPop .35s cubic-bezier(.2,.8,.2,1)}
   .lv-checkmark svg{width:88px;height:88px;color:#6f9c5a}
-  .lv-checkmark.lv-sending svg{color:#8E2E1E}
   /* The sheet keeps its own transform while it flies, so the flight is set
      inline in JS from the two rectangles rather than guessed at here. */
   .lv-paper.lv-flying{pointer-events:none;z-index:40}
@@ -3579,20 +3583,26 @@ function playSendAnimation(onDone){
   setTimeout(()=>{
     const tab=document.querySelector('.rd-tabs [data-folder="sent"]');
     const p=paper.getBoundingClientRect();
-    if(tab && p.width){
+    if(tab && p.width && paper.animate){
       const t=tab.getBoundingClientRect();
       const sc=Math.max(t.width/p.width, .05);
+      const dx=t.left-p.left+(t.width-p.width*sc)/2;
+      const dy=t.top -p.top +(t.height-p.height*sc)/2;
       paper.classList.add("lv-flying");
       paper.style.transformOrigin="top left";
-      paper.style.transition="transform .8s cubic-bezier(.45,0,.7,.25), opacity .8s ease-in";
-      paper.style.transform=`translate(${t.left-p.left+(t.width-p.width*sc)/2}px, `
-        + `${t.top-p.top+(t.height-p.height*sc)/2}px) scale(${sc}) rotate(-10deg)`;
-      paper.style.opacity="0";
+      // Thrown rather than slid: it rises through the middle of the trip and
+      // falls into the tab, shrinking the whole way.
+      paper.animate([
+        { transform:"none", opacity:1 },
+        { transform:`translate(${dx*.42}px, ${dy*.42-120}px) scale(${(1+sc)/2}) rotate(-7deg)`,
+          opacity:.92, offset:.5 },
+        { transform:`translate(${dx}px, ${dy}px) scale(${sc}) rotate(-16deg)`, opacity:0 }
+      ], { duration:850, easing:"cubic-bezier(.35,0,.6,1)", fill:"forwards" });
     } else {
       paper.classList.add("lv-closing");
     }
     whoosh();
-    setTimeout(onDone, 820);
+    setTimeout(onDone, 880);
   }, 700);
 }
 function playCloseAnimation(onDone){
