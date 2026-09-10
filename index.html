@@ -2306,8 +2306,8 @@ let letterCardH=0;
 // yet for a tone to draw on), and never touches the queue or its badge — this
 // is work you chose to do, not work that was waiting on you.
 async function composeBlankLetter(){
-  const name=prompt("Who are you writing to?"); if(!name) return;
-  const email=prompt("Their email address (optional)")||"";
+  const name=prompt("What is the name of the person you're writing to?"); if(!name) return;
+  const email=prompt("What is their email address?")||"";
   if(!(synced&&sb)){ alert("Sign in first — a composed letter is saved as a real enquiry."); return; }
   const { data:row, error } = await sb.from("inquiries")
     .insert({ name, email, subject:"", source:"composed", status:"open" }).select().single();
