@@ -2294,6 +2294,7 @@ let letterFilingOpen=false;
 let letterNoEnter=false;
 let letterTypeIn=false;
 let letterGhostPrev=[];
+let letterCardH=0;
 
 // A blank letter to someone who isn't in the queue at all. Creates a real,
 // tracked inquiry (so it isn't lost the moment you close the tab), offers a
@@ -3447,21 +3448,46 @@ function renderCurrentLetter(){
     letterTypeIn=false;
     // The card fills in first, then the letter it belongs to. Each element is
     // emptied up front so nothing sits fully written while it waits its turn.
+    const cardEl=host.querySelector(".lv-cardstack .lv-label");
     const cardNote=host.querySelector(".lv-quote, .lv-quote-edit");
     const cardName=host.querySelector(".lv-n2");
     const noteIsField = cardNote && cardNote.tagName==="TEXTAREA";
     const noteText = cardNote ? (noteIsField ? cardNote.value : cardNote.textContent) : "";
     const bodyText = bodyEl.value;
     const sizeNote = ()=>{ if(noteIsField){ cardNote.style.height="auto"; cardNote.style.height=cardNote.scrollHeight+"px"; } };
+    // Measured with this letter's text still in place: that is the height the
+    // card is growing towards, and it stays locked there while the words are
+    // typed in so the box does not shuffle under them.
+    const cardTo = cardEl ? cardEl.offsetHeight : 0;
+    const cardFrom = letterCardH;
+    letterCardH = cardTo;
+    const releaseCard = ()=>{
+      if(!cardEl) return;
+      cardEl.style.transition=""; cardEl.style.height=""; cardEl.style.overflow="";
+    };
     if(cardNote){ if(noteIsField) cardNote.value=""; else cardNote.textContent=""; sizeNote(); }
     bodyEl.value=""; autosizeBody();
     const writeNote=()=>{
-      if(!cardNote) return writeLetter();
+      if(!cardNote){ releaseCard(); return writeLetter(); }
       if(noteIsField) cardNote.value=noteText; else cardNote.textContent=noteText;
-      typeOut(cardNote, sizeNote, 760, writeLetter);
+      typeOut(cardNote, sizeNote, 760, ()=>{ releaseCard(); writeLetter(); });
     };
     const writeLetter=()=>{ bodyEl.value=bodyText; typeOut(bodyEl, autosizeBody); };
-    typeOut(cardName, null, 420, writeNote);
+    const start = ()=>typeOut(cardName, null, 420, writeNote);
+    // The card changes shape from letter to letter. It eases between the two
+    // heights first, empty, and only then does anything start writing.
+    const slow = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(cardEl && cardFrom && Math.abs(cardTo-cardFrom)>2 && !slow){
+      cardEl.style.overflow="hidden";
+      cardEl.style.height=cardFrom+"px";
+      void cardEl.offsetHeight;
+      cardEl.style.transition="height .42s cubic-bezier(.22,.7,.2,1)";
+      cardEl.style.height=cardTo+"px";
+      setTimeout(start, 450);
+    } else {
+      if(cardEl){ cardEl.style.overflow="hidden"; cardEl.style.height=cardTo+"px"; }
+      start();
+    }
   }
   const noteEl=host.querySelector("#lvNote");
   if(noteEl){
