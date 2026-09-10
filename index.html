@@ -399,7 +399,7 @@
   .lv-reader-refresh:hover{color:var(--ink-1)}
   /* Something to watch while Gmail is asked, centred in the drawer. */
   .lv-load{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-  .lv-load img{width:300px;height:300px;object-fit:contain;mix-blend-mode:multiply;opacity:.92;
+  .lv-load img{width:210px;height:210px;object-fit:contain;mix-blend-mode:multiply;opacity:.92;
     -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 22%,#000 78%,transparent 100%);
     mask-image:linear-gradient(90deg,transparent 0,#000 22%,#000 78%,transparent 100%)}
   .lv-load p{font-family:var(--sans);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
@@ -449,6 +449,10 @@
   .lv-reader-row.unread .lv-reader-row-subj{font-weight:600}
   .lv-reader-row-snip{font-size:14.5px;line-height:1.5;color:var(--ink-3);
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .rd-bulk{display:block;width:100%;margin:18px 0 0;padding:11px 0;background:transparent;
+    border:none;border-top:1px dashed var(--rl);cursor:pointer;
+    font-family:var(--sans);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .rd-bulk:hover{color:var(--ink-1)}
   .rd-foot{position:sticky;bottom:-80px;margin-top:40px;padding:16px 0 12px;border-top:1px solid var(--rl);
     display:flex;flex-wrap:wrap;gap:6px;background:#FCFAF6}
   .rd-foot button{font-family:var(--sans);font-size:10.5px;letter-spacing:.06em;background:transparent;border:none;
@@ -2428,6 +2432,32 @@ function letterContext(x){
   return { kindLabel, priority, suggestedTone };
 }
 // The badge and compose button ride the sheet's own top-right corner.
+// Unpick the old draft and lay in the new one, rather than redrawing the sheet
+// underneath it. Timed rather than per character, so a long letter and a short
+// one take the same beat.
+function retypeInto(el, next, resize, done){
+  if(!el){ done && done(); return; }
+  const slow = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(slow){ el.value=next; resize && resize(); done && done(); return; }
+  const start=el.value, ERASE=240, WRITE=520;
+  const t0=performance.now();
+  function erase(now){
+    const p=Math.min((now-t0)/ERASE,1);
+    el.value=start.slice(0, Math.round(start.length*(1-p)));
+    resize && resize();
+    if(p<1) return requestAnimationFrame(erase);
+    const t1=performance.now();
+    (function write(n){
+      const q=Math.min((n-t1)/WRITE,1);
+      // ease out, so it lands rather than stopping dead
+      const e=1-Math.pow(1-q,2);
+      el.value=next.slice(0, Math.round(next.length*e));
+      resize && resize();
+      if(q<1) requestAnimationFrame(write); else { el.value=next; resize && resize(); done && done(); }
+    })(performance.now());
+  }
+  requestAnimationFrame(erase);
+}
 function placeLetterTopbar(){
   const host=document.getElementById("lettersView"); if(!host) return;
   const paper=host.querySelector(".lv-paper"), tb=host.querySelector("#lvTopbar");
@@ -2550,7 +2580,7 @@ const readerOpenMsgs=new Set();
 // Three drawer treatments to try in place. Kept in localStorage so the choice
 // survives a reload while it is being judged.
 const readerStyle="quiet";
-let readerConnected=null, _statusPending=false;
+let readerConnected=null, _statusPending=false, readerShowBulk=false;
 const gmailReady=()=>!!(sb&&synced);
 async function gmail(path, mailbox){
   const { data:{ session } }=await sb.auth.getSession();
@@ -2639,7 +2669,7 @@ async function loadReader(){
     // only what was written to the studio, not the keeper's own mail
     const { data:{ session } }=await sb.auth.getSession();
     if(!session) throw new Error("connect");
-    const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/gmail-reader?action=inbox&per=12&q=${encodeURIComponent(readerFolder==="sent"?"in:sent newer_than:30d":"in:inbox newer_than:14d -category:promotions -category:social")}`,
+    const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/gmail-reader?action=inbox&per=22&q=${encodeURIComponent(readerFolder==="sent"?"in:sent newer_than:30d":"in:inbox newer_than:14d")}`,
       { headers:{ Authorization:"Bearer "+session.access_token, apikey:CONFIG.SUPABASE_ANON_KEY } });
     const j=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(j.error||("Gmail "+r.status));
@@ -2825,7 +2855,7 @@ async function loadThreadFor(email, name){
 // The header is permanent: title, unread count, refresh and the two folders.
 function renderReaderTop(){
   const t=document.getElementById("rdTop"); if(!t) return;
-  const unread=(readerMsgs||[]).filter(m=>m.unread).length;
+  const unread=(readerMsgs||[]).filter(m=>m.unread && (readerShowBulk||!m.bulk)).length;
   t.innerHTML=`
     <div class="rd-top-row">
       <h2 style="font-family:${safeFont("TAY Flapjack","var(--serif-soul)","POST")}">Post</h2>
@@ -2865,7 +2895,7 @@ function renderReader(){
   if(gmailReady() && readerMode==="thread" && readerThread){
     const t=readerThread;
     const back=`<button class="lv-reader-back" id="lvReaderPost" title="Back to the post" aria-label="Back to the post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>`;
-    if(t.loading){ el.innerHTML=`${back}<div class="lv-load"><img src="logos/walking.webp" alt="Loading" width="300" height="300"></div>`; }
+    if(t.loading){ el.innerHTML=`${back}<div class="lv-load"><img src="logos/walking.webp" alt="Loading" width="210" height="210"></div>`; }
     else if(!t.msgs.length){
       el.innerHTML=`${back}
         <div class="rd-title">${esc(t.name||t.email)}</div>
@@ -2949,11 +2979,14 @@ function renderReader(){
     el.querySelector("#lvReaderBack").onclick=()=>{ readerOpen=null; renderReader(); }; return;
   }
   if(readerLoading || (readerMsgs===null && !readerErr)){
-    el.innerHTML=`<div class="lv-load"><img src="logos/walking.webp" alt="Loading" width="300" height="300"></div>`;
+    el.innerHTML=`<div class="lv-load"><img src="logos/walking.webp" alt="Loading" width="210" height="210"></div>`;
     if(readerMsgs===null && !readerLoading) loadReader();
     return;
   }
-  const rows=(readerMsgs||[]).map(m=>`<button class="lv-reader-row${m.unread?" unread":""}" data-id="${m.id}" data-box="${esc(m.box||"")}">
+  const all=readerMsgs||[];
+  const bulkCount=all.filter(m=>m.bulk).length;
+  const shown=readerShowBulk?all:all.filter(m=>!m.bulk);
+  const rows=shown.map(m=>`<button class="lv-reader-row${m.unread?" unread":""}" data-id="${m.id}" data-box="${esc(m.box||"")}">
       <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(m.from)}</span><span class="lv-reader-ago">${esc(boxLabel(m.box||""))} · ${esc(mailDate(m.at))}</span></div>
       <div class="lv-reader-row-subj">${esc(m.subject)}</div>
       <div class="lv-reader-row-snip">${esc(m.snippet)}</div></button>`).join("");
@@ -2961,8 +2994,11 @@ function renderReader(){
     ${readerErr?`<p class="lv-reader-note">${esc(readerErr)}</p>`:""}
     ${readerMsgs&&!readerMsgs.length?`<p class="lv-reader-note">Nothing to ${esc(MAILBOXES.map(boxLabel).join(" or "))} in the last two weeks.</p>`:""}
     <div class="lv-reader-list">${rows}</div>
+    ${bulkCount?`<button class="rd-bulk" id="rdBulk">${readerShowBulk?"Hide":"Show"} ${bulkCount} bulk message${bulkCount>1?"s":""}</button>`:""}
 `;
   el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
+  const bulkBtn=el.querySelector("#rdBulk");
+  if(bulkBtn) bulkBtn.onclick=()=>{ readerShowBulk=!readerShowBulk; renderReader(); };
   el.querySelectorAll(".lv-reader-row").forEach(b=>b.onclick=()=>openReaderMsg(b.dataset.id, b.dataset.box));
   if(readerMsgs===null && !readerLoading) loadReader();
 }
@@ -3177,7 +3213,18 @@ function renderCurrentLetter(){
       playCloseAnimation(()=>{ inqSet(q.id,{status:"closed"}); exitCompose(); });
     };
   } else {
-    host.querySelector("#lvTone").onclick=()=>{ letterToneIdx++; renderCurrentLetter(); };
+    host.querySelector("#lvTone").onclick=ev=>{
+      const btn=ev.currentTarget;
+      if(btn.dataset.busy) return;
+      letterToneIdx++;
+      const r=draftEmail(d, letterToneIdx, kind, q, letterSignoff);
+      let nextBody=r.body;
+      if(nextBody.endsWith(letterSignoff)) nextBody=nextBody.slice(0,-letterSignoff.length).replace(/\s+$/,"");
+      btn.dataset.busy="1";
+      btn.textContent="Tone \u00b7 "+r.toneName;
+      retypeInto(subjEl, r.subject, autosizeSubj);
+      retypeInto(bodyEl, nextBody, autosizeBody, ()=>{ delete btn.dataset.busy; });
+    };
     host.querySelector("#lvSkip").onclick=()=>{ letterIdx=(letterIdx+1)%letterQueue.length; letterToneIdx=0; renderCurrentLetter(); };
     host.querySelector("#lvClose").onclick=()=>{
       playCloseAnimation(()=>{

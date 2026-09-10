@@ -272,14 +272,23 @@ Deno.serve(async (req) => {
           const list = await lr.json();
           const ids = (list.messages || []).map((m: { id: string }) => m.id);
           const metas = await Promise.all(ids.map(async (id: string) => {
-            const r = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`, { headers: h });
+            const r = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date&metadataHeaders=List-Unsubscribe&metadataHeaders=List-Id&metadataHeaders=Precedence&metadataHeaders=Auto-Submitted`, { headers: h });
             if (!r.ok) return null;
             const m = await r.json();
             const head = (n: string) => ((m.payload && m.payload.headers) || [])
               .find((x: { name: string }) => x.name.toLowerCase() === n.toLowerCase())?.value || "";
+            // Bulk mail announces itself in its headers far more reliably than
+            // Gmail's categories classify it: a List-Unsubscribe or List-Id, a
+            // bulk Precedence, or an auto-submitted marker. A person writing to
+            // the studio sets none of them.
+            const bulk = !!(head("List-Unsubscribe") || head("List-Id")
+              || /bulk|list|junk/i.test(head("Precedence"))
+              || (head("Auto-Submitted") && head("Auto-Submitted") !== "no")
+              || (m.labelIds || []).includes("CATEGORY_PROMOTIONS")
+              || (m.labelIds || []).includes("CATEGORY_SOCIAL"));
             return { id: m.id, box, from: head("From"), subject: head("Subject"),
                      snippet: m.snippet || "", at: Number(m.internalDate),
-                     unread: (m.labelIds || []).includes("UNREAD") };
+                     unread: (m.labelIds || []).includes("UNREAD"), bulk };
           }));
           return metas.filter(Boolean);
         } catch { return []; }
