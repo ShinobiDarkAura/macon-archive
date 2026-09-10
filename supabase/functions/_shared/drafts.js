@@ -72,11 +72,24 @@ export function emailCtx(d){
   };
 }
 
+/* A subject line has to survive an inbox preview, so it stays to three to five
+   words. The piece keeps its full name in the body and is trimmed to its noun
+   here; shortSubject is the backstop for anything still too long. */
+const shortPiece = p => String(p||"").trim().split(/\s+/).slice(-2).join(" ");
+const FILLER = /^(&|and|about|your|the|a|an|of|for|with|to|on|in|from)$/i;
+export function shortSubject(s){
+  const w = String(s||"").trim().replace(/\s+/g," ").split(" ").filter(Boolean);
+  if(w.length<=5) return w.join(" ");
+  const out = w.slice(0,5);
+  while(out.length>3 && FILLER.test(out[out.length-1])) out.pop();
+  return out.join(" ").replace(/[,\-–—:;]+$/,"");
+}
+
 /* ---------- the letters ---------- */
 
 export const TONES=[
   {name:"Warm", build:c=>({
-    subject:`Thinking of you & your ${c.piece}`,
+    subject:`Thinking of your ${shortPiece(c.piece)}`,
     body:[
       `Hi ${c.first},`,"",
       c.jewel?`It's Alex and Hannah from Maçon. We were just thinking about you and wondering how ${c.piece} has been wearing${c.city?` out in ${c.city}`:""}.`
@@ -92,7 +105,7 @@ export const TONES=[
     ].join("\n")
   })},
   {name:"Casual", build:c=>({
-    subject:`Quick q about your ${c.piece}`,
+    subject:`Quick q, ${shortPiece(c.piece)}`,
     body:[
       `Hey ${c.first},`,"",
       `Hope you're doing well! It's Alex from Maçon. ${c.piece} popped into my head today and I got curious.`,"",
@@ -105,7 +118,7 @@ export const TONES=[
     ].join("\n")
   })},
   {name:"Heartfelt", build:c=>({
-    subject:`A little note about your ${c.piece}`,
+    subject:`A note about ${shortPiece(c.piece)}`,
     body:[
       `Dear ${c.first},`,"",
       `It's Hannah, from Maçon. Making ${c.piece} for you meant a lot to us, and we love knowing where our little objects end up in people's lives.`,"",
@@ -119,7 +132,7 @@ export const TONES=[
     ].join("\n")
   })},
   {name:"Brief", build:c=>({
-    subject:`${c.piece}`,
+    subject:`${shortPiece(c.piece)}`,
     body:[
       `Hi ${c.first},`,"",
       `{{SIGNOFF}} from Maçon here. Quick one: ${c.gift?`did your gift land okay?`:c.jewel?`has ${c.piece} been getting worn?`:`where has ${c.piece} ended up living, and does it get handled much?`}`,"",
@@ -153,13 +166,13 @@ export const CUSTOM_TONES=[
   {name:"Revive", build:q=>{
     const f=firstName(q.name), a=q.subject;
     return q.repeat_buyer ? {
-      subject:`About your ${a}`,
+      subject:`About your ${shortPiece(a)}`,
       body:[`Hey ${f},`,"",
         `I never circled back about the ${a}, which I regret, it's a good one.`,"",
         `If you're still up for it, I'd like to draw a couple of options and send them over. No commitment, and no need to decide anything from a drawing.`,"",
         `{{SIGNOFF}}`].join("\n")
     } : {
-      subject:`About your ${a}`,
+      subject:`About your ${shortPiece(a)}`,
       body:[`Hi ${f},`,"",
         `I never followed up on your ${a}, and I should have.`,"",
         `If it was the price or the size of the deposit, I would genuinely like to know, it helps us. And if you're still interested, I'd like to draw it for you before you decide anything at all.`,"",
@@ -168,7 +181,7 @@ export const CUSTOM_TONES=[
     };
   }},
   {name:"Nudge", build:q=>({
-    subject:`About your ${q.subject}`,
+    subject:`About your ${shortPiece(q.subject)}`,
     body:[`Hi ${firstName(q.name)},`,"",
       `Still thinking about your ${q.subject}.`,"",
       `Want me to sketch something?`,"",
@@ -177,7 +190,7 @@ export const CUSTOM_TONES=[
   {name:"First reply", build:q=>{
     const f=firstName(q.name), a=q.subject;
     return q.repeat_buyer ? {
-      subject:`About your ${a}`,
+      subject:`About your ${shortPiece(a)}`,
       body:[`Hey ${f},`,"",
         `Yes, a ${a}, absolutely.`,"",
         `Do you have a particular ${a} in mind, or should we invent one?`,"",
@@ -185,7 +198,7 @@ export const CUSTOM_TONES=[
         `Tell me about the ${a} and I'll get things moving.`,"",
         `{{SIGNOFF}}`].join("\n")
     } : {
-      subject:`About your ${a}`,
+      subject:`About your ${shortPiece(a)}`,
       body:[`Hi ${f},`,"",
         `We'd love to make ${a.match(/^[aeiou]/i)?"an":"a"} ${a} for you.`,"",
         `Tell me about yours first. Is there a particular ${a} you have in mind, or would you rather we invent one? Photos help if you have any, though they are not necessary.`,"",
@@ -210,7 +223,7 @@ export function enquiryDraft(q, days, signoff="Alex"){
   // A hand-written prepared letter is stored text, not a template — it can't
   // carry a placeholder, so it is returned as written and does not respond
   // to the signature toggle.
-  if (q.draft) return { subject: "About your " + (q.subject || "commission"), body: q.draft };
+  if (q.draft) return { subject: "About your " + shortPiece(q.subject || "commission"), body: q.draft };
   // A reply recorded in the note counts as contact: most replies happen in
   // Gmail and never touch the app.
   const answered = !!q.last_touched || /replied|reply|answered|wrote back|sent/i.test(String(q.note || ""));

@@ -1703,13 +1703,15 @@ const emailCtx = d => D().emailCtx(d);
 function draftEmail(d, tone, kind, q, signoff){
   let set = kind==="custom" ? D().CUSTOM_TONES : kind==="reconnect" ? D().RECON_TONES : D().TONES;
   if(kind==="custom" && q && q.draft)
-    set = [{name:"Prepared", build:x=>({subject:"Re: "+(x.subject||"your commission"), body:x.draft})}].concat(set);
+    set = [{name:"Prepared", build:x=>({subject:x.subject||"Your commission", body:x.draft})}].concat(set);
   const n=set.length, idx=((tone|0)%n+n)%n;
   const r=set[idx].build(kind==="custom" ? q : emailCtx(d));
   // A hand-written prepared letter has no placeholder to fill; every
   // generated tone does, and defaults to Alex when no signoff is chosen.
   const body = String(r.body||"").split("{{SIGNOFF}}").join(signoff||"Alex");
-  return {subject:r.subject, body, toneName:set[idx].name, toneIdx:idx};
+  // Three to five words, whichever tone or template produced it.
+  const short = D().shortSubject || (x=>x);
+  return {subject:short(r.subject), body, toneName:set[idx].name, toneIdx:idx};
 }
 /* ---------- Custom enquiries ----------
    Records, not tasks. They live in public.inquiries and carry a status, so a
