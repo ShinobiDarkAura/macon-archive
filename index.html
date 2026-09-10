@@ -393,7 +393,7 @@
   .rd-top{flex:0 0 auto;min-height:10%;padding:22px 30px 0;background:#FCFAF6;border-bottom:1px solid var(--rl);
     display:flex;flex-direction:column;justify-content:space-between}
   .rd-top-row{display:flex;align-items:center;gap:11px}
-  .rd-top h2{margin:0;font-size:34px;line-height:1;letter-spacing:.02em;text-transform:uppercase;color:var(--ink-1);font-weight:400}
+  .rd-top h2{margin:0;font-size:44px;line-height:1;letter-spacing:.02em;text-transform:uppercase;color:var(--ink-1);font-weight:400}
   .rd-unread{font-family:var(--sans);font-size:11.5px;font-weight:600;color:#fff;background:var(--accent-grad);
     border-radius:999px;min-width:22px;height:22px;padding:0 6px;display:inline-flex;align-items:center;
     justify-content:center;align-self:center;position:relative;top:-2px}
@@ -453,8 +453,8 @@
   /* Sender at a glance: the studio's own messages sit on a tinted ground with a
      rust initial, everyone else on white. */
   .lv-reader .rd-m{margin-bottom:30px;font-family:var(--sans);background:#fff;border-radius:9px;
-    padding:16px 17px 17px;box-shadow:0 0 0 1px rgba(120,102,70,.09),0 2px 5px rgba(60,48,28,.05)}
-  .lv-reader .rd-m.rd-us{background:#F6F1E6;box-shadow:0 0 0 1px rgba(150,120,70,.13)}
+    padding:16px 17px 17px;box-shadow:none}
+  .lv-reader .rd-m.rd-us{background:rgba(176,142,80,.07);box-shadow:none}
   .lv-reader .rd-hd{display:flex;align-items:center;gap:10px}
   .lv-reader .rd-av{width:30px;height:30px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;
     justify-content:center;font-size:11.5px;font-weight:600;letter-spacing:.02em;
@@ -467,8 +467,8 @@
   .lv-reader .rd-to{font-size:11.5px;color:var(--ink-3);line-height:1.3;margin-top:1px}
   .lv-reader .rd-body{font-family:var(--sans);font-size:15.5px;line-height:1.68;color:var(--ink-1);margin-top:14px}
   .lv-reader .rd-body p{margin:0 0 1em}
-  .lv-reader .rd-shut{background:transparent;box-shadow:none;padding:0 0 4px;margin-bottom:22px;
-    border-bottom:1px solid var(--rl)}
+  .lv-reader .rd-shut{background:transparent;box-shadow:none;padding:0 0 14px;margin-bottom:18px;
+    border-bottom:none}
   .lv-reader .rd-shut .rd-from{font-size:13.5px}
   .lv-reader .rd-snip{margin-top:5px;padding-left:40px}
 
@@ -2584,6 +2584,16 @@ function unent(v){
     return hit===undefined ? m : hit;
   });
 }
+// From headers carry stray bracket and pipe characters left over from encoding,
+// and often arrive all lower case. Clean and title-case the words that are
+// plainly lower, leaving anything already mixed or capitalised alone so
+// G.H.BASS and Maçon survive.
+function cleanName(v){
+  let n=unent(String(v||"")).replace(/\s*<[^>]*>\s*$/,"").replace(/^["']|["']$/g,"").trim();
+  n=n.replace(/[\[\]{}<>|\\^`~]+/g," ").replace(/\s{2,}/g," ").trim();
+  if(!n) return "";
+  return n.split(" ").map(w=> /^[a-z]/.test(w) ? w.charAt(0).toUpperCase()+w.slice(1) : w).join(" ");
+}
 const hdr=(m,n)=>unent(((m.payload&&m.payload.headers)||[]).find(h=>h.name.toLowerCase()===n.toLowerCase())?.value||"");
 function gmailPlainText(payload){
   if(!payload) return "";
@@ -2614,7 +2624,7 @@ async function loadReader(){
     const j=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(j.error||("Gmail "+r.status));
     readerMsgs=(j.messages||[]).map(m=>({ ...m,
-      from:unent(m.from).replace(/\s*<.*>$/,"").replace(/^"|"$/g,""),
+      from:cleanName(m.from),
       subject:unent(m.subject)||"(no subject)", snippet:unent(m.snippet) }));
   }catch(e){ readerErr=e.message; readerMsgs=readerMsgs||[]; }
   readerLoading=false; renderReader();
@@ -2625,7 +2635,7 @@ async function openReaderMsg(id, box){
   readerOpen={id, box, body:"…"}; renderReader();
   try{
     const m=await gmail(`messages/${id}?format=full`, box);
-    readerOpen={ id, from:hdr(m,"From"), subject:hdr(m,"Subject"), at:Number(m.internalDate), body:gmailPlainText(m.payload)||unent(m.snippet||"") };
+    readerOpen={ id, box, from:cleanName(hdr(m,"From")), subject:hdr(m,"Subject"), at:Number(m.internalDate), body:gmailPlainText(m.payload)||unent(m.snippet||"") };
   }catch(e){ readerOpen={id, box, from:"", subject:"", body:"Could not open this one. "+(e&&e.message?e.message:"Unknown error")+"."}; }
   renderReader();
 }
@@ -2775,7 +2785,7 @@ async function loadThreadFor(email, name){
         const list=await gmail(`threads?q=${q}&maxResults=1`, box);
         if(!list.threads||!list.threads.length) return [];
         const t=await gmail(`threads/${list.threads[0].id}?format=full`, box);
-        return (t.messages||[]).map(m=>({ box, from:hdr(m,"From").replace(/\s*<.*>$/,"").replace(/^"|"$/g,""),
+        return (t.messages||[]).map(m=>({ box, from:cleanName(hdr(m,"From")),
           at:Number(m.internalDate), body:gmailPlainText(m.payload)||unent(m.snippet||""), subject:hdr(m,"Subject"),
           threadId:t.id, msgId:hdr(m,"Message-ID"), refs:hdr(m,"References") }));
       }catch(e){ return []; }
@@ -2905,7 +2915,7 @@ function renderReader(){
     el.innerHTML=`<button class="lv-reader-back" id="lvReaderBack">\u2039 Post</button>
       <div class="rd-title">${esc(unent(o.subject||""))}</div>
       <article class="rd-m">
-        <div class="rd-hd"><span class="rd-from">${esc(unent(o.from||""))}</span><span class="rd-when">${o.at?esc(mailDate(o.at)):""}</span></div>
+        <div class="rd-hd"><span class="rd-from">${esc(cleanName(o.from||""))}</span><span class="rd-when">${o.at?esc(mailDate(o.at)):""}</span></div>
         <div class="rd-body">${rr.html}</div>
         ${rr.quoted?`<button class="rd-more" data-q1>Earlier</button><div class="rd-quote" id="mmqOpen" hidden>${mailLinkify(esc(rr.quoted))}</div>`:""}
         ${rr.sig?`<div class="rd-sig">${mailLinkify(esc(rr.sig))}</div>`:""}
