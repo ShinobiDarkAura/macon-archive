@@ -56,6 +56,9 @@ export function pick(seed, list){
 const isJewelry = p => /ring|cuff|pendant|chain|earring|talisman|key|egg/i.test(String(p || ""));
 const firstPiece = p => ((String(p || "").split(",")[0]) || "").trim().replace(/\s*[\u00d7x]\d+$/, "");
 const countPieces = p => String(p || "").split(",").map(s => s.trim()).filter(Boolean).length;
+// Lives here rather than in the app: the Revive letter reads it, and the
+// digest renders that letter server-side where the app's globals do not exist.
+const monthOf = s => { const t = Date.parse(s); return isNaN(t) ? "" : new Date(t).toLocaleDateString("en-US", { month: "long" }); };
 
 export function emailCtx(d){
   const raw = firstPiece(d.pieces) || "your piece";

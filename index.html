@@ -199,13 +199,6 @@
   .lv-cnr-r{text-align:right}
   .lv-name{font-family:"TAY Flapjack",var(--serif-soul);font-weight:400;font-size:57px;line-height:.96;
     letter-spacing:-.03em;color:#26221C;margin:0;text-transform:none}
-  /* Tacked in place. The pin sits on the wrapper rather than the card, because
-     the card is masked and anything inside it is cut at the top edge. */
-  .lv-pin{position:absolute;top:4px;left:50%;transform:translateX(-50%);width:21px;height:21px;border-radius:50%;
-    z-index:8;background:radial-gradient(circle at 34% 28%, #E4796B 0%, #C0503C 46%, #8E2E1E 100%);
-    box-shadow:0 3px 5px rgba(40,20,10,.38), inset 0 -2px 3px rgba(0,0,0,.22)}
-  .lv-pin::after{content:"";position:absolute;top:23%;left:24%;width:7px;height:5px;border-radius:50%;
-    background:rgba(255,255,255,.55)}
   .lv-n1,.lv-n2{display:block}
   .lv-n1{font-size:.61em;line-height:1.04;margin-bottom:-6px}
   .lv-noteblock{position:relative;margin:22px -22px 0;padding:22px 22px 0}
@@ -302,7 +295,9 @@
   .lv-footer{flex:0 0 auto;min-height:70px;display:flex;align-items:center;gap:12px;
     border-top:1px solid rgba(227,222,208,.5);margin-top:8px;margin-bottom:12px}
   .lv-footer-right{margin-left:auto;display:flex;align-items:center;gap:12px}
-  .lv-tonerow{display:flex;justify-content:center;flex:0 0 auto;padding-bottom:14px}
+  .lv-tonerow{display:flex;justify-content:center;gap:8px;flex:0 0 auto;padding-bottom:14px}
+  .lv-tone[disabled]{opacity:.4;cursor:default}
+  .lv-tone[data-busy]{color:var(--ink)}
   .lv-tone{font-size:11.5px;letter-spacing:.1em;color:#a89d89;
     background:transparent;border:1px solid var(--rule);border-radius:999px;padding:6.5px 14px;cursor:pointer}
   .lv-tone:hover{border-color:#a89d89;color:var(--ink)}
@@ -373,7 +368,7 @@
   .lv-reader{scrollbar-width:none;-ms-overflow-style:none}
   .lv-reader::-webkit-scrollbar{width:0;height:0;display:none}
   .lv-reader-back{background:transparent;border:1.5px solid var(--rl);border-radius:50%;cursor:pointer;
-    width:37px;height:37px;padding:0;margin:5px 0 28px;display:flex;align-items:center;justify-content:center;
+    width:37px;height:37px;padding:0;margin:5px 0 22px;display:flex;align-items:center;justify-content:center;
     color:var(--ink-3);opacity:.55;transition:opacity .15s,color .15s,border-color .15s}
   .lv-reader-back svg{width:24px;height:24px;display:block}
   .lv-reader-back:hover{opacity:1;color:var(--ink-1);border-color:var(--ink-3)}
@@ -462,9 +457,9 @@
 
   /* 05 QUIET */
   .lv-reader .rd-title{font-family:"TAY Flapjack",var(--serif-soul);font-size:36px;line-height:0.98;
-    color:var(--ink-1);letter-spacing:-.005em;margin-bottom:2px;text-wrap:balance}
+    color:var(--ink-1);letter-spacing:-.005em;margin-bottom:34px;text-wrap:balance}
   .lv-reader .rd-sub{font-family:var(--sans);font-size:12px;letter-spacing:.06em;text-transform:uppercase;
-    color:var(--ink-3);margin-bottom:34px}
+    color:var(--ink-3);margin-bottom:8px}
   /* A day marker between runs, so a gap of weeks is visible rather than implied */
   .lv-reader .rd-day{display:flex;align-items:center;gap:12px;margin:0 0 20px;
     font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
@@ -1756,7 +1751,6 @@ async function inqAdd(){
   await loadInquiries(); renderDrawer(); if(tab==="enquiries") renderEnquiries();
 }
 
-function monthOf(s){ const t=Date.parse(s); return isNaN(t)?"":new Date(t).toLocaleDateString("en-US",{month:"long"}); }
 
 
 /* What to get right before this email goes out. Shown in the draft modal. */
@@ -2840,6 +2834,30 @@ function mailDate(ms){
   return d.toLocaleDateString([], {month:"short", day:"numeric", year:"numeric"});
 }
 
+// Sends the open conversation to the letter-writer function and gets back a
+// subject and a body that answer it.
+async function letterFromThread(t, x){
+  const { data:{ session } }=await sb.auth.getSession();
+  if(!session) throw new Error("connect");
+  const d=x.d||{}, q=x.q||null;
+  const mine=m=>/ma[\u00e7c]on/i.test(m.from||"") || MAILBOXES.some(b=>String(m.from||"").toLowerCase().includes(boxLabel(b)));
+  const body={
+    name: d.name||t.name||"", email: d.email||t.email||"",
+    piece: (D().emailCtx ? D().emailCtx(d).piece : "") || (q?q.subject:"") || "",
+    city: d.city||"", kind: x.kind||"", 
+    messages: (t.msgs||[]).map(m=>({ from:m.from, at:m.at, mine:mine(m), body:m.body }))
+  };
+  const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/letter-writer`, {
+    method:"POST",
+    headers:{ Authorization:"Bearer "+session.access_token, apikey:CONFIG.SUPABASE_ANON_KEY, "Content-Type":"application/json" },
+    body: JSON.stringify(body)
+  });
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(typeof j.error==="string"?j.error:("writer "+r.status));
+  const short = D().shortSubject || (v=>v);
+  return { subject: short(j.subject), body: String(j.body||"") };
+}
+
 async function loadThreadFor(email, name){
   if(!email || !gmailReady()){ readerMode="post"; readerThread=null; renderReader(); return; }
   readerMode="thread";
@@ -2958,7 +2976,7 @@ function renderReader(){
             <div class="rd-body">${r.html}</div>${tail}</article>`;
       };
       const cards=t.msgs.map(msg).join("");
-      const head = `<div class="rd-title">${subj}</div><div class="rd-sub">${n} message${n>1?"s":""} with ${who}</div>`;
+      const head = `<div class="rd-sub">${n} message${n>1?"s":""} with ${who}</div><div class="rd-title">${subj}</div>`;
       const foot=`<div class="rd-foot">${MAILBOXES.map(m=>
         `<button data-box="${esc(m)}">Reconnect ${esc(boxLabel(m))}@</button>`).join("")}</div>`;
       el.innerHTML=`${back}${head}${cards}${foot}`;
@@ -3109,11 +3127,9 @@ function renderCurrentLetter(){
   host.innerHTML = `
     <div class="lv-scene">
       <div class="lv-mailbar" id="lvMailbar"></div>
-      <div class="lv-topbar" id="lvTopbar">
-        ${composing?"":`<div class="lv-badge" title="${letterQueue.length} waiting on you today">${letterQueue.length}</div>`}
-      </div>
+      <div class="lv-topbar" id="lvTopbar"></div>
       <button class="lv-new" id="lvNew" title="Write to someone new">+ New letter</button>
-      <div class="lv-labelwrap"><span class="lv-pin" aria-hidden="true"></span><div class="lv-label">
+      <div class="lv-labelwrap"><div class="lv-label">
         <div class="lv-cnr">
           <span class="lv-cnr-l" style="font-family:${safeFont("Gabriele Dark","var(--serif-soul)",ctx?ctx.kindLabel+ctx.priority:"")}">
             ${ctx?`<i>${esc(ctx.kindLabel)}</i><i class="lv-pri-${esc(ctx.priority.toLowerCase())}">${esc(ctx.priority)}</i>`:""}
@@ -3159,7 +3175,7 @@ function renderCurrentLetter(){
         <textarea class="lv-subj" id="lvSubj" rows="1" style="font-family:${safeFont("TAY Flapjack","var(--serif-soul)",subject)}">${esc(subject)}</textarea>
         <div class="lv-body-wrap"><textarea class="lv-body" id="lvBody">${esc(body)}</textarea>
         <button class="lv-signoff" id="lvSignoff" title="Click to change who signs">${esc(letterSignoff)}</button></div>
-        ${composing?"":`<div class="lv-tonerow"><button class="lv-tone lv-overline" id="lvTone">Tone \u00b7 ${esc(toneName)}</button></div>`}
+        ${composing?"":`<div class="lv-tonerow"><button class="lv-tone lv-overline" id="lvTone">Tone \u00b7 ${esc(toneName)}</button><button class="lv-tone lv-overline" id="lvRead" title="Read the thread in the Post panel and write from what it says">From the thread</button></div>`}
         <div class="lv-footer">
           <button class="lv-close" id="lvClose" title="Mark closed" aria-label="Mark closed">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4.5 4.5L19 7"/></svg></button>
@@ -3229,6 +3245,32 @@ function renderCurrentLetter(){
       renderLetters();
     };
   }
+  // Written from the conversation rather than from a template. The thread the
+  // Post panel already loaded is the whole input, so nothing is fetched twice.
+  const readBtn=host.querySelector("#lvRead");
+  if(readBtn) readBtn.onclick=async ()=>{
+    if(readBtn.dataset.busy) return;
+    const t=readerThread;
+    if(!t || !t.msgs || !t.msgs.length){
+      alert("No conversation loaded yet. Open their thread in the Post panel first.");
+      return;
+    }
+    const was=readBtn.textContent;
+    readBtn.dataset.busy="1"; readBtn.textContent="Reading\u2026";
+    try{
+      const r=await letterFromThread(t, x);
+      let nextBody=r.body.split("{{SIGNOFF}}").join(letterSignoff);
+      if(nextBody.endsWith(letterSignoff)) nextBody=nextBody.slice(0,-letterSignoff.length).replace(/\s+$/,"");
+      readBtn.textContent="From the thread";
+      retypeInto(subjEl, r.subject, autosizeSubj);
+      retypeInto(bodyEl, nextBody, autosizeBody, ()=>{ delete readBtn.dataset.busy; });
+    }catch(e){
+      readBtn.textContent=was; delete readBtn.dataset.busy;
+      alert(e.message==="no_api_key" ? "The letter writer has no Anthropic key set yet."
+        : e.message==="no_thread" ? "That conversation came back empty."
+        : "Could not write from the thread: "+e.message);
+    }
+  };
   const prev=host.querySelector("#lvChevprev"), next=host.querySelector("#lvChevnext");
   if(prev){ prev.onclick=()=>letterNavigate(-1); prev.disabled=letterIdx===0; }
   if(next){ next.onclick=()=>letterNavigate(1); next.disabled=letterIdx>=letterQueue.length-1; }
@@ -3345,7 +3387,7 @@ function playCloseAnimation(onDone){
   setTimeout(()=>{
     paper.classList.add("lv-closing");
     setTimeout(onDone, 450);
-  }, 2000);
+  }, 1000);
 }
 (function(){
   // its own key: "macon_view" belongs to the ledger's Compact/Regular switch
