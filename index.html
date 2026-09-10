@@ -177,7 +177,7 @@
      filter stage runs before the mask stage, and a drop-shadow on the card
      itself would trace the rectangle the mask has not cut yet. */
   .lv-labelwrap{position:fixed;left:40px;top:50%;transform:translateY(-50%);z-index:2;
-    filter:drop-shadow(0 2px 3px rgba(28,20,10,.34));transition:opacity .2s}
+    filter:drop-shadow(2px 4px 3px rgba(28,20,10,.34));transition:opacity .2s}
   .lv-label{display:flex;flex-direction:column;justify-content:flex-end;
     width:400px;padding:40px 22px 22px;box-sizing:border-box;background:#F7F3E9;
     -webkit-mask-image:
@@ -288,6 +288,7 @@
   .lv-footer{flex:0 0 auto;min-height:70px;display:flex;align-items:center;gap:12px;
     border-top:1px solid rgba(227,222,208,.5);margin-top:8px;margin-bottom:12px}
   .lv-footer-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+  .lv-tonerow{display:flex;justify-content:center;flex:0 0 auto;padding-bottom:14px}
   .lv-tone{font-size:11.5px;letter-spacing:.1em;color:#a89d89;
     background:transparent;border:1px solid var(--rule);border-radius:999px;padding:6.5px 14px;cursor:pointer}
   .lv-tone:hover{border-color:#a89d89;color:var(--ink)}
@@ -354,12 +355,6 @@
       0 0 0 1px rgba(120,102,70,.13), 0 16px 40px rgba(60,48,28,.14)}
   .lv-reader{scrollbar-width:none;-ms-overflow-style:none}
   .lv-reader::-webkit-scrollbar{width:0;height:0;display:none}
-  .lv-style{position:fixed;right:24px;bottom:18px;z-index:56;display:flex;gap:3px;
-    background:rgba(255,255,255,.86);border:1px solid var(--rule);border-radius:999px;padding:3px}
-  .lv-style button{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:9.5px;letter-spacing:.12em;
-    text-transform:uppercase;border:none;background:transparent;color:#a89d89;border-radius:999px;
-    padding:5px 11px;cursor:pointer}
-  .lv-style button.on{background:var(--accent-grad);color:#fff}
   .lv-reader-back{font-family:var(--sans);font-size:12px;color:#a89d89;background:transparent;border:none;
     cursor:pointer;padding:2px 0;margin-bottom:12px;display:block}
   .lv-reader-back:hover{color:var(--ink)}
@@ -391,10 +386,11 @@
   @keyframes lvDot{0%,60%,100%{opacity:.25}30%{opacity:1}}
   .rd-top{flex:0 0 auto;min-height:10%;padding:22px 30px 0;background:#FCFAF6;border-bottom:1px solid var(--rl);
     display:flex;flex-direction:column;justify-content:space-between}
-  .rd-top-row{display:flex;align-items:baseline;gap:10px}
+  .rd-top-row{display:flex;align-items:center;gap:11px}
   .rd-top h2{margin:0;font-size:34px;line-height:1;letter-spacing:.02em;text-transform:uppercase;color:var(--ink-1);font-weight:400}
-  .rd-unread{font-family:var(--sans);font-size:11px;font-weight:600;color:#fff;background:var(--accent-grad);
-    border-radius:999px;min-width:20px;height:20px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center}
+  .rd-unread{font-family:var(--sans);font-size:11.5px;font-weight:600;color:#fff;background:var(--accent-grad);
+    border-radius:999px;min-width:22px;height:22px;padding:0 6px;display:inline-flex;align-items:center;
+    justify-content:center;align-self:center;position:relative;top:-2px}
   .rd-refresh{margin-left:auto;background:transparent;border:none;color:var(--ink-3);cursor:pointer;
     padding:0;align-self:center;display:flex;align-items:center;justify-content:center;width:24px;height:24px}
   .rd-refresh svg{width:22px;height:22px}
@@ -429,29 +425,6 @@
   .lv-reader-row.unread .lv-reader-row-subj{font-weight:600}
   .lv-reader-row-snip{font-size:13.5px;line-height:1.5;color:var(--ink-3);
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  /* The list takes the treatment as well, not only the thread. */
-  .rd-dispatch .lv-reader-head{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-spacing:.24em;
-    border-bottom:3px double var(--ink-1);padding-bottom:10px}
-  .rd-dispatch .lv-reader-row{border-radius:0;padding:14px 2px;background:transparent}
-  .rd-dispatch .lv-reader-row + .lv-reader-row{box-shadow:none;border-top:1px dashed var(--rl)}
-  .rd-dispatch .lv-reader-from,.rd-dispatch .lv-reader-ago{font-family:"IBM Plex Mono",ui-monospace,monospace;
-    font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:400;color:var(--ink-3)}
-  .rd-dispatch .lv-reader-row-subj{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.02em}
-  .rd-dispatch .lv-reader-row-snip{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;line-height:1.65}
-  .rd-dispatch .lv-reader-row.unread{background:transparent}
-  .rd-dispatch .lv-reader-row.unread .lv-reader-row-subj{color:var(--accent-deep)}
-
-  .rd-docket .lv-reader-head{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-spacing:.18em;
-    border-bottom:1px solid var(--ink-1)}
-  .rd-docket .lv-reader-row{border-radius:0;padding:9px 2px;font-family:"IBM Plex Mono",ui-monospace,monospace}
-  .rd-docket .lv-reader-row + .lv-reader-row{box-shadow:none;border-top:1px dotted var(--rl)}
-  .rd-docket .lv-reader-from{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:500}
-  .rd-docket .lv-reader-ago{font-size:10px;letter-spacing:.06em}
-  .rd-docket .lv-reader-row-subj{font-size:11.5px;letter-spacing:0;margin:2px 0 1px}
-  .rd-docket .lv-reader-row-snip{font-size:10.5px;line-height:1.55;-webkit-line-clamp:1}
-  .rd-docket .lv-reader-row.unread{background:transparent}
-  .rd-docket .lv-reader-row.unread .lv-reader-row-subj{color:var(--accent-deep)}
-
   .rd-foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--rl);display:flex;flex-wrap:wrap;gap:6px}
   .rd-foot button{font-family:var(--sans);font-size:10.5px;letter-spacing:.06em;background:transparent;border:none;
     color:var(--ink-3);cursor:pointer;padding:3px 0;margin-right:14px;text-decoration:underline;text-underline-offset:3px}
@@ -461,63 +434,37 @@
   .rd-snip{font-family:var(--sans);font-size:12px;color:var(--ink-3);margin-top:2px;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-  /* 03 DISPATCH */
-  .rd-dispatch .rd-band{border-top:3px double var(--ink-1);border-bottom:3px double var(--ink-1);padding:9px 0;
-    text-align:center;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.28em;text-transform:uppercase}
-  .rd-dispatch .rd-title{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.2em;
-    text-transform:uppercase;color:var(--ink-2);text-align:center;margin:12px 0 4px}
-  .rd-dispatch .rd-m{padding:16px 0;border-bottom:1px dashed var(--rl)}
-  .rd-dispatch .rd-hd{display:flex;justify-content:space-between;gap:10px;
-    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
-  .rd-dispatch .rd-body{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;line-height:1.72;
-    color:var(--ink-1);margin-top:11px}
-  .rd-dispatch .rd-to{display:none}
-  .rd-dispatch .rd-ends{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:9.5px;letter-spacing:.2em;
-    color:var(--ink-3);margin-top:11px;text-transform:uppercase}
-
-  /* 04 DOCKET */
-  .rd-docket{font-family:"IBM Plex Mono",ui-monospace,monospace}
-  .rd-docket .rd-dk{display:flex;align-items:flex-end;gap:6px;font-size:10.5px;color:var(--ink-2);padding:3px 0;letter-spacing:.06em}
-  .rd-docket .rd-dk i{flex:1;border-bottom:1px dotted var(--rl);margin-bottom:3px}
-  .rd-docket .rd-m{border-top:1px solid var(--ink-1);margin-top:11px;padding-top:11px}
-  .rd-docket .rd-hd{display:flex;justify-content:space-between;gap:10px;font-size:10.5px;letter-spacing:.1em;
-    text-transform:uppercase;color:var(--ink-2)}
-  .rd-docket .rd-body{font-size:12px;line-height:1.75;color:var(--ink-1);margin-top:10px}
-  .rd-docket .rd-to{display:none}
-  .rd-docket .rd-stamp{display:inline-block;border:1.5px solid var(--accent);color:var(--accent);
-    font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;padding:5px 10px;transform:rotate(-3deg);margin-top:18px}
-
   /* 05 QUIET */
-  .rd-quiet .rd-title{font-family:var(--serif-soul);font-size:30px;line-height:1.18;color:var(--ink-1);
+  .lv-reader .rd-title{font-family:var(--serif-soul);font-size:30px;line-height:1.18;color:var(--ink-1);
     letter-spacing:-.015em;margin-bottom:7px}
-  .rd-quiet .rd-sub{font-family:var(--sans);font-size:12px;letter-spacing:.06em;text-transform:uppercase;
+  .lv-reader .rd-sub{font-family:var(--sans);font-size:12px;letter-spacing:.06em;text-transform:uppercase;
     color:var(--ink-3);margin-bottom:34px}
   /* A day marker between runs, so a gap of weeks is visible rather than implied */
-  .rd-quiet .rd-day{display:flex;align-items:center;gap:12px;margin:0 0 20px;
+  .lv-reader .rd-day{display:flex;align-items:center;gap:12px;margin:0 0 20px;
     font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
-  .rd-quiet .rd-day::before,.rd-quiet .rd-day::after{content:"";height:1px;background:var(--rl);flex:1}
-  .rd-quiet .rd-day span{background:rgba(255,255,255,.7);border:1px solid var(--rl);border-radius:999px;padding:3px 11px}
+  .lv-reader .rd-day::before,.lv-reader .rd-day::after{content:"";height:1px;background:var(--rl);flex:1}
+  .lv-reader .rd-day span{background:rgba(255,255,255,.7);border:1px solid var(--rl);border-radius:999px;padding:3px 11px}
   /* Sender at a glance: the studio's own messages sit on a tinted ground with a
      rust initial, everyone else on white. */
-  .rd-quiet .rd-m{margin-bottom:30px;font-family:var(--sans);background:#fff;border-radius:9px;
+  .lv-reader .rd-m{margin-bottom:30px;font-family:var(--sans);background:#fff;border-radius:9px;
     padding:16px 17px 17px;box-shadow:0 0 0 1px rgba(120,102,70,.09),0 2px 5px rgba(60,48,28,.05)}
-  .rd-quiet .rd-m.rd-us{background:#F6F1E6;box-shadow:0 0 0 1px rgba(150,120,70,.13)}
-  .rd-quiet .rd-hd{display:flex;align-items:center;gap:10px}
-  .rd-quiet .rd-av{width:30px;height:30px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;
+  .lv-reader .rd-m.rd-us{background:#F6F1E6;box-shadow:0 0 0 1px rgba(150,120,70,.13)}
+  .lv-reader .rd-hd{display:flex;align-items:center;gap:10px}
+  .lv-reader .rd-av{width:30px;height:30px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;
     justify-content:center;font-size:11.5px;font-weight:600;letter-spacing:.02em;
     background:#E6DFCE;color:#6E6450}
-  .rd-quiet .rd-us .rd-av{background:var(--accent-grad);color:#fff}
-  .rd-quiet .rd-who{min-width:0;flex:1}
-  .rd-quiet .rd-from{display:block;font-size:15px;font-weight:600;color:var(--ink-1);line-height:1.25;
+  .lv-reader .rd-us .rd-av{background:var(--accent-grad);color:#fff}
+  .lv-reader .rd-who{min-width:0;flex:1}
+  .lv-reader .rd-from{display:block;font-size:15px;font-weight:600;color:var(--ink-1);line-height:1.25;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .rd-quiet .rd-when{font-size:12px;color:var(--ink-3);flex:0 0 auto;align-self:flex-start;padding-top:2px}
-  .rd-quiet .rd-to{font-size:11.5px;color:var(--ink-3);line-height:1.3;margin-top:1px}
-  .rd-quiet .rd-body{font-family:var(--sans);font-size:15.5px;line-height:1.68;color:var(--ink-1);margin-top:14px}
-  .rd-quiet .rd-body p{margin:0 0 1em}
-  .rd-quiet .rd-shut{background:transparent;box-shadow:none;padding:0 0 4px;margin-bottom:22px;
+  .lv-reader .rd-when{font-size:12px;color:var(--ink-3);flex:0 0 auto;align-self:flex-start;padding-top:2px}
+  .lv-reader .rd-to{font-size:11.5px;color:var(--ink-3);line-height:1.3;margin-top:1px}
+  .lv-reader .rd-body{font-family:var(--sans);font-size:15.5px;line-height:1.68;color:var(--ink-1);margin-top:14px}
+  .lv-reader .rd-body p{margin:0 0 1em}
+  .lv-reader .rd-shut{background:transparent;box-shadow:none;padding:0 0 4px;margin-bottom:22px;
     border-bottom:1px solid var(--rl)}
-  .rd-quiet .rd-shut .rd-from{font-size:13.5px}
-  .rd-quiet .rd-snip{margin-top:5px;padding-left:40px}
+  .lv-reader .rd-shut .rd-from{font-size:13.5px}
+  .lv-reader .rd-snip{margin-top:5px;padding-left:40px}
 
   /* chevrons sit just off the paper's own edges, in its grid cell */
   .lv-chev{grid-column:2;grid-row:1;align-self:center;z-index:4;width:38px;height:38px;padding:0;border:none;
@@ -529,7 +476,7 @@
   .lv-chev-next{justify-self:end;transform:translateX(calc(100% + 40px))}
 
   @media(max-width:1100px){ .lv-paper{padding:36px 28px 0} .lv-subj{font-size:24px} .lv-body{font-size:14px}
-    .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none} .lv-style{display:none}
+    .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none}
     body.view-letters .letters-view{padding-right:40px} }
 
   /* ===== Studio Line — keeper chat ===== */
@@ -2459,6 +2406,14 @@ function placeLetterTopbar(){
   const host=document.getElementById("lettersView"); if(!host) return;
   const paper=host.querySelector(".lv-paper"), tb=host.querySelector("#lvTopbar");
   if(!paper || !tb) return;
+  // The sheet animates in from 10px down and 2% small, so a rect read on the
+  // same tick as the render is short of where it settles. Measure again when
+  // the animation finishes.
+  if(!paper.dataset.placed){
+    paper.dataset.placed="1";
+    paper.addEventListener("animationend", ()=>placeLetterTopbar(), {once:true});
+    requestAnimationFrame(()=>requestAnimationFrame(()=>placeLetterTopbar()));
+  }
   const p=paper.getBoundingClientRect(), h=host.getBoundingClientRect();
   // Centred on the corner point itself, not nudged: half the badge sits on the
   // sheet and half off it, in both axes.
@@ -2505,16 +2460,6 @@ async function sendLetter({subj, body, to}){
 }
 // Connect for a box that has never consented, reconnect for one that has but
 // may be holding an older, narrower grant.
-function renderReaderSwitch(){
-  const el=document.getElementById("lvStyle"); if(!el) return;
-  el.innerHTML = READER_STYLES.map(v=>
-    `<button class="${v===readerStyle?"on":""}" data-style="${v}">${v}</button>`).join("");
-  el.querySelectorAll("[data-style]").forEach(b=>b.onclick=()=>{
-    readerStyle=b.dataset.style;
-    try{ localStorage.setItem("macon_reader", readerStyle); }catch{}
-    renderReader();
-  });
-}
 function renderMailbar(){
   const el=document.getElementById("lvMailbar"); if(!el) return;
   if(!gmailReady() || !readerConnected){ el.innerHTML=""; return; }
@@ -2571,8 +2516,7 @@ let readerMode="post", readerThread=null, readerFolder="inbox"; const _threads=n
 const readerOpenMsgs=new Set();
 // Three drawer treatments to try in place. Kept in localStorage so the choice
 // survives a reload while it is being judged.
-const READER_STYLES=["dispatch","docket","quiet"];
-let readerStyle=(()=>{ try{ return localStorage.getItem("macon_reader")||"quiet"; }catch{ return "quiet"; } })();
+const readerStyle="quiet";
 let readerConnected=null, _statusPending=false;
 const gmailReady=()=>!!(sb&&synced);
 async function gmail(path, mailbox){
@@ -2862,7 +2806,6 @@ function renderReader(){
   const el=document.getElementById("rdScroll"); if(!el) return;
   renderReaderTop();
   document.getElementById("lvReader").className = "lv-reader rd-"+readerStyle;
-  renderReaderSwitch();
   // Which box a letter leaves from depends on the thread, which arrives after
   // the letter has already been drawn.
   const fl=document.getElementById("lvFromLine"); if(fl) fl.textContent=fromLabel();
@@ -2879,7 +2822,6 @@ function renderReader(){
   if(gmailReady() && readerMode==="thread" && readerThread){
     const t=readerThread;
     const back=`<button class="lv-reader-back" id="lvReaderPost">‹ Post</button>`;
-    const S=readerStyle;
     if(t.loading){ el.innerHTML=`${back}<div class="lv-load"><img src="logos/walking.webp" alt="Loading" width="200" height="200"></div>`; }
     else if(!t.msgs.length){
       el.innerHTML=`${back}
@@ -2908,13 +2850,6 @@ function renderReader(){
         if(!open) return `<article class="rd-m rd-shut" data-msg="${idx}">
             <div class="rd-hd"><span class="rd-from">${from}</span><span class="rd-when">${when}</span></div>
             <div class="rd-snip">${esc(String(m.body||"").replace(/\s+/g," ").slice(0,88))}</div></article>`;
-        if(S==="dispatch") return `<article class="rd-m" data-msg="${idx}">
-            <div class="rd-hd"><span class="rd-from">${from}</span><span class="rd-when">${when}</span></div>
-            <div class="rd-body">${r.html}</div>${tail}
-            <div class="rd-ends">Message ends</div></article>`;
-        if(S==="docket") return `<article class="rd-m" data-msg="${idx}">
-            <div class="rd-hd"><span class="rd-from">${from}</span><span class="rd-when">${when}</span></div>
-            <div class="rd-body">${r.html}</div>${tail}</article>`;
         const day=new Date(m.at).toLocaleDateString([], {day:"numeric", month:"long"});
         const rule = day!==lastDay ? `<div class="rd-day"><span>${esc(day)}</span></div>` : "";
         lastDay=day;
@@ -2927,16 +2862,10 @@ function renderReader(){
             <div class="rd-body">${r.html}</div>${tail}</article>`;
       };
       const cards=t.msgs.map(msg).join("");
-      const head = S==="dispatch"
-        ? `<div class="rd-band">Incoming \u00b7 ${esc(boxLabel(t.box||MAILBOXES[0]))}@</div><div class="rd-title">${subj}</div>`
-        : S==="docket"
-        ? `<div class="rd-dk"><span>THREAD</span><i></i><span>${subj.toUpperCase()}</span></div>
-           <div class="rd-dk"><span>WITH</span><i></i><span>${who.toUpperCase()}</span></div>
-           <div class="rd-dk"><span>MESSAGES</span><i></i><span>${n}</span></div>`
-        : `<div class="rd-title">${subj}</div><div class="rd-sub">${n} message${n>1?"s":""} with ${who}</div>`;
+      const head = `<div class="rd-title">${subj}</div><div class="rd-sub">${n} message${n>1?"s":""} with ${who}</div>`;
       const foot=`<div class="rd-foot">${MAILBOXES.map(m=>
         `<button data-box="${esc(m)}">Reconnect ${esc(boxLabel(m))}@</button>`).join("")}</div>`;
-      el.innerHTML=`${back}${head}${cards}${S==="docket"?`<div class="rd-stamp">Awaiting reply</div>`:""}${foot}`;
+      el.innerHTML=`${back}${head}${cards}${foot}`;
       el.querySelectorAll(".rd-foot [data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
       el.querySelectorAll(".rd-shut").forEach(a=>a.onclick=()=>{ readerOpenMsgs.add(Number(a.dataset.msg)); renderReader(); });
       el.querySelectorAll("[data-quote]").forEach(b=>b.onclick=()=>{
@@ -3111,8 +3040,8 @@ function renderCurrentLetter(){
         <textarea class="lv-subj" id="lvSubj" rows="1" style="font-family:${safeFont("TAY Flapjack","var(--serif-soul)",subject)}">${esc(subject)}</textarea>
         <div class="lv-body-wrap"><textarea class="lv-body" id="lvBody">${esc(body)}</textarea>
         <button class="lv-signoff" id="lvSignoff" title="Click to change who signs">${esc(letterSignoff)}</button></div>
+        ${composing?"":`<div class="lv-tonerow"><button class="lv-tone lv-overline" id="lvTone">Tone \u00b7 ${esc(toneName)}</button></div>`}
         <div class="lv-footer">
-          ${composing?"":`<button class="lv-tone lv-overline" id="lvTone">Tone · ${esc(toneName)}</button>`}
           <button class="lv-close" id="lvClose" title="Mark closed" aria-label="Mark closed">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4.5 4.5L19 7"/></svg></button>
           <div class="lv-footer-right">
@@ -3125,7 +3054,6 @@ function renderCurrentLetter(){
         <header class="rd-top" id="rdTop"></header>
         <div class="rd-scroll" id="rdScroll"></div>
       </aside>
-      <div class="lv-style" id="lvStyle"></div>
     </div>`;
   loadThreadFor(email, name);
 
