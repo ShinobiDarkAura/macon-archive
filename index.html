@@ -369,7 +369,7 @@
      equal to each. Equal gaps fall out of that rather than being tuned. */
   /* The card hangs off the sheet's left edge, so the page has to reserve room
      for it or it runs off screen. */
-  body.view-letters .letters-view{padding-left:388px;padding-right:552px}
+  body.view-letters .letters-view{padding-left:424px;padding-right:552px}
   .lv-reader{position:fixed;top:28px;right:28px;bottom:28px;width:488px;z-index:55;border-radius:12px;
     overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
@@ -509,13 +509,16 @@
   .lv-reader .rd-snip{margin-top:5px;padding-left:0;color:var(--ink-2)}
 
   /* chevrons sit just off the paper's own edges, in its grid cell */
-  .lv-chev{grid-column:2;grid-row:1;align-self:center;z-index:4;width:30px;height:30px;padding:0;border:none;
-    background:transparent;color:#cbc2b1;cursor:pointer;transition:color .15s,opacity .15s}
-  .lv-chev svg{width:30px;height:30px;display:block}
-  .lv-chev:hover{color:var(--ink)}
-  .lv-chev:disabled{opacity:.25;cursor:default}
-  .lv-chev-prev{justify-self:start;transform:translateX(calc(-100% - 72px))}
-  .lv-chev-next{justify-self:end;transform:translateX(calc(100% + 72px))}
+  /* Straddling the sheet's own edges: half on the paper, half off it. */
+  .lv-chev{grid-column:2;grid-row:1;align-self:center;z-index:8;width:38px;height:38px;padding:0;
+    border:1px solid rgba(120,102,70,.22);border-radius:50%;background:#FFFEFC;color:#8C8272;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 2px 7px rgba(30,22,14,.18);transition:color .15s,opacity .15s,box-shadow .15s}
+  .lv-chev svg{width:17px;height:17px;display:block}
+  .lv-chev:hover{color:var(--ink);box-shadow:0 3px 10px rgba(30,22,14,.24)}
+  .lv-chev:disabled{opacity:.25;cursor:default;box-shadow:none}
+  .lv-chev-prev{justify-self:start;transform:translateX(-50%)}
+  .lv-chev-next{justify-self:end;transform:translateX(50%)}
 
   @media(max-width:1100px){ .lv-paper{padding:36px 28px 0} .lv-subj{font-size:24px} .lv-body{font-size:14px}
     .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none}
@@ -2508,11 +2511,11 @@ function placeLetterTopbar(){
   // sheet and half off it, in both axes.
   tb.style.left = (p.right - h.left - tb.offsetWidth/2) + "px";
   tb.style.top  = (p.top  - h.top  - tb.offsetHeight/2) + "px";
-  // The cards clear the sheet entirely, 48px off its left edge, and the pair
-  // centres on the page rather than on the sheet.
+  // Pinned 56px in from the page's own left edge rather than measured off the
+  // sheet, which moved with it. The view reserves the width to its right.
   const cards=host.querySelector(".lv-cardstack");
   if(cards){
-    cards.style.left = (p.left - h.left - 48 - cards.offsetWidth) + "px";
+    cards.style.left = "56px";
     cards.style.top  = Math.max(12, (h.height - cards.offsetHeight)/2) + "px";
   }
 }
@@ -3179,7 +3182,7 @@ function renderCurrentLetter(){
     }).join("");
   })();
   const chevron = (dir,label) => `<button class="lv-chev lv-chev-${dir}" id="lvChev${dir}" title="${label}" aria-label="${label}">
-      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="${dir==="prev"?"M20 6 10 16l10 10":"M12 6l10 10-10 10"}"/></svg></button>`;
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="${dir==="prev"?"M20 6 10 16l10 10":"M12 6l10 10-10 10"}"/></svg></button>`;
 
   host.innerHTML = `
     <div class="lv-scene">
