@@ -151,9 +151,10 @@
   .lv-mb-connect{color:#fff;background:var(--accent-grad);border:none;box-shadow:0 3px 10px rgba(189,84,64,.28)}
   .lv-mb-reconnect{color:#a89d89;background:rgba(255,255,255,.72);border:1px solid var(--rule)}
   .lv-mb-reconnect:hover{color:var(--accent-deep);border-color:var(--accent)}
-  .lv-new{width:38px;height:38px;border-radius:50%;border:1px solid var(--rule);background:#fff;
-    color:#8c7f68;font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
-  .lv-new:hover{color:var(--ink);border-color:#a89d89}
+  .lv-new{position:fixed;top:56px;left:16px;z-index:70;height:30px;padding:0 14px;border-radius:999px;
+    border:1px solid var(--rule);background:rgba(255,255,255,.72);color:#8c7f68;cursor:pointer;
+    font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+  .lv-new:hover{color:var(--ink);border-color:#a89d89;background:#fff}
   .lv-badge{min-width:38px;height:38px;padding:0 10px;border-radius:999px;background:var(--accent-grad);color:#fff;
     font-family:var(--sans);font-size:15.5px;font-weight:600;display:flex;align-items:center;justify-content:center;
     box-shadow:0 3px 10px rgba(189,84,64,.4)}
@@ -174,17 +175,23 @@
      and the note behind a perforation that bleeds past the card's padding.
      The perforation lives on a wrapper because a textarea, being a replaced
      element, renders no pseudo-element of its own. */
+  /* Two half domes bitten out of the top edge. The shape is a clip-path, so a
+     box-shadow would ignore it: the shadow goes on a wrapper as a drop-shadow
+     filter, which follows the cut. */
   .lv-label{position:fixed;left:40px;top:50%;transform:translateY(-50%);z-index:2;
     display:flex;flex-direction:column;justify-content:flex-end;
-    width:400px;padding:22px;box-sizing:border-box;border-radius:2px;
-    background:#F7F3E9;overflow:hidden;
-    box-shadow:0 1px 0 rgba(255,255,255,.85) inset,0 12px 26px rgba(60,48,30,.18);
+    width:400px;padding:36px 22px 22px;box-sizing:border-box;
+    background:#F7F3E9;
+    filter:drop-shadow(0 12px 20px rgba(60,48,30,.20));
+    clip-path:polygon(0 0, 34% 0, 34% 5%, 34.4% 6.2%, 35.2% 7.2%, 36.4% 7.9%, 38% 8.2%, 39.6% 7.9%, 40.8% 7.2%, 41.6% 6.2%, 42% 5%, 42% 0,
+      58% 0, 58% 5%, 58.4% 6.2%, 59.2% 7.2%, 60.4% 7.9%, 62% 8.2%, 63.6% 7.9%, 64.8% 7.2%, 65.6% 6.2%, 66% 5%, 66% 0,
+      100% 0, 100% 100%, 0 100%);
     transition:opacity .2s}
-  .lv-cnr{position:absolute;top:22px;left:22px;right:22px;display:flex;justify-content:space-between;gap:12px;
+  .lv-cnr{position:absolute;top:36px;left:22px;right:22px;display:flex;justify-content:space-between;gap:12px;
     font-family:"Gabriele Dark","Gabriele Light",var(--serif-soul);font-size:13px;letter-spacing:.14em;
     text-transform:uppercase;color:#9A9280}
   .lv-cnr span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .lv-name{font-family:"Bodoni Moda",var(--serif-soul);font-weight:400;font-size:44px;line-height:.92;
+  .lv-name{font-family:"Ashcroft Light",var(--serif-soul);font-weight:400;font-size:44px;line-height:.98;
     letter-spacing:-.03em;color:#26221C;margin:74px 0 0;text-transform:none}
   .lv-noteblock{position:relative;margin:24px -22px 0;padding:22px 22px 0}
   .lv-noteblock::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;
@@ -192,13 +199,12 @@
     background-size:7px 2px;background-repeat:repeat-x}
   .lv-ctx{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px}
   .lv-aftercare{padding-bottom:20px}
-  .lv-ctx-kind{font-family:"Public Sans",var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
-    color:#5a5040;background:#dcd3c0;border-radius:999px;padding:3px 9px}
-  .lv-ctx-pri{font-family:"Public Sans",var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
-    border-radius:999px;padding:3px 9px;font-weight:600}
-  .lv-pri-high{color:#fff;background:#c8452f}
-  .lv-pri-medium{color:#fff;background:#b8935f}
-  .lv-pri-low{color:#fff;background:#6fa15a}
+  .lv-ctx-kind,.lv-ctx-pri{font-family:"Public Sans",var(--sans);font-size:11px;font-weight:700;
+    letter-spacing:.12em;text-transform:uppercase;background:none;padding:0;border-radius:0}
+  .lv-ctx-kind{color:#8b8069}
+  .lv-pri-high{color:#C0392B}
+  .lv-pri-medium{color:#B8935F}
+  .lv-pri-low{color:#6E9A5A}
   .lv-ctx-flag{font-family:"Public Sans",var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
     border-radius:999px;padding:3px 9px;font-weight:600}
   .lv-flag-patron{color:#fff;background:#4a6b8a}
@@ -259,7 +265,7 @@
   .lv-to-in:focus{outline:none;border-bottom-color:var(--accent);color:var(--ink)}
   .lv-to-in::placeholder{color:#cfc5b0;text-transform:none;letter-spacing:.06em}
   .lv-fromline::before{content:"\2022";margin-right:16px;color:#d5cbb6}
-  .lv-subj{width:100%;border:none;background:transparent;font-family:"TAY Birdie",var(--serif-soul);font-weight:400;
+  .lv-subj{width:100%;border:none;background:transparent;font-family:"TAY Flapjack",var(--serif-soul);font-weight:400;
     font-size:26px;line-height:1.3;color:#1C1A18;padding:0 0 14px;margin-bottom:18px;border-bottom:1px solid #E3DED0;
     resize:none;overflow:hidden;display:block;letter-spacing:-.02em;flex:0 0 auto;text-transform:uppercase}
   .lv-subj:focus{outline:none;border-bottom-color:var(--accent)}
@@ -273,7 +279,7 @@
     line-height:1.48;color:#1C1A18;min-height:0;position:relative;z-index:1;overflow:hidden;flex:0 0 auto}
   .lv-body:focus{outline:none}
   .lv-signoff{width:78%;text-align:left;margin:30px 0 0;padding:1px 0 1px 10px;border:none;background:transparent;cursor:pointer;
-    font-family:"Gabriele Dark","Gabriele Light",var(--serif-soul);font-size:16px;color:#1C1A18;border-bottom:1px dotted transparent}
+    font-family:"Gabriele Black","Gabriele Dark",var(--serif-soul);font-size:16px;color:#1C1A18;border-bottom:1px dotted transparent}
   .lv-signoff:hover{border-bottom-color:#a89d89;color:var(--accent-deep)}
 
   /* the footer is part of the sheet itself, not a row floating below it —
@@ -287,9 +293,16 @@
   .lv-fromline{font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.18em;color:#c3b9a3;
     white-space:nowrap;text-transform:uppercase;margin:0 0 10px;line-height:1.25}
   .lv-fromline::before{content:none}
-  .lv-close,.lv-skip{font-family:var(--sans);font-size:13.75px;color:#a89d89;background:transparent;border:none;cursor:pointer;
+  .lv-skip{font-family:var(--sans);font-size:13.75px;color:#a89d89;background:transparent;border:none;cursor:pointer;
     padding:8.8px 4.4px}
-  .lv-close:hover,.lv-skip:hover{color:var(--ink)}
+  .lv-skip:hover{color:var(--ink)}
+  .lv-close{width:34px;height:34px;border-radius:50%;border:1px solid var(--rule);background:transparent;
+    color:#a89d89;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;
+    transition:background .15s,color .15s,border-color .15s}
+  .lv-close svg{width:17px;height:17px}
+  .lv-close:hover{background:#1C1A18;border-color:#1C1A18;color:#fff}
+  .lv-close.done{background:#5C9A57;border-color:#5C9A57;color:#fff;animation:lvTick .45s cubic-bezier(.2,.8,.2,1)}
+  @keyframes lvTick{0%{transform:scale(.7)}60%{transform:scale(1.14)}100%{transform:scale(1)}}
   .lv-send{font-family:var(--sans);font-size:14.3px;letter-spacing:.02em;font-weight:500;color:#a89d89;
     background:transparent;border:1px solid var(--rule);border-radius:8px;padding:11px 24px;cursor:pointer;
     display:inline-flex;align-items:center;transition:background .15s,color .15s,border-color .15s}
@@ -333,12 +346,9 @@
      equal to each. Equal gaps fall out of that rather than being tuned. */
   body.view-letters .letters-view{padding-left:440px;padding-right:500px}
   .lv-reader{position:fixed;top:28px;right:28px;bottom:28px;width:444px;z-index:55;border-radius:12px;
-    overflow-y:auto;overflow-x:hidden;box-sizing:border-box;padding:34px 32px 90px;
+    overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
-    background:
-      linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0) 220px),
-      repeating-linear-gradient(92deg, rgba(170,148,110,.030) 0 2px, rgba(255,255,255,0) 2px 8px),
-      linear-gradient(178deg,#FCFAF4,#F4F0E4);
+    background:#FCFAF6;
     box-shadow:0 1px 0 rgba(255,255,255,.9) inset,
       0 0 0 1px rgba(120,102,70,.13), 0 16px 40px rgba(60,48,28,.14)}
   .lv-reader{scrollbar-width:none;-ms-overflow-style:none}
@@ -378,6 +388,26 @@
   .lv-dots i:nth-child(2){animation-delay:.2s}
   .lv-dots i:nth-child(3){animation-delay:.4s}
   @keyframes lvDot{0%,60%,100%{opacity:.25}30%{opacity:1}}
+  .rd-top{flex:0 0 auto;min-height:10%;padding:22px 30px 0;background:#FCFAF6;border-bottom:1px solid var(--rl);
+    display:flex;flex-direction:column;justify-content:space-between}
+  .rd-top-row{display:flex;align-items:baseline;gap:10px}
+  .rd-top h2{margin:0;font-size:26px;line-height:1;letter-spacing:.02em;text-transform:uppercase;color:var(--ink-1);font-weight:400}
+  .rd-unread{font-family:var(--sans);font-size:11px;font-weight:600;color:#fff;background:var(--accent-grad);
+    border-radius:999px;min-width:20px;height:20px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center}
+  .rd-refresh{margin-left:auto;background:transparent;border:none;color:var(--ink-3);cursor:pointer;font-size:16px;padding:0 2px;align-self:center}
+  .rd-refresh:hover{color:var(--ink-1)}
+  .rd-tabs{display:flex;gap:18px;margin-top:14px}
+  .rd-tabs button{background:transparent;border:none;padding:0 0 9px;cursor:pointer;
+    font-family:var(--sans);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);
+    border-bottom:2px solid transparent;margin-bottom:-1px}
+  .rd-tabs button.on{color:var(--ink-1);border-bottom-color:var(--accent)}
+  .rd-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:22px 30px 80px;position:relative;
+    scrollbar-width:none}
+  .rd-scroll::-webkit-scrollbar{width:0;display:none}
+  .rd-nothread{margin-top:18px;display:flex;flex-direction:column;gap:12px}
+  .rd-nothread div{display:flex;flex-direction:column;gap:2px;padding-bottom:12px;border-bottom:1px dashed var(--rl)}
+  .rd-nothread span{font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+  .rd-nothread b{font-family:var(--sans);font-size:14px;font-weight:500;color:var(--ink-1)}
   .lv-reader-list{display:flex;flex-direction:column}
   .lv-reader-row{display:block;width:100%;text-align:left;font-family:var(--sans);color:inherit;
     background:transparent;border:none;border-radius:6px;padding:18px 10px;margin:0;cursor:pointer;
@@ -2344,20 +2374,24 @@ let _letterFontsReady=false;
 async function loadLetterFonts(){
   if(_letterFontsReady || !sb) return;
   try{
-    const [flap,birdie,gab,loma,gabd]=await Promise.all([
-      invAsset("tay-flapjack.ttf"), invAsset("tay-birdie.ttf"), invAsset("gabriele-l.ttf"), invAsset("loma.ttf"), invAsset("gabriele-d.ttf")
+    const [flap,birdie,gab,loma,gabd,gabb,ash]=await Promise.all([
+      invAsset("tay-flapjack.ttf"), invAsset("tay-birdie.ttf"), invAsset("gabriele-l.ttf"), invAsset("loma.ttf"),
+      invAsset("gabriele-d.ttf"), invAsset("gabriele-br.ttf"), invAsset("ashcroft-light.woff2")
     ]);
     FONT_CHARS["TAY Flapjack"]=fontCodepoints(flap);
     FONT_CHARS["TAY Birdie"]=fontCodepoints(birdie);
     FONT_CHARS["Gabriele Light"]=fontCodepoints(gab);
     FONT_CHARS["Gabriele Dark"]=fontCodepoints(gabd);
     FONT_CHARS["LOMA"]=fontCodepoints(loma);
+    FONT_CHARS["Gabriele Black"]=fontCodepoints(gabb);
     const faces=[
       new FontFace("TAY Flapjack", flap),
       new FontFace("TAY Birdie", birdie),
       new FontFace("Gabriele Light", gab),
       new FontFace("Gabriele Dark", gabd),
       new FontFace("LOMA", loma),
+      new FontFace("Gabriele Black", gabb),
+      new FontFace("Ashcroft Light", ash),
     ];
     await Promise.all(faces.map(f=>f.load().then(loaded=>document.fonts.add(loaded))));
     _letterFontsReady=true;
@@ -2421,8 +2455,10 @@ function placeLetterTopbar(){
   const paper=host.querySelector(".lv-paper"), tb=host.querySelector("#lvTopbar");
   if(!paper || !tb) return;
   const p=paper.getBoundingClientRect(), h=host.getBoundingClientRect();
-  tb.style.left = (p.right - h.left - tb.offsetWidth + 18) + "px";
-  tb.style.top  = (p.top  - h.top  - tb.offsetHeight - 1) + "px";
+  // Centred on the corner point itself, not nudged: half the badge sits on the
+  // sheet and half off it, in both axes.
+  tb.style.left = (p.right - h.left - tb.offsetWidth/2) + "px";
+  tb.style.top  = (p.top  - h.top  - tb.offsetHeight/2) + "px";
 }
 addEventListener("resize", ()=>placeLetterTopbar());
 // Sent through the API rather than a compose window, so a reply carries the
@@ -2526,7 +2562,7 @@ const MAILBOXES=["hello@studiomacon.co","hannah@studiomacon.co"];
 const boxLabel=m=>String(m).split("@")[0];
 let readerMsgs=null, readerOpen=null, readerErr="", readerLoading=false;
 // the thread with whoever the current letter is to, when Gmail has one
-let readerMode="post", readerThread=null; const _threads=new Map();
+let readerMode="post", readerThread=null, readerFolder="inbox"; const _threads=new Map();
 const readerOpenMsgs=new Set();
 // Three drawer treatments to try in place. Kept in localStorage so the choice
 // survives a reload while it is being judged.
@@ -2606,7 +2642,7 @@ async function loadReader(){
     // only what was written to the studio, not the keeper's own mail
     const { data:{ session } }=await sb.auth.getSession();
     if(!session) throw new Error("connect");
-    const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/gmail-reader?action=inbox&per=12`,
+    const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/gmail-reader?action=inbox&per=12&q=${encodeURIComponent(readerFolder==="sent"?"in:sent newer_than:30d":"in:inbox newer_than:14d")}`,
       { headers:{ Authorization:"Bearer "+session.access_token, apikey:CONFIG.SUPABASE_ANON_KEY } });
     const j=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(j.error||("Gmail "+r.status));
@@ -2787,9 +2823,30 @@ async function loadThreadFor(email, name){
   if(readerThread.email===email) _threads.set(email, readerThread);
   renderReader();
 }
+// The header is permanent: title, unread count, refresh and the two folders.
+function renderReaderTop(){
+  const t=document.getElementById("rdTop"); if(!t) return;
+  const unread=(readerMsgs||[]).filter(m=>m.unread).length;
+  t.innerHTML=`
+    <div class="rd-top-row">
+      <h2 style="font-family:${safeFont("TAY Flapjack","var(--serif-soul)","POST")}">Post</h2>
+      ${unread?`<span class="rd-unread">${unread}</span>`:""}
+      <button class="rd-refresh" id="rdRefresh" title="Check again" aria-label="Check again">\u21bb</button>
+    </div>
+    <div class="rd-tabs">
+      <button data-folder="inbox" class="${readerFolder==="inbox"?"on":""}">Received</button>
+      <button data-folder="sent" class="${readerFolder==="sent"?"on":""}">Sent</button>
+    </div>`;
+  t.querySelector("#rdRefresh").onclick=()=>{ readerMsgs=null; readerOpen=null; readerMode="post"; loadReader(); };
+  t.querySelectorAll("[data-folder]").forEach(b=>b.onclick=()=>{
+    if(readerFolder===b.dataset.folder) return;
+    readerFolder=b.dataset.folder; readerMsgs=null; readerOpen=null; readerMode="post"; loadReader();
+  });
+}
 function renderReader(){
-  const el=document.getElementById("lvReader"); if(!el) return;
-  el.className = "lv-reader rd-"+readerStyle;
+  const el=document.getElementById("rdScroll"); if(!el) return;
+  renderReaderTop();
+  document.getElementById("lvReader").className = "lv-reader rd-"+readerStyle;
   renderReaderSwitch();
   // Which box a letter leaves from depends on the thread, which arrives after
   // the letter has already been drawn.
@@ -2808,8 +2865,18 @@ function renderReader(){
     const t=readerThread;
     const back=`<button class="lv-reader-back" id="lvReaderPost">‹ Post</button>`;
     const S=readerStyle;
-    if(t.loading){ el.innerHTML=`${back}<p class="lv-reader-note">Looking for mail with ${esc(t.name||t.email)}\u2026</p>`; }
-    else if(!t.msgs.length){ el.innerHTML=`${back}<p class="lv-reader-note">${t.err?esc(t.err):`No mail with ${esc(t.email)} yet.`}</p>`; }
+    if(t.loading){ el.innerHTML=`${back}<div class="lv-load"><img src="logos/walking.webp" alt="Loading" width="200" height="200"></div>`; }
+    else if(!t.msgs.length){
+      el.innerHTML=`${back}
+        <div class="rd-title">${esc(t.name||t.email)}</div>
+        <div class="rd-sub">No mail either way yet</div>
+        <div class="rd-nothread">
+          <div><span>Address</span><b>${esc(t.email||"none on file")}</b></div>
+          <div><span>Searched</span><b>${esc(MAILBOXES.map(boxLabel).join("@, ")+"@")}</b></div>
+          <div><span>Record</span><b>${esc(t.origin||"Bureau archive")}</b></div>
+        </div>
+        ${t.err?`<p class="lv-reader-note">${esc(t.err)}</p>`:""}`;
+    }
     else{
       const n=t.msgs.length;
       const who=esc(t.name||t.email);
@@ -2867,10 +2934,10 @@ function renderReader(){
     return;
   }
   if(!gmailReady()){
-    el.innerHTML=`<div class="lv-reader-head lv-overline">Post</div><p class="lv-reader-note">Sign in to read the studio inbox.</p>`; return;
+    el.innerHTML=`<p class="lv-reader-note">Sign in to read the studio inbox.</p>`; return;
   }
   if(readerConnected && !readerConnected.length){
-    el.innerHTML=`<div class="lv-reader-head lv-overline">Post</div>
+    el.innerHTML=`
       <p class="lv-reader-note">Connect a studio mailbox to read what has come in beside what you are writing. The buttons are at the top of the screen.</p>`;
     wireConnect(el);
     return;
@@ -2899,13 +2966,11 @@ function renderReader(){
       <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(m.from)}</span><span class="lv-reader-ago">${esc(boxLabel(m.box||""))} · ${esc(mailDate(m.at))}</span></div>
       <div class="lv-reader-row-subj">${esc(m.subject)}</div>
       <div class="lv-reader-row-snip">${esc(m.snippet)}</div></button>`).join("");
-  el.innerHTML=`<div class="lv-reader-head lv-overline">Post
-      <button class="lv-reader-refresh" id="lvReaderRefresh" title="Check again">${readerLoading?"…":"↻"}</button></div>
+  el.innerHTML=`
     ${readerErr?`<p class="lv-reader-note">${esc(readerErr)}</p>`:""}
     ${readerMsgs&&!readerMsgs.length?`<p class="lv-reader-note">Nothing to ${esc(MAILBOXES.map(boxLabel).join(" or "))} in the last two weeks.</p>`:""}
     <div class="lv-reader-list">${rows}</div>
 `;
-  el.querySelector("#lvReaderRefresh").onclick=loadReader;
   el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
   el.querySelectorAll(".lv-reader-row").forEach(b=>b.onclick=()=>openReaderMsg(b.dataset.id));
   if(readerMsgs===null && !readerLoading) loadReader();
@@ -2991,9 +3056,9 @@ function renderCurrentLetter(){
     <div class="lv-scene">
       <div class="lv-mailbar" id="lvMailbar"></div>
       <div class="lv-topbar" id="lvTopbar">
-        <button class="lv-new" id="lvNew" title="Write to someone new">+</button>
         ${composing?"":`<div class="lv-badge" title="${letterQueue.length} waiting on you today">${letterQueue.length}</div>`}
       </div>
+      <button class="lv-new" id="lvNew" title="Write to someone new">+ New letter</button>
       <div class="lv-label">
         <div class="lv-cnr">
           <span style="font-family:${safeFont("Gabriele Dark","var(--serif-soul)",ctx?ctx.kindLabel+ctx.priority:"")}">${ctx?esc(ctx.kindLabel+" \u00b7 "+ctx.priority):""}</span>
@@ -3028,20 +3093,23 @@ function renderCurrentLetter(){
       <div class="lv-paper">
         <img class="lv-stamp" src="logos/red-stamp-alt.png" alt="" aria-hidden="true">
         <div class="lv-to"><span class="lv-to-l"><span class="lv-to-lab">To:</span><input class="lv-to-in" id="lvTo" value="${esc(email)}" placeholder="who is this going to" spellcheck="false"></span></div>
-        <div class="lv-fromline" id="lvFromLine">${esc(fromLabel())}</div>
-        <textarea class="lv-subj" id="lvSubj" rows="1" style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",subject)}">${esc(subject)}</textarea>
+        <textarea class="lv-subj" id="lvSubj" rows="1" style="font-family:${safeFont("TAY Flapjack","var(--serif-soul)",subject)}">${esc(subject)}</textarea>
         <div class="lv-body-wrap"><textarea class="lv-body" id="lvBody">${esc(body)}</textarea>
         <button class="lv-signoff" id="lvSignoff" title="Click to change who signs">${esc(letterSignoff)}</button></div>
         <div class="lv-footer">
           ${composing?"":`<button class="lv-tone lv-overline" id="lvTone">Tone · ${esc(toneName)}</button>`}
-          <button class="lv-close" id="lvClose">Mark closed</button>
+          <button class="lv-close" id="lvClose" title="Mark closed" aria-label="Mark closed">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4.5 4.5L19 7"/></svg></button>
           <div class="lv-footer-right">
             <button class="lv-skip" id="lvSkip">Skip for now</button>
             <button class="lv-send" id="lvSend">Send</button>
           </div>
         </div>
       </div>
-      <aside class="lv-reader" id="lvReader"></aside>
+      <aside class="lv-reader" id="lvReader">
+        <header class="rd-top" id="rdTop"></header>
+        <div class="rd-scroll" id="rdScroll"></div>
+      </aside>
       <div class="lv-style" id="lvStyle"></div>
     </div>`;
   loadThreadFor(email, name);
@@ -3171,6 +3239,8 @@ function setView(v){
 // Mark closed gets a send-off: a checkmark over the sheet, then it slides
 // away, and only once that's played does the actual state change happen.
 function playCloseAnimation(onDone){
+  const btn=document.getElementById("lvClose");
+  if(btn){ btn.classList.add("done"); btn.disabled=true; }
   const paper=document.querySelector(".lv-paper");
   if(!paper){ onDone(); return; }
   const mark=document.createElement("div");
@@ -3180,7 +3250,7 @@ function playCloseAnimation(onDone){
   setTimeout(()=>{
     paper.classList.add("lv-closing");
     setTimeout(onDone, 450);
-  }, 380);
+  }, 2000);
 }
 (function(){
   // its own key: "macon_view" belongs to the ledger's Compact/Regular switch
@@ -3675,7 +3745,7 @@ async function invAsset(name){
 }
 // Pull them down once so the first press is as quick as the rest.
 function invWarmAssets(){
-  ["tay-flapjack.ttf","tay-birdie.ttf","loma.ttf","gabriele-l.ttf","gabriele-d.ttf","red-stamp-alt.png"]
+  ["tay-flapjack.ttf","tay-birdie.ttf","loma.ttf","gabriele-l.ttf","gabriele-d.ttf","gabriele-br.ttf","ashcroft-light.woff2","red-stamp-alt.png"]
     .forEach(n=>invAsset(n).catch(()=>{}));
 }
 
