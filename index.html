@@ -395,7 +395,11 @@
   .rd-top h2{margin:0;font-size:34px;line-height:1;letter-spacing:.02em;text-transform:uppercase;color:var(--ink-1);font-weight:400}
   .rd-unread{font-family:var(--sans);font-size:11px;font-weight:600;color:#fff;background:var(--accent-grad);
     border-radius:999px;min-width:20px;height:20px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center}
-  .rd-refresh{margin-left:auto;background:transparent;border:none;color:var(--ink-3);cursor:pointer;font-size:16px;padding:0 2px;align-self:center}
+  .rd-refresh{margin-left:auto;background:transparent;border:none;color:var(--ink-3);cursor:pointer;
+    padding:0;align-self:center;display:flex;align-items:center;justify-content:center;width:24px;height:24px}
+  .rd-refresh svg{width:22px;height:22px}
+  .rd-refresh.spin svg{animation:rdSpin .7s linear infinite}
+  @keyframes rdSpin{to{transform:rotate(360deg)}}
   .rd-refresh:hover{color:var(--ink-1)}
   .rd-tabs{display:flex;gap:18px;margin-top:14px}
   .rd-tabs button{background:transparent;border:none;padding:0 0 9px;cursor:pointer;
@@ -2578,7 +2582,12 @@ async function gmail(path, mailbox){
   const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/gmail-reader?${qs}`,
     { headers:{ Authorization:"Bearer "+session.access_token, apikey:CONFIG.SUPABASE_ANON_KEY } });
   const j=await r.json().catch(()=>({}));
-  if(!r.ok) throw Object.assign(new Error(j.error||("Gmail "+r.status)), {code:j.error});
+  if(!r.ok){
+    const e=j.error;
+    const msg = typeof e==="string" ? e
+      : (e && (e.message || e.status)) || ("Gmail "+r.status);
+    throw Object.assign(new Error(msg), {code: typeof e==="string"?e:(e&&e.status)||r.status});
+  }
   return j;
 }
 // Which boxes have actually been consented to. A box with no token is not an
@@ -2653,12 +2662,14 @@ async function loadReader(){
   }catch(e){ readerErr=e.message; readerMsgs=readerMsgs||[]; }
   readerLoading=false; renderReader();
 }
-async function openReaderMsg(id){
-  readerOpen={id, body:"…"}; renderReader();
+// A message id belongs to the mailbox it was listed from, so the box has to
+// travel with it or a message from one box is fetched against the other.
+async function openReaderMsg(id, box){
+  readerOpen={id, box, body:"…"}; renderReader();
   try{
-    const m=await gmail(`messages/${id}?format=full`);
+    const m=await gmail(`messages/${id}?format=full`, box);
     readerOpen={ id, from:hdr(m,"From"), subject:hdr(m,"Subject"), at:Number(m.internalDate), body:gmailPlainText(m.payload)||unent(m.snippet||"") };
-  }catch(e){ readerOpen={id, body:"Couldn't open this one: "+e.message}; }
+  }catch(e){ readerOpen={id, box, from:"", subject:"", body:"Could not open this one. "+(e&&e.message?e.message:"Unknown error")+"."}; }
   renderReader();
 }
 /* ---------- making a raw plain-text mail readable ----------
@@ -2832,13 +2843,16 @@ function renderReaderTop(){
     <div class="rd-top-row">
       <h2 style="font-family:${safeFont("TAY Flapjack","var(--serif-soul)","POST")}">Post</h2>
       ${unread?`<span class="rd-unread">${unread}</span>`:""}
-      <button class="rd-refresh" id="rdRefresh" title="Check again" aria-label="Check again">\u21bb</button>
+      <button class="rd-refresh" id="rdRefresh" title="Check again" aria-label="Check again">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg></button>
     </div>
     <div class="rd-tabs">
       <button data-folder="inbox" class="${readerFolder==="inbox"?"on":""}">Received</button>
       <button data-folder="sent" class="${readerFolder==="sent"?"on":""}">Sent</button>
     </div>`;
-  t.querySelector("#rdRefresh").onclick=()=>{ readerMsgs=null; readerOpen=null; readerMode="post"; loadReader(); };
+  const rb=t.querySelector("#rdRefresh");
+  if(readerLoading) rb.classList.add("spin");
+  rb.onclick=()=>{ readerMsgs=null; readerOpen=null; readerMode="post"; loadReader(); };
   t.querySelectorAll("[data-folder]").forEach(b=>b.onclick=()=>{
     if(readerFolder===b.dataset.folder) return;
     readerFolder=b.dataset.folder; readerMsgs=null; readerOpen=null; readerMode="post"; loadReader();
@@ -2963,7 +2977,7 @@ function renderReader(){
     if(readerMsgs===null && !readerLoading) loadReader();
     return;
   }
-  const rows=(readerMsgs||[]).map(m=>`<button class="lv-reader-row${m.unread?" unread":""}" data-id="${m.id}">
+  const rows=(readerMsgs||[]).map(m=>`<button class="lv-reader-row${m.unread?" unread":""}" data-id="${m.id}" data-box="${esc(m.box||"")}">
       <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(m.from)}</span><span class="lv-reader-ago">${esc(boxLabel(m.box||""))} · ${esc(mailDate(m.at))}</span></div>
       <div class="lv-reader-row-subj">${esc(m.subject)}</div>
       <div class="lv-reader-row-snip">${esc(m.snippet)}</div></button>`).join("");
@@ -2973,7 +2987,7 @@ function renderReader(){
     <div class="lv-reader-list">${rows}</div>
 `;
   el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
-  el.querySelectorAll(".lv-reader-row").forEach(b=>b.onclick=()=>openReaderMsg(b.dataset.id));
+  el.querySelectorAll(".lv-reader-row").forEach(b=>b.onclick=()=>openReaderMsg(b.dataset.id, b.dataset.box));
   if(readerMsgs===null && !readerLoading) loadReader();
 }
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden && document.getElementById("lvReader") && gmailReady()) loadReader(); });
