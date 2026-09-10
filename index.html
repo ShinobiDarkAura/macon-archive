@@ -263,7 +263,7 @@
      was falling back to a different, mismatched font for just those
      characters — the "two sizes of caps" was that fallback, not a CSS bug */
   .lv-to{font-family:"Public Sans",var(--sans);font-weight:400;font-size:10px;letter-spacing:.18em;
-    color:#9C8F76;margin-bottom:-14px;text-transform:uppercase;
+    color:#9C8F76;margin-bottom:-6px;text-transform:uppercase;
     display:flex;align-items:baseline;justify-content:flex-start;gap:16px}
   .lv-draft{position:absolute;left:0;right:0;top:0;z-index:5;background:#F6ECD8;border-bottom:1px solid #E4D4B0;
     font-family:var(--sans);font-size:12px;color:#6E6045;padding:8px 14px;display:flex;align-items:center;gap:8px;
@@ -275,7 +275,7 @@
   .lv-to-l{display:flex;align-items:baseline;gap:7px;min-width:0;flex:1}
   .lv-to-in{font:inherit;line-height:1.25;letter-spacing:inherit;text-transform:inherit;color:#9C8F76;
     background:transparent;border:none;border-bottom:1px solid transparent;padding:0 0 3px;
-    min-width:0;flex:0 1 auto;width:24ch;max-width:100%}
+    min-width:0;flex:0 1 auto;width:auto;max-width:100%}
   .lv-to-in:hover{border-bottom-color:var(--rule)}
   .lv-to-in:focus{outline:none;border-bottom-color:var(--accent);color:var(--ink)}
   .lv-to-in::placeholder{color:#cfc5b0;text-transform:none;letter-spacing:.06em}
@@ -369,7 +369,7 @@
      equal to each. Equal gaps fall out of that rather than being tuned. */
   /* The card hangs off the sheet's left edge, so the page has to reserve room
      for it or it runs off screen. */
-  body.view-letters .letters-view{padding-left:424px;padding-right:552px}
+  body.view-letters .letters-view{padding-left:460px;padding-right:552px}
   .lv-reader{position:fixed;top:28px;right:28px;bottom:28px;width:488px;z-index:55;border-radius:12px;
     overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
@@ -2494,6 +2494,25 @@ function retypeInto(el, next, resize, done){
   }
   requestAnimationFrame(erase);
 }
+/* The To field was a fixed 24ch, which cut long addresses off mid-word. It is
+   measured against a hidden copy of its own text instead, so it is exactly as
+   wide as what it holds and only the sheet's width can cap it. */
+function autosizeTo(el){
+  if(!el) return;
+  let ghost=el._ghost;
+  if(!ghost){
+    ghost=document.createElement("span");
+    const cs=getComputedStyle(el);
+    ghost.style.cssText="position:absolute;left:-9999px;top:0;visibility:hidden;white-space:pre";
+    ghost.style.font=cs.font;
+    ghost.style.letterSpacing=cs.letterSpacing;
+    ghost.style.textTransform=cs.textTransform;
+    document.body.appendChild(ghost);
+    el._ghost=ghost;
+  }
+  ghost.textContent=el.value||el.placeholder||"";
+  el.style.width=(ghost.offsetWidth+6)+"px";
+}
 function placeLetterTopbar(){
   const host=document.getElementById("lettersView"); if(!host) return;
   const paper=host.querySelector(".lv-paper"), tb=host.querySelector("#lvTopbar");
@@ -2511,11 +2530,11 @@ function placeLetterTopbar(){
   // sheet and half off it, in both axes.
   tb.style.left = (p.right - h.left - tb.offsetWidth/2) + "px";
   tb.style.top  = (p.top  - h.top  - tb.offsetHeight/2) + "px";
-  // Pinned 56px in from the page's own left edge rather than measured off the
+  // Pinned 92px in from the page's own left edge rather than measured off the
   // sheet, which moved with it. The view reserves the width to its right.
   const cards=host.querySelector(".lv-cardstack");
   if(cards){
-    cards.style.left = "56px";
+    cards.style.left = "92px";
     cards.style.top  = Math.max(12, (h.height - cards.offsetHeight)/2) + "px";
   }
 }
@@ -3286,6 +3305,8 @@ function renderCurrentLetter(){
       bar.querySelector("[data-x]").onclick=()=>{ try{ localStorage.removeItem("macon.draft"); }catch{} bar.remove(); };
     }
   }catch{}
+  const toEl=host.querySelector("#lvTo");
+  if(toEl){ autosizeTo(toEl); toEl.addEventListener("input",()=>autosizeTo(toEl)); }
   placeLetterTopbar();
   renderPinnedMessage();
   letterNoEnter=false;
