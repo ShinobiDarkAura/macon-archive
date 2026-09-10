@@ -2517,6 +2517,30 @@ function autosizeTo(el){
   ghost.textContent=el.value||el.placeholder||"";
   el.style.width=Math.ceil(ghost.getBoundingClientRect().width+8)+"px";
 }
+/* Some cards carry a whole address where a surname should be. Anything past
+   twelve characters is cut, and what is left is set smaller so it still fits
+   the card rather than running off its edge. */
+const CARD_NAME_MAX = 12;
+const CARD_NAME_FITS = 9;   // characters the full 57px size holds comfortably
+function cardNameFit(t){
+  const v=String(t||"").trim();
+  return v.length>CARD_NAME_MAX ? v.slice(0, CARD_NAME_MAX-1)+"\u2026" : v;
+}
+function fitCardName(el){
+  if(!el) return;
+  const n1=el.querySelector(".lv-n1"), n2=el.querySelector(".lv-n2");
+  // The given name renders at .61em, so it drives the width only when it is
+  // proportionally longer than the surname.
+  const len=Math.max((n2?n2.textContent.length:0), (n1?n1.textContent.length:0)*0.61);
+  const base=57;
+  let size = len>CARD_NAME_FITS ? base*(CARD_NAME_FITS/len) : base;
+  el.style.fontSize=size.toFixed(1)+"px";
+  // A safety pass against the real face: shrink further if it still spills.
+  for(let i=0;i<8 && el.scrollWidth>el.clientWidth+1 && size>20;i++){
+    size=Math.max(20, size*0.93);
+    el.style.fontSize=size.toFixed(1)+"px";
+  }
+}
 function placeLetterTopbar(){
   const host=document.getElementById("lettersView"); if(!host) return;
   const paper=host.querySelector(".lv-paper"), tb=host.querySelector("#lvTopbar");
@@ -3229,10 +3253,10 @@ function renderCurrentLetter(){
             ${cardMeta.split(" \u00b7 ").map(x=>`<i>${esc(x)}</i>`).join("")}
           </span>
         </div>
-        <div class="lv-name" style="font-family:${safeFont("TAY Flapjack","var(--serif-soul)",name)}">${(()=>{
+        <div class="lv-name" id="lvCardName" style="font-family:${safeFont("TAY Flapjack","var(--serif-soul)",name)}">${(()=>{
           const parts=String(name||"").trim().split(/\s+/);
-          const last=parts.pop()||"";
-          const given=parts.join(" ");
+          const last=cardNameFit(parts.pop()||"");
+          const given=cardNameFit(parts.join(" "));
           return (given?`<span class="lv-n1">${esc(given)}</span>`:"")+`<span class="lv-n2">${esc(last)}</span>`;
         })()}</div>
         <div class="lv-noteblock">${quoteHTML}</div>
@@ -3316,6 +3340,11 @@ function renderCurrentLetter(){
       bar.querySelector("[data-x]").onclick=()=>{ try{ localStorage.removeItem("macon.draft"); }catch{} bar.remove(); };
     }
   }catch{}
+  const nameEl=host.querySelector("#lvCardName");
+  if(nameEl){
+    fitCardName(nameEl);
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>fitCardName(nameEl));
+  }
   const toEl=host.querySelector("#lvTo");
   if(toEl){
     autosizeTo(toEl);
