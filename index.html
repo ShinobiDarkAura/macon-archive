@@ -1540,10 +1540,16 @@ async function startSynced(){
   hideGate(); synced=true; setSync("on","Synced");
   await refresh();
   sb.channel("collectors-rt").on("postgres_changes",{event:"*",schema:"public",table:"collectors"},()=>refresh()).subscribe();
-  loadTodoDone(); loadInquiries().then(()=>{ renderDrawer(); renderLetters(); if(tab==="enquiries") renderEnquiries(); });
+  loadTodoDone();
+  // The queue filters on what has been set aside, so both have to be in hand
+  // before it is drawn or a skipped letter flashes up and vanishes.
+  Promise.all([loadInquiries(), loadSkipped()]).then(()=>{ renderDrawer(); renderLetters(); if(tab==="enquiries") renderEnquiries(); });
   loadLetterFonts();
   sb.channel("todos-rt").on("postgres_changes",{event:"*",schema:"public",table:"bureau_todos"},()=>loadTodoDone()).subscribe();
   sb.channel("inq-rt").on("postgres_changes",{event:"*",schema:"public",table:"inquiries"},()=>loadInquiries().then(()=>{ renderDrawer(); if(tab==="enquiries") renderEnquiries(); })).subscribe();
+  // One of us skipping a letter takes it off the other's pile too.
+  sb.channel("skip-rt").on("postgres_changes",{event:"*",schema:"public",table:"skipped_letters"},
+    ()=>loadSkipped().then(()=>{ if(document.body.classList.contains("view-letters")) renderLetters(); })).subscribe();
   initChat();
 }
 async function refresh(){
@@ -3012,16 +3018,35 @@ function letterKey(x){
   const d=x.d||{};
   return "d:"+String(d.email||d.acc||d.name||"").toLowerCase();
 }
-function skippedMap(){ try{ return JSON.parse(localStorage.getItem("macon.skipped")||"{}"); }catch{ return {}; } }
-function skippedSave(m){ try{ localStorage.setItem("macon.skipped", JSON.stringify(m)); }catch{} }
-function skipLetter(x){ const m=skippedMap(); m[letterKey(x)]=Date.now(); skippedSave(m); }
+/* Held in public.skipped_letters rather than this browser, so what one of us
+   sets aside is set aside for both. Kept in memory because the queue filters
+   on it during a synchronous render; the table is the truth and realtime keeps
+   the copy honest. */
+let skippedRows=null;
+function skippedMap(){ return skippedRows||{}; }
+async function loadSkipped(){
+  const { data, error } = await sb.from("skipped_letters").select("key,name,subject,skipped_at");
+  if(error) return;
+  skippedRows = Object.fromEntries((data||[]).map(r=>[r.key, r]));
+}
+function skipLetter(x){
+  const k=letterKey(x); if(!k) return;
+  const row={ key:k, name:(x.d&&x.d.name)||(x.q&&x.q.name)||"",
+    subject:(x.q&&x.q.subject)||(x.d&&x.d.pieces)||"", skipped_by:myEmail||"",
+    skipped_at:new Date().toISOString() };
+  // Shown as skipped straight away; the write catches up.
+  skippedRows=skippedRows||{}; skippedRows[k]=row;
+  sb.from("skipped_letters").upsert(row).then(({error})=>{ if(error) console.warn("skip", error.message); });
+}
 function skippedItems(){
   const m=skippedMap();
-  return followUps().filter(x=>m[letterKey(x)]).map(x=>({ x, at:m[letterKey(x)] }))
+  return followUps().filter(x=>m[letterKey(x)])
+    .map(x=>({ x, at:Date.parse(m[letterKey(x)].skipped_at)||Date.now() }))
     .sort((a,b)=>b.at-a.at);
 }
 function unskipLetter(k){
-  const m=skippedMap(); delete m[k]; skippedSave(m);
+  if(skippedRows) delete skippedRows[k];
+  sb.from("skipped_letters").delete().eq("key",k).then(({error})=>{ if(error) console.warn("unskip", error.message); });
   renderLetters();
   const i=letterQueue.findIndex(x=>letterKey(x)===k);
   if(i>=0){ letterIdx=i; letterNoEnter=true; letterTypeIn=true; renderCurrentLetter(); }
