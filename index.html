@@ -179,10 +179,10 @@
   /* The card is laid on the sheet, overlapping its right quarter, tilted a
      little anticlockwise as though dropped there. Placed from the sheet's own
      rect, so it follows whatever size the sheet resolves to. */
-  .lv-labelwrap{position:absolute;z-index:6;transform:rotate(2deg);transform-origin:80% 30%;
+  .lv-labelwrap{position:absolute;z-index:6;transform:rotate(-2.5deg);transform-origin:80% 30%;
     filter:drop-shadow(2px 4px 3px rgba(28,20,10,.34));transition:opacity .2s}
   .lv-label{display:flex;flex-direction:column;justify-content:flex-start;
-    width:400px;padding:52px 22px 34px;box-sizing:border-box;background:#F7F3E9;
+    width:320px;padding:52px 20px 34px;box-sizing:border-box;background:#F7F3E9;
     -webkit-mask-image:
       radial-gradient(circle 21px at 22% 0, transparent 21px, #000 21.5px),
       radial-gradient(circle 21px at 78% 0, transparent 21px, #000 21.5px);
@@ -199,6 +199,13 @@
   .lv-cnr-r{text-align:right}
   .lv-name{font-family:"TAY Flapjack",var(--serif-soul);font-weight:400;font-size:57px;line-height:.96;
     letter-spacing:-.03em;color:#26221C;margin:0;text-transform:none}
+  /* Tacked in place. The pin sits on the wrapper rather than the card, because
+     the card is masked and anything inside it is cut at the top edge. */
+  .lv-pin{position:absolute;top:4px;left:50%;transform:translateX(-50%);width:21px;height:21px;border-radius:50%;
+    z-index:8;background:radial-gradient(circle at 34% 28%, #E4796B 0%, #C0503C 46%, #8E2E1E 100%);
+    box-shadow:0 3px 5px rgba(40,20,10,.38), inset 0 -2px 3px rgba(0,0,0,.22)}
+  .lv-pin::after{content:"";position:absolute;top:23%;left:24%;width:7px;height:5px;border-radius:50%;
+    background:rgba(255,255,255,.55)}
   .lv-n1,.lv-n2{display:block}
   .lv-n1{font-size:.72em;line-height:1.04}
   .lv-noteblock{position:relative;margin:24px -22px 0;padding:22px 22px 0}
@@ -256,7 +263,7 @@
      was falling back to a different, mismatched font for just those
      characters — the "two sizes of caps" was that fallback, not a CSS bug */
   .lv-to{font-family:"Public Sans",var(--sans);font-weight:400;font-size:10px;letter-spacing:.18em;
-    color:#9C8F76;margin-bottom:2px;text-transform:uppercase;
+    color:#9C8F76;margin-bottom:-14px;text-transform:uppercase;
     display:flex;align-items:baseline;justify-content:flex-start;gap:16px}
   .lv-draft{position:absolute;left:0;right:0;top:0;z-index:5;background:#F6ECD8;border-bottom:1px solid #E4D4B0;
     font-family:var(--sans);font-size:12px;color:#6E6045;padding:8px 14px;display:flex;align-items:center;gap:8px;
@@ -274,7 +281,7 @@
   .lv-to-in::placeholder{color:#cfc5b0;text-transform:none;letter-spacing:.06em}
   .lv-fromline::before{content:"\2022";margin-right:16px;color:#d5cbb6}
   .lv-subj{width:100%;border:none;background:transparent;font-family:"TAY Flapjack",var(--serif-soul);font-weight:400;
-    font-size:34px;line-height:1.24;color:#1C1A18;padding:0 0 14px;margin-bottom:18px;border-bottom:1px solid #E3DED0;
+    font-size:38px;line-height:1.2;color:#1C1A18;padding:0 0 14px;margin-bottom:18px;border-bottom:1px solid #E3DED0;
     resize:none;overflow:hidden;display:block;letter-spacing:-.02em;flex:0 0 auto;text-transform:uppercase}
   .lv-subj:focus{outline:none;border-bottom-color:var(--accent)}
   /* Two flexible spacers rather than a single centered box: a 4:6 split
@@ -355,7 +362,7 @@
      equal to each. Equal gaps fall out of that rather than being tuned. */
   /* The card hangs off the sheet's left edge, so the page has to reserve room
      for it or it runs off screen. */
-  body.view-letters .letters-view{padding-left:372px;padding-right:552px}
+  body.view-letters .letters-view{padding-left:300px;padding-right:552px}
   .lv-reader{position:fixed;top:28px;right:28px;bottom:28px;width:488px;z-index:55;border-radius:12px;
     overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
@@ -364,9 +371,10 @@
       0 0 0 1px rgba(120,102,70,.13), 0 16px 40px rgba(60,48,28,.14)}
   .lv-reader{scrollbar-width:none;-ms-overflow-style:none}
   .lv-reader::-webkit-scrollbar{width:0;height:0;display:none}
-  .lv-reader-back{font-family:var(--sans);font-size:12px;color:#a89d89;background:transparent;border:none;
-    cursor:pointer;padding:2px 0;margin-bottom:12px;display:block}
-  .lv-reader-back:hover{color:var(--ink)}
+  .lv-reader-back{background:transparent;border:none;cursor:pointer;padding:0;margin:0 0 28px;display:block;
+    color:var(--ink-3);opacity:.55;transition:opacity .15s,color .15s}
+  .lv-reader-back svg{width:34px;height:34px;display:block}
+  .lv-reader-back:hover{opacity:1;color:var(--ink-1)}
   .lv-reader-note{font-size:13px;color:var(--ink-3);margin:0 0 12px;font-family:var(--sans)}
   .rd-more{display:inline-block;margin:9px 0 0;padding:2px 10px 3px;border:1px solid var(--rl);border-radius:999px;
     background:transparent;color:var(--ink-3);cursor:pointer;font-family:var(--sans);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase}
@@ -2847,7 +2855,7 @@ function renderReader(){
   renderMailbar();
   if(gmailReady() && readerMode==="thread" && readerThread){
     const t=readerThread;
-    const back=`<button class="lv-reader-back" id="lvReaderPost">‹ Post</button>`;
+    const back=`<button class="lv-reader-back" id="lvReaderPost" title="Back to the post" aria-label="Back to the post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>`;
     if(t.loading){ el.innerHTML=`${back}<div class="lv-load"><img src="logos/walking.webp" alt="Loading" width="200" height="200"></div>`; }
     else if(!t.msgs.length){
       el.innerHTML=`${back}
@@ -2915,7 +2923,7 @@ function renderReader(){
   if(readerOpen){
     const o=readerOpen;
     const rr = o.body==="\u2026" ? {html:"<p>Opening\u2026</p>",quoted:"",sig:""} : mailRender(o.body);
-    el.innerHTML=`<button class="lv-reader-back" id="lvReaderBack">\u2039 Post</button>
+    el.innerHTML=`<button class="lv-reader-back" id="lvReaderBack" title="Back to the post" aria-label="Back to the post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>
       <div class="rd-title">${esc(unent(o.subject||""))}</div>
       <article class="rd-m">
         <div class="rd-hd"><span class="rd-from">${esc(cleanName(o.from||""))}</span><span class="rd-when">${o.at?esc(mailDate(o.at)):""}</span></div>
@@ -3029,7 +3037,7 @@ function renderCurrentLetter(){
         ${composing?"":`<div class="lv-badge" title="${letterQueue.length} waiting on you today">${letterQueue.length}</div>`}
       </div>
       <button class="lv-new" id="lvNew" title="Write to someone new">+ New letter</button>
-      <div class="lv-labelwrap"><div class="lv-label">
+      <div class="lv-labelwrap"><span class="lv-pin" aria-hidden="true"></span><div class="lv-label">
         <div class="lv-cnr">
           <span class="lv-cnr-l" style="font-family:${safeFont("Gabriele Dark","var(--serif-soul)",ctx?ctx.kindLabel+ctx.priority:"")}">
             ${ctx?`<i>${esc(ctx.kindLabel)}</i><i class="lv-pri-${esc(ctx.priority.toLowerCase())}">${esc(ctx.priority)}</i>`:""}
