@@ -360,6 +360,7 @@
 
   /* the stack: a couple of blank sheets behind the real one, each nudged and
      tilted, each with its own shadow, so the pile reads as physical */
+  .lv-ghost.lv-settling{transition:transform .6s cubic-bezier(.22,.7,.2,1)}
   .lv-ghost{grid-column:2;grid-row:1;height:92%;aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
     box-shadow:0 14px 40px rgba(30,22,14,.16);pointer-events:none}
 
@@ -2292,6 +2293,7 @@ let letterComposing=false, letterComposeItem=null;
 let letterFilingOpen=false;
 let letterNoEnter=false;
 let letterTypeIn=false;
+let letterGhostPrev=[];
 
 // A blank letter to someone who isn't in the queue at all. Creates a real,
 // tracked inquiry (so it isn't lost the moment you close the tab), offers a
@@ -3192,15 +3194,22 @@ function renderCurrentLetter(){
   // A couple of blank sheets behind the real one, tilted, so the pile beneath
   // today's letters reads as an actual stack rather than a single page.
   const ghostCount = (composing || letterQueue.length<=3) ? 0 : 3;
-  const ghosts = (()=>{
+  // Each letter has its own pile, seeded by where it sits in the queue, so it
+  // is stable while you read and different the moment you move. The sheets
+  // start the render wearing the previous letter's angles and are eased to
+  // their own on the next frame, so the pile resettles rather than cutting.
+  const ghostT = (()=>{
     let seed=(letterIdx+1)*2654435761 >>> 0;
     const rnd=()=>{ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; };
-    return Array.from({length:ghostCount}, (_,i)=>{
+    return Array.from({length:ghostCount}, ()=>{
       const rot=(rnd()*9-4.5).toFixed(2);
       const tx=Math.round(rnd()*40-20), ty=Math.round(8+rnd()*20);
-      return `<div class="lv-ghost" style="transform:rotate(${rot}deg) translate(${tx}px,${ty}px);z-index:${-i}"></div>`;
-    }).join("");
+      return `rotate(${rot}deg) translate(${tx}px,${ty}px)`;
+    });
   })();
+  const ghosts = ghostT.map((t,i)=>
+    `<div class="lv-ghost" style="transform:${letterGhostPrev[i]||t};z-index:${-i}" data-t="${t}"></div>`).join("");
+  letterGhostPrev = ghostT;
   const chevron = (dir,label) => `<button class="lv-chev lv-chev-${dir}" id="lvChev${dir}" title="${label}" aria-label="${label}">
       <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="${dir==="prev"?"M20 6 10 16l10 10":"M12 6l10 10-10 10"}"/></svg></button>`;
 
@@ -3314,6 +3323,10 @@ function renderCurrentLetter(){
     // wider field than the fallback was measured at.
     if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>autosizeTo(toEl));
   }
+  // Two frames: one to land the old angles, one to ease to the new.
+  const pile=host.querySelectorAll(".lv-ghost[data-t]");
+  if(pile.length) requestAnimationFrame(()=>requestAnimationFrame(()=>
+    pile.forEach(g=>{ g.classList.add("lv-settling"); g.style.transform=g.dataset.t; })));
   placeLetterTopbar();
   renderPinnedMessage();
   letterNoEnter=false;
