@@ -263,7 +263,7 @@
      was falling back to a different, mismatched font for just those
      characters — the "two sizes of caps" was that fallback, not a CSS bug */
   .lv-to{font-family:"Public Sans",var(--sans);font-weight:400;font-size:10px;letter-spacing:.18em;
-    color:#9C8F76;margin-bottom:-6px;text-transform:uppercase;
+    color:#9C8F76;margin-bottom:0;text-transform:uppercase;
     display:flex;align-items:baseline;justify-content:flex-start;gap:16px}
   .lv-draft{position:absolute;left:0;right:0;top:0;z-index:5;background:#F6ECD8;border-bottom:1px solid #E4D4B0;
     font-family:var(--sans);font-size:12px;color:#6E6045;padding:8px 14px;display:flex;align-items:center;gap:8px;
@@ -2499,19 +2499,20 @@ function retypeInto(el, next, resize, done){
    wide as what it holds and only the sheet's width can cap it. */
 function autosizeTo(el){
   if(!el) return;
-  let ghost=el._ghost;
+  let ghost=autosizeTo._ghost;
   if(!ghost){
     ghost=document.createElement("span");
     const cs=getComputedStyle(el);
     ghost.style.cssText="position:absolute;left:-9999px;top:0;visibility:hidden;white-space:pre";
-    ghost.style.font=cs.font;
-    ghost.style.letterSpacing=cs.letterSpacing;
-    ghost.style.textTransform=cs.textTransform;
+    // Copied one property at a time: the `font` shorthand comes back empty
+    // from getComputedStyle in Chrome, which measured against the wrong face.
+    ["fontFamily","fontSize","fontWeight","fontStyle","letterSpacing","textTransform","fontVariant"]
+      .forEach(k=>{ ghost.style[k]=cs[k]; });
     document.body.appendChild(ghost);
-    el._ghost=ghost;
+    autosizeTo._ghost=ghost;
   }
   ghost.textContent=el.value||el.placeholder||"";
-  el.style.width=(ghost.offsetWidth+6)+"px";
+  el.style.width=Math.ceil(ghost.getBoundingClientRect().width+8)+"px";
 }
 function placeLetterTopbar(){
   const host=document.getElementById("lettersView"); if(!host) return;
@@ -2530,11 +2531,11 @@ function placeLetterTopbar(){
   // sheet and half off it, in both axes.
   tb.style.left = (p.right - h.left - tb.offsetWidth/2) + "px";
   tb.style.top  = (p.top  - h.top  - tb.offsetHeight/2) + "px";
-  // Pinned 92px in from the page's own left edge rather than measured off the
-  // sheet, which moved with it. The view reserves the width to its right.
+  // Centred in the margin the view reserves beside the sheet: the gap runs
+  // from the page's left edge to the paper's, and the stack sits in its middle.
   const cards=host.querySelector(".lv-cardstack");
   if(cards){
-    cards.style.left = "92px";
+    cards.style.left = Math.max(12, (p.left - h.left - cards.offsetWidth)/2) + "px";
     cards.style.top  = Math.max(12, (h.height - cards.offsetHeight)/2) + "px";
   }
 }
@@ -3306,7 +3307,13 @@ function renderCurrentLetter(){
     }
   }catch{}
   const toEl=host.querySelector("#lvTo");
-  if(toEl){ autosizeTo(toEl); toEl.addEventListener("input",()=>autosizeTo(toEl)); }
+  if(toEl){
+    autosizeTo(toEl);
+    toEl.addEventListener("input",()=>autosizeTo(toEl));
+    // The private faces arrive after the first paint, and a wider face needs a
+    // wider field than the fallback was measured at.
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>autosizeTo(toEl));
+  }
   placeLetterTopbar();
   renderPinnedMessage();
   letterNoEnter=false;
