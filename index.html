@@ -306,6 +306,12 @@
   .lv-footer{flex:0 0 auto;min-height:70px;display:flex;align-items:center;gap:12px;
     border-top:1px solid rgba(227,222,208,.5);margin-top:8px;margin-bottom:12px}
   .lv-footer-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+  .lv-empty-skipped{margin-top:26px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
+  .lv-empty-skipped span{font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;color:#b5ab97;width:100%}
+  .lv-empty-skipped button{font-family:var(--sans);font-size:12.5px;color:#8c7f68;background:transparent;
+    border:1px solid var(--rule);border-radius:999px;padding:5px 12px;cursor:pointer}
+  .lv-empty-skipped button:hover{border-color:var(--accent);color:var(--accent-deep)}
   .lv-tonerow{display:flex;justify-content:center;gap:8px;flex:0 0 auto;padding-bottom:14px}
   .lv-tone[disabled]{opacity:.4;cursor:default}
   .lv-tone[data-busy]{color:var(--ink)}
@@ -373,7 +379,7 @@
      equal to each. Equal gaps fall out of that rather than being tuned. */
   /* The card hangs off the sheet's left edge, so the page has to reserve room
      for it or it runs off screen. */
-  body.view-letters .letters-view{padding-left:460px;padding-right:552px}
+  body.view-letters .letters-view{padding-left:40px;padding-right:972px}
   .lv-reader{position:fixed;top:28px;right:28px;bottom:28px;width:488px;z-index:55;border-radius:12px;
     overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
@@ -2562,11 +2568,21 @@ function placeLetterTopbar(){
   tb.style.left = (p.right - h.left - tb.offsetWidth/2) + "px";
   tb.style.top  = (p.top  - h.top  - tb.offsetHeight/2) + "px";
   // Centred in the margin the view reserves beside the sheet: the gap runs
-  // from the page's left edge to the paper's, and the stack sits in its middle.
+  // from the paper's right edge to the drawer's left, and the stack sits in
+  // the middle of it.
   const cards=host.querySelector(".lv-cardstack");
   if(cards){
-    cards.style.left = Math.max(12, (p.left - h.left - cards.offsetWidth)/2) + "px";
-    cards.style.top  = Math.max(12, (h.height - cards.offsetHeight)/2) + "px";
+    const drawer=host.querySelector(".lv-reader");
+    const gapL=p.right-h.left;
+    const gapR=drawer ? drawer.getBoundingClientRect().left-h.left : h.width-552;
+    // On a narrow window the gap is thinner than the card. Scaling it down
+    // keeps it whole rather than sliding it under the drawer.
+    const sc=Math.min(1, (gapR-gapL-24)/(cards.offsetWidth||1));
+    cards.style.transformOrigin="left top";
+    cards.style.transform = sc<1 ? `scale(${sc.toFixed(3)})` : "";
+    const w=cards.offsetWidth*sc, ht=cards.offsetHeight*sc;
+    cards.style.left = Math.max(gapL+12, gapL + (gapR-gapL-w)/2) + "px";
+    cards.style.top  = Math.max(12, (h.height - ht)/2) + "px";
   }
 }
 addEventListener("resize", ()=>placeLetterTopbar());
@@ -2988,6 +3004,29 @@ async function loadThreadFor(email, name){
 /* A letter sent counts for a fortnight. Kept in localStorage rather than the
    database: it is a note to ourselves about this week, not a record. */
 const SENT_BADGE_DAYS = 14;
+/* Skipped: put aside rather than dealt with. Held by key in localStorage so the
+   queue can leave them out and the third tab can hand them back later. */
+function letterKey(x){
+  if(!x) return "";
+  if(x.q && x.q.id) return "q:"+x.q.id;
+  const d=x.d||{};
+  return "d:"+String(d.email||d.acc||d.name||"").toLowerCase();
+}
+function skippedMap(){ try{ return JSON.parse(localStorage.getItem("macon.skipped")||"{}"); }catch{ return {}; } }
+function skippedSave(m){ try{ localStorage.setItem("macon.skipped", JSON.stringify(m)); }catch{} }
+function skipLetter(x){ const m=skippedMap(); m[letterKey(x)]=Date.now(); skippedSave(m); }
+function skippedItems(){
+  const m=skippedMap();
+  return followUps().filter(x=>m[letterKey(x)]).map(x=>({ x, at:m[letterKey(x)] }))
+    .sort((a,b)=>b.at-a.at);
+}
+function unskipLetter(k){
+  const m=skippedMap(); delete m[k]; skippedSave(m);
+  renderLetters();
+  const i=letterQueue.findIndex(x=>letterKey(x)===k);
+  if(i>=0){ letterIdx=i; letterNoEnter=true; letterTypeIn=true; renderCurrentLetter(); }
+  renderReader();
+}
 function sentRecent(){
   let a=[]; try{ a=JSON.parse(localStorage.getItem("macon.sent")||"[]"); }catch{}
   const cut=Date.now()-SENT_BADGE_DAYS*86400000;
@@ -3012,6 +3051,7 @@ function renderReaderTop(){
     <div class="rd-tabs">
       <button data-folder="inbox" class="${readerFolder==="inbox"?"on":""}">Received</button>
       <button data-folder="sent" class="${readerFolder==="sent"?"on":""}">Sent${(()=>{const n=sentRecent().length;return n?`<span class="rd-tab-badge${letterJustSent?" pop":""}">${n}</span>`:"";})()}</button>
+      <button data-folder="skipped" class="${readerFolder==="skipped"?"on":""}">Skipped</button>
     </div>`;
   letterJustSent=false;
   const rb=t.querySelector("#rdRefresh");
@@ -3019,7 +3059,9 @@ function renderReaderTop(){
   rb.onclick=()=>{ readerMsgs=null; readerOpen=null; readerMode="post"; loadReader(); };
   t.querySelectorAll("[data-folder]").forEach(b=>b.onclick=()=>{
     if(readerFolder===b.dataset.folder) return;
-    readerFolder=b.dataset.folder; readerMsgs=null; readerOpen=null; readerMode="post"; loadReader();
+    readerFolder=b.dataset.folder; readerMsgs=null; readerOpen=null; readerMode="post";
+    // Skipped letters are ours, not Gmail's: nothing to fetch.
+    if(readerFolder==="skipped") renderReader(); else loadReader();
   });
 }
 function renderReader(){
@@ -3035,6 +3077,21 @@ function renderReader(){
   if(gmailReady() && readerConnected===null && !_statusPending){
     _statusPending=true;
     gmailStatus().finally(()=>{ _statusPending=false; renderMailbar(); });
+  }
+  // Put aside, still waiting. Sits above every other reader state so choosing
+  // the tab keeps showing it while letters open and threads load underneath.
+  if(readerFolder==="skipped"){
+    const items=skippedItems();
+    el.innerHTML = items.length ? `<div class="lv-reader-list">${items.map(({x,at})=>{
+      const nm=(x.d&&x.d.name)||(x.q&&x.q.name)||"Someone";
+      const what=(x.q&&x.q.subject)||(x.d&&x.d.pieces)||"";
+      return `<button class="lv-reader-row" data-skip="${esc(letterKey(x))}">
+        <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(cleanName(nm))}</span><span class="lv-reader-ago">${esc(mailDate(at))}</span></div>
+        ${what?`<div class="lv-reader-row-subj">${esc(what)}</div>`:""}
+        <div class="lv-reader-row-snip">Put aside. Click to pick it back up.</div></button>`;
+    }).join("")}</div>` : `<p class="lv-reader-note">Nothing skipped. Anything you set aside waits here.</p>`;
+    el.querySelectorAll("[data-skip]").forEach(b=>b.onclick=()=>unskipLetter(b.dataset.skip));
+    return;
   }
   const connectRow = "";
   const wireConnect = el => el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
@@ -3156,7 +3213,9 @@ function renderLetters(){
   const all=followUps();
   // The urgent, per-letter view stops at 3 months — anything older still
   // needs attention, but it belongs in Classic's drawer, not the front page.
-  letterQueue = all.filter(x=>(x.state||"attention")==="attention" && (x.days==null || x.days<=90));
+  const put=skippedMap();
+  letterQueue = all.filter(x=>(x.state||"attention")==="attention" && (x.days==null || x.days<=90)
+    && !put[letterKey(x)]);
   // Enquiries still lead (live money), then the collectors most worth an hour:
   // patrons and past commissioners, and anyone inside the repeat window.
   letterQueue.sort((a,b)=>{
@@ -3167,7 +3226,11 @@ function renderLetters(){
   });
   if(letterIdx>=letterQueue.length) letterIdx=0;
   if(!letterQueue.length){
-    host.innerHTML=`<div class="lv-empty">Nothing needs you right now.<br>Come back once someone's due, or switch to Classic to browse everyone.</div>`;
+    const put=skippedItems();
+    host.innerHTML=`<div class="lv-empty">Nothing needs you right now.<br>Come back once someone's due, or switch to Classic to browse everyone.
+      ${put.length?`<div class="lv-empty-skipped"><span>Set aside</span>${put.map(({x})=>
+        `<button data-skip="${esc(letterKey(x))}">${esc(cleanName((x.d&&x.d.name)||(x.q&&x.q.name)||"Someone"))}</button>`).join("")}</div>`:""}</div>`;
+    host.querySelectorAll("[data-skip]").forEach(b=>b.onclick=()=>unskipLetter(b.dataset.skip));
     return;
   }
   letterToneIdx=0; letterVaultOpen=false; letterTypeIn=true;
@@ -3435,7 +3498,14 @@ function renderCurrentLetter(){
       retypeInto(subjEl, r.subject, autosizeSubj);
       retypeInto(bodyEl, nextBody, autosizeBody, ()=>{ delete btn.dataset.busy; });
     };
-    host.querySelector("#lvSkip").onclick=()=>{ letterIdx=(letterIdx+1)%letterQueue.length; letterToneIdx=0; letterNoEnter=true; letterTypeIn=true; renderCurrentLetter(); };
+    host.querySelector("#lvSkip").onclick=()=>{
+      // Out of the queue and into the third tab, rather than round again.
+      skipLetter(x);
+      letterQueue.splice(letterIdx,1);
+      if(letterIdx>=letterQueue.length) letterIdx=0;
+      letterToneIdx=0; letterNoEnter=true; letterTypeIn=true;
+      letterQueue.length ? renderCurrentLetter() : renderLetters();
+    };
     host.querySelector("#lvClose").onclick=()=>{
       playCloseAnimation(()=>{
         if(q) inqSet(q.id,{status:"closed"}); else markContacted(i);
