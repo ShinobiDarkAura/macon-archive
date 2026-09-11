@@ -153,30 +153,35 @@
   .lv-env2-veil.opening p{opacity:0}
   .lv-env2-date{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#7A7262}
   .lv-env2-hint{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#A89D89}
-  .lv-env2-back,.lv-env2-front,.lv-env2-flap{position:fixed;border-radius:3px;background-color:#CBA468;background-size:auto,240px;
-    --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .32 0 0 0 0 .22 0 0 0 0 .1 0 0 0 .24 0'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>");
-    background-image:linear-gradient(transparent,transparent),var(--grain)}
-  .lv-env2-back{z-index:305;box-shadow:0 1px 1px rgba(24,17,8,.24),0 3px 7px rgba(24,17,8,.2)}
-  .lv-env2-front{z-index:320;box-shadow:0 1px 1px rgba(24,17,8,.24),0 3px 7px rgba(24,17,8,.2);
-    background-image:linear-gradient(180deg,rgba(60,40,15,.18),rgba(60,40,15,0) 6%),var(--grain)}
+  /* Paper, not paint: flat manila tones with a lit paper tooth, soft blotching
+     and faint fibres drawn as SVG noise. Depth comes from hard, shallow shadows. */
+  .lv-env2-back,.lv-env2-front,.lv-env2-flap-face{background-color:#CBA468;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='380' height='380'><filter id='t' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' seed='7' stitchTiles='stitch' result='n'/><feDiffuseLighting in='n' lighting-color='white' surfaceScale='1.4'><feDistantLight azimuth='225' elevation='58'/></feDiffuseLighting><feColorMatrix values='0 0 0 0 .22 0 0 0 0 .15 0 0 0 0 .06 -.55 0 0 0 .55'/></filter><rect width='100%25' height='100%25' filter='url(%23t)'/></svg>"),url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='520'><filter id='f' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.06 .7' numOctaves='2' seed='5' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 .96 0 0 0 0 .86 0 0 0 .9 -.52'/></filter><rect width='100%25' height='100%25' filter='url(%23f)'/></svg>"),url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='760' height='760'><filter id='m' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.006' numOctaves='3' seed='11' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35 0 0 0 0 .24 0 0 0 0 .1 0 0 0 .9 -.38'/></filter><rect width='100%25' height='100%25' filter='url(%23m)'/></svg>");
+    background-size:380px 380px,520px 520px,760px 760px}
+  .lv-env2-back,.lv-env2-front{position:fixed;border-radius:3px}
+  .lv-env2-back{z-index:305;box-shadow:0 2px 0 rgba(40,26,8,.16),0 1px 1px rgba(40,26,8,.24)}
+  .lv-env2-front{z-index:320;box-shadow:inset 0 1px 0 rgba(255,244,220,.38),0 2px 0 rgba(40,26,8,.16),0 1px 1px rgba(40,26,8,.24)}
   /* the seams on the back of a catalogue envelope */
   .lv-env2-front::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;
     background:linear-gradient(180deg,transparent,rgba(70,48,20,.22) 14%,rgba(70,48,20,.22))}
   .lv-env2-front::after{content:"";position:absolute;left:0;right:0;bottom:0;height:34%;
     background:linear-gradient(to top right,transparent 49.6%,rgba(70,48,20,.18) 50%,transparent 50.4%) left/50% 100% no-repeat,
       linear-gradient(to top left,transparent 49.6%,rgba(70,48,20,.18) 50%,transparent 50.4%) right/50% 100% no-repeat}
-  .lv-env2-flap{z-index:330;transform-origin:50% 0;background-color:#C29859;
-    background-image:linear-gradient(180deg,rgba(60,40,15,0) 30%,rgba(60,40,15,.24)),var(--grain);
+  /* The flap's point is a clip, and a clip cuts its own shadow off; the wrapper
+     casts the shadow and the face inside carries the shape. */
+  .lv-env2-flap{position:fixed;z-index:330;transform-origin:50% 0;
+    filter:drop-shadow(0 2px 0 rgba(40,26,8,.2)) drop-shadow(0 1px 1px rgba(40,26,8,.18))}
+  .lv-env2-flap-face{position:absolute;inset:0;display:block;background-color:#C29859;
     clip-path:polygon(0 0,100% 0,100% 16%,58% 95%,50% 100%,42% 95%,0 16%)}
   .lv-env2-label{position:absolute;left:50%;top:calc(var(--flap) + 120px);transform:translateX(-50%) rotate(-1deg);width:47.6%;
-    background:#FBF6EA;padding:18px 26px 16px;text-align:center;box-sizing:border-box;
-    box-shadow:0 1px 1px rgba(24,17,8,.18),0 2px 4px rgba(24,17,8,.12)}
+    background:#FBF6EA;padding:42px 26px 16px;text-align:center;box-sizing:border-box;
+    box-shadow:0 1px 0 rgba(40,26,8,.2),0 2px 1px rgba(40,26,8,.1)}
+  .lv-env2-chip{display:inline-block;font-family:"Public Sans",var(--sans);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:#7A7262;border:1px solid rgba(90,70,40,.34);border-radius:999px;padding:4px 11px;margin:0 0 14px;white-space:nowrap}
   .lv-env2-count{font-family:"Knickerbocker",var(--serif-soul);font-size:46px;line-height:1;text-transform:uppercase;color:#2A241C;margin:0 0 10px}
   .lv-env2-parts{font-family:"Public Sans",var(--sans);font-size:13.5px;line-height:1.6;color:#5D564A;margin:0}
   .lv-env2-seal{position:fixed;z-index:340;width:104px;height:104px;padding:0;border:none;background:transparent;cursor:pointer;
-    transform:translate(-50%,-50%) rotate(-8deg);filter:drop-shadow(0 1px 1px rgba(24,17,8,.35)) drop-shadow(0 3px 5px rgba(24,17,8,.25));
-    transition:transform .2s ease}
-  .lv-env2-seal:hover{transform:translate(-50%,-50%) rotate(-8deg) scale(1.05)}
+    transform:translate(-50%,-50%) rotate(-8deg);filter:drop-shadow(0 1px 1px rgba(24,17,8,.35)) drop-shadow(0 3px 5px rgba(24,17,8,.25));}
   .lv-env2-seal img{width:100%;height:100%;object-fit:contain;display:block}
   /* Badge + compose live in the fixed top bar now, not on the paper — the
      paper's own overflow:hidden (needed to clip the stamp) was clipping them
@@ -3563,7 +3568,7 @@ function maybeShowMorningEnvelope(){
     c.story ? count(c.story,"story to ask for","stories to ask for") : "",
     c.reconnect ? count(c.reconnect,"collector to catch up with","collectors to catch up with") : ""
   ].filter(Boolean);
-  const day=new Date().toLocaleDateString("en-US",{weekday:"long", month:"long", day:"numeric"});
+  const day=new Date().toLocaleDateString("en-US",{weekday:"long", month:"short", day:"numeric"});
 
   // Where the sheet really sits, measured from layout so its entrance
   // transform does not skew it.
@@ -3579,19 +3584,19 @@ function maybeShowMorningEnvelope(){
   document.body.classList.add("lv-ritual");
   document.body.insertAdjacentHTML("beforeend", `
     <div class="lv-env2-veil" id="lvEnvVeil" role="dialog" aria-label="Today's letters">
-      <div class="lv-env2-caption" style="left:${L+W/2}px;top:${Math.max(24, T-78)}px">
-        <p class="lv-env2-date">${esc(day)}</p>
+      <div class="lv-env2-caption" style="left:${L+W/2}px;top:${Math.max(24, T-52)}px">
         <p class="lv-env2-hint">Break the seal to begin</p>
       </div>
     </div>
     <div class="lv-env2-back" id="lvEnvBack" style="${box}"></div>
     <div class="lv-env2-front" id="lvEnvFront" style="${box};--flap:${FL}px">
       <div class="lv-env2-label">
+        <span class="lv-env2-chip">${esc(day)}</span>
         <p class="lv-env2-count">${esc(count(c.all,"letter","letters"))}</p>
         <p class="lv-env2-parts">${parts.map(esc).join("<br>")}</p>
       </div>
     </div>
-    <div class="lv-env2-flap" id="lvEnvFlap" style="left:${L}px;top:${T}px;width:${W}px;height:${FL}px"></div>
+    <div class="lv-env2-flap" id="lvEnvFlap" style="left:${L}px;top:${T}px;width:${W}px;height:${FL}px"><i class="lv-env2-flap-face"></i></div>
     <button class="lv-env2-seal" id="lvEnvSeal" style="left:${L+W/2}px;top:${T+FL-6}px" aria-label="Break the seal and open today's letters"><img src="logos/wax-seal.webp" alt=""></button>`);
 
   const veil=document.getElementById("lvEnvVeil"), back=document.getElementById("lvEnvBack"),
