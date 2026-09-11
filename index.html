@@ -446,13 +446,13 @@
   .rd-tab-badge.pop{animation:lvBadgePop .5s cubic-bezier(.2,.8,.2,1)}
   @keyframes lvBadgePop{0%{transform:scale(0);opacity:0}55%{transform:scale(1.35)}100%{transform:scale(1)}}
   /* Wide enough, the box becomes a mail client: the list on the left, the
-     open message on the right, 25/75. Narrow, the list pane is not drawn. */
+     open message on the right, 40/60. Narrow, the list pane is not drawn. */
   .rd-panes{flex:1;min-height:0;display:flex}
   .rd-list{display:none}
-  .lv-reader.rd-split .rd-list{display:block;flex:0 0 25%;min-width:0;overflow-y:auto;overflow-x:hidden;
+  .lv-reader.rd-split .rd-list{display:block;flex:0 0 40%;min-width:0;overflow-y:auto;overflow-x:hidden;
     border-right:1px solid var(--rl);padding:14px 12px 60px;box-sizing:border-box;position:relative;scrollbar-width:none}
   .lv-reader.rd-split .rd-list::-webkit-scrollbar{width:0;display:none}
-  .lv-reader.rd-split .rd-scroll{flex:1 1 75%;min-width:0}
+  .lv-reader.rd-split .rd-scroll{flex:1 1 60%;min-width:0}
   .lv-reader.rd-split .lv-reader-back{display:none}
   .rd-list .lv-reader-row.on{background:rgba(255,255,255,.95);box-shadow:0 0 0 1px var(--rl) inset}
   .rd-pick{margin-top:48px;text-align:center}
