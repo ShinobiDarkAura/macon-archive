@@ -189,7 +189,7 @@
   .lv-msgtext{white-space:pre-wrap;font-family:"Public Sans",var(--sans);font-size:14.5px;
     line-height:1.55;color:#4A443A;margin:0}
   .lv-label{display:flex;flex-direction:column;justify-content:flex-start;
-    width:400px;padding:30px 20px 30px;box-sizing:border-box;background:#FCF0A8}
+    width:400px;padding:38px 28px 38px;box-sizing:border-box;background:#FCF0A8}
   .lv-cnr{position:static;margin:0 0 38px;display:flex;justify-content:space-between;gap:12px;
     font-family:"Gabriele Dark","Gabriele Light",var(--serif-soul);font-size:12px;letter-spacing:.14em;
     text-transform:uppercase;color:#9A9280;line-height:1.35;align-items:flex-start}
@@ -201,7 +201,7 @@
     letter-spacing:-.03em;color:#26221C;margin:0;text-transform:none}
   .lv-n1,.lv-n2{display:block}
   .lv-n1{font-size:.61em;line-height:1.04;margin-bottom:-6px}
-  .lv-noteblock{position:relative;margin:22px -22px 0;padding:22px 22px 0}
+  .lv-noteblock{position:relative;margin:22px -28px 0;padding:22px 28px 0}
   .lv-noteblock::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;
     background-image:radial-gradient(circle,rgba(140,116,78,.5) 1.1px,transparent 1.3px);
     background-size:7px 2px;background-repeat:repeat-x}
@@ -2642,7 +2642,8 @@ function placeLetterTopbar(){
     const OVERLAP=0.30, CARD_SCALE=0.85;          // the post-it is drawn at 85%
     const drawer=host.querySelector(".lv-reader");
     const w=(cards.offsetWidth||1)*CARD_SCALE;
-    const left=p.right-h.left-w*OVERLAP-innerWidth*0.03;   // nudged 3% of the window further over the sheet
+    // Nudged 3% of the window and a further 64px back from the post box seam.
+    const left=p.right-h.left-w*OVERLAP-innerWidth*0.03-64;
     const drawerL=drawer ? drawer.getBoundingClientRect().left-h.left : h.width-552;
     // On a narrow window there is less margin than card. Scaling it down
     // keeps it whole rather than sliding it under the drawer.
