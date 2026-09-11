@@ -1558,7 +1558,7 @@ async function startSynced(){
   loadTodoDone();
   // The queue filters on what has been set aside, so both have to be in hand
   // before it is drawn or a skipped letter flashes up and vanishes.
-  Promise.all([loadInquiries(), loadSkipped()]).then(()=>{ renderDrawer(); renderLetters(); if(tab==="enquiries") renderEnquiries(); });
+  Promise.allSettled([loadInquiries(), loadSkipped()]).then(()=>{ letterDataReady=true; renderDrawer(); renderLetters(); if(tab==="enquiries") renderEnquiries(); });
   loadLetterFonts();
   sb.channel("todos-rt").on("postgres_changes",{event:"*",schema:"public",table:"bureau_todos"},()=>loadTodoDone()).subscribe();
   sb.channel("inq-rt").on("postgres_changes",{event:"*",schema:"public",table:"inquiries"},()=>loadInquiries().then(()=>{ renderDrawer(); if(tab==="enquiries") renderEnquiries(); })).subscribe();
@@ -2329,6 +2329,7 @@ let letterNoEnter=false;
 let letterTypeIn=false;
 let letterGhostPrev=[];
 let letterCardH=0;
+let letterDataReady=false;
 
 // A blank letter to someone who isn't in the queue at all. Creates a real,
 // tracked inquiry (so it isn't lost the moment you close the tab), offers a
@@ -3390,6 +3391,10 @@ document.addEventListener("visibilitychange",()=>{ if(!document.hidden && docume
 
 function renderLetters(){
   const host=document.getElementById("lettersView"); if(!host) return;
+  // Collectors arrive first. Drawing then built the queue without enquiries or
+  // skipped letters and redrew it a moment later with a different letter on
+  // top, so the letters wait until all three are in.
+  if(synced && !letterDataReady) return;
   const all=followUps();
   // The urgent, per-letter view stops at 3 months — anything older still
   // needs attention, but it belongs in Classic's drawer, not the front page.
