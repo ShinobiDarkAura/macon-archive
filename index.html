@@ -1692,13 +1692,16 @@ async function startSynced(){
   loadTodoDone();
   // The queue filters on what has been set aside, so both have to be in hand
   // before it is drawn or a skipped letter flashes up and vanishes.
-  Promise.allSettled([loadInquiries(), loadSkipped()]).then(()=>{ letterDataReady=true; renderDrawer(); renderLetters(); if(tab==="enquiries") renderEnquiries(); });
+  Promise.allSettled([loadInquiries(), loadSkipped(), loadDone()]).then(()=>{ letterDataReady=true; renderDrawer(); renderLetters(); if(tab==="enquiries") renderEnquiries(); });
   loadLetterFonts();
   sb.channel("todos-rt").on("postgres_changes",{event:"*",schema:"public",table:"bureau_todos"},()=>loadTodoDone()).subscribe();
   sb.channel("inq-rt").on("postgres_changes",{event:"*",schema:"public",table:"inquiries"},()=>loadInquiries().then(()=>{ renderDrawer(); if(tab==="enquiries") renderEnquiries(); })).subscribe();
   // One of us skipping a letter takes it off the other's pile too.
   sb.channel("skip-rt").on("postgres_changes",{event:"*",schema:"public",table:"skipped_letters"},
     ()=>loadSkipped().then(()=>{ if(document.body.classList.contains("view-letters")) renderLetters(); })).subscribe();
+  // A letter one of us sends ticks off on the other's desk too.
+  sb.channel("done-rt").on("postgres_changes",{event:"*",schema:"public",table:"letters_done"},
+    ()=>loadDone().then(()=>{ if(document.body.classList.contains("view-letters")) renderLetters(); })).subscribe();
   initChat();
 }
 async function refresh(){
@@ -3236,15 +3239,35 @@ function planItems(from, to){
 function isPlan(f){ return f==="today" || f==="week" || f==="month"; }
 function planFor(folder){ return folder==="today" ? letterQueue.slice() : folder==="week" ? planItems(1,8) : planItems(8,31); }
 
-/* What has gone out today, for the day's progress. Kept per browser. */
+/* What has gone out today, for the day's progress. Held in public.letters_done
+   so both of us see the same day; the in-memory copy is filled at sign-in and
+   kept current by realtime. Without a connection it falls back to this browser. */
+let doneRows=null;
+async function loadDone(){
+  if(!sb) return;
+  const { data, error } = await sb.from("letters_done").select("key,day,name,kind").eq("day", todayKey());
+  if(error) return;
+  doneRows = data||[];
+}
 function todayDone(){
+  if(synced && doneRows) return doneRows.filter(r=>r.day===todayKey()).map(r=>({ key:r.key, name:r.name, kind:r.kind }));
   try{ const v=JSON.parse(localStorage.getItem("macon.today")||"{}"); return v.date===todayKey() ? (v.done||[]) : []; }catch{ return []; }
 }
 function noteDone(x){
   const k=letterKey(x); letterPulled.delete(k);
+  const name=cleanName((x.d&&x.d.name)||(x.q&&x.q.name)||""), day=todayKey();
+  if(synced && sb){
+    doneRows=doneRows||[];
+    if(doneRows.some(r=>r.key===k && r.day===day)) return;
+    const row={ key:k, day, name, kind:x.kind };
+    doneRows.push(row);                                  // counted straight away; the write follows
+    sb.auth.getSession().then(({data})=>sb.from("letters_done").upsert({ ...row, done_by:(data&&data.session&&data.session.user.email)||"" }))
+      .then(r=>{ if(r && r.error) console.warn("done", r.error.message); });
+    return;
+  }
   const done=todayDone(); if(done.some(e=>e.key===k)) return;
-  done.push({ key:k, name:cleanName((x.d&&x.d.name)||(x.q&&x.q.name)||""), kind:x.kind });
-  try{ localStorage.setItem("macon.today", JSON.stringify({ date:todayKey(), done })); }catch{}
+  done.push({ key:k, name, kind:x.kind });
+  try{ localStorage.setItem("macon.today", JSON.stringify({ date:day, done })); }catch{}
 }
 
 /* Bring one follow-up to the desk: its letter composed, its thread in the drawer.
@@ -3947,7 +3970,9 @@ function renderLetters(){
   // The urgent, per-letter view stops at 3 months — anything older still
   // needs attention, but it belongs in Classic's drawer, not the front page.
   const put=skippedMap();
-  letterQueue = all.filter(x=>(x.state||"attention")==="attention" && (x.days==null || x.days<=90)
+  // Catch-ups only come due 90 days after contact, so the cap that keeps the
+  // desk to three months measures them from when they came due, not from contact.
+  letterQueue = all.filter(x=>(x.state||"attention")==="attention" && (x.days==null || x.days <= (x.kind==="reconnect" ? 180 : 90))
     && !put[letterKey(x)] && letterReason(x));
   // Enquiries still lead (live money), then the collectors most worth an hour:
   // patrons and past commissioners, and anyone inside the repeat window.
