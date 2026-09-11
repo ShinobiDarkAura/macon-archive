@@ -245,7 +245,7 @@
   .lv-quote-edit{resize:vertical;min-height:66px}
   .lv-quote-edit:focus{outline:none}
 
-  .lv-paper{grid-column:2;grid-row:1;height:min(92%, calc((100vw - var(--rd-w, 50vw) - 316px) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
+  .lv-paper{grid-column:2;grid-row:1;align-self:end;margin-bottom:-20px;height:min(92%, calc((100vw - var(--rd-w, 40vw) - 316px) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
     box-shadow:0 1px 1px rgba(24,17,8,.22),0 2px 4px rgba(24,17,8,.18);
     padding:44px 48px 0;box-sizing:border-box;position:relative;overflow:hidden;z-index:3;
     display:flex;flex-direction:column}
@@ -364,7 +364,7 @@
   /* the stack: a couple of blank sheets behind the real one, each nudged and
      tilted, each with its own shadow, so the pile reads as physical */
   .lv-ghost.lv-settling{transition:transform .6s cubic-bezier(.22,.7,.2,1)}
-  .lv-ghost{grid-column:2;grid-row:1;height:min(92%, calc((100vw - var(--rd-w, 50vw) - 316px) * 1.2941));aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
+  .lv-ghost{grid-column:2;grid-row:1;align-self:end;margin-bottom:-20px;height:min(92%, calc((100vw - var(--rd-w, 40vw) - 316px) * 1.2941));aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
     box-shadow:0 1px 1px rgba(24,17,8,.20),0 2px 4px rgba(24,17,8,.16);pointer-events:none}
 
   /* ---------- the post drawer, hung on the right edge ---------- */
@@ -376,8 +376,8 @@
   /* The post box sets the width; the letter side takes what is left. 276px is
      the drawer's inset, the 70% of the card that hangs past the sheet, and a
      gap before the drawer. */
-  body.view-letters .letters-view{padding-left:40px;padding-right:calc(var(--rd-w, 50vw) + 276px)}
-  .lv-reader{position:fixed;top:28px;right:28px;bottom:28px;width:var(--rd-w, 50vw);z-index:55;border-radius:12px;
+  body.view-letters .letters-view{padding-left:40px;padding-right:calc(var(--rd-w, 40vw) + 276px)}
+  .lv-reader{position:fixed;top:28px;right:28px;bottom:28px;width:var(--rd-w, 40vw);z-index:55;border-radius:12px;
     overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
     background:#FCFAF6;
@@ -456,8 +456,9 @@
   .lv-reader.rd-split .lv-reader-back{display:none}
   .rd-list .lv-reader-row.on{background:rgba(255,255,255,.95);box-shadow:0 0 0 1px var(--rl) inset}
   .rd-pick{margin-top:48px;text-align:center}
+  .rd-refresh.rd-expand{margin-left:2px}
   /* The seam between the letters and the box: drag it to share the width. */
-  .lv-rdhandle{position:fixed;top:28px;bottom:28px;right:calc(var(--rd-w, 50vw) + 28px);width:22px;
+  .lv-rdhandle{position:fixed;top:28px;bottom:28px;right:calc(var(--rd-w, 40vw) + 28px);width:22px;
     transform:translateX(50%);z-index:57;cursor:col-resize;touch-action:none;background:transparent}
   .lv-rdhandle::before{content:"";position:absolute;left:50%;top:50%;width:4px;height:46px;border-radius:3px;
     transform:translate(-50%,-50%);background:rgba(120,102,70,.28);transition:background .15s,height .15s}
@@ -536,15 +537,13 @@
 
   /* chevrons sit just off the paper's own edges, in its grid cell */
   /* Straddling the sheet's own edges: half on the paper, half off it. */
-  .lv-chev{grid-column:2;grid-row:1;align-self:center;z-index:8;width:38px;height:38px;padding:0;
+  .lv-chev{position:absolute;z-index:8;width:38px;height:38px;padding:0;
     border:1px solid rgba(120,102,70,.22);border-radius:50%;background:#FFFEFC;color:#8C8272;cursor:pointer;
     display:flex;align-items:center;justify-content:center;
     box-shadow:0 2px 7px rgba(30,22,14,.18);transition:color .15s,opacity .15s,box-shadow .15s}
   .lv-chev svg{width:17px;height:17px;display:block}
   .lv-chev:hover{color:var(--ink);box-shadow:0 3px 10px rgba(30,22,14,.24)}
   .lv-chev:disabled{opacity:.25;cursor:default;box-shadow:none}
-  .lv-chev-prev{justify-self:start;transform:translateX(-50%)}
-  .lv-chev-next{justify-self:end;transform:translateX(50%)}
 
   @media(max-width:1100px){ .lv-paper{padding:36px 28px 0} .lv-subj{font-size:24px} .lv-body{font-size:14px}
     .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none} .lv-rdhandle{display:none}
@@ -2594,6 +2593,13 @@ function placeLetterTopbar(){
     requestAnimationFrame(()=>requestAnimationFrame(()=>placeLetterTopbar()));
   }
   const p=paper.getBoundingClientRect(), h=host.getBoundingClientRect();
+  // The arrows straddle the sheet's side edges at its vertical middle. Placed
+  // from the sheet rather than the column, since the sheet now sits low in it.
+  [["#lvChevprev", p.left], ["#lvChevnext", p.right]].forEach(([sel, x])=>{
+    const c=host.querySelector(sel); if(!c) return;
+    c.style.left=(x-h.left-c.offsetWidth/2)+"px";
+    c.style.top =(p.top-h.top+p.height/2-c.offsetHeight/2)+"px";
+  });
   // Centred on the corner point itself, not nudged: half the badge sits on the
   // sheet and half off it, in both axes.
   tb.style.left = (p.right - h.left - tb.offsetWidth/2) + "px";
@@ -3043,10 +3049,15 @@ async function loadThreadFor(email, name){
 /* ---------- the post box: width and split ----------
    Held as a share of the window so it keeps its proportion when the window
    changes. Remembered per browser: it is how one of us likes the desk laid out. */
-const RD_MIN=340, RD_SPLIT=0.75, RD_INSET=28;
-let readerFrac=(()=>{ try{ const v=parseFloat(localStorage.getItem("macon.postbox")); return v>0 && v<=1 ? v : 0.5; }catch{ return 0.5; } })();
+// Dragging stops at 40% of the window; only the expand button opens the box
+// full width, which is the two-column mail client.
+const RD_MIN=340, RD_MAX=0.40, RD_SPLIT=0.75, RD_INSET=28;
+let readerFrac=(()=>{ try{ const v=parseFloat(localStorage.getItem("macon.postbox")); return v>0 && v<=1 ? v : RD_MAX; }catch{ return RD_MAX; } })();
 function applyReaderWidth(){
-  const w=Math.round(Math.max(RD_MIN, Math.min(innerWidth-RD_INSET*2, readerFrac*innerWidth)));
+  // Anything short of the expanded mail client is held to the 40% ceiling,
+  // including a wider width remembered from before the ceiling existed.
+  const frac = readerFrac>=RD_SPLIT ? readerFrac : Math.min(readerFrac, RD_MAX);
+  const w=Math.round(Math.max(RD_MIN, Math.min(innerWidth-RD_INSET*2, frac*innerWidth)));
   document.documentElement.style.setProperty("--rd-w", w+"px");
   const rd=document.getElementById("lvReader");
   const split = w >= innerWidth*RD_SPLIT;
@@ -3056,6 +3067,7 @@ function applyReaderWidth(){
   document.documentElement.classList.toggle("rd-wide", split || innerWidth-w-316 < 280);
   return w;
 }
+let readerFracNarrow = readerFrac>=RD_SPLIT ? RD_MAX : Math.min(readerFrac, RD_MAX);
 applyReaderWidth();
 /* A letter sent counts for a fortnight. Kept in localStorage rather than the
    database: it is a note to ourselves about this week, not a record. */
@@ -3127,6 +3139,10 @@ function renderReaderTop(){
       ${unread?`<span class="rd-unread">${unread}</span>`:""}
       <button class="rd-refresh" id="rdRefresh" title="Check again" aria-label="Check again">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg></button>
+      ${(()=>{ const wide=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--rd-w"))>=innerWidth*RD_SPLIT;
+        return `<button class="rd-refresh rd-expand" id="rdExpand" title="${wide?"Back to half width":"Open as a two-column mail client"}" aria-label="${wide?"Back to half width":"Open as a two-column mail client"}">${wide
+          ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="m14 10 7-7"/><path d="m3 21 7-7"/></svg>`
+          : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/></svg>`}</button>`; })()}
     </div>
     <div class="rd-tabs">
       <button data-folder="inbox" class="${readerFolder==="inbox"?"on":""}">Received</button>
@@ -3137,6 +3153,15 @@ function renderReaderTop(){
   const rb=t.querySelector("#rdRefresh");
   if(readerLoading) rb.classList.add("spin");
   rb.onclick=()=>{ readerMsgs=null; readerOpen=null; readerMode="post"; loadReader(); };
+  const ex=t.querySelector("#rdExpand");
+  if(ex) ex.onclick=()=>{
+    // Full width is the mail client; the button returns to whatever width it left.
+    const wide=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--rd-w"))>=innerWidth*RD_SPLIT;
+    if(wide) readerFrac=readerFracNarrow;
+    else { readerFracNarrow=readerFrac; readerFrac=1; }
+    try{ localStorage.setItem("macon.postbox", String(readerFrac)); }catch{}
+    applyReaderWidth(); renderReader(); placeLetterTopbar();
+  };
   t.querySelectorAll("[data-folder]").forEach(b=>b.onclick=()=>{
     if(readerFolder===b.dataset.folder) return;
     readerFolder=b.dataset.folder; readerMsgs=null; readerOpen=null; readerMode="post";
@@ -3649,7 +3674,7 @@ function renderCurrentLetter(){
     seam.setPointerCapture(e.pointerId);
     document.body.classList.add("rd-dragging");
     const move=ev=>{
-      readerFrac=(innerWidth-RD_INSET-ev.clientX)/innerWidth;
+      readerFrac=Math.min(RD_MAX, (innerWidth-RD_INSET-ev.clientX)/innerWidth);
       const rd=document.getElementById("lvReader"), was=rd && rd.classList.contains("rd-split");
       const w=applyReaderWidth();
       readerFrac=w/innerWidth;
