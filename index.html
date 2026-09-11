@@ -130,6 +130,46 @@
       repeating-linear-gradient(92deg, rgba(140,116,78,.026) 0 1px, rgba(255,255,255,0) 1px 27px),
       linear-gradient(178deg,#F4F0E7,#EBE7DA)}
   .lv-empty{font-family:var(--serif-soul);font-style:italic;font-size:22px;color:#a89d89;text-align:center;max-width:460px}
+  /* The cleared desk: centred on the whole page, not the letter column. */
+  .lv-done{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .lv-done-art{position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);width:min(1180px,92vw);
+    opacity:.2;pointer-events:none;user-select:none}
+  .lv-done-copy{position:relative;text-align:center;max-width:520px;padding:0 24px;margin-top:8vh}
+  .lv-done-date{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#B5AB97;margin:0 0 16px}
+  .lv-done-title{font-family:"TAY Rosemary",var(--serif-soul);font-weight:400;font-size:clamp(44px,6vw,78px);
+    letter-spacing:.03em;line-height:1;color:rgba(38,34,28,.4);margin:0}
+  .lv-done-sub{font-family:"Public Sans",var(--sans);font-size:15px;line-height:1.6;color:#A89D89;margin:20px auto 0;max-width:400px}
+  /* The morning envelope. Back, sheet, front pocket and flap are stacked in
+     that order; past upright the flap drops behind the sheet so it can rise. */
+  .lv-env-veil{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;
+    background:rgba(244,240,231,.95);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);transition:opacity .45s ease}
+  .lv-env-veil.gone{opacity:0;pointer-events:none}
+  .lv-env-date{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#9A9280;margin:0}
+  .lv-env{position:relative;width:min(520px,78vw);aspect-ratio:1.45;perspective:1400px}
+  .lv-env-back{position:absolute;inset:0;border-radius:4px;background:#C9A266;
+    box-shadow:0 1px 1px rgba(24,17,8,.22),0 3px 6px rgba(24,17,8,.18)}
+  .lv-env-sheet{position:absolute;left:6%;right:6%;top:7%;height:86%;z-index:1;background:#FFFEFC;border-radius:2px;
+    box-shadow:0 1px 2px rgba(24,17,8,.16);transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+  .lv-env-sheet span{display:block;height:2px;border-radius:2px;background:#E8E2D4;margin:11% 14% 0}
+  .lv-env-sheet span:nth-child(2){margin-right:24%} .lv-env-sheet span:nth-child(4){margin-right:40%}
+  .lv-env-front{position:absolute;inset:0;z-index:2;border-radius:4px;background:linear-gradient(180deg,#DDBB80,#D3AE70);
+    clip-path:polygon(0 100%,0 0,50% 56%,100% 0,100% 100%);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8%;box-sizing:border-box}
+  .lv-env-count{font-family:"TAY Rosemary",var(--serif-soul);font-size:clamp(32px,4.4vw,52px);letter-spacing:.03em;color:#3B2F1E;margin:0;line-height:1}
+  .lv-env-flap{position:absolute;left:0;right:0;top:0;height:60%;z-index:3;transform-origin:50% 0;
+    background:linear-gradient(180deg,#C49B5C,#D0A96B);clip-path:polygon(0 0,100% 0,50% 100%);
+    transition:transform .55s cubic-bezier(.45,0,.2,1)}
+  .lv-env.open .lv-env-flap{transform:rotateX(180deg)}
+  .lv-env.flapped .lv-env-flap{z-index:0}
+  .lv-env.out .lv-env-sheet{transform:translateY(-64%)}
+  .lv-env-seal{position:absolute;left:50%;top:60%;width:64px;height:64px;margin:-32px 0 0 -32px;z-index:4;padding:0;border:none;border-radius:50%;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 36% 30%,#D8664F,#A83A28 62%,#7E2616);
+    box-shadow:0 1px 1px rgba(24,17,8,.32),0 3px 6px rgba(24,17,8,.24);transition:transform .25s ease,opacity .25s ease}
+  .lv-env-seal img{width:32px;height:32px;object-fit:contain;filter:brightness(0) invert(1);opacity:.82}
+  .lv-env-seal:hover{transform:scale(1.06)}
+  .lv-env.open .lv-env-seal{opacity:0;transform:scale(.6);pointer-events:none}
+  .lv-env-parts{font-family:"Public Sans",var(--sans);font-size:14px;line-height:1.65;color:#6E6450;text-align:center;margin:0}
+  .lv-env-hint{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#B5AB97;margin:0}
   /* Badge + compose live in the fixed top bar now, not on the paper — the
      paper's own overflow:hidden (needed to clip the stamp) was clipping them
      too whenever they bled past its edge. #lvTopbar's `right` is set in JS,
@@ -200,7 +240,7 @@
   .lv-name{font-family:"TAY Rosemary",var(--serif-soul);font-weight:400;font-size:66px;line-height:.96;
     letter-spacing:.03em;color:#26221C;margin:0;text-transform:none}
   .lv-n1,.lv-n2{display:block}
-  .lv-n1{font-size:.61em;line-height:1.04;margin-bottom:4px}
+  .lv-n1{font-size:.61em;line-height:1.04;margin-bottom:12px}
   .lv-noteblock{position:relative;margin:22px -28px 0;padding:22px 28px 0}
   .lv-noteblock::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;
     background-image:radial-gradient(circle,rgba(140,116,78,.5) 1.1px,transparent 1.3px);
@@ -3389,6 +3429,84 @@ function renderReaderList(target){
 }
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden && document.getElementById("lvReader") && gmailReady()) loadReader(); });
 
+/* ---------- the desk, cleared ----------
+   Nothing left to write: the botanical arch, large and faded, with the day and
+   a quiet line in the middle of it. Anything set aside stays one click away. */
+function doneMarkup(put, when){
+  const day=when.toLocaleDateString("en-US",{weekday:"long", month:"long", day:"numeric"});
+  return `<div class="lv-done">
+    <img class="lv-done-art" src="illustrations/botanical-gold.webp" alt="" aria-hidden="true">
+    <div class="lv-done-copy">
+      <p class="lv-done-date">${esc(day)}</p>
+      <h2 class="lv-done-title">The desk is clear</h2>
+      <p class="lv-done-sub">Every letter due today is written or set aside. Come back when someone is due, or open Classic to browse everyone.</p>
+      ${put.length?`<div class="lv-empty-skipped"><span>Set aside</span>${put.map(({x})=>
+        `<button data-skip="${esc(letterKey(x))}">${esc(cleanName((x.d&&x.d.name)||(x.q&&x.q.name)||"Someone"))}</button>`).join("")}</div>`:""}
+    </div>
+  </div>`;
+}
+
+/* ---------- the morning envelope ----------
+   The first time the letters open on a given day, the day's letters arrive
+   sealed in a manila envelope: the date, how many there are, and what they
+   are, in the order they come. Breaking the seal opens the flap, a sheet slides
+   out, and the first letter is written in. Once a day, remembered per browser. */
+function todayKey(){ return new Date().toLocaleDateString("en-CA"); }
+function envelopeCounts(q){
+  const c={ all:q.length, custom:0, story:0, reconnect:0 };
+  q.forEach(x=>{ if(c[x.kind]!=null) c[x.kind]++; });
+  return c;
+}
+function envelopeMarkup(c, when){
+  const count=(n,one,many)=>`${n} ${n===1?one:many}`;
+  const parts=[
+    c.custom ? count(c.custom,"enquiry waiting on a reply","enquiries waiting on a reply") : "",
+    c.story ? count(c.story,"story to ask for","stories to ask for") : "",
+    c.reconnect ? count(c.reconnect,"collector to catch up with","collectors to catch up with") : ""
+  ].filter(Boolean);
+  const day=when.toLocaleDateString("en-US",{weekday:"long", month:"long", day:"numeric"});
+  return `<div class="lv-env-veil" id="lvEnv" role="dialog" aria-label="Today's letters">
+    <p class="lv-env-date">${esc(day)}</p>
+    <div class="lv-env">
+      <div class="lv-env-back"></div>
+      <div class="lv-env-sheet"><span></span><span></span><span></span><span></span></div>
+      <div class="lv-env-front"><p class="lv-env-count">${esc(count(c.all,"letter","letters"))}</p></div>
+      <div class="lv-env-flap"></div>
+      <button class="lv-env-seal" id="lvEnvSeal" aria-label="Open today's letters"><img src="logos/mark.png" alt=""></button>
+    </div>
+    <p class="lv-env-parts">${parts.map(esc).join("<br>")}</p>
+    <p class="lv-env-hint">Break the seal to begin</p>
+  </div>`;
+}
+let _envShown=false;
+function maybeShowMorningEnvelope(){
+  if(_envShown || letterComposing || !letterQueue.length) return;
+  if(!document.body.classList.contains("view-letters")) return;
+  let seen=""; try{ seen=localStorage.getItem("macon.envelope")||""; }catch{}
+  if(seen===todayKey()) return;
+  _envShown=true;
+  document.body.insertAdjacentHTML("beforeend", envelopeMarkup(envelopeCounts(letterQueue), new Date()));
+  const veil=document.getElementById("lvEnv"), env=veil.querySelector(".lv-env");
+  const mark=()=>{ try{ localStorage.setItem("macon.envelope", todayKey()); }catch{} };
+  const onKey=e=>{ if(e.key==="Escape"){ mark(); finish(false); } };
+  const finish=(writeIn)=>{
+    document.removeEventListener("keydown", onKey);
+    // The letter underneath is written in again as the envelope leaves, so the
+    // first thing seen after the seal is the letter arriving.
+    if(writeIn && letterQueue.length){ letterNoEnter=false; letterTypeIn=true; renderCurrentLetter(); }
+    veil.classList.add("gone");
+    setTimeout(()=>veil.remove(), 480);
+  };
+  document.addEventListener("keydown", onKey);
+  veil.querySelector("#lvEnvSeal").onclick=()=>{
+    mark();
+    if(matchMedia("(prefers-reduced-motion: reduce)").matches) return finish(true);
+    env.classList.add("open");
+    setTimeout(()=>env.classList.add("flapped"), 290);   // past upright, the flap folds behind the sheet
+    setTimeout(()=>env.classList.add("out"), 520);
+    setTimeout(()=>finish(true), 1250);
+  };
+}
 function renderLetters(){
   const host=document.getElementById("lettersView"); if(!host) return;
   // Collectors arrive first. Drawing then built the queue without enquiries or
@@ -3411,15 +3529,13 @@ function renderLetters(){
   });
   if(letterIdx>=letterQueue.length) letterIdx=0;
   if(!letterQueue.length){
-    const put=skippedItems();
-    host.innerHTML=`<div class="lv-empty">Nothing needs you right now.<br>Come back once someone's due, or switch to Classic to browse everyone.
-      ${put.length?`<div class="lv-empty-skipped"><span>Set aside</span>${put.map(({x})=>
-        `<button data-skip="${esc(letterKey(x))}">${esc(cleanName((x.d&&x.d.name)||(x.q&&x.q.name)||"Someone"))}</button>`).join("")}</div>`:""}</div>`;
+    host.innerHTML=doneMarkup(skippedItems(), new Date());
     host.querySelectorAll("[data-skip]").forEach(b=>b.onclick=()=>unskipLetter(b.dataset.skip));
     return;
   }
   letterToneIdx=0; letterVaultOpen=false; letterTypeIn=true;
   renderCurrentLetter();
+  maybeShowMorningEnvelope();
 }
 
 /* Every letter the queue recommends carries the specific reason it is there.
