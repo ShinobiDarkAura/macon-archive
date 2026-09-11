@@ -156,7 +156,7 @@
   /* Paper, not paint: flat manila tones with a lit paper tooth, soft blotching
      and faint fibres drawn as SVG noise. Depth comes from hard, shallow shadows. */
   .lv-env2-back,.lv-env2-front,.lv-env2-flap-face{background-color:#CBA468;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='380' height='380'><filter id='t' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' seed='7' stitchTiles='stitch' result='n'/><feDiffuseLighting in='n' lighting-color='white' surfaceScale='1.4'><feDistantLight azimuth='225' elevation='58'/></feDiffuseLighting><feColorMatrix values='0 0 0 0 .22 0 0 0 0 .15 0 0 0 0 .06 -.55 0 0 0 .55'/></filter><rect width='100%25' height='100%25' filter='url(%23t)'/></svg>"),url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='520'><filter id='f' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.06 .7' numOctaves='2' seed='5' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 .96 0 0 0 0 .86 0 0 0 .9 -.52'/></filter><rect width='100%25' height='100%25' filter='url(%23f)'/></svg>"),url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='760' height='760'><filter id='m' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.006' numOctaves='3' seed='11' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35 0 0 0 0 .24 0 0 0 0 .1 0 0 0 .9 -.38'/></filter><rect width='100%25' height='100%25' filter='url(%23m)'/></svg>");
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='380' height='380'><filter id='t' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' seed='7' stitchTiles='stitch' result='n'/><feDiffuseLighting in='n' lighting-color='white' surfaceScale='1.4'><feDistantLight azimuth='225' elevation='58'/></feDiffuseLighting><feColorMatrix values='0 0 0 0 .22 0 0 0 0 .15 0 0 0 0 .06 -.18 0 0 0 .18'/></filter><rect width='100%25' height='100%25' filter='url(%23t)'/></svg>"),url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='520'><filter id='f' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.06 .7' numOctaves='2' seed='5' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 .96 0 0 0 0 .86 0 0 0 .4 -.24'/></filter><rect width='100%25' height='100%25' filter='url(%23f)'/></svg>"),url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='760' height='760'><filter id='m' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.006' numOctaves='3' seed='11' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35 0 0 0 0 .24 0 0 0 0 .1 0 0 0 .35 -.17'/></filter><rect width='100%25' height='100%25' filter='url(%23m)'/></svg>");
     background-size:380px 380px,520px 520px,760px 760px}
   .lv-env2-back,.lv-env2-front{position:fixed;border-radius:3px}
   .lv-env2-back{z-index:305;box-shadow:0 2px 0 rgba(40,26,8,.16),0 1px 1px rgba(40,26,8,.24)}
@@ -3614,6 +3614,7 @@ function maybeShowMorningEnvelope(){
     document.body.classList.remove("lv-ritual");
     hold.cancel(); if(rise) rise.cancel(); hidden.forEach(a=>a.cancel());
     document.removeEventListener("keydown", onKey);
+    placeLetterTopbar();
   };
   const onKey=e=>{ if(e.key==="Escape" && !done){ done=true; mark(); cleanup(); } };
   document.addEventListener("keydown", onKey);
@@ -3644,6 +3645,8 @@ function maybeShowMorningEnvelope(){
     setTimeout(()=>{
       // Far enough for the opened flap too: it stands a flap's depth above the
       // opening, and stopping short left its point parked over the letter.
+      // The arrows were placed while the sheet waited sunk inside; it is home now.
+      placeLetterTopbar();
       const away=innerHeight-T+FL+40, E={duration:840, easing:"cubic-bezier(.55,0,.8,.2)", fill:"forwards"};
       back.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
       front.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
