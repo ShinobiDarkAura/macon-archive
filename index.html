@@ -139,37 +139,45 @@
   .lv-done-title{font-family:"TAY Rosemary",var(--serif-soul);font-weight:400;font-size:clamp(44px,6vw,78px);
     letter-spacing:.03em;line-height:1;color:rgba(38,34,28,.4);margin:0}
   .lv-done-sub{font-family:"Public Sans",var(--sans);font-size:15px;line-height:1.6;color:#A89D89;margin:20px auto 0;max-width:400px}
-  /* The morning envelope. Back, sheet, front pocket and flap are stacked in
-     that order; past upright the flap drops behind the sheet so it can rise. */
-  .lv-env-veil{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;
-    background:rgba(244,240,231,.95);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);transition:opacity .45s ease}
-  .lv-env-veil.gone{opacity:0;pointer-events:none}
-  .lv-env-date{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#9A9280;margin:0}
-  .lv-env{position:relative;width:min(520px,78vw);aspect-ratio:1.45;perspective:1400px}
-  .lv-env-back{position:absolute;inset:0;border-radius:4px;background:#C9A266;
-    box-shadow:0 1px 1px rgba(24,17,8,.22),0 3px 6px rgba(24,17,8,.18)}
-  .lv-env-sheet{position:absolute;left:6%;right:6%;top:7%;height:86%;z-index:1;background:#FFFEFC;border-radius:2px;
-    box-shadow:0 1px 2px rgba(24,17,8,.16);transition:transform .7s cubic-bezier(.2,.8,.2,1)}
-  .lv-env-sheet span{display:block;height:2px;border-radius:2px;background:#E8E2D4;margin:11% 14% 0}
-  .lv-env-sheet span:nth-child(2){margin-right:24%} .lv-env-sheet span:nth-child(4){margin-right:40%}
-  .lv-env-front{position:absolute;inset:0;z-index:2;border-radius:4px;background:linear-gradient(180deg,#DDBB80,#D3AE70);
-    clip-path:polygon(0 100%,0 0,50% 56%,100% 0,100% 100%);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8%;box-sizing:border-box}
-  .lv-env-count{font-family:"TAY Rosemary",var(--serif-soul);font-size:clamp(32px,4.4vw,52px);letter-spacing:.03em;color:#3B2F1E;margin:0;line-height:1}
-  .lv-env-flap{position:absolute;left:0;right:0;top:0;height:60%;z-index:3;transform-origin:50% 0;
-    background:linear-gradient(180deg,#C49B5C,#D0A96B);clip-path:polygon(0 0,100% 0,50% 100%);
-    transition:transform .55s cubic-bezier(.45,0,.2,1)}
-  .lv-env.open .lv-env-flap{transform:rotateX(180deg)}
-  .lv-env.flapped .lv-env-flap{z-index:0}
-  .lv-env.out .lv-env-sheet{transform:translateY(-64%)}
-  .lv-env-seal{position:absolute;left:50%;top:60%;width:64px;height:64px;margin:-32px 0 0 -32px;z-index:4;padding:0;border:none;border-radius:50%;
-    cursor:pointer;display:flex;align-items:center;justify-content:center;
-    background:radial-gradient(circle at 36% 30%,#D8664F,#A83A28 62%,#7E2616);
-    box-shadow:0 1px 1px rgba(24,17,8,.32),0 3px 6px rgba(24,17,8,.24);transition:transform .25s ease,opacity .25s ease}
-  .lv-env-seal img{width:32px;height:32px;object-fit:contain;filter:brightness(0) invert(1);opacity:.82}
-  .lv-env-seal:hover{transform:scale(1.06)}
-  .lv-env.open .lv-env-seal{opacity:0;transform:scale(.6);pointer-events:none}
-  .lv-env-parts{font-family:"Public Sans",var(--sans);font-size:14px;line-height:1.65;color:#6E6450;text-align:center;margin:0}
-  .lv-env-hint{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#B5AB97;margin:0}
+  /* The morning envelope: a manila catalogue envelope holding the real letter.
+     The sheet itself rises out of it, so the envelope is built as separate
+     layers on the page (back, front, flap, seal) with the sheet lifted between
+     back and front. One container would flatten them into a single layer. */
+  body.lv-ritual .lv-paper{z-index:310}
+  .lv-env2-veil{position:fixed;inset:0;z-index:300;box-sizing:border-box;
+    background:rgba(244,240,231,.5);backdrop-filter:blur(7px) saturate(.92);-webkit-backdrop-filter:blur(7px) saturate(.92);
+    transition:backdrop-filter .7s ease,-webkit-backdrop-filter .7s ease,background-color .7s ease}
+  .lv-env2-veil.clear{background:rgba(244,240,231,0);backdrop-filter:blur(0) saturate(1);-webkit-backdrop-filter:blur(0) saturate(1)}
+  .lv-env2-caption{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;white-space:nowrap}
+  .lv-env2-veil p{margin:0;transition:opacity .3s ease}
+  .lv-env2-veil.opening p{opacity:0}
+  .lv-env2-date{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#7A7262}
+  .lv-env2-hint{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#A89D89}
+  .lv-env2-back,.lv-env2-front,.lv-env2-flap{position:fixed;border-radius:3px;background-color:#CBA468;background-size:auto,240px;
+    --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .32 0 0 0 0 .22 0 0 0 0 .1 0 0 0 .24 0'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>");
+    background-image:linear-gradient(transparent,transparent),var(--grain)}
+  .lv-env2-back{z-index:305;box-shadow:0 1px 1px rgba(24,17,8,.24),0 3px 7px rgba(24,17,8,.2)}
+  .lv-env2-front{z-index:320;box-shadow:0 1px 1px rgba(24,17,8,.24),0 3px 7px rgba(24,17,8,.2);
+    background-image:linear-gradient(180deg,rgba(60,40,15,.18),rgba(60,40,15,0) 6%),var(--grain)}
+  /* the seams on the back of a catalogue envelope */
+  .lv-env2-front::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;
+    background:linear-gradient(180deg,transparent,rgba(70,48,20,.22) 14%,rgba(70,48,20,.22))}
+  .lv-env2-front::after{content:"";position:absolute;left:0;right:0;bottom:0;height:34%;
+    background:linear-gradient(to top right,transparent 49.6%,rgba(70,48,20,.18) 50%,transparent 50.4%) left/50% 100% no-repeat,
+      linear-gradient(to top left,transparent 49.6%,rgba(70,48,20,.18) 50%,transparent 50.4%) right/50% 100% no-repeat}
+  .lv-env2-flap{z-index:330;transform-origin:50% 0;background-color:#C29859;
+    background-image:linear-gradient(180deg,rgba(60,40,15,0) 30%,rgba(60,40,15,.24)),var(--grain);
+    clip-path:polygon(0 0,100% 0,100% 16%,58% 95%,50% 100%,42% 95%,0 16%)}
+  .lv-env2-label{position:absolute;left:50%;top:calc(var(--flap) + 64px);transform:translateX(-50%) rotate(-1deg);min-width:56%;
+    background:#FBF6EA;padding:18px 26px 16px;text-align:center;box-sizing:border-box;
+    box-shadow:0 1px 1px rgba(24,17,8,.18),0 2px 4px rgba(24,17,8,.12)}
+  .lv-env2-count{font-family:"Knickerbocker",var(--serif-soul);font-size:46px;line-height:1;text-transform:uppercase;color:#2A241C;margin:0 0 10px}
+  .lv-env2-parts{font-family:"Public Sans",var(--sans);font-size:13.5px;line-height:1.6;color:#5D564A;margin:0}
+  .lv-env2-seal{position:fixed;z-index:340;width:104px;height:104px;padding:0;border:none;background:transparent;cursor:pointer;
+    transform:translate(-50%,-50%) rotate(-8deg);filter:drop-shadow(0 1px 1px rgba(24,17,8,.35)) drop-shadow(0 3px 5px rgba(24,17,8,.25));
+    transition:transform .2s ease}
+  .lv-env2-seal:hover{transform:translate(-50%,-50%) rotate(-8deg) scale(1.05)}
+  .lv-env2-seal img{width:100%;height:100%;object-fit:contain;display:block}
   /* Badge + compose live in the fixed top bar now, not on the paper — the
      paper's own overflow:hidden (needed to clip the stamp) was clipping them
      too whenever they bled past its edge. #lvTopbar's `right` is set in JS,
@@ -285,7 +293,7 @@
   .lv-quote-edit{resize:vertical;min-height:66px}
   .lv-quote-edit:focus{outline:none}
 
-  .lv-paper{grid-column:2;grid-row:1;align-self:end;margin-bottom:calc(3vh - 20px);height:min(92%, calc((100vw - var(--rd-w, 40vw) - 330px - 3vw) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
+  .lv-paper{grid-column:2;grid-row:1;align-self:end;margin-bottom:calc(3vh - 20px);height:min(92%, calc((100vw - var(--rd-w, 40vw) - 96px - 3vw) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
     box-shadow:0 1px 1px rgba(24,17,8,.22),0 2px 4px rgba(24,17,8,.18);
     padding:44px 48px 0;box-sizing:border-box;position:relative;overflow:hidden;z-index:3;
     display:flex;flex-direction:column}
@@ -404,7 +412,7 @@
   /* the stack: a couple of blank sheets behind the real one, each nudged and
      tilted, each with its own shadow, so the pile reads as physical */
   .lv-ghost.lv-settling{transition:transform .6s cubic-bezier(.22,.7,.2,1)}
-  .lv-ghost{grid-column:2;grid-row:1;align-self:end;margin-bottom:-20px;height:min(92%, calc((100vw - var(--rd-w, 40vw) - 330px - 3vw) * 1.2941));aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
+  .lv-ghost{grid-column:2;grid-row:1;align-self:end;margin-bottom:-20px;height:min(92%, calc((100vw - var(--rd-w, 40vw) - 96px - 3vw) * 1.2941));aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
     box-shadow:0 1px 1px rgba(24,17,8,.20),0 2px 4px rgba(24,17,8,.16);pointer-events:none}
 
   /* ---------- the post drawer, hung on the right edge ---------- */
@@ -413,10 +421,10 @@
      equal to each. Equal gaps fall out of that rather than being tuned. */
   /* The card hangs off the sheet's left edge, so the page has to reserve room
      for it or it runs off screen. */
-  /* The post box sets the width; the letter side takes what is left. 290px is
-     the drawer's inset, the 70% of the card (400px drawn at 85%) that hangs past the sheet, and a
+  /* The post box sets the width; the letter side takes what is left. 56px is
+     the drawer's inset and a
      gap before the drawer. */
-  body.view-letters .letters-view{padding-left:calc(40px + 3vw);padding-right:calc(var(--rd-w, 40vw) + 290px)}
+  body.view-letters .letters-view{padding-left:calc(40px + 3vw);padding-right:calc(var(--rd-w, 40vw) + 56px)}
   .lv-reader{position:fixed;top:28px;right:28px;bottom:28px;width:var(--rd-w, 40vw);z-index:55;border-radius:12px;
     overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
@@ -553,6 +561,26 @@
   .lv-reader .rd-day span{background:rgba(255,255,255,.7);border:1px solid var(--rl);border-radius:999px;padding:3px 11px}
   /* Sender at a glance: the studio's own messages sit on a tinted ground with a
      rust initial, everyone else on white. */
+  .lv-reader .rd-ctx{margin:0 0 30px;padding:0 0 26px;border-bottom:1px dashed var(--rl)}
+  .lv-reader .rd-ctx-meta{display:flex;justify-content:space-between;gap:12px;font-family:var(--sans);font-size:11px;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:0 0 12px}
+  .lv-reader .rd-ctx-meta b{font-weight:600}
+  .lv-reader .rd-pri-high{color:#C0392B} .lv-reader .rd-pri-medium{color:#B8935F} .lv-reader .rd-pri-low{color:#6E9A5A}
+  .lv-reader .rd-ctx-name{font-family:"Knickerbocker",var(--serif-soul);font-weight:400;font-size:40px;line-height:1;
+    color:var(--ink-1);margin:0 0 14px;text-wrap:balance}
+  .lv-reader .rd-ctx-why{font-family:var(--sans);font-size:15.5px;line-height:1.55;font-weight:700;color:var(--ink-1);margin:0 0 18px}
+  .lv-reader .rd-ctx-note{background:#fff;border-radius:9px;padding:14px 16px 16px;box-shadow:0 1px 2px rgba(24,17,8,.26)}
+  .lv-reader .rd-ctx-note span{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-3);margin:0 0 6px}
+  .lv-reader .rd-ctx-note textarea,.lv-reader .rd-ctx-note p{display:block;width:100%;border:none;background:transparent;resize:none;
+    font-family:var(--sans);font-size:15px;line-height:1.6;color:var(--ink-2);margin:0;padding:0;overflow:hidden;box-sizing:border-box}
+  .lv-reader .rd-ctx-note textarea:focus{outline:none}
+  .lv-reader .rd-ctx-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .lv-reader .rd-ctx-act button,.lv-reader .rd-ctx-act a{font-family:var(--sans);font-size:12px;color:var(--ink-2);background:transparent;
+    border:1px solid var(--rl);border-radius:999px;padding:6px 13px;cursor:pointer;text-decoration:none}
+  .lv-reader .rd-ctx-act button:hover,.lv-reader .rd-ctx-act a:hover{border-color:var(--ink-3);color:var(--ink-1)}
+  .lv-reader .rd-ctx-file{margin-top:14px}
+  .lv-reader .rd-load-inline{position:relative;height:240px}
   .lv-reader .rd-m{margin-bottom:18px;font-family:var(--sans);background:#fff;border-radius:9px;
     padding:16px 17px 17px;box-shadow:0 1px 2px rgba(24,17,8,.26)}
   .lv-reader .rd-m.rd-us{background:#fff;box-shadow:0 1px 2px rgba(24,17,8,.26)}
@@ -2682,24 +2710,6 @@ function placeLetterTopbar(){
   // sheet and half off it, in both axes.
   tb.style.left = (p.right - h.left - tb.offsetWidth/2) + "px";
   tb.style.top  = (p.top  - h.top  - tb.offsetHeight/2) + "px";
-  // Level with the post box's top edge, over the sheet's right side, with
-  // 30% of the card lying over the paper and the rest out in the margin.
-  const cards=host.querySelector(".lv-cardstack");
-  if(cards){
-    const OVERLAP=0.30, CARD_SCALE=0.85;          // the post-it is drawn at 85%
-    const drawer=host.querySelector(".lv-reader");
-    const w=(cards.offsetWidth||1)*CARD_SCALE;
-    // Nudged 3% of the window and a further 64px back from the post box seam.
-    const left=p.right-h.left-w*OVERLAP-innerWidth*0.03-64;
-    const drawerL=drawer ? drawer.getBoundingClientRect().left-h.left : h.width-552;
-    // On a narrow window there is less margin than card. Scaling it down
-    // keeps it whole rather than sliding it under the drawer.
-    const sc=CARD_SCALE*Math.max(0, Math.min(1, (drawerL-16-left)/w));
-    cards.style.transformOrigin="left top";
-    cards.style.transform = `scale(${sc.toFixed(3)})`;
-    cards.style.left = left + "px";
-    cards.style.top  = ((drawer ? drawer.getBoundingClientRect().top : RD_INSET) - h.top) + "px";
-  }
 }
 addEventListener("resize", ()=>{
   const rd=document.getElementById("lvReader"), was=rd && rd.classList.contains("rd-split");
@@ -3110,32 +3120,94 @@ async function letterFromThread(t, x){
   return { subject: short(j.subject), body: String(j.body||"") };
 }
 
-/* The second card pins the most recent thing THEY wrote, never our own reply,
-   so the letter is written with their last words still on the desk. */
-function renderPinnedMessage(){
-  const host=document.getElementById("lettersView"); if(!host) return;
-  const card=host.querySelector("#lvCard2"); if(!card) return;
-  const t=readerThread;
-  const ours=m=>/ma[\u00e7c]on/i.test(m.from||"") || MAILBOXES.some(b=>String(m.from||"").toLowerCase().includes(boxLabel(b)));
-  const theirs=(t && t.msgs ? t.msgs.filter(m=>!ours(m)) : []);
-  const last=theirs.length ? theirs[theirs.length-1] : null;
-  if(!last){ card.hidden=true; placeLetterTopbar(); return; }
-  const { body:b1 } = mailSplitSignature(String(last.body||""));
-  const { body:main } = mailSplitQuote(b1);
-  const text = mailDequote(main).replace(/\n{3,}/g,"\n\n").trim();
-  if(!text){ card.hidden=true; placeLetterTopbar(); return; }
-  card.querySelector(".lv-cnr-l").innerHTML=`They wrote<i>${esc(mailDate(last.at))}</i>`;
-  card.querySelector(".lv-cnr-r").textContent="";
-  card.querySelector(".lv-msgtext").textContent = text.length>420 ? text.slice(0,417)+"\u2026" : text;
-  card.hidden=false;
-  placeLetterTopbar();
+/* ---------- the letter, in the post box ----------
+   What the post-it used to hold now heads the post box's main pane: what kind
+   of letter it is and how pressing, the piece and when, who, why it is in the
+   pile, the working note, and filing what they said. */
+function letterContextHTML(x){
+  const {d,q,kind}=x;
+  const ctx=letterContext(x);
+  const {name,facts}=letterLabelFacts(x);
+  const flags=letterFlags(x);
+  const reason=letterReason(x);
+  const when=String(facts[1]||"").match(/[A-Z][a-z]{2}\s+\d{1,2},?\s*(\d{4})/);
+  const meta=[facts[0]||"", when ? when[0].replace(/\s+\d{1,2},?\s*/, " ") : ""].filter(Boolean).join(" · ");
+  const quote=letterQuoteText(x);
+  const note = kind==="custom"
+    ? `<div class="rd-ctx-note"><span>Notes</span><textarea id="lvNote" rows="1" placeholder="What happened, and what you owe them next">${esc(q.note||"")}</textarea></div>`
+    : (quote ? `<div class="rd-ctx-note"><span>What they said</span><p>${esc(quote)}</p></div>` : "");
+  const act = kind==="custom" ? "" : (letterFilingOpen ? `
+    <form class="lv-file rd-ctx-file" id="lvFile">
+      <label>What they said
+        <textarea id="lvFileStory" rows="3" placeholder="Paste their words, verbatim">${esc(d.story||"")}</textarea></label>
+      <label>Where it lives
+        <input id="lvFileLives" value="${esc(d.lives||"")}" placeholder="On his desk in Surrey"></label>
+      <label>Why they bought it
+        <input id="lvFileWhy" value="${esc(d.why||"")}" placeholder="Five years sober, buys himself something"></label>
+      <div class="lv-file-seg" role="group" aria-label="Gift or self">
+        <button type="button" data-gs="Self" class="${d.gift_self==="Self"?"on":""}">Self</button>
+        <button type="button" data-gs="Gift" class="${d.gift_self==="Gift"?"on":""}">Gift</button>
+      </div>
+      <div class="lv-file-act">
+        <button type="button" id="lvFileCancel">Cancel</button>
+        <button type="submit" id="lvFileSave">Save to record</button>
+      </div>
+    </form>` : `<div class="rd-ctx-act">
+      <button type="button" id="lvFileOpen">${(d.story||d.lives||d.why)?"Edit what they said":"File a reply"}</button>
+      ${flags.patron && d.phone ? `<a href="tel:${esc(String(d.phone).replace(/[^0-9+]/g,""))}" title="Email replies run about 3 percent. Ring them instead.">Call ${esc((d.name||"").split(" ")[0]||"them")}</a>` : ""}
+    </div>`);
+  return `<section class="rd-ctx">
+    <div class="rd-ctx-meta"><span>${esc(ctx.kindLabel)} · <b class="rd-pri-${esc(ctx.priority.toLowerCase())}">${esc(ctx.priority)}</b></span><span>${esc(meta)}</span></div>
+    <h3 class="rd-ctx-name">${esc(String(name||"").toUpperCase())}</h3>
+    ${reason?`<p class="rd-ctx-why">${esc(reason)}</p>`:""}
+    ${note}
+    ${act}
+  </section>`;
+}
+function wireLetterContext(root, x){
+  const {d,q}=x;
+  const noteEl=root.querySelector("#lvNote");
+  if(noteEl){
+    const size=()=>{ noteEl.style.height="auto"; noteEl.style.height=noteEl.scrollHeight+"px"; };
+    // Saved as you pause, not only on blur: the pane redraws when a thread
+    // arrives, and a redraw would otherwise take unsaved words with it.
+    const save=()=>{ if(q && noteEl.value!==(q.note||"")) inqSet(q.id,{ note:noteEl.value }); };
+    let pause;
+    requestAnimationFrame(size);
+    noteEl.addEventListener("input", ()=>{ size(); clearTimeout(pause); pause=setTimeout(save, 600); });
+    noteEl.onblur=save;
+  }
+  const open=root.querySelector("#lvFileOpen");
+  if(open) open.onclick=()=>{ letterFilingOpen=true; renderReader(); };
+  const form=root.querySelector("#lvFile");
+  if(form){
+    let gs=d.gift_self||"";
+    form.querySelectorAll("[data-gs]").forEach(b=>b.onclick=()=>{
+      gs = (gs===b.dataset.gs) ? "" : b.dataset.gs;
+      form.querySelectorAll("[data-gs]").forEach(o=>o.classList.toggle("on", o.dataset.gs===gs));
+    });
+    root.querySelector("#lvFileCancel").onclick=()=>{ letterFilingOpen=false; renderReader(); };
+    form.onsubmit=async ev=>{
+      ev.preventDefault();
+      // Their own words, on their own record. This is the column the whole
+      // follow-up programme exists to fill.
+      await persist({...d,
+        story: root.querySelector("#lvFileStory").value.trim(),
+        lives: root.querySelector("#lvFileLives").value.trim(),
+        why:   root.querySelector("#lvFileWhy").value.trim(),
+        gift_self: gs }, false);
+      letterFilingOpen=false;
+      renderLetters();
+    };
+  }
 }
 
 async function loadThreadFor(email, name){
-  if(!email || !gmailReady()){ readerMode="post"; readerThread=null; renderPinnedMessage(); renderReader(); return; }
+  // No address, or no mailbox to read: the post box still shows the letter itself.
+  if(!email || !gmailReady()){ readerMode="letter"; readerThread=null; renderReader(); return; }
   readerMode="thread";
   readerOpenMsgs.clear();
-  if(_threads.has(email)){ readerThread=_threads.get(email); renderPinnedMessage(); renderReader(); return; }
+  if(_threads.has(email)){ readerThread=_threads.get(email); renderReader(); return; }
   readerThread={email, name, loading:true}; renderReader();
   try{
     const q=encodeURIComponent(`from:${email} OR to:${email}`);
@@ -3160,7 +3232,6 @@ async function loadThreadFor(email, name){
       threadId: last?last.threadId:"", inReplyTo: last?last.msgId:"", references: last?last.refs:""};
   }catch(e){ readerThread={email, name, msgs:[], err:e.message}; }
   if(readerThread.email===email) _threads.set(email, readerThread);
-  renderPinnedMessage();
   renderReader();
 }
 // The header is permanent: title, unread count, refresh and the two folders.
@@ -3182,7 +3253,7 @@ function applyReaderWidth(){
   if(rd) rd.classList.toggle("rd-split", split);
   // With too little room left to hold a legible sheet, the letter side steps
   // out of the way rather than shrinking to a stub.
-  document.documentElement.classList.toggle("rd-wide", innerWidth*0.97-w-330 < 280);
+  document.documentElement.classList.toggle("rd-wide", innerWidth*0.97-w-96 < 280);
   return w;
 }
 applyReaderWidth();
@@ -3280,6 +3351,9 @@ function renderReader(){
   applyReaderWidth();
   const split=document.getElementById("lvReader").classList.contains("rd-split");
   const listEl=document.getElementById("rdList");
+  // The letter on the desk, if there is one, heads the main pane.
+  const cur = document.body.classList.contains("view-letters") && !letterComposing ? letterQueue[letterIdx] : null;
+  const ctxBlock = cur ? letterContextHTML(cur) : "";
   // Which box a letter leaves from depends on the thread, which arrives after
   // the letter has already been drawn.
   const fl=document.getElementById("lvFromLine"); if(fl) fl.textContent=fromLabel();
@@ -3315,13 +3389,19 @@ function renderReader(){
   const connectRow = "";
   const wireConnect = el => el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
   renderMailbar();
+  if(readerMode==="letter" && cur){
+    el.innerHTML = ctxBlock + `<p class="lv-reader-note">${!gmailReady()
+      ? "Sign in to read their mail beside this letter."
+      : "No email address on file, so there is no thread to show."}</p>`;
+    wireLetterContext(el, cur);
+    return;
+  }
   if(gmailReady() && readerMode==="thread" && readerThread){
     const t=readerThread;
     const back=`<button class="lv-reader-back" id="lvReaderPost" title="Back to the post" aria-label="Back to the post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>`;
-    if(t.loading){ el.innerHTML=`${back}<div class="lv-load"><img src="logos/walking.webp" alt="Loading" width="210" height="210"></div>`; }
+    if(t.loading){ el.innerHTML=`${back}${ctxBlock}<div class="rd-load-inline"><div class="lv-load"><img src="logos/walking.webp" alt="Loading" width="210" height="210"></div></div>`; }
     else if(!t.msgs.length){
-      el.innerHTML=`${back}
-        <div class="rd-title">${esc(t.name||t.email)}</div>
+      el.innerHTML=`${back}${ctxBlock || `<div class="rd-title">${esc(t.name||t.email)}</div>`}
         <div class="rd-sub">No mail either way yet</div>
         <div class="rd-nothread">
           <div><span>Address</span><b>${esc(t.email||"none on file")}</b></div>
@@ -3365,7 +3445,7 @@ function renderReader(){
       const head = `<div class="rd-sub">${n} message${n>1?"s":""} with ${who}</div><div class="rd-title">${subj}</div>`;
       const foot=`<div class="rd-foot">${MAILBOXES.map(m=>
         `<button data-box="${esc(m)}">Reconnect ${esc(boxLabel(m))}@</button>`).join("")}</div>`;
-      el.innerHTML=`${back}${head}${cards}${foot}`;
+      el.innerHTML=`${back}${ctxBlock}${head}${cards}${foot}`;
       el.querySelectorAll(".rd-foot [data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
       el.querySelectorAll(".rd-shut").forEach(a=>a.onclick=()=>{ readerOpenMsgs.add(Number(a.dataset.msg)); renderReader(); });
       el.querySelectorAll("[data-quote]").forEach(b=>b.onclick=()=>{
@@ -3375,6 +3455,7 @@ function renderReader(){
     el.insertAdjacentHTML("beforeend", connectRow);
     el.querySelector("#lvReaderPost").onclick=()=>{ readerMode="post"; renderReader(); };
     wireConnect(el);
+    if(cur) wireLetterContext(el, cur);
     return;
   }
   if(!gmailReady()){
@@ -3460,54 +3541,117 @@ function envelopeCounts(q){
   q.forEach(x=>{ if(c[x.kind]!=null) c[x.kind]++; });
   return c;
 }
-function envelopeMarkup(c, when){
+let _envShown=false;
+function maybeShowMorningEnvelope(){
+  if(_envShown || letterComposing || !letterQueue.length) return;
+  if(!document.body.classList.contains("view-letters")) return;
+  // ?envelope shows it again, for looking at it more than once a day.
+  const forced=new URLSearchParams(location.search).has("envelope");
+  let seen=""; try{ seen=localStorage.getItem("macon.envelope")||""; }catch{}
+  if(seen===todayKey() && !forced) return;
+  const host=document.getElementById("lettersView"), paper=host && host.querySelector(".lv-paper");
+  if(!paper) return;
+  _envShown=true;
+
+  const c=envelopeCounts(letterQueue);
   const count=(n,one,many)=>`${n} ${n===1?one:many}`;
   const parts=[
     c.custom ? count(c.custom,"enquiry waiting on a reply","enquiries waiting on a reply") : "",
     c.story ? count(c.story,"story to ask for","stories to ask for") : "",
     c.reconnect ? count(c.reconnect,"collector to catch up with","collectors to catch up with") : ""
   ].filter(Boolean);
-  const day=when.toLocaleDateString("en-US",{weekday:"long", month:"long", day:"numeric"});
-  return `<div class="lv-env-veil" id="lvEnv" role="dialog" aria-label="Today's letters">
-    <p class="lv-env-date">${esc(day)}</p>
-    <div class="lv-env">
-      <div class="lv-env-back"></div>
-      <div class="lv-env-sheet"><span></span><span></span><span></span><span></span></div>
-      <div class="lv-env-front"><p class="lv-env-count">${esc(count(c.all,"letter","letters"))}</p></div>
-      <div class="lv-env-flap"></div>
-      <button class="lv-env-seal" id="lvEnvSeal" aria-label="Open today's letters"><img src="logos/mark.png" alt=""></button>
+  const day=new Date().toLocaleDateString("en-US",{weekday:"long", month:"long", day:"numeric"});
+
+  // Where the sheet really sits, measured from layout so its entrance
+  // transform does not skew it.
+  const hr=host.getBoundingClientRect();
+  const P={ left:hr.left+paper.offsetLeft, top:hr.top+paper.offsetTop, w:paper.offsetWidth, h:paper.offsetHeight };
+  const W=Math.round(P.w*1.14), L=Math.round(P.left+P.w/2-W/2);
+  const T=Math.round(P.top+P.h*0.20);        // the opening: the sheet's top fifth will show above it
+  const H=Math.round(P.h*1.02+60);           // deep enough to hold the sheet while it waits lower down
+  const FL=Math.round(W*0.34);               // flap depth
+  const sink=Math.round(P.h*0.20+40);        // how far the sheet sits inside before it rises
+  const box=`left:${L}px;top:${T}px;width:${W}px;height:${H}px`;
+
+  document.body.classList.add("lv-ritual");
+  document.body.insertAdjacentHTML("beforeend", `
+    <div class="lv-env2-veil" id="lvEnvVeil" role="dialog" aria-label="Today's letters">
+      <div class="lv-env2-caption" style="left:${L+W/2}px;top:${Math.max(24, T-78)}px">
+        <p class="lv-env2-date">${esc(day)}</p>
+        <p class="lv-env2-hint">Break the seal to begin</p>
+      </div>
     </div>
-    <p class="lv-env-parts">${parts.map(esc).join("<br>")}</p>
-    <p class="lv-env-hint">Break the seal to begin</p>
-  </div>`;
-}
-let _envShown=false;
-function maybeShowMorningEnvelope(){
-  if(_envShown || letterComposing || !letterQueue.length) return;
-  if(!document.body.classList.contains("view-letters")) return;
-  let seen=""; try{ seen=localStorage.getItem("macon.envelope")||""; }catch{}
-  if(seen===todayKey()) return;
-  _envShown=true;
-  document.body.insertAdjacentHTML("beforeend", envelopeMarkup(envelopeCounts(letterQueue), new Date()));
-  const veil=document.getElementById("lvEnv"), env=veil.querySelector(".lv-env");
+    <div class="lv-env2-back" id="lvEnvBack" style="${box}"></div>
+    <div class="lv-env2-front" id="lvEnvFront" style="${box};--flap:${FL}px">
+      <div class="lv-env2-label">
+        <p class="lv-env2-count">${esc(count(c.all,"letter","letters"))}</p>
+        <p class="lv-env2-parts">${parts.map(esc).join("<br>")}</p>
+      </div>
+    </div>
+    <div class="lv-env2-flap" id="lvEnvFlap" style="left:${L}px;top:${T}px;width:${W}px;height:${FL}px"></div>
+    <button class="lv-env2-seal" id="lvEnvSeal" style="left:${L+W/2}px;top:${T+FL-6}px" aria-label="Break the seal and open today's letters"><img src="logos/wax-seal.webp" alt=""></button>`);
+
+  const veil=document.getElementById("lvEnvVeil"), back=document.getElementById("lvEnvBack"),
+        front=document.getElementById("lvEnvFront"), flap=document.getElementById("lvEnvFlap"), seal=document.getElementById("lvEnvSeal");
+  const ghosts=[...host.querySelectorAll(".lv-ghost")];
+  // The pile waits out of sight, so nothing reads as a sheet already out.
+  const hidden=ghosts.map(g=>g.animate([{opacity:0},{opacity:0}], {duration:1, fill:"forwards"}));
+  // The sheet waits inside. The animation API is used because the sheet's own
+  // entrance keyframe holds transform, which an inline style cannot override.
+  const hold=paper.animate([{transform:`translateY(${sink}px)`},{transform:`translateY(${sink}px)`}], {duration:1, fill:"forwards"});
+  let rise=null, done=false;
   const mark=()=>{ try{ localStorage.setItem("macon.envelope", todayKey()); }catch{} };
-  const onKey=e=>{ if(e.key==="Escape"){ mark(); finish(false); } };
-  const finish=(writeIn)=>{
+  const cleanup=()=>{
+    [veil,back,front,flap,seal].forEach(n=>n && n.remove());
+    document.body.classList.remove("lv-ritual");
+    hold.cancel(); if(rise) rise.cancel(); hidden.forEach(a=>a.cancel());
     document.removeEventListener("keydown", onKey);
-    // The letter underneath is written in again as the envelope leaves, so the
-    // first thing seen after the seal is the letter arriving.
-    if(writeIn && letterQueue.length){ letterNoEnter=false; letterTypeIn=true; renderCurrentLetter(); }
-    veil.classList.add("gone");
-    setTimeout(()=>veil.remove(), 480);
   };
+  const onKey=e=>{ if(e.key==="Escape" && !done){ done=true; mark(); cleanup(); } };
   document.addEventListener("keydown", onKey);
-  veil.querySelector("#lvEnvSeal").onclick=()=>{
-    mark();
-    if(matchMedia("(prefers-reduced-motion: reduce)").matches) return finish(true);
-    env.classList.add("open");
-    setTimeout(()=>env.classList.add("flapped"), 290);   // past upright, the flap folds behind the sheet
-    setTimeout(()=>env.classList.add("out"), 520);
-    setTimeout(()=>finish(true), 1250);
+
+  seal.onclick=()=>{
+    if(done) return; done=true; mark();
+    document.removeEventListener("keydown", onKey);
+    if(matchMedia("(prefers-reduced-motion: reduce)").matches){ cleanup(); return; }
+    veil.classList.add("opening");
+    // 1. the seal gives
+    seal.animate([
+      {transform:"translate(-50%,-50%) rotate(-8deg) scale(1)", opacity:1},
+      {transform:"translate(-50%,-50%) rotate(-22deg) scale(1.12)", opacity:1, offset:.35},
+      {transform:"translate(-50%,-50%) rotate(-40deg) scale(.4)", opacity:0}
+    ], {duration:380, easing:"ease-in", fill:"forwards"});
+    // 2. the flap lifts; past upright it drops behind the sheet
+    setTimeout(()=>{
+      flap.animate([{transform:"perspective(1600px) rotateX(0deg)"},{transform:"perspective(1600px) rotateX(180deg)"}],
+        {duration:560, easing:"cubic-bezier(.45,0,.2,1)", fill:"forwards"});
+      setTimeout(()=>{ flap.style.zIndex="305"; }, 280);
+    }, 180);
+    // 3. the letter rises until its top fifth shows above the opening
+    setTimeout(()=>{
+      rise=paper.animate([{transform:`translateY(${sink}px)`},{transform:"translateY(0)"}],
+        {duration:780, easing:"cubic-bezier(.2,.8,.2,1)", fill:"forwards"});
+    }, 720);
+    // 4. the envelope drops off the bottom of the page and the letter is written in
+    setTimeout(()=>{
+      const away=innerHeight-T+40, E={duration:840, easing:"cubic-bezier(.55,0,.8,.2)", fill:"forwards"};
+      back.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
+      front.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
+      flap.animate([{transform:"perspective(1600px) rotateX(180deg) translateY(0)"},{transform:`perspective(1600px) rotateX(180deg) translateY(${-away}px)`}], E);
+      const body=document.getElementById("lvBody"); if(body) typeOut(body, null);
+    }, 1620);
+    // 5. the room comes back into focus and the pile settles into place
+    setTimeout(()=>{
+      veil.classList.add("clear");
+      hidden.forEach(a=>a.cancel());
+      ghosts.forEach(g=>{
+        g.animate([{opacity:0},{opacity:1}], {duration:520, easing:"ease-out"});
+        if(!g.dataset.t) return;
+        g.style.transition="none"; g.style.transform=`${g.dataset.t} translateY(26px) scale(.985)`;
+        void g.offsetWidth; g.style.transition=""; g.classList.add("lv-settling"); g.style.transform=g.dataset.t;
+      });
+    }, 2240);
+    setTimeout(cleanup, 3000);
   };
 }
 function renderLetters(){
@@ -3674,52 +3818,6 @@ function renderCurrentLetter(){
       <div class="lv-mailbar" id="lvMailbar"></div>
       <div class="lv-topbar" id="lvTopbar"></div>
       <button class="lv-new" id="lvNew" title="Write to someone new">+ New letter</button>
-      <div class="lv-cardstack" id="lvCards">
-      <div class="lv-labelwrap"><div class="lv-label">
-        <div class="lv-cnr">
-          <span class="lv-cnr-l" style="font-family:${safeFont("Gabriele Dark","var(--serif-soul)",ctx?ctx.kindLabel+ctx.priority:"")}">
-            ${ctx?`<i>${esc(ctx.kindLabel)}</i><i class="lv-pri-${esc(ctx.priority.toLowerCase())}">${esc(ctx.priority)}</i>`:""}
-          </span>
-          <span class="lv-cnr-r" style="font-family:${safeFont("Gabriele Dark","var(--serif-soul)",cardMeta)}">
-            ${cardMeta.split(" \u00b7 ").map(x=>`<i>${esc(x)}</i>`).join("")}
-          </span>
-        </div>
-        <div class="lv-name" id="lvCardName" style="font-family:${safeFont("Knickerbocker","var(--serif-soul)",name)}">${(()=>{
-          const parts=String(name||"").trim().split(/\s+/);
-          // Both names in capitals, however the record has them.
-          const last=cardNameFit((parts.pop()||"").toUpperCase());
-          const given=cardNameFit(parts.join(" ").toUpperCase());
-          return (given?`<span class="lv-n1">${esc(given)}</span>`:"")+`<span class="lv-n2">${esc(last)}</span>`;
-        })()}</div>
-        ${composing ? "" : (r=>r?`<p class="lv-reason">${esc(r)}</p>`:"")(letterReason(x))}
-        <div class="lv-noteblock">${quoteHTML}</div>
-        ${composing||kind==="custom" ? "" : (letterFilingOpen ? `
-        <form class="lv-file" id="lvFile">
-          <label>What they said
-            <textarea id="lvFileStory" rows="3" placeholder="Paste their words, verbatim">${esc(d.story||"")}</textarea></label>
-          <label>Where it lives
-            <input id="lvFileLives" value="${esc(d.lives||"")}" placeholder="On his desk in Surrey"></label>
-          <label>Why they bought it
-            <input id="lvFileWhy" value="${esc(d.why||"")}" placeholder="Five years sober, buys himself something"></label>
-          <div class="lv-file-seg" role="group" aria-label="Gift or self">
-            <button type="button" data-gs="Self" class="${d.gift_self==="Self"?"on":""}">Self</button>
-            <button type="button" data-gs="Gift" class="${d.gift_self==="Gift"?"on":""}">Gift</button>
-          </div>
-          <div class="lv-file-act">
-            <button type="button" id="lvFileCancel">Cancel</button>
-            <button type="submit" id="lvFileSave">Save to record</button>
-          </div>
-        </form>` : `
-        <div class="lv-aftercare">
-          <button type="button" class="lv-file-open" id="lvFileOpen">${(d.story||d.lives||d.why)?"Edit what they said":"File a reply"}</button>
-          ${flags.patron && d.phone ? `<a class="lv-call" href="tel:${esc(String(d.phone).replace(/[^0-9+]/g,""))}" title="Email replies run about 3 percent. Ring them instead.">Call ${esc((d.name||"").split(" ")[0]||"them")}</a>` : ""}
-        </div>`)}
-        <div class="lv-noteblock lv-pinned" id="lvCard2" hidden>
-          <div class="lv-cnr"><span class="lv-cnr-l"></span><span class="lv-cnr-r"></span></div>
-          <p class="lv-msgtext"></p>
-        </div>
-      </div></div>
-      </div>
       ${ghosts}
       ${composing||letterQueue.length<2?"":chevron("prev","Previous letter")+chevron("next","Next letter")}
       <div class="lv-paper${letterNoEnter?" lv-noenter":""}">
@@ -3774,11 +3872,6 @@ function renderCurrentLetter(){
       bar.querySelector("[data-x]").onclick=()=>{ try{ localStorage.removeItem("macon.draft"); }catch{} bar.remove(); };
     }
   }catch{}
-  const nameEl=host.querySelector("#lvCardName");
-  if(nameEl){
-    fitCardName(nameEl);
-    if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>fitCardName(nameEl));
-  }
   const toEl=host.querySelector("#lvTo");
   if(toEl){
     autosizeTo(toEl);
@@ -3793,31 +3886,7 @@ function renderCurrentLetter(){
   if(pile.length) requestAnimationFrame(()=>requestAnimationFrame(()=>
     pile.forEach(g=>{ g.classList.add("lv-settling"); g.style.transform=g.dataset.t; })));
   placeLetterTopbar();
-  renderPinnedMessage();
   letterNoEnter=false;
-  const fileOpen=host.querySelector("#lvFileOpen");
-  if(fileOpen) fileOpen.onclick=()=>{ letterFilingOpen=true; renderCurrentLetter(); };
-  const fileForm=host.querySelector("#lvFile");
-  if(fileForm){
-    let gs=d.gift_self||"";
-    fileForm.querySelectorAll("[data-gs]").forEach(b=>b.onclick=()=>{
-      gs = (gs===b.dataset.gs) ? "" : b.dataset.gs;
-      fileForm.querySelectorAll("[data-gs]").forEach(o=>o.classList.toggle("on", o.dataset.gs===gs));
-    });
-    host.querySelector("#lvFileCancel").onclick=()=>{ letterFilingOpen=false; renderCurrentLetter(); };
-    fileForm.onsubmit=async ev=>{
-      ev.preventDefault();
-      // Their own words, on their own record. This is the column the whole
-      // follow-up programme exists to fill.
-      await persist({...d,
-        story: host.querySelector("#lvFileStory").value.trim(),
-        lives: host.querySelector("#lvFileLives").value.trim(),
-        why:   host.querySelector("#lvFileWhy").value.trim(),
-        gift_self: gs }, false);
-      letterFilingOpen=false;
-      renderLetters();
-    };
-  }
   // Written from the conversation rather than from a template. The thread the
   // Post panel already loaded is the whole input, so nothing is fetched twice.
   const readBtn=host.querySelector("#lvRead");
@@ -3939,32 +4008,7 @@ function renderCurrentLetter(){
   // Arriving at a letter writes it out; editing it does not.
   if(letterTypeIn){
     letterTypeIn=false;
-    // The card fills in first, then the letter it belongs to. Each element is
-    // emptied up front so nothing sits fully written while it waits its turn.
-    // The card's text is simply there; only its height eases from the last
-    // letter's card to this one's. The letter itself is still written in.
-    const cardEl=host.querySelector(".lv-cardstack .lv-label");
-    const bodyText = bodyEl.value;
-    const cardTo = cardEl ? cardEl.offsetHeight : 0;
-    const cardFrom = letterCardH;
-    letterCardH = cardTo;
-    bodyEl.value=""; autosizeBody();
-    const writeLetter=()=>{ bodyEl.value=bodyText; typeOut(bodyEl, autosizeBody); };
-    const slow = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if(cardEl && cardFrom && Math.abs(cardTo-cardFrom)>2 && !slow){
-      cardEl.style.overflow="hidden";
-      cardEl.style.height=cardFrom+"px";
-      void cardEl.offsetHeight;
-      cardEl.style.transition="height .42s cubic-bezier(.22,.7,.2,1)";
-      cardEl.style.height=cardTo+"px";
-      setTimeout(()=>{ cardEl.style.transition=""; cardEl.style.height=""; cardEl.style.overflow=""; writeLetter(); }, 450);
-    } else writeLetter();
-  }
-  const noteEl=host.querySelector("#lvNote");
-  if(noteEl){
-    const autosizeNote=()=>{ noteEl.style.height="auto"; noteEl.style.height=noteEl.scrollHeight+"px"; };
-    requestAnimationFrame(autosizeNote); noteEl.addEventListener("input",autosizeNote);
-    noteEl.onblur=()=>{ if(q && noteEl.value!==(q.note||"")) inqSet(q.id,{ note:noteEl.value }); };
+    typeOut(bodyEl, autosizeBody);
   }
 }
 
