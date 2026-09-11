@@ -2570,7 +2570,7 @@ function placeLetterTopbar(){
   // sheet and half off it, in both axes.
   tb.style.left = (p.right - h.left - tb.offsetWidth/2) + "px";
   tb.style.top  = (p.top  - h.top  - tb.offsetHeight/2) + "px";
-  // Clipped to the sheet's top right corner, raised a tenth of its height, with
+  // Clipped to the sheet's top right corner, raised 5% of its height, with
   // 30% of the card lying over the paper and the rest out in the margin.
   const cards=host.querySelector(".lv-cardstack");
   if(cards){
@@ -2585,7 +2585,7 @@ function placeLetterTopbar(){
     cards.style.transformOrigin="left top";
     cards.style.transform = sc<1 ? `scale(${sc.toFixed(3)})` : "";
     cards.style.left = left + "px";
-    cards.style.top  = Math.max(12, p.top - h.top - p.height*0.10) + "px";
+    cards.style.top  = Math.max(12, p.top - h.top - p.height*0.05) + "px";
   }
 }
 addEventListener("resize", ()=>placeLetterTopbar());
