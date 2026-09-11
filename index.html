@@ -168,7 +168,7 @@
   .lv-env2-flap{z-index:330;transform-origin:50% 0;background-color:#C29859;
     background-image:linear-gradient(180deg,rgba(60,40,15,0) 30%,rgba(60,40,15,.24)),var(--grain);
     clip-path:polygon(0 0,100% 0,100% 16%,58% 95%,50% 100%,42% 95%,0 16%)}
-  .lv-env2-label{position:absolute;left:50%;top:calc(var(--flap) + 64px);transform:translateX(-50%) rotate(-1deg);min-width:56%;
+  .lv-env2-label{position:absolute;left:50%;top:calc(var(--flap) + 120px);transform:translateX(-50%) rotate(-1deg);width:47.6%;
     background:#FBF6EA;padding:18px 26px 16px;text-align:center;box-sizing:border-box;
     box-shadow:0 1px 1px rgba(24,17,8,.18),0 2px 4px rgba(24,17,8,.12)}
   .lv-env2-count{font-family:"Knickerbocker",var(--serif-soul);font-size:46px;line-height:1;text-transform:uppercase;color:#2A241C;margin:0 0 10px}
@@ -3542,13 +3542,16 @@ function envelopeCounts(q){
   return c;
 }
 let _envShown=false;
-function maybeShowMorningEnvelope(){
-  if(_envShown || letterComposing || !letterQueue.length) return;
-  if(!document.body.classList.contains("view-letters")) return;
+function envelopeDue(){
+  if(_envShown || letterComposing || !letterQueue.length) return false;
+  if(!document.body.classList.contains("view-letters")) return false;
   // ?envelope shows it again, for looking at it more than once a day.
   const forced=new URLSearchParams(location.search).has("envelope");
   let seen=""; try{ seen=localStorage.getItem("macon.envelope")||""; }catch{}
-  if(seen===todayKey() && !forced) return;
+  return forced || seen!==todayKey();
+}
+function maybeShowMorningEnvelope(){
+  if(!envelopeDue()) return;
   const host=document.getElementById("lettersView"), paper=host && host.querySelector(".lv-paper");
   if(!paper) return;
   _envShown=true;
@@ -3638,7 +3641,6 @@ function maybeShowMorningEnvelope(){
       back.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
       front.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
       flap.animate([{transform:"perspective(1600px) rotateX(180deg) translateY(0)"},{transform:`perspective(1600px) rotateX(180deg) translateY(${-away}px)`}], E);
-      const body=document.getElementById("lvBody"); if(body) typeOut(body, null);
     }, 1620);
     // 5. the room comes back into focus and the pile settles into place
     setTimeout(()=>{
@@ -3680,7 +3682,7 @@ function renderLetters(){
     host.querySelectorAll("[data-skip]").forEach(b=>b.onclick=()=>unskipLetter(b.dataset.skip));
     return;
   }
-  letterToneIdx=0; letterVaultOpen=false; letterTypeIn=true;
+  letterToneIdx=0; letterVaultOpen=false; letterTypeIn=!envelopeDue();
   renderCurrentLetter();
   maybeShowMorningEnvelope();
 }
