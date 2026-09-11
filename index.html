@@ -179,7 +179,7 @@
   /* The card is laid on the sheet, overlapping its right quarter, tilted a
      little anticlockwise as though dropped there. Placed from the sheet's own
      rect, so it follows whatever size the sheet resolves to. */
-  .lv-cardstack{position:absolute;z-index:6;width:320px}
+  .lv-cardstack{position:absolute;z-index:6;width:400px}
   .lv-labelwrap{position:relative;
     filter:drop-shadow(2px 4px 3px rgba(28,20,10,.34));transition:opacity .2s}
   /* Their last message is another section of the same card, torn off below the
@@ -373,7 +373,7 @@
      equal to each. Equal gaps fall out of that rather than being tuned. */
   /* The card hangs off the sheet's left edge, so the page has to reserve room
      for it or it runs off screen. */
-  /* The post box sets the width; the letter side takes what is left. 276px is
+  /* The post box sets the width; the letter side takes what is left. 332px is
      the drawer's inset, the 70% of the 400px card that hangs past the sheet, and a
      gap before the drawer. */
   body.view-letters .letters-view{padding-left:40px;padding-right:calc(var(--rd-w, 40vw) + 332px)}
@@ -965,7 +965,7 @@
   .enq-seg button:hover{color:var(--ink)}
   .enq-seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(40,28,16,.10)}
   .enq-seg .n{opacity:.5;margin-left:5px}
-  .enq-search{flex:1;max-width:400px;font-family:var(--sans);font-size:13.5px;padding:9px 12px;
+  .enq-search{flex:1;max-width:320px;font-family:var(--sans);font-size:13.5px;padding:9px 12px;
     border:1px solid rgba(43,38,34,.16);border-radius:8px;background:#fff}
   .enq-list{display:grid;gap:10px}
   .enq-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.6fr) 132px 128px;gap:16px;align-items:start;
