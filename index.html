@@ -456,7 +456,6 @@
   .lv-reader.rd-split .lv-reader-back{display:none}
   .rd-list .lv-reader-row.on{background:rgba(255,255,255,.95);box-shadow:0 0 0 1px var(--rl) inset}
   .rd-pick{margin-top:48px;text-align:center}
-  .rd-refresh.rd-expand{margin-left:2px}
   /* The seam between the letters and the box: drag it to share the width. */
   .lv-rdhandle{position:fixed;top:28px;bottom:28px;right:calc(var(--rd-w, 40vw) + 28px);width:22px;
     transform:translateX(50%);z-index:57;cursor:col-resize;touch-action:none;background:transparent}
@@ -2580,6 +2579,38 @@ function fitCardName(el){
     el.style.fontSize=size.toFixed(1)+"px";
   }
 }
+/* The pile under the letter. Each letter seeds its own angles, so it is stable
+   while you read and different when you move. Each sheet's drop is then solved
+   from its angle and the sheet's size so the deepest one's lowest corner lands
+   exactly on the top sheet's bottom edge, the post box's bottom line, and the
+   others sit a little above it. Nothing in the pile hangs below the line. */
+function pileSeed(idx, n){
+  let seed=(idx+1)*2654435761 >>> 0;
+  const rnd=()=>{ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; };
+  return Array.from({length:n}, ()=>({ rot:+(rnd()*9-4.5).toFixed(2), tx:Math.round(rnd()*40-20), jit:rnd() }));
+}
+function pileTransforms(seeds, W, H){
+  return seeds.map((g,i)=>{
+    const th=g.rot*Math.PI/180;
+    const depth = i===seeds.length-1 ? 0 : -(4 + g.jit*12);
+    // rotate(th) translate(tx,ty) about the centre puts the lowest corner at
+    // tx*sin + ty*cos + W/2*|sin| + H/2*|cos| below the centre; solve for ty.
+    const fixed = g.tx*Math.sin(th) + (W/2)*Math.abs(Math.sin(th)) + (H/2)*(Math.abs(Math.cos(th))-1);
+    const ty = (depth - fixed)/Math.cos(th);
+    return `rotate(${g.rot}deg) translate(${g.tx}px,${ty.toFixed(1)}px)`;
+  });
+}
+function layPile(){
+  const host=document.getElementById("lettersView"); if(!host) return null;
+  const paper=host.querySelector(".lv-paper"), ghosts=[...host.querySelectorAll(".lv-ghost")];
+  if(!paper || !ghosts.length) return null;
+  const T=pileTransforms(pileSeed(letterIdx, ghosts.length), paper.offsetWidth, paper.offsetHeight);
+  ghosts.forEach((g,i)=>{ const fresh=!g.dataset.t; g.dataset.t=T[i]; if(fresh && g.style.transform==="none") g.style.transform=T[i]; });
+  letterGhostPrev=T;
+  return ghosts;
+}
+// After the sheet changes size (window, post box), re-solve and apply outright.
+function relayPile(){ const g=layPile(); if(g) g.forEach(x=>{ x.style.transform=x.dataset.t; }); }
 function placeLetterTopbar(){
   const host=document.getElementById("lettersView"); if(!host) return;
   const paper=host.querySelector(".lv-paper"), tb=host.querySelector("#lvTopbar");
@@ -2604,7 +2635,7 @@ function placeLetterTopbar(){
   // sheet and half off it, in both axes.
   tb.style.left = (p.right - h.left - tb.offsetWidth/2) + "px";
   tb.style.top  = (p.top  - h.top  - tb.offsetHeight/2) + "px";
-  // Clipped to the sheet's top right corner, raised 5% of its height, with
+  // Level with the post box's top edge, over the sheet's right side, with
   // 30% of the card lying over the paper and the rest out in the margin.
   const cards=host.querySelector(".lv-cardstack");
   if(cards){
@@ -2619,7 +2650,7 @@ function placeLetterTopbar(){
     cards.style.transformOrigin="left top";
     cards.style.transform = sc<1 ? `scale(${sc.toFixed(3)})` : "";
     cards.style.left = left + "px";
-    cards.style.top  = Math.max(12, p.top - h.top - p.height*0.05) + "px";
+    cards.style.top  = ((drawer ? drawer.getBoundingClientRect().top : RD_INSET) - h.top) + "px";
   }
 }
 addEventListener("resize", ()=>{
@@ -2627,6 +2658,7 @@ addEventListener("resize", ()=>{
   applyReaderWidth();
   if(rd && was!==rd.classList.contains("rd-split")) renderReader();
   placeLetterTopbar();
+  relayPile();
 });
 // Sent through the API rather than a compose window, so a reply carries the
 // original thread id and In-Reply-To and lands inside the conversation the
@@ -3049,25 +3081,24 @@ async function loadThreadFor(email, name){
 /* ---------- the post box: width and split ----------
    Held as a share of the window so it keeps its proportion when the window
    changes. Remembered per browser: it is how one of us likes the desk laid out. */
-// Dragging stops at 40% of the window; only the expand button opens the box
-// full width, which is the two-column mail client.
-const RD_MIN=340, RD_MAX=0.40, RD_SPLIT=0.75, RD_INSET=28;
+// The box tops out at 40% of the window. At that full width it becomes a
+// two-column mail client inside itself; dragged narrower it is one column.
+const RD_MIN=340, RD_MAX=0.40, RD_SPLIT_MIN_PX=520, RD_INSET=28;
 let readerFrac=(()=>{ try{ const v=parseFloat(localStorage.getItem("macon.postbox")); return v>0 && v<=1 ? v : RD_MAX; }catch{ return RD_MAX; } })();
 function applyReaderWidth(){
-  // Anything short of the expanded mail client is held to the 40% ceiling,
-  // including a wider width remembered from before the ceiling existed.
-  const frac = readerFrac>=RD_SPLIT ? readerFrac : Math.min(readerFrac, RD_MAX);
+  // Held to the 40% ceiling, including a wider width remembered from before it.
+  const frac = Math.min(readerFrac, RD_MAX);
   const w=Math.round(Math.max(RD_MIN, Math.min(innerWidth-RD_INSET*2, frac*innerWidth)));
   document.documentElement.style.setProperty("--rd-w", w+"px");
   const rd=document.getElementById("lvReader");
-  const split = w >= innerWidth*RD_SPLIT;
+  // Two columns at full width, provided full width leaves the list legible.
+  const split = frac >= RD_MAX-0.002 && w >= RD_SPLIT_MIN_PX;
   if(rd) rd.classList.toggle("rd-split", split);
-  // Past the split, or with too little room left to hold a legible sheet, the
-  // letter side steps out of the way rather than shrinking to a stub.
-  document.documentElement.classList.toggle("rd-wide", split || innerWidth-w-316 < 280);
+  // With too little room left to hold a legible sheet, the letter side steps
+  // out of the way rather than shrinking to a stub.
+  document.documentElement.classList.toggle("rd-wide", innerWidth-w-316 < 280);
   return w;
 }
-let readerFracNarrow = readerFrac>=RD_SPLIT ? RD_MAX : Math.min(readerFrac, RD_MAX);
 applyReaderWidth();
 /* A letter sent counts for a fortnight. Kept in localStorage rather than the
    database: it is a note to ourselves about this week, not a record. */
@@ -3139,10 +3170,6 @@ function renderReaderTop(){
       ${unread?`<span class="rd-unread">${unread}</span>`:""}
       <button class="rd-refresh" id="rdRefresh" title="Check again" aria-label="Check again">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg></button>
-      ${(()=>{ const wide=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--rd-w"))>=innerWidth*RD_SPLIT;
-        return `<button class="rd-refresh rd-expand" id="rdExpand" title="${wide?"Back to half width":"Open as a two-column mail client"}" aria-label="${wide?"Back to half width":"Open as a two-column mail client"}">${wide
-          ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="m14 10 7-7"/><path d="m3 21 7-7"/></svg>`
-          : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/></svg>`}</button>`; })()}
     </div>
     <div class="rd-tabs">
       <button data-folder="inbox" class="${readerFolder==="inbox"?"on":""}">Received</button>
@@ -3153,15 +3180,6 @@ function renderReaderTop(){
   const rb=t.querySelector("#rdRefresh");
   if(readerLoading) rb.classList.add("spin");
   rb.onclick=()=>{ readerMsgs=null; readerOpen=null; readerMode="post"; loadReader(); };
-  const ex=t.querySelector("#rdExpand");
-  if(ex) ex.onclick=()=>{
-    // Full width is the mail client; the button returns to whatever width it left.
-    const wide=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--rd-w"))>=innerWidth*RD_SPLIT;
-    if(wide) readerFrac=readerFracNarrow;
-    else { readerFracNarrow=readerFrac; readerFrac=1; }
-    try{ localStorage.setItem("macon.postbox", String(readerFrac)); }catch{}
-    applyReaderWidth(); renderReader(); placeLetterTopbar();
-  };
   t.querySelectorAll("[data-folder]").forEach(b=>b.onclick=()=>{
     if(readerFolder===b.dataset.folder) return;
     readerFolder=b.dataset.folder; readerMsgs=null; readerOpen=null; readerMode="post";
@@ -3478,19 +3496,10 @@ function renderCurrentLetter(){
   // is stable while you read and different the moment you move. The sheets
   // start the render wearing the previous letter's angles and are eased to
   // their own on the next frame, so the pile resettles rather than cutting.
-  const ghostT = (()=>{
-    let seed=(letterIdx+1)*2654435761 >>> 0;
-    const rnd=()=>{ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; };
-    return Array.from({length:ghostCount}, ()=>{
-      const rot=(rnd()*9-4.5).toFixed(2);
-      const tx=Math.round(rnd()*40-20), ty=Math.round(8+rnd()*20);
-      return `rotate(${rot}deg) translate(${tx}px,${ty}px)`;
-    });
-  })();
-  const ghosts = ghostT.map((t,i)=>
+  // Angles are laid by layPile() once the sheet's size is known.
+  const ghosts = Array.from({length:ghostCount}, (_,i)=>
     // Each sheet further down the pile sits 4% darker than the one above it.
-    `<div class="lv-ghost" style="transform:${letterGhostPrev[i]||t};z-index:${-i};filter:brightness(${(1-0.04*(i+1)).toFixed(2)})" data-t="${t}"></div>`).join("");
-  letterGhostPrev = ghostT;
+    `<div class="lv-ghost" style="transform:${letterGhostPrev[i]||"none"};z-index:${-i};filter:brightness(${(1-0.04*(i+1)).toFixed(2)})"></div>`).join("");
   const chevron = (dir,label) => `<button class="lv-chev lv-chev-${dir}" id="lvChev${dir}" title="${label}" aria-label="${label}">
       <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="${dir==="prev"?"M20 6 10 16l10 10":"M12 6l10 10-10 10"}"/></svg></button>`;
 
@@ -3612,6 +3621,7 @@ function renderCurrentLetter(){
     if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>autosizeTo(toEl));
   }
   // Two frames: one to land the old angles, one to ease to the new.
+  layPile();
   const pile=host.querySelectorAll(".lv-ghost[data-t]");
   if(pile.length) requestAnimationFrame(()=>requestAnimationFrame(()=>
     pile.forEach(g=>{ g.classList.add("lv-settling"); g.style.transform=g.dataset.t; })));
@@ -3680,6 +3690,7 @@ function renderCurrentLetter(){
       readerFrac=w/innerWidth;
       if(rd && was!==rd.classList.contains("rd-split")) renderReader();
       placeLetterTopbar();
+      relayPile();
     };
     const up=()=>{
       seam.removeEventListener("pointermove",move); seam.removeEventListener("pointerup",up); seam.removeEventListener("pointercancel",up);
