@@ -299,7 +299,7 @@
   .lv-quote-edit:focus{outline:none}
 
   .lv-paper{grid-column:2;grid-row:1;align-self:end;margin-bottom:calc(3vh - 20px);height:min(92%, calc((100vw - var(--rd-w, 40vw) - 96px - 3vw) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
-    box-shadow:0 1px 1px rgba(24,17,8,.22),0 2px 4px rgba(24,17,8,.18);
+    box-shadow:0 1px 1px rgba(24,17,8,.22),0 2px 4px rgba(24,17,8,.18),0 -1px 3px rgba(24,17,8,.14);
     padding:44px 48px 0;box-sizing:border-box;position:relative;overflow:hidden;z-index:3;
     display:flex;flex-direction:column}
   .lv-paper::before{content:"";position:absolute;inset:14px;border:1px solid rgba(140,106,71,.12);pointer-events:none}
@@ -579,14 +579,16 @@
   .lv-reader .rd-plan-done i{font-style:normal;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
   .rd-dot-high{background:#C0392B!important} .rd-dot-medium{background:#B8935F!important} .rd-dot-low{background:#6E9A5A!important}
   /* Index tabs along the top of the pile; the letter on the desk is raised and joined to the sheet. */
-  .lv-pile-tabs{position:absolute;z-index:4;display:flex;align-items:flex-end;gap:4px;pointer-events:none}
-  .lv-pile-tab{pointer-events:auto;flex:0 1 auto;min-width:0;max-width:130px;height:26px;padding:0 12px;border:none;border-radius:6px 6px 0 0;
-    display:flex;align-items:center;gap:6px;cursor:pointer;background:#EFE9DC;color:#8C8272;
-    font-family:"Public Sans",var(--sans);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;overflow:hidden;
-    box-shadow:0 -1px 1px rgba(24,17,8,.12);transform:translateY(3px);transition:transform .15s,background .15s,color .15s}
-  .lv-pile-tab:hover{transform:translateY(0);color:#4A443A}
-  .lv-pile-tab.on{background:#FFFEFC;color:#26221C;height:30px;transform:none;box-shadow:0 -1px 1px rgba(24,17,8,.14)}
-  .lv-pile-tab i{width:6px;height:6px;border-radius:50%;flex:0 0 auto;background:#B5AB97}
+  /* Each tab is a whole card filed behind the letter, as tall as it, with only
+     its top standing clear; the letter's shadow falls across them. */
+  .lv-pile-tabs{position:absolute;z-index:2;display:flex;align-items:stretch;gap:6px;pointer-events:none}
+  .lv-pile-tab{pointer-events:auto;flex:0 1 auto;min-width:0;max-width:130px;margin-top:5px;padding:8px 12px 0;border:none;border-radius:6px 6px 0 0;
+    display:flex;align-items:flex-start;gap:6px;cursor:pointer;background:#EFE9DC;color:#8C8272;
+    font-family:"Public Sans",var(--sans);font-size:10.5px;line-height:14px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;overflow:hidden;
+    box-shadow:0 -1px 1px rgba(24,17,8,.12);transition:margin-top .15s,background .15s,color .15s}
+  .lv-pile-tab:hover{margin-top:1px;color:#4A443A}
+  .lv-pile-tab.on{margin-top:0;background:#FFFEFC;color:#26221C;box-shadow:0 -1px 1px rgba(24,17,8,.14)}
+  .lv-pile-tab i{width:6px;height:6px;border-radius:50%;flex:0 0 auto;background:#B5AB97;margin-top:4px}
   /* A dot per letter today, grouped by kind. */
   .lv-progress{position:absolute;z-index:4;display:flex;gap:20px;align-items:center;white-space:nowrap;transform:translateX(-50%)}
   .lv-prog-group{display:flex;align-items:center;gap:5px}
@@ -595,22 +597,6 @@
   .lv-prog-dot.done{background:#8C8272;border-color:#8C8272;cursor:default}
   .lv-prog-dot.on{border-color:#26221C;box-shadow:0 0 0 2px rgba(38,34,28,.12)}
   .lv-prog-dot:not(.done):hover{border-color:#4A443A}
-  /* The envelope's sticker, kept for the day: top left, under New letter,
-     where the studio chat button cannot cover it and the sheet does not reach. */
-  .lv-docket{position:absolute;left:16px;top:104px;z-index:6;width:160px;box-sizing:border-box;padding:14px 14px 12px;text-align:center;
-    background:#FBF6EA;transform:rotate(-1deg);box-shadow:0 1px 0 rgba(40,26,8,.2),0 2px 1px rgba(40,26,8,.1);cursor:pointer}
-  .lv-docket:empty{display:none}
-  .lv-docket .lv-env2-chip{font-size:9.5px;padding:3px 9px;margin:0 0 8px}
-  .lv-docket-count{margin:0;font-family:"Knickerbocker",var(--serif-soul);font-size:20px;line-height:1.05;text-transform:uppercase;color:#2A241C}
-  .lv-docket ol{list-style:none;margin:10px 0 0;padding:10px 0 0;border-top:1px dashed rgba(90,70,40,.3);text-align:left;display:none;max-height:40vh;overflow-y:auto}
-  .lv-docket.open ol{display:block}
-  .lv-docket li{font-family:"Public Sans",var(--sans);font-size:12.5px;line-height:1.35;color:#5D564A;padding:3px 0}
-  .lv-docket li.done{color:#A89D89;text-decoration:line-through}
-  .lv-docket li button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer;text-align:left}
-  .lv-docket li button.on{color:#26221C;font-weight:600}
-  .lv-docket li button:hover{color:#26221C}
-  body.lv-ritual .lv-docket{visibility:hidden}
-  body.lv-ritual .lv-docket.flying{visibility:visible;z-index:345}
   /* ⌘K */
   .lv-pal-veil{position:fixed;inset:0;z-index:400;background:rgba(38,34,28,.18);display:flex;justify-content:center;align-items:flex-start;padding-top:14vh}
   .lv-pal{width:min(520px,90vw);background:#FCFAF6;border-radius:12px;overflow:hidden;
@@ -679,7 +665,7 @@
 
   @media(max-width:1100px){ .lv-paper{padding:36px 28px 0} .lv-subj{font-size:24px} .lv-body{font-size:14px}
     .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none} .lv-rdhandle{display:none}
-    .lv-pile-tabs,.lv-progress,.lv-docket{display:none}
+    .lv-pile-tabs,.lv-progress{display:none}
     .lv-paper,.lv-ghost{height:92%}
     body.view-letters .letters-view{padding-right:40px} }
 
@@ -2469,7 +2455,6 @@ let letterCardH=0;
 let letterDataReady=false;
 // Follow-ups brought to the desk from later in the week or month, by key.
 const letterPulled=new Map();
-let docketOpen=false;
 
 // A blank letter to someone who isn't in the queue at all. Creates a real,
 // tracked inquiry (so it isn't lost the moment you close the tab), offers a
@@ -2771,17 +2756,20 @@ function placeLetterTopbar(){
     requestAnimationFrame(()=>requestAnimationFrame(()=>placeLetterTopbar()));
   }
   const p=paper.getBoundingClientRect(), h=host.getBoundingClientRect();
-  // The tabs stand on the sheet's top edge; the progress strip sits above them.
+  // The tabs are cards behind the sheet: as tall as it, standing TAB_RISE clear
+  // of its top edge. The progress strip sits above them.
+  const TAB_RISE=30;
   const tabs=host.querySelector("#lvPileTabs");
   if(tabs){
     tabs.style.left=(p.left-h.left+14)+"px";
     tabs.style.width=Math.max(0, p.width-28)+"px";
-    tabs.style.top=(p.top-h.top-tabs.offsetHeight+1)+"px";
+    tabs.style.top=(p.top-h.top-TAB_RISE)+"px";
+    tabs.style.height=(p.height+TAB_RISE)+"px";
   }
   const prog=host.querySelector("#lvProgress");
   if(prog){
     prog.style.left=(p.left-h.left+p.width/2)+"px";
-    prog.style.top=Math.max(8, p.top-h.top-(tabs?tabs.offsetHeight:0)-prog.offsetHeight-14)+"px";
+    prog.style.top=Math.max(8, p.top-h.top-(tabs?TAB_RISE:0)-prog.offsetHeight-14)+"px";
   }
   // Centred on the corner point itself, not nudged: half the badge sits on the
   // sheet and half off it, in both axes.
@@ -3893,7 +3881,6 @@ function maybeShowMorningEnvelope(){
     document.body.classList.remove("lv-ritual");
     hold.cancel(); if(rise) rise.cancel(); hidden.forEach(a=>a.cancel());
     document.removeEventListener("keydown", onKey);
-    const dk=document.getElementById("lvDocket"); if(dk){ dk.classList.remove("flying"); dk.style.transformOrigin=""; }
     placeLetterTopbar();
   };
   const onKey=e=>{ if(e.key==="Escape" && !done){ done=true; mark(); cleanup(); } };
@@ -3927,16 +3914,6 @@ function maybeShowMorningEnvelope(){
       // opening, and stopping short left its point parked over the letter.
       // The arrows were placed while the sheet waited sunk inside; it is home now.
       placeLetterTopbar();
-      // The sticker peels off and flies to the corner, where it stays as the day's docket.
-      const label=front.querySelector(".lv-env2-label"), docket=document.getElementById("lvDocket");
-      if(label && docket && docket.innerHTML.trim()){
-        const a=label.getBoundingClientRect(), b=docket.getBoundingClientRect();
-        docket.classList.add("flying"); docket.style.transformOrigin="0 0"; label.style.visibility="hidden";
-        docket.animate([
-          { transform:`translate(${a.left-b.left}px, ${a.top-b.top}px) scale(${a.width/b.width}, ${a.height/b.height}) rotate(-1deg)` },
-          { transform:"translate(0,0) scale(1,1) rotate(-1deg)" }
-        ], { duration:760, easing:"cubic-bezier(.3,.7,.2,1)" });
-      }
       const away=innerHeight-T+FL+40, E={duration:840, easing:"cubic-bezier(.55,0,.8,.2)", fill:"forwards"};
       back.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
       front.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
@@ -4143,14 +4120,6 @@ function renderCurrentLetter(){
         `<button class="lv-prog-dot${e.done?" done":""}${!e.done&&e.idx===letterIdx?" on":""}" ${e.done?"disabled":`data-idx="${e.idx}"`} title="${esc(e.name+(e.done?": sent":e.why?": "+e.why:""))}"></button>`).join("")}</span>`;
     }).join("");
   })();
-  // The envelope's sticker, kept for the day: what is written and what is left.
-  const docketHTML = composing ? "" : (()=>{
-    const done=todayDone(), total=done.length+letterQueue.length; if(!total) return "";
-    const day=new Date().toLocaleDateString("en-US",{weekday:"long", month:"short", day:"numeric"});
-    return `<span class="lv-env2-chip">${esc(day)}</span><p class="lv-docket-count">${done.length} of ${total} written</p><ol>${
-      done.map(e=>`<li class="done">${esc(e.name)}</li>`).join("")}${
-      letterQueue.map((y,idx)=>`<li><button data-idx="${idx}" class="${idx===letterIdx?"on":""}">${esc(cleanName((y.d&&y.d.name)||(y.q&&y.q.name)||"Someone"))}</button></li>`).join("")}</ol>`;
-  })();
 
   host.innerHTML = `
     <div class="lv-scene">
@@ -4160,7 +4129,6 @@ function renderCurrentLetter(){
       ${ghosts}
       <div class="lv-pile-tabs" id="lvPileTabs">${tabsHTML}</div>
       <div class="lv-progress" id="lvProgress">${progressHTML}</div>
-      <div class="lv-docket" id="lvDocket">${docketHTML}</div>
       <div class="lv-paper${letterNoEnter?" lv-noenter":""}">
         <img class="lv-stamp" src="logos/red-stamp-alt.png" alt="" aria-hidden="true">
         <div class="lv-to"><span class="lv-to-l"><span class="lv-to-lab">To:</span><input class="lv-to-in" id="lvTo" value="${esc(email)}" placeholder="who is this going to" spellcheck="false"></span></div>
@@ -4279,12 +4247,6 @@ function renderCurrentLetter(){
   host.querySelectorAll(".lv-pile-tab[data-idx], .lv-prog-dot[data-idx]").forEach(b=>b.onclick=()=>letterJump(+b.dataset.idx));
   const moreTab=host.querySelector(".lv-pile-more");
   if(moreTab) moreTab.onclick=()=>{ readerFolder="today"; readerMode="post"; renderReader(); };
-  const docket=host.querySelector("#lvDocket");
-  if(docket){
-    docket.classList.toggle("open", docketOpen);
-    docket.onclick=e=>{ if(e.target.closest("[data-idx]")) return; docketOpen=!docketOpen; docket.classList.toggle("open", docketOpen); };
-    docket.querySelectorAll("[data-idx]").forEach(b=>b.onclick=()=>letterJump(+b.dataset.idx));
-  }
   wireLetterKeys();
   wireLetterNav(host);
   const exitCompose=()=>{ letterComposing=false; letterComposeItem=null; renderLetters(); };
