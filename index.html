@@ -256,7 +256,7 @@
     padding:44px 48px 0;box-sizing:border-box;position:relative;overflow:hidden;z-index:3;
     display:flex;flex-direction:column}
   .lv-paper::before{content:"";position:absolute;inset:14px;border:1px solid rgba(140,106,71,.12);pointer-events:none}
-  .lv-stamp{position:absolute;right:32px;top:-12px;width:175px;height:auto;opacity:.92;
+  .lv-stamp{position:absolute;left:-16px;bottom:20%;width:175px;height:auto;opacity:.92;
     transform:rotate(-12deg);pointer-events:none;mix-blend-mode:multiply;z-index:2}
   /* the email line reads like the margin's overline facts (Public Sans, plain
      uppercase) rather than TAY Birdie, which has no glyphs for "." or "@" and
@@ -379,7 +379,7 @@
      equal to each. Equal gaps fall out of that rather than being tuned. */
   /* The card hangs off the sheet's left edge, so the page has to reserve room
      for it or it runs off screen. */
-  body.view-letters .letters-view{padding-left:40px;padding-right:972px}
+  body.view-letters .letters-view{padding-left:40px;padding-right:820px}
   .lv-reader{position:fixed;top:28px;right:28px;bottom:28px;width:488px;z-index:55;border-radius:12px;
     overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
@@ -2573,22 +2573,22 @@ function placeLetterTopbar(){
   // sheet and half off it, in both axes.
   tb.style.left = (p.right - h.left - tb.offsetWidth/2) + "px";
   tb.style.top  = (p.top  - h.top  - tb.offsetHeight/2) + "px";
-  // Centred in the margin the view reserves beside the sheet: the gap runs
-  // from the paper's right edge to the drawer's left, and the stack sits in
-  // the middle of it.
+  // Clipped to the sheet's top right corner: level with its top edge, with
+  // 30% of the card lying over the paper and the rest out in the margin.
   const cards=host.querySelector(".lv-cardstack");
   if(cards){
+    const OVERLAP=0.30;
     const drawer=host.querySelector(".lv-reader");
-    const gapL=p.right-h.left;
-    const gapR=drawer ? drawer.getBoundingClientRect().left-h.left : h.width-552;
-    // On a narrow window the gap is thinner than the card. Scaling it down
+    const w=cards.offsetWidth||1;
+    const left=p.right-h.left-w*OVERLAP;
+    const drawerL=drawer ? drawer.getBoundingClientRect().left-h.left : h.width-552;
+    // On a narrow window there is less margin than card. Scaling it down
     // keeps it whole rather than sliding it under the drawer.
-    const sc=Math.min(1, (gapR-gapL-24)/(cards.offsetWidth||1));
+    const sc=Math.min(1, (drawerL-16-left)/w);
     cards.style.transformOrigin="left top";
     cards.style.transform = sc<1 ? `scale(${sc.toFixed(3)})` : "";
-    const w=cards.offsetWidth*sc, ht=cards.offsetHeight*sc;
-    cards.style.left = Math.max(gapL+12, gapL + (gapR-gapL-w)/2) + "px";
-    cards.style.top  = Math.max(12, (h.height - ht)/2) + "px";
+    cards.style.left = left + "px";
+    cards.style.top  = (p.top - h.top) + "px";
   }
 }
 addEventListener("resize", ()=>placeLetterTopbar());
