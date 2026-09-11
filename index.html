@@ -238,7 +238,7 @@
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .lv-cnr-r{text-align:right}
   .lv-name{font-family:"Knickerbocker",var(--serif-soul);font-weight:400;font-size:66px;line-height:.96;
-    letter-spacing:.03em;color:#26221C;margin:0;text-transform:none}
+    letter-spacing:0;color:#26221C;margin:0;text-transform:none}
   .lv-n1,.lv-n2{display:block}
   .lv-n1{font-size:.61em;line-height:1.04;margin-bottom:0}
   .lv-noteblock{position:relative;margin:22px -28px 0;padding:22px 28px 0}
@@ -3686,10 +3686,9 @@ function renderCurrentLetter(){
         </div>
         <div class="lv-name" id="lvCardName" style="font-family:${safeFont("Knickerbocker","var(--serif-soul)",name)}">${(()=>{
           const parts=String(name||"").trim().split(/\s+/);
-          // Given name in title case, surname in capitals, however the record has them.
-          const title=v=>v.toLowerCase().replace(/(^|[\s\-'’])(\p{L})/gu,(m,a,b)=>a+b.toUpperCase());
+          // Both names in capitals, however the record has them.
           const last=cardNameFit((parts.pop()||"").toUpperCase());
-          const given=cardNameFit(title(parts.join(" ")));
+          const given=cardNameFit(parts.join(" ").toUpperCase());
           return (given?`<span class="lv-n1">${esc(given)}</span>`:"")+`<span class="lv-n2">${esc(last)}</span>`;
         })()}</div>
         ${composing ? "" : (r=>r?`<p class="lv-reason">${esc(r)}</p>`:"")(letterReason(x))}
