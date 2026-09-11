@@ -189,7 +189,7 @@
   .lv-msgtext{white-space:pre-wrap;font-family:"Public Sans",var(--sans);font-size:14.5px;
     line-height:1.55;color:#4A443A;margin:0}
   .lv-label{display:flex;flex-direction:column;justify-content:flex-start;
-    width:320px;padding:30px 20px 30px;box-sizing:border-box;background:#FFFCF7}
+    width:400px;padding:30px 20px 30px;box-sizing:border-box;background:#FCF0A8}
   .lv-cnr{position:static;margin:0 0 38px;display:flex;justify-content:space-between;gap:12px;
     font-family:"Gabriele Dark","Gabriele Light",var(--serif-soul);font-size:12px;letter-spacing:.14em;
     text-transform:uppercase;color:#9A9280;line-height:1.35;align-items:flex-start}
@@ -245,7 +245,7 @@
   .lv-quote-edit{resize:vertical;min-height:66px}
   .lv-quote-edit:focus{outline:none}
 
-  .lv-paper{grid-column:2;grid-row:1;align-self:end;margin-bottom:calc(3vh - 20px);height:min(92%, calc((100vw - var(--rd-w, 40vw) - 316px) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
+  .lv-paper{grid-column:2;grid-row:1;align-self:end;margin-bottom:calc(3vh - 20px);height:min(92%, calc((100vw - var(--rd-w, 40vw) - 372px) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
     box-shadow:0 1px 1px rgba(24,17,8,.22),0 2px 4px rgba(24,17,8,.18);
     padding:44px 48px 0;box-sizing:border-box;position:relative;overflow:hidden;z-index:3;
     display:flex;flex-direction:column}
@@ -364,7 +364,7 @@
   /* the stack: a couple of blank sheets behind the real one, each nudged and
      tilted, each with its own shadow, so the pile reads as physical */
   .lv-ghost.lv-settling{transition:transform .6s cubic-bezier(.22,.7,.2,1)}
-  .lv-ghost{grid-column:2;grid-row:1;align-self:end;margin-bottom:-20px;height:min(92%, calc((100vw - var(--rd-w, 40vw) - 316px) * 1.2941));aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
+  .lv-ghost{grid-column:2;grid-row:1;align-self:end;margin-bottom:-20px;height:min(92%, calc((100vw - var(--rd-w, 40vw) - 372px) * 1.2941));aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
     box-shadow:0 1px 1px rgba(24,17,8,.20),0 2px 4px rgba(24,17,8,.16);pointer-events:none}
 
   /* ---------- the post drawer, hung on the right edge ---------- */
@@ -374,9 +374,9 @@
   /* The card hangs off the sheet's left edge, so the page has to reserve room
      for it or it runs off screen. */
   /* The post box sets the width; the letter side takes what is left. 276px is
-     the drawer's inset, the 70% of the card that hangs past the sheet, and a
+     the drawer's inset, the 70% of the 400px card that hangs past the sheet, and a
      gap before the drawer. */
-  body.view-letters .letters-view{padding-left:40px;padding-right:calc(var(--rd-w, 40vw) + 276px)}
+  body.view-letters .letters-view{padding-left:40px;padding-right:calc(var(--rd-w, 40vw) + 332px)}
   .lv-reader{position:fixed;top:28px;right:28px;bottom:28px;width:var(--rd-w, 40vw);z-index:55;border-radius:12px;
     overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
@@ -965,7 +965,7 @@
   .enq-seg button:hover{color:var(--ink)}
   .enq-seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(40,28,16,.10)}
   .enq-seg .n{opacity:.5;margin-left:5px}
-  .enq-search{flex:1;max-width:320px;font-family:var(--sans);font-size:13.5px;padding:9px 12px;
+  .enq-search{flex:1;max-width:400px;font-family:var(--sans);font-size:13.5px;padding:9px 12px;
     border:1px solid rgba(43,38,34,.16);border-radius:8px;background:#fff}
   .enq-list{display:grid;gap:10px}
   .enq-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.6fr) 132px 128px;gap:16px;align-items:start;
@@ -2559,7 +2559,7 @@ function autosizeTo(el){
    twelve characters is cut, and what is left is set smaller so it still fits
    the card rather than running off its edge. */
 const CARD_NAME_MAX = 12;
-const CARD_NAME_FITS = 9;   // characters the full 57px size holds comfortably
+const CARD_NAME_FITS = 11;   // characters the full 57px size holds comfortably
 function cardNameFit(t){
   const v=String(t||"").trim();
   return v.length>CARD_NAME_MAX ? v.slice(0, CARD_NAME_MAX-1)+"\u2026" : v;
@@ -3134,7 +3134,7 @@ function applyReaderWidth(){
   if(rd) rd.classList.toggle("rd-split", split);
   // With too little room left to hold a legible sheet, the letter side steps
   // out of the way rather than shrinking to a stub.
-  document.documentElement.classList.toggle("rd-wide", innerWidth-w-316 < 280);
+  document.documentElement.classList.toggle("rd-wide", innerWidth-w-372 < 280);
   return w;
 }
 applyReaderWidth();
@@ -3812,34 +3812,15 @@ function renderCurrentLetter(){
     letterTypeIn=false;
     // The card fills in first, then the letter it belongs to. Each element is
     // emptied up front so nothing sits fully written while it waits its turn.
+    // The card's text is simply there; only its height eases from the last
+    // letter's card to this one's. The letter itself is still written in.
     const cardEl=host.querySelector(".lv-cardstack .lv-label");
-    const cardNote=host.querySelector(".lv-quote, .lv-quote-edit");
-    const cardName=host.querySelector(".lv-n2");
-    const noteIsField = cardNote && cardNote.tagName==="TEXTAREA";
-    const noteText = cardNote ? (noteIsField ? cardNote.value : cardNote.textContent) : "";
     const bodyText = bodyEl.value;
-    const sizeNote = ()=>{ if(noteIsField){ cardNote.style.height="auto"; cardNote.style.height=cardNote.scrollHeight+"px"; } };
-    // Measured with this letter's text still in place: that is the height the
-    // card is growing towards, and it stays locked there while the words are
-    // typed in so the box does not shuffle under them.
     const cardTo = cardEl ? cardEl.offsetHeight : 0;
     const cardFrom = letterCardH;
     letterCardH = cardTo;
-    const releaseCard = ()=>{
-      if(!cardEl) return;
-      cardEl.style.transition=""; cardEl.style.height=""; cardEl.style.overflow="";
-    };
-    if(cardNote){ if(noteIsField) cardNote.value=""; else cardNote.textContent=""; sizeNote(); }
     bodyEl.value=""; autosizeBody();
-    const writeNote=()=>{
-      if(!cardNote){ releaseCard(); return writeLetter(); }
-      if(noteIsField) cardNote.value=noteText; else cardNote.textContent=noteText;
-      typeOut(cardNote, sizeNote, 760, ()=>{ releaseCard(); writeLetter(); });
-    };
     const writeLetter=()=>{ bodyEl.value=bodyText; typeOut(bodyEl, autosizeBody); };
-    const start = ()=>typeOut(cardName, null, 420, writeNote);
-    // The card changes shape from letter to letter. It eases between the two
-    // heights first, empty, and only then does anything start writing.
     const slow = matchMedia("(prefers-reduced-motion: reduce)").matches;
     if(cardEl && cardFrom && Math.abs(cardTo-cardFrom)>2 && !slow){
       cardEl.style.overflow="hidden";
@@ -3847,11 +3828,8 @@ function renderCurrentLetter(){
       void cardEl.offsetHeight;
       cardEl.style.transition="height .42s cubic-bezier(.22,.7,.2,1)";
       cardEl.style.height=cardTo+"px";
-      setTimeout(start, 450);
-    } else {
-      if(cardEl){ cardEl.style.overflow="hidden"; cardEl.style.height=cardTo+"px"; }
-      start();
-    }
+      setTimeout(()=>{ cardEl.style.transition=""; cardEl.style.height=""; cardEl.style.overflow=""; writeLetter(); }, 450);
+    } else writeLetter();
   }
   const noteEl=host.querySelector("#lvNote");
   if(noteEl){
