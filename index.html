@@ -163,7 +163,7 @@
      always exactly centered in the viewport regardless of the label's width —
      the label sits in column 1, hugging the paper's left edge, rather than
      being counted as part of what gets centered. */
-  .lv-scene{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:40px;flex:1;min-height:0;width:100%}
+  .lv-scene{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:0;flex:1;min-height:0;width:100%}
   /* Anchored to the paper's own column and shifted fully to its left, rather
      than confined to column 1's leftover width — column 1 exists only to
      balance the centering and can be narrower than the label needs. Name and
@@ -245,7 +245,7 @@
   .lv-quote-edit{resize:vertical;min-height:66px}
   .lv-quote-edit:focus{outline:none}
 
-  .lv-paper{grid-column:2;grid-row:1;height:92%;max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
+  .lv-paper{grid-column:2;grid-row:1;height:min(92%, calc((100vw - var(--rd-w, 50vw) - 316px) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
     box-shadow:0 1px 1px rgba(24,17,8,.22),0 2px 4px rgba(24,17,8,.18);
     padding:44px 48px 0;box-sizing:border-box;position:relative;overflow:hidden;z-index:3;
     display:flex;flex-direction:column}
@@ -364,7 +364,7 @@
   /* the stack: a couple of blank sheets behind the real one, each nudged and
      tilted, each with its own shadow, so the pile reads as physical */
   .lv-ghost.lv-settling{transition:transform .6s cubic-bezier(.22,.7,.2,1)}
-  .lv-ghost{grid-column:2;grid-row:1;height:92%;aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
+  .lv-ghost{grid-column:2;grid-row:1;height:min(92%, calc((100vw - var(--rd-w, 50vw) - 316px) * 1.2941));aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
     box-shadow:0 1px 1px rgba(24,17,8,.20),0 2px 4px rgba(24,17,8,.16);pointer-events:none}
 
   /* ---------- the post drawer, hung on the right edge ---------- */
@@ -373,8 +373,11 @@
      equal to each. Equal gaps fall out of that rather than being tuned. */
   /* The card hangs off the sheet's left edge, so the page has to reserve room
      for it or it runs off screen. */
-  body.view-letters .letters-view{padding-left:40px;padding-right:820px}
-  .lv-reader{position:fixed;top:28px;right:28px;bottom:28px;width:488px;z-index:55;border-radius:12px;
+  /* The post box sets the width; the letter side takes what is left. 276px is
+     the drawer's inset, the 70% of the card that hangs past the sheet, and a
+     gap before the drawer. */
+  body.view-letters .letters-view{padding-left:40px;padding-right:calc(var(--rd-w, 50vw) + 276px)}
+  .lv-reader{position:fixed;top:28px;right:28px;bottom:28px;width:var(--rd-w, 50vw);z-index:55;border-radius:12px;
     overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
     background:#FCFAF6;
@@ -442,6 +445,25 @@
     line-height:15px;text-align:center;vertical-align:1px}
   .rd-tab-badge.pop{animation:lvBadgePop .5s cubic-bezier(.2,.8,.2,1)}
   @keyframes lvBadgePop{0%{transform:scale(0);opacity:0}55%{transform:scale(1.35)}100%{transform:scale(1)}}
+  /* Wide enough, the box becomes a mail client: the list on the left, the
+     open message on the right, 25/75. Narrow, the list pane is not drawn. */
+  .rd-panes{flex:1;min-height:0;display:flex}
+  .rd-list{display:none}
+  .lv-reader.rd-split .rd-list{display:block;flex:0 0 25%;min-width:0;overflow-y:auto;overflow-x:hidden;
+    border-right:1px solid var(--rl);padding:14px 12px 60px;box-sizing:border-box;position:relative;scrollbar-width:none}
+  .lv-reader.rd-split .rd-list::-webkit-scrollbar{width:0;display:none}
+  .lv-reader.rd-split .rd-scroll{flex:1 1 75%;min-width:0}
+  .lv-reader.rd-split .lv-reader-back{display:none}
+  .rd-list .lv-reader-row.on{background:rgba(255,255,255,.95);box-shadow:0 0 0 1px var(--rl) inset}
+  .rd-pick{margin-top:48px;text-align:center}
+  /* The seam between the letters and the box: drag it to share the width. */
+  .lv-rdhandle{position:fixed;top:28px;bottom:28px;right:calc(var(--rd-w, 50vw) + 28px);width:22px;
+    transform:translateX(50%);z-index:57;cursor:col-resize;touch-action:none;background:transparent}
+  .lv-rdhandle::before{content:"";position:absolute;left:50%;top:50%;width:4px;height:46px;border-radius:3px;
+    transform:translate(-50%,-50%);background:rgba(120,102,70,.28);transition:background .15s,height .15s}
+  .lv-rdhandle:hover::before,body.rd-dragging .lv-rdhandle::before{background:rgba(120,102,70,.6);height:64px}
+  body.rd-dragging{cursor:col-resize;user-select:none}
+  html.rd-wide .lv-paper,html.rd-wide .lv-ghost,html.rd-wide .lv-cardstack,html.rd-wide .lv-chev{visibility:hidden}
   .rd-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:22px 30px 80px;position:relative;
     scrollbar-width:none}
   .rd-scroll::-webkit-scrollbar{width:0;display:none}
@@ -525,7 +547,8 @@
   .lv-chev-next{justify-self:end;transform:translateX(50%)}
 
   @media(max-width:1100px){ .lv-paper{padding:36px 28px 0} .lv-subj{font-size:24px} .lv-body{font-size:14px}
-    .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none}
+    .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none} .lv-rdhandle{display:none}
+    .lv-paper,.lv-ghost{height:92%}
     body.view-letters .letters-view{padding-right:40px} }
 
   /* ===== Studio Line — keeper chat ===== */
@@ -2586,14 +2609,19 @@ function placeLetterTopbar(){
     const drawerL=drawer ? drawer.getBoundingClientRect().left-h.left : h.width-552;
     // On a narrow window there is less margin than card. Scaling it down
     // keeps it whole rather than sliding it under the drawer.
-    const sc=Math.min(1, (drawerL-16-left)/w);
+    const sc=Math.max(0, Math.min(1, (drawerL-16-left)/w));
     cards.style.transformOrigin="left top";
     cards.style.transform = sc<1 ? `scale(${sc.toFixed(3)})` : "";
     cards.style.left = left + "px";
     cards.style.top  = Math.max(12, p.top - h.top - p.height*0.05) + "px";
   }
 }
-addEventListener("resize", ()=>placeLetterTopbar());
+addEventListener("resize", ()=>{
+  const rd=document.getElementById("lvReader"), was=rd && rd.classList.contains("rd-split");
+  applyReaderWidth();
+  if(rd && was!==rd.classList.contains("rd-split")) renderReader();
+  placeLetterTopbar();
+});
 // Sent through the API rather than a compose window, so a reply carries the
 // original thread id and In-Reply-To and lands inside the conversation the
 // customer already has. Falls back to a compose window if the box cannot send.
@@ -3012,6 +3040,23 @@ async function loadThreadFor(email, name){
   renderReader();
 }
 // The header is permanent: title, unread count, refresh and the two folders.
+/* ---------- the post box: width and split ----------
+   Held as a share of the window so it keeps its proportion when the window
+   changes. Remembered per browser: it is how one of us likes the desk laid out. */
+const RD_MIN=340, RD_SPLIT=0.75, RD_INSET=28;
+let readerFrac=(()=>{ try{ const v=parseFloat(localStorage.getItem("macon.postbox")); return v>0 && v<=1 ? v : 0.5; }catch{ return 0.5; } })();
+function applyReaderWidth(){
+  const w=Math.round(Math.max(RD_MIN, Math.min(innerWidth-RD_INSET*2, readerFrac*innerWidth)));
+  document.documentElement.style.setProperty("--rd-w", w+"px");
+  const rd=document.getElementById("lvReader");
+  const split = w >= innerWidth*RD_SPLIT;
+  if(rd) rd.classList.toggle("rd-split", split);
+  // Past the split, or with too little room left to hold a legible sheet, the
+  // letter side steps out of the way rather than shrinking to a stub.
+  document.documentElement.classList.toggle("rd-wide", split || innerWidth-w-316 < 280);
+  return w;
+}
+applyReaderWidth();
 /* A letter sent counts for a fortnight. Kept in localStorage rather than the
    database: it is a note to ourselves about this week, not a record. */
 const SENT_BADGE_DAYS = 14;
@@ -3078,7 +3123,7 @@ function renderReaderTop(){
   const unread=(readerMsgs||[]).filter(m=>m.unread && (readerShowBulk||!m.bulk)).length;
   t.innerHTML=`
     <div class="rd-top-row">
-      <h2 style="font-family:${safeFont("TAY Flapjack","var(--serif-soul)","POST")}">Post</h2>
+      <h2 style="font-family:${safeFont("TAY Flapjack","var(--serif-soul)","POST BOX")}">Post box</h2>
       ${unread?`<span class="rd-unread">${unread}</span>`:""}
       <button class="rd-refresh" id="rdRefresh" title="Check again" aria-label="Check again">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg></button>
@@ -3103,6 +3148,9 @@ function renderReader(){
   const el=document.getElementById("rdScroll"); if(!el) return;
   renderReaderTop();
   document.getElementById("lvReader").className = "lv-reader rd-"+readerStyle;
+  applyReaderWidth();
+  const split=document.getElementById("lvReader").classList.contains("rd-split");
+  const listEl=document.getElementById("rdList");
   // Which box a letter leaves from depends on the thread, which arrives after
   // the letter has already been drawn.
   const fl=document.getElementById("lvFromLine"); if(fl) fl.textContent=fromLabel();
@@ -3117,7 +3165,8 @@ function renderReader(){
   // the tab keeps showing it while letters open and threads load underneath.
   if(readerFolder==="skipped"){
     const items=skippedItems();
-    el.innerHTML = items.length ? `<div class="lv-reader-list">${items.map(({x,at})=>{
+    const target = split && listEl ? listEl : el;
+    target.innerHTML = items.length ? `<div class="lv-reader-list">${items.map(({x,at})=>{
       const nm=(x.d&&x.d.name)||(x.q&&x.q.name)||"Someone";
       const what=(x.q&&x.q.subject)||(x.d&&x.d.pieces)||"";
       return `<button class="lv-reader-row" data-skip="${esc(letterKey(x))}">
@@ -3125,8 +3174,14 @@ function renderReader(){
         ${what?`<div class="lv-reader-row-subj">${esc(what)}</div>`:""}
         <div class="lv-reader-row-snip">Put aside. Click to pick it back up.</div></button>`;
     }).join("")}</div>` : `<p class="lv-reader-note">Nothing skipped. Anything you set aside waits here.</p>`;
-    el.querySelectorAll("[data-skip]").forEach(b=>b.onclick=()=>unskipLetter(b.dataset.skip));
+    target.querySelectorAll("[data-skip]").forEach(b=>b.onclick=()=>unskipLetter(b.dataset.skip));
+    if(target!==el) el.innerHTML=`<p class="lv-reader-note rd-pick">Choose a letter on the left to pick it back up.</p>`;
     return;
+  }
+  // Split, the list is always on the left, whatever the right is showing.
+  if(listEl){
+    if(split && gmailReady() && !(readerConnected && !readerConnected.length)) renderReaderList(listEl);
+    else listEl.innerHTML="";
   }
   const connectRow = "";
   const wireConnect = el => el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
@@ -3217,28 +3272,33 @@ function renderReader(){
     if(qb) qb.onclick=()=>{ const q=el.querySelector("#mmqOpen"); q.hidden=!q.hidden; qb.classList.toggle("on",!q.hidden); };
     el.querySelector("#lvReaderBack").onclick=()=>{ readerOpen=null; renderReader(); }; return;
   }
+  if(split){ el.innerHTML=`<p class="lv-reader-note rd-pick">Choose a message on the left.</p>`; return; }
+  renderReaderList(el);
+}
+// The list of what came in or went out, drawn into whichever pane holds it.
+function renderReaderList(target){
   if(readerLoading || (readerMsgs===null && !readerErr)){
-    el.innerHTML=`<div class="lv-load"><img src="logos/walking.webp" alt="Loading" width="210" height="210"></div>`;
+    target.innerHTML=`<div class="lv-load"><img src="logos/walking.webp" alt="Loading" width="210" height="210"></div>`;
     if(readerMsgs===null && !readerLoading) loadReader();
     return;
   }
   const all=readerMsgs||[];
   const bulkCount=all.filter(m=>m.bulk).length;
   const shown=readerShowBulk?all:all.filter(m=>!m.bulk);
-  const rows=shown.map(m=>`<button class="lv-reader-row${m.unread?" unread":""}" data-id="${m.id}" data-box="${esc(m.box||"")}">
+  const rows=shown.map(m=>`<button class="lv-reader-row${m.unread?" unread":""}${readerOpen&&readerOpen.id===m.id?" on":""}" data-id="${m.id}" data-box="${esc(m.box||"")}">
       <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(m.from)}</span><span class="lv-reader-ago">${esc(boxLabel(m.box||""))} · ${esc(mailDate(m.at))}</span></div>
       <div class="lv-reader-row-subj">${esc(m.subject)}</div>
       <div class="lv-reader-row-snip">${esc(m.snippet)}</div></button>`).join("");
-  el.innerHTML=`
+  target.innerHTML=`
     ${readerErr?`<p class="lv-reader-note">${esc(readerErr)}</p>`:""}
     ${readerMsgs&&!readerMsgs.length?`<p class="lv-reader-note">Nothing to ${esc(MAILBOXES.map(boxLabel).join(" or "))} in the last two weeks.</p>`:""}
     <div class="lv-reader-list">${rows}</div>
     ${bulkCount?`<button class="rd-bulk" id="rdBulk">${readerShowBulk?"Hide":"Show"} ${bulkCount} bulk message${bulkCount>1?"s":""}</button>`:""}
 `;
-  el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
-  const bulkBtn=el.querySelector("#rdBulk");
+  target.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
+  const bulkBtn=target.querySelector("#rdBulk");
   if(bulkBtn) bulkBtn.onclick=()=>{ readerShowBulk=!readerShowBulk; renderReader(); };
-  el.querySelectorAll(".lv-reader-row").forEach(b=>b.onclick=()=>openReaderMsg(b.dataset.id, b.dataset.box));
+  target.querySelectorAll(".lv-reader-row").forEach(b=>b.onclick=()=>{ readerMode="post"; openReaderMsg(b.dataset.id, b.dataset.box); });
   if(readerMsgs===null && !readerLoading) loadReader();
 }
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden && document.getElementById("lvReader") && gmailReady()) loadReader(); });
@@ -3479,8 +3539,9 @@ function renderCurrentLetter(){
       </div>
       <aside class="lv-reader" id="lvReader">
         <header class="rd-top" id="rdTop"></header>
-        <div class="rd-scroll" id="rdScroll"></div>
+        <div class="rd-panes"><div class="rd-list" id="rdList"></div><div class="rd-scroll" id="rdScroll"></div></div>
       </aside>
+      <div class="lv-rdhandle" id="lvRdHandle" role="separator" aria-orientation="vertical" aria-label="Resize the post box" title="Drag to resize"></div>
     </div>`;
   loadThreadFor(email, name);
 
@@ -3580,6 +3641,27 @@ function renderCurrentLetter(){
         : e.message==="no_thread" ? "That conversation came back empty."
         : "Could not write from the thread: "+e.message);
     }
+  };
+  // Drag the seam to share the width between the letters and the post box.
+  const seam=host.querySelector("#lvRdHandle");
+  if(seam) seam.onpointerdown=e=>{
+    e.preventDefault();
+    seam.setPointerCapture(e.pointerId);
+    document.body.classList.add("rd-dragging");
+    const move=ev=>{
+      readerFrac=(innerWidth-RD_INSET-ev.clientX)/innerWidth;
+      const rd=document.getElementById("lvReader"), was=rd && rd.classList.contains("rd-split");
+      const w=applyReaderWidth();
+      readerFrac=w/innerWidth;
+      if(rd && was!==rd.classList.contains("rd-split")) renderReader();
+      placeLetterTopbar();
+    };
+    const up=()=>{
+      seam.removeEventListener("pointermove",move); seam.removeEventListener("pointerup",up); seam.removeEventListener("pointercancel",up);
+      document.body.classList.remove("rd-dragging");
+      try{ localStorage.setItem("macon.postbox", String(readerFrac)); }catch{}
+    };
+    seam.addEventListener("pointermove",move); seam.addEventListener("pointerup",up); seam.addEventListener("pointercancel",up);
   };
   const prev=host.querySelector("#lvChevprev"), next=host.querySelector("#lvChevnext");
   if(prev) prev.onclick=()=>letterNavigate(-1);
