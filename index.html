@@ -238,6 +238,7 @@
   .lv-file-act button{font-family:"Public Sans",var(--sans);font-size:12px;border-radius:6px;padding:6px 13px;cursor:pointer}
   #lvFileCancel{background:transparent;border:none;color:#a89d89}
   #lvFileSave{background:var(--accent-grad);color:#fff;border:none}
+  .lv-reason{font-family:"Public Sans",var(--sans);font-size:13px;line-height:1.5;color:#7A7262;margin:16px 0 0}
   .lv-quote,.lv-quote-edit{display:block;width:100%;margin:0;padding:0;border:none;background:transparent;
     font-family:"Public Sans",var(--sans);font-style:normal;font-size:14.5px;line-height:1.55;
     color:#5D564A;letter-spacing:0;text-transform:none}
@@ -278,7 +279,7 @@
   .lv-to-in::placeholder{color:#cfc5b0;text-transform:none;letter-spacing:.06em}
   .lv-fromline::before{content:"\2022";margin-right:16px;color:#d5cbb6}
   .lv-subj{width:100%;border:none;background:transparent;font-family:"Knickerbocker",var(--serif-soul);font-weight:400;
-    font-size:38px;line-height:1.2;color:#1C1A18;padding:0 0 14px;margin-bottom:18px;border-bottom:1px solid #E3DED0;
+    font-size:38px;line-height:1.2;color:#1C1A18;padding:0 0 14px;margin-top:8px;margin-bottom:18px;border-bottom:1px solid #E3DED0;
     resize:none;overflow:hidden;display:block;letter-spacing:-.02em;flex:0 0 auto}
   .lv-subj:focus{outline:none;border-bottom-color:var(--accent)}
   /* Two flexible spacers rather than a single centered box: a 4:6 split
@@ -1756,6 +1757,10 @@ async function loadInquiries(){
 }
 function inqState(q){
   if(q.status==="closed") return "closed";
+  // A letter we started ourselves comes back only on the date its intent set,
+  // and never while it is still unsent.
+  if(q.source==="composed")
+    return (q.status!=="open" && q.follow_up_on && Date.parse(q.follow_up_on)<=Date.now()) ? "attention" : "followed";
   if(q.status==="open")   return "attention";
   const since = q.last_touched ? daysSince(q.last_touched) : daysSince(q.first_seen);
   return since >= INQ_STALE_DAYS ? "attention" : "followed";
@@ -3032,11 +3037,16 @@ async function loadSkipped(){
 function skipLetter(x){
   const k=letterKey(x); if(!k) return;
   const row={ key:k, name:(x.d&&x.d.name)||(x.q&&x.q.name)||"",
-    subject:(x.q&&x.q.subject)||(x.d&&x.d.pieces)||"", skipped_by:myEmail||"",
+    subject:(x.q&&x.q.subject)||(x.d&&x.d.pieces)||"", skipped_by:"",
     skipped_at:new Date().toISOString() };
   // Shown as skipped straight away; the write catches up.
   skippedRows=skippedRows||{}; skippedRows[k]=row;
-  sb.from("skipped_letters").upsert(row).then(({error})=>{ if(error) console.warn("skip", error.message); });
+  // Who skipped it comes from the session: the chat's myEmail is private to
+  // its own closure, and reaching for it here threw before the queue moved.
+  sb.auth.getSession().then(({data})=>{
+    row.skipped_by=(data && data.session && data.session.user.email) || "";
+    return sb.from("skipped_letters").upsert(row);
+  }).then(r=>{ if(r && r.error) console.warn("skip", r.error.message); });
 }
 function skippedItems(){
   const m=skippedMap();
@@ -3240,7 +3250,7 @@ function renderLetters(){
   // needs attention, but it belongs in Classic's drawer, not the front page.
   const put=skippedMap();
   letterQueue = all.filter(x=>(x.state||"attention")==="attention" && (x.days==null || x.days<=90)
-    && !put[letterKey(x)]);
+    && !put[letterKey(x)] && letterReason(x));
   // Enquiries still lead (live money), then the collectors most worth an hour:
   // patrons and past commissioners, and anyone inside the repeat window.
   letterQueue.sort((a,b)=>{
@@ -3262,6 +3272,66 @@ function renderLetters(){
   renderCurrentLetter();
 }
 
+/* Every letter the queue recommends carries the specific reason it is there.
+   Anything the app cannot give a reason for is not recommended at all. */
+function letterReason(x){
+  const d=x.d||{}, q=x.q;
+  const ago=n=> n==null ? "" : n<=0 ? "today" : n===1 ? "yesterday" : `${n} days ago`;
+  if(x.kind==="custom" && q){
+    const about=q.subject ? ` about ${q.subject}` : "";
+    if(q.source==="composed"){
+      if(!q.intent || !q.follow_up_on) return "";
+      return `${q.intent} We wrote ${ago(daysSince(q.last_touched))} and haven't heard back.`;
+    }
+    if(q.status==="open") return `Wrote in ${ago(daysSince(q.first_seen))}${about}, and we haven't answered yet.`;
+    return `We last wrote ${ago(daysSince(q.last_touched||q.first_seen))}${about}, and nothing has moved since.`;
+  }
+  const piece=firstPiece(d.pieces)||"a piece";
+  if(x.kind==="reconnect"){
+    const who = d.first_look ? "On the First Look list" : `$${Math.round(num(d.ltv)).toLocaleString()} with the studio`;
+    return d.last_contact
+      ? `${who}. We last wrote ${ago(daysSince(d.last_contact))}.`
+      : `${who}. Last bought ${ago(daysSince(d.last_buy))}, and we haven't written since.`;
+  }
+  if(x.kind==="story"){
+    const asked = d.last_contact ? ` We asked ${ago(daysSince(d.last_contact))} and the story still isn't in.` : "";
+    return `Bought ${piece}${d.gift_self==="Gift"?" as a gift":""} ${ago(daysSince(d.last_buy))}. Long enough to have settled in, and we don't have its story yet.${asked}`;
+  }
+  return "";
+}
+/* A letter we start ourselves is read once at send. If it asked for something,
+   it comes back after a sensible wait with that reason; if it didn't, it never
+   does. Mail to the studio's own addresses is never followed up. */
+async function letterIntent(letter){
+  const { data:{ session } }=await sb.auth.getSession();
+  if(!session) throw new Error("connect");
+  const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/letter-writer`, {
+    method:"POST",
+    headers:{ Authorization:"Bearer "+session.access_token, apikey:CONFIG.SUPABASE_ANON_KEY, "Content-Type":"application/json" },
+    body: JSON.stringify({ mode:"intent", ...letter })
+  });
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok || typeof j.reason!=="string") throw new Error(j.error||("intent "+r.status));
+  return j;
+}
+async function recordComposed(q, {to, subj, body}){
+  if(!q || !q.id) return;
+  const base={ status:"followed", last_touched:new Date().toLocaleDateString("en-CA"), subject:q.subject||subj };
+  const addrs=(String(to||"").toLowerCase().match(/[^\s<>,;]+@[^\s<>,;]+/g)||[]);
+  if(addrs.length && addrs.every(a=>a.endsWith("@studiomacon.co")))
+    return inqSet(q.id, {...base, intent:"Sent to the studio's own address.", follow_up_on:null});
+  let intent=null;
+  try{ intent=await letterIntent({to, subject:subj, body}); }catch(e){ console.warn("[letters] intent", e.message); }
+  if(!intent){
+    // No reading available: an open question is the one thing that plainly expects an answer.
+    const asked=/\?/.test(body);
+    intent = asked ? { expects_reply:true, reason:`Asked them a question in "${subj}".`, follow_up_days:7 }
+                   : { expects_reply:false, reason:"Nothing was asked of them.", follow_up_days:0 };
+  }
+  const due = intent.expects_reply && intent.follow_up_days>0
+    ? new Date(Date.now()+intent.follow_up_days*86400000).toLocaleDateString("en-CA") : null;
+  return inqSet(q.id, {...base, intent:intent.reason, follow_up_on:due});
+}
 /* Subjects show as written, in sentence case. Knickerbocker has no curly
    quotes, and one missing glyph drops the whole line to the fallback serif,
    so they are straightened here. Piece names keep their capitals: they are
@@ -3360,6 +3430,7 @@ function renderCurrentLetter(){
           const given=cardNameFit(parts.join(" "));
           return (given?`<span class="lv-n1">${esc(given)}</span>`:"")+`<span class="lv-n2">${esc(last)}</span>`;
         })()}</div>
+        ${composing ? "" : (r=>r?`<p class="lv-reason">${esc(r)}</p>`:"")(letterReason(x))}
         <div class="lv-noteblock">${quoteHTML}</div>
         ${composing||kind==="custom" ? "" : (letterFilingOpen ? `
         <form class="lv-file" id="lvFile">
@@ -3567,7 +3638,7 @@ function renderCurrentLetter(){
     noteSent(); letterJustSent=true;
     await new Promise(res=>playSendAnimation(res));
     renderReaderTop();
-    if(composing){ exitCompose(); return; }
+    if(composing){ recordComposed(q, {to, subj, body}); exitCompose(); return; }
     completeFollowUp(i, q?q.id:"");
     letterQueue.splice(letterIdx,1);
     if(letterIdx>=letterQueue.length) letterIdx=0;

@@ -6,6 +6,8 @@
 //
 //   POST /letter-writer   { name, email, piece, city, kind, signoff, messages[] }
 //   -> { subject, body }
+//   POST /letter-writer   { mode: "intent", to, subject, body }
+//   -> { expects_reply, reason, follow_up_days }
 //
 // Secrets: ANTHROPIC_API_KEY
 
@@ -58,6 +60,25 @@ Rules for this letter:
 - Sign off with the literal token {{SIGNOFF}} on its own last line, nothing after it.
 - The subject line must be between three and five words. No colons. Not a sentence.`;
 
+// Read once, when a letter the studio started itself has gone out: does it
+// leave anything open that is worth checking in on?
+const INTENT = `You read one email that Studio Maçon has just sent, and decide whether it needs a
+follow-up if nobody replies.
+
+It needs one only when the email asks the recipient for something: an answer, a decision, a photo,
+a payment, a date, a yes or no. Thank-yous, confirmations, shipping notes, FYIs, replies that close a
+conversation, and notes the studio sent to itself do not.
+
+reason: one plain past-tense sentence naming the specific thing that was asked or said, under 110
+characters. Name the actual subject, never "sent an email". Never use em dashes.
+Example: "Asked whether they want the totem cast in bronze or silver."
+
+follow_up_days: how long a thoughtful person waits before nudging. 4 for a payment or a
+time-sensitive decision, 7 for an ordinary question, 14 for something that needs real thought.
+0 when expects_reply is false.
+
+Reply with JSON only: {"expects_reply": true or false, "reason": "...", "follow_up_days": 0}`;
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (req.method !== "POST") return new Response("POST only", { status: 405, headers: cors });
@@ -67,6 +88,31 @@ Deno.serve(async (req) => {
     if (!API_KEY) return json({ error: "no_api_key" }, 503);
 
     const b = await req.json();
+
+    if (b.mode === "intent") {
+      const r = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: MODEL, max_tokens: 200, system: INTENT,
+          messages: [{ role: "user", content:
+            `To: ${String(b.to || "")}\nSubject: ${String(b.subject || "")}\n\n${String(b.body || "").slice(0, 4000)}` }],
+        }),
+      });
+      const j = await r.json();
+      if (!r.ok) return json({ error: j?.error?.message || `claude ${r.status}` }, r.status);
+      const text = (j.content || []).map((c: { text?: string }) => c.text || "").join("");
+      const m = text.match(/\{[\s\S]*\}/);
+      if (!m) return json({ error: "unparseable" }, 502);
+      let out: { expects_reply?: unknown; reason?: unknown; follow_up_days?: unknown };
+      try { out = JSON.parse(m[0]); } catch { return json({ error: "unparseable" }, 502); }
+      const expects = out.expects_reply === true;
+      const reason = String(out.reason || "").replace(/\s*[—–]\s*/g, ", ").trim().slice(0, 140);
+      const days = expects ? Math.max(1, Math.min(60, Math.round(Number(out.follow_up_days) || 7))) : 0;
+      if (!reason) return json({ error: "incomplete" }, 502);
+      return json({ expects_reply: expects, reason, follow_up_days: days });
+    }
+
     const msgs = (Array.isArray(b.messages) ? b.messages : []).slice(-MAX_MSGS);
     if (!msgs.length) return json({ error: "no_thread" }, 400);
 
