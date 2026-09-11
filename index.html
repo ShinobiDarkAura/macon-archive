@@ -566,6 +566,66 @@
   .lv-reader .rd-day span{background:rgba(255,255,255,.7);border:1px solid var(--rl);border-radius:999px;padding:3px 11px}
   /* Sender at a glance: the studio's own messages sit on a tinted ground with a
      rust initial, everyone else on white. */
+  /* Today, This week, This month */
+  .rd-tabs{overflow-x:auto;scrollbar-width:none;white-space:nowrap}
+  .rd-tabs::-webkit-scrollbar{display:none}
+  .rd-tab-count{margin-left:6px;color:var(--ink-3);font-weight:400}
+  .lv-reader .rd-plan-kind{font-family:var(--sans);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:0 0 4px}
+  .lv-reader .rd-plan-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:7px;vertical-align:1px;background:#B5AB97}
+  .lv-reader .rd-plan-donelist{margin-top:22px;padding-top:14px;border-top:1px dashed var(--rl)}
+  .lv-reader .rd-plan-donehead{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0 0 8px 10px}
+  .lv-reader .rd-plan-done{display:flex;justify-content:space-between;padding:8px 10px;font-family:var(--sans);font-size:14px;color:var(--ink-3)}
+  .lv-reader .rd-plan-done span{text-decoration:line-through}
+  .lv-reader .rd-plan-done i{font-style:normal;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  .rd-dot-high{background:#C0392B!important} .rd-dot-medium{background:#B8935F!important} .rd-dot-low{background:#6E9A5A!important}
+  /* Index tabs along the top of the pile; the letter on the desk is raised and joined to the sheet. */
+  .lv-pile-tabs{position:absolute;z-index:4;display:flex;align-items:flex-end;gap:4px;pointer-events:none}
+  .lv-pile-tab{pointer-events:auto;flex:0 1 auto;min-width:0;max-width:130px;height:26px;padding:0 12px;border:none;border-radius:6px 6px 0 0;
+    display:flex;align-items:center;gap:6px;cursor:pointer;background:#EFE9DC;color:#8C8272;
+    font-family:"Public Sans",var(--sans);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;overflow:hidden;
+    box-shadow:0 -1px 1px rgba(24,17,8,.12);transform:translateY(3px);transition:transform .15s,background .15s,color .15s}
+  .lv-pile-tab:hover{transform:translateY(0);color:#4A443A}
+  .lv-pile-tab.on{background:#FFFEFC;color:#26221C;height:30px;transform:none;box-shadow:0 -1px 1px rgba(24,17,8,.14)}
+  .lv-pile-tab i{width:6px;height:6px;border-radius:50%;flex:0 0 auto;background:#B5AB97}
+  /* A dot per letter today, grouped by kind. */
+  .lv-progress{position:absolute;z-index:4;display:flex;gap:20px;align-items:center;white-space:nowrap;transform:translateX(-50%)}
+  .lv-prog-group{display:flex;align-items:center;gap:5px}
+  .lv-prog-group em{font-style:normal;font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#A89D89;margin-right:4px}
+  .lv-prog-dot{width:9px;height:9px;padding:0;border-radius:50%;border:1.5px solid #B5AB97;background:transparent;cursor:pointer}
+  .lv-prog-dot.done{background:#8C8272;border-color:#8C8272;cursor:default}
+  .lv-prog-dot.on{border-color:#26221C;box-shadow:0 0 0 2px rgba(38,34,28,.12)}
+  .lv-prog-dot:not(.done):hover{border-color:#4A443A}
+  /* The envelope's sticker, kept for the day: top left, under New letter,
+     where the studio chat button cannot cover it and the sheet does not reach. */
+  .lv-docket{position:absolute;left:16px;top:104px;z-index:6;width:160px;box-sizing:border-box;padding:14px 14px 12px;text-align:center;
+    background:#FBF6EA;transform:rotate(-1deg);box-shadow:0 1px 0 rgba(40,26,8,.2),0 2px 1px rgba(40,26,8,.1);cursor:pointer}
+  .lv-docket:empty{display:none}
+  .lv-docket .lv-env2-chip{font-size:9.5px;padding:3px 9px;margin:0 0 8px}
+  .lv-docket-count{margin:0;font-family:"Knickerbocker",var(--serif-soul);font-size:20px;line-height:1.05;text-transform:uppercase;color:#2A241C}
+  .lv-docket ol{list-style:none;margin:10px 0 0;padding:10px 0 0;border-top:1px dashed rgba(90,70,40,.3);text-align:left;display:none;max-height:40vh;overflow-y:auto}
+  .lv-docket.open ol{display:block}
+  .lv-docket li{font-family:"Public Sans",var(--sans);font-size:12.5px;line-height:1.35;color:#5D564A;padding:3px 0}
+  .lv-docket li.done{color:#A89D89;text-decoration:line-through}
+  .lv-docket li button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer;text-align:left}
+  .lv-docket li button.on{color:#26221C;font-weight:600}
+  .lv-docket li button:hover{color:#26221C}
+  body.lv-ritual .lv-docket{visibility:hidden}
+  body.lv-ritual .lv-docket.flying{visibility:visible;z-index:345}
+  /* ⌘K */
+  .lv-pal-veil{position:fixed;inset:0;z-index:400;background:rgba(38,34,28,.18);display:flex;justify-content:center;align-items:flex-start;padding-top:14vh}
+  .lv-pal{width:min(520px,90vw);background:#FCFAF6;border-radius:12px;overflow:hidden;
+    box-shadow:0 0 0 1px rgba(120,102,70,.14),0 2px 0 rgba(24,17,8,.12),0 8px 20px rgba(24,17,8,.18)}
+  .lv-pal-in{display:block;width:100%;height:auto;box-sizing:border-box;border:none;border-bottom:1px solid #E2DCCC;background:transparent;
+    padding:16px 18px;font-family:"Public Sans",var(--sans);font-size:16px;color:#26221C}
+  .lv-pal-in:focus{outline:none}
+  .lv-pal-list{max-height:52vh;overflow-y:auto;padding:6px 0}
+  .lv-pal-head{margin:10px 18px 4px;font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#A89D89}
+  .lv-pal-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;width:100%;padding:9px 18px;border:none;background:transparent;
+    cursor:pointer;text-align:left;font-family:"Public Sans",var(--sans);font-size:14.5px;color:#26221C}
+  .lv-pal-row em{font-style:normal;font-size:12px;color:#9A9280}
+  .lv-pal-row.on{background:#F1ECE0}
+  .lv-pal-empty{margin:18px;font-family:"Public Sans",var(--sans);font-size:14px;color:#9A9280}
+  .lv-pal-foot{margin:0;padding:10px 18px;border-top:1px solid #E2DCCC;font-family:"Public Sans",var(--sans);font-size:11px;color:#A89D89}
   .lv-reader .rd-ctx{margin:0 0 30px;padding:0 0 26px;border-bottom:1px dashed var(--rl)}
   .lv-reader .rd-ctx-meta{display:flex;justify-content:space-between;gap:12px;font-family:var(--sans);font-size:11px;
     letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:0 0 12px}
@@ -619,6 +679,7 @@
 
   @media(max-width:1100px){ .lv-paper{padding:36px 28px 0} .lv-subj{font-size:24px} .lv-body{font-size:14px}
     .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none} .lv-rdhandle{display:none}
+    .lv-pile-tabs,.lv-progress,.lv-docket{display:none}
     .lv-paper,.lv-ghost{height:92%}
     body.view-letters .letters-view{padding-right:40px} }
 
@@ -2403,6 +2464,9 @@ let letterTypeIn=false;
 let letterGhostPrev=[];
 let letterCardH=0;
 let letterDataReady=false;
+// Follow-ups brought to the desk from later in the week or month, by key.
+const letterPulled=new Map();
+let docketOpen=false;
 
 // A blank letter to someone who isn't in the queue at all. Creates a real,
 // tracked inquiry (so it isn't lost the moment you close the tab), offers a
@@ -2704,13 +2768,18 @@ function placeLetterTopbar(){
     requestAnimationFrame(()=>requestAnimationFrame(()=>placeLetterTopbar()));
   }
   const p=paper.getBoundingClientRect(), h=host.getBoundingClientRect();
-  // The arrows straddle the sheet's side edges at its vertical middle. Placed
-  // from the sheet rather than the column, since the sheet now sits low in it.
-  [["#lvChevprev", p.left], ["#lvChevnext", p.right]].forEach(([sel, x])=>{
-    const c=host.querySelector(sel); if(!c) return;
-    c.style.left=(x-h.left-c.offsetWidth/2)+"px";
-    c.style.top =(p.top-h.top+p.height/2-c.offsetHeight/2)+"px";
-  });
+  // The tabs stand on the sheet's top edge; the progress strip sits above them.
+  const tabs=host.querySelector("#lvPileTabs");
+  if(tabs){
+    tabs.style.left=(p.left-h.left+14)+"px";
+    tabs.style.width=Math.max(0, p.width-28)+"px";
+    tabs.style.top=(p.top-h.top-tabs.offsetHeight+1)+"px";
+  }
+  const prog=host.querySelector("#lvProgress");
+  if(prog){
+    prog.style.left=(p.left-h.left+p.width/2)+"px";
+    prog.style.top=Math.max(8, p.top-h.top-(tabs?tabs.offsetHeight:0)-prog.offsetHeight-14)+"px";
+  }
   // Centred on the corner point itself, not nudged: half the badge sits on the
   // sheet and half off it, in both axes.
   tb.style.left = (p.right - h.left - tb.offsetWidth/2) + "px";
@@ -2814,7 +2883,7 @@ const MAILBOXES=["hello@studiomacon.co","hannah@studiomacon.co"];
 const boxLabel=m=>String(m).split("@")[0];
 let readerMsgs=null, readerOpen=null, readerErr="", readerLoading=false;
 // the thread with whoever the current letter is to, when Gmail has one
-let readerMode="post", readerThread=null, readerFolder="inbox"; const _threads=new Map();
+let readerMode="post", readerThread=null, readerFolder="today"; const _threads=new Map();
 const readerOpenMsgs=new Set();
 // Three drawer treatments to try in place. Kept in localStorage so the choice
 // survives a reload while it is being judged.
@@ -2901,6 +2970,8 @@ function ago(ms){
   if(m<60) return m+"m"; const h=Math.round(m/60); if(h<24) return h+"h"; return Math.round(h/24)+"d";
 }
 async function loadReader(){
+  // Only Sent is a Gmail list now; the plan lists are drawn from the records.
+  if(readerFolder!=="sent"){ renderReader(); return; }
   if(!gmailReady() || readerLoading) { renderReader(); return; }
   readerLoading=true; readerErr=""; renderReader();
   if(readerConnected===null) await gmailStatus();
@@ -3125,6 +3196,183 @@ async function letterFromThread(t, x){
   return { subject: short(j.subject), body: String(j.body||"") };
 }
 
+/* ---------- when a follow-up comes due ----------
+   The queue's own rules (isDue, isReconnectDue, inqState) turned into the date
+   each follow-up arrives, so the post box can show the week and month ahead. */
+const DAY_MS=86400000;
+function startOfToday(){ const d=new Date(); d.setHours(0,0,0,0); return d.getTime(); }
+function storyDueOn(d){
+  const b=Date.parse(d.last_buy); if(isNaN(b) || d.story==="Yes") return null;
+  let due=b+(leadTime(firstPiece(d.pieces))+14)*DAY_MS;
+  const c=Date.parse(d.last_contact); if(!isNaN(c)) due=Math.max(due, c+21*DAY_MS);
+  return due > b+STORY_WINDOW*DAY_MS ? null : due;
+}
+function reconnectDueOn(d){
+  if(!d.first_look && num(d.ltv) < PATRON_LTV) return null;
+  const base=Date.parse(d.last_contact||d.last_buy); return isNaN(base) ? null : base+90*DAY_MS;
+}
+function enquiryDueOn(q){
+  if(q.status==="closed") return null;
+  if(q.source==="composed") return (q.status!=="open" && q.follow_up_on) ? Date.parse(q.follow_up_on) : null;
+  if(q.status==="open") return Date.parse(q.first_seen)||Date.now();
+  const t=Date.parse(q.last_touched||q.first_seen); return isNaN(t) ? null : t+INQ_STALE_DAYS*DAY_MS;
+}
+// Follow-ups arriving from `from` days to `to` days after today.
+function planItems(from, to){
+  const start=startOfToday()+from*DAY_MS, end=startOfToday()+to*DAY_MS, put=skippedMap(), out=[];
+  (data||[]).forEach((d,i)=>{
+    const st=storyDueOn(d), rc=st==null ? reconnectDueOn(d) : null;
+    const kind = st!=null ? "story" : (rc!=null ? "reconnect" : null), due = st!=null ? st : rc;
+    if(kind && due>=start && due<end)
+      out.push({ d, i, q:null, kind, due, days:daysSince(d.last_buy), priority:kind==="story"?followPriority(d):"High", ask:"", state:"upcoming" });
+  });
+  (inquiries||[]).forEach(q=>{
+    const due=enquiryDueOn(q);
+    if(due!=null && due>=start && due<end)
+      out.push({ d:inqAsD(q), i:-1, q, kind:"custom", due, days:daysSince(q.last_touched||q.first_seen), priority:"High", ask:"", state:"upcoming" });
+  });
+  return out.filter(x=>!put[letterKey(x)]).sort((a,b)=>a.due-b.due);
+}
+function isPlan(f){ return f==="today" || f==="week" || f==="month"; }
+function planFor(folder){ return folder==="today" ? letterQueue.slice() : folder==="week" ? planItems(1,8) : planItems(8,31); }
+
+/* What has gone out today, for the day's progress. Kept per browser. */
+function todayDone(){
+  try{ const v=JSON.parse(localStorage.getItem("macon.today")||"{}"); return v.date===todayKey() ? (v.done||[]) : []; }catch{ return []; }
+}
+function noteDone(x){
+  const k=letterKey(x); letterPulled.delete(k);
+  const done=todayDone(); if(done.some(e=>e.key===k)) return;
+  done.push({ key:k, name:cleanName((x.d&&x.d.name)||(x.q&&x.q.name)||""), kind:x.kind });
+  try{ localStorage.setItem("macon.today", JSON.stringify({ date:todayKey(), done })); }catch{}
+}
+
+/* Bring one follow-up to the desk: its letter composed, its thread in the drawer.
+   One already in today's pile is turned to; one from later is laid on top. */
+function openFollowUp(x){
+  if(!x) return;
+  if(letterComposing){ letterComposing=false; letterComposeItem=null; }
+  const k=letterKey(x);
+  let at=letterQueue.findIndex(y=>letterKey(y)===k);
+  if(at<0){ letterPulled.set(k, x); letterQueue.splice(letterIdx, 0, x); at=letterIdx; }
+  letterIdx=at; letterToneIdx=0; letterFilingOpen=false; letterNoEnter=true; letterTypeIn=true;
+  readerMode="thread";
+  renderCurrentLetter();
+}
+function letterJump(i){
+  if(letterComposing || i<0 || i>=letterQueue.length || i===letterIdx) return;
+  letterIdx=i; letterToneIdx=0; letterFilingOpen=false; letterNoEnter=true; letterTypeIn=true; renderCurrentLetter();
+}
+
+/* The last message each person sent, for the plan lists. Asked for in batches
+   through gmail-reader and remembered for the session. false means unreachable. */
+const _lastMsg=new Map(), _lastPending=new Set();
+async function loadLastMessages(items){
+  if(!gmailReady()) return;
+  const emails=[...new Set(items.map(x=>String((x.d&&x.d.email)||(x.q&&x.q.email)||"").toLowerCase())
+    .filter(e=>e && !_lastMsg.has(e) && !_lastPending.has(e)))];
+  if(!emails.length) return;
+  emails.forEach(e=>_lastPending.add(e));
+  try{
+    const { data:{ session } }=await sb.auth.getSession(); if(!session) return;
+    for(let i=0;i<emails.length;i+=25){
+      const chunk=emails.slice(i,i+25);
+      const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/gmail-reader?action=last&emails=${encodeURIComponent(chunk.join(","))}`,
+        { headers:{ Authorization:"Bearer "+session.access_token, apikey:CONFIG.SUPABASE_ANON_KEY } });
+      const j=await r.json().catch(()=>({}));
+      chunk.forEach(e=>_lastMsg.set(e, r.ok ? ((j.last && j.last[e]) || null) : false));
+    }
+  }catch(e){ emails.forEach(e=>{ if(!_lastMsg.has(e)) _lastMsg.set(e, false); }); }
+  finally{ emails.forEach(e=>_lastPending.delete(e)); }
+  if(isPlan(readerFolder)) renderReader();
+}
+
+/* Today, This week, This month: who, what kind of follow-up, when, and the last
+   thing they sent. Choosing one puts their letter on the desk. */
+function renderPlanList(target){
+  const items=planFor(readerFolder);
+  const done = readerFolder==="today" ? todayDone() : [];
+  const cur = letterComposing ? null : letterQueue[letterIdx], curKey = cur ? letterKey(cur) : "";
+  loadLastMessages(items);
+  const when=x=>{
+    if(readerFolder==="today" || !x.due) return "";
+    const days=Math.round((x.due-startOfToday())/DAY_MS), d=new Date(x.due);
+    return days<7 ? d.toLocaleDateString("en-US",{weekday:"short"}) : d.toLocaleDateString("en-US",{month:"short", day:"numeric"});
+  };
+  const row=x=>{
+    const k=letterKey(x), ctx=letterContext(x), pri=x.priority||ctx.priority||"";
+    const nm=cleanName((x.d&&x.d.name)||(x.q&&x.q.name)||"Someone");
+    const email=String((x.d&&x.d.email)||(x.q&&x.q.email)||"").toLowerCase();
+    const last=_lastMsg.get(email);
+    const line = !email ? "No email address on file"
+      : !gmailReady() ? "Sign in to see their last message"
+      : last===undefined ? "Looking for their last message…"
+      : last===false ? "Mail could not be reached"
+      : last===null ? "Nothing from them yet"
+      : `${mailDate(last.at)} · ${unent(last.snippet||last.subject||"")}`;
+    return `<button class="lv-reader-row rd-plan-row${k===curKey?" on":""}" data-plan="${esc(k)}">
+      <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(nm)}</span><span class="lv-reader-ago">${esc(when(x))}</span></div>
+      <div class="rd-plan-kind"><span class="rd-plan-dot rd-dot-${esc(pri.toLowerCase())}"></span>${esc(ctx.kindLabel)} · ${esc(pri)}</div>
+      <div class="lv-reader-row-snip">${esc(line)}</div></button>`;
+  };
+  const empty = readerFolder==="today" ? "Nothing left for today." : readerFolder==="week" ? "Nothing coming due this week." : "Nothing coming due later this month.";
+  target.innerHTML = (items.length ? `<div class="lv-reader-list">${items.map(row).join("")}</div>` : `<p class="lv-reader-note">${empty}</p>`)
+    + (done.length ? `<div class="rd-plan-donelist"><span class="rd-plan-donehead">Done today</span>${done.map(e=>
+        `<div class="rd-plan-done"><span>${esc(e.name)}</span><i>Sent</i></div>`).join("")}</div>` : "");
+  const byKey=new Map(items.map(x=>[letterKey(x), x]));
+  target.querySelectorAll("[data-plan]").forEach(b=>b.onclick=()=>openFollowUp(byKey.get(b.dataset.plan)));
+}
+
+/* ⌘K: jump to anyone due today, this week or this month. J and K step through today's pile. */
+function openLetterPalette(){
+  if(document.getElementById("lvPalette")) return;
+  const seen=new Set(), rows=[];
+  [["Today", letterQueue.slice()], ["This week", planItems(1,8)], ["This month", planItems(8,31)]].forEach(([label, items])=>
+    items.forEach(x=>{ const k=letterKey(x); if(seen.has(k)) return; seen.add(k);
+      rows.push({ x, label, name:cleanName((x.d&&x.d.name)||(x.q&&x.q.name)||"Someone"), kind:letterContext(x).kindLabel }); }));
+  document.body.insertAdjacentHTML("beforeend", `<div class="lv-pal-veil" id="lvPalette"><div class="lv-pal" role="dialog" aria-label="Jump to a letter">
+    <input class="lv-pal-in" id="lvPalIn" placeholder="Jump to someone" autocomplete="off" spellcheck="false">
+    <div class="lv-pal-list" id="lvPalList"></div>
+    <p class="lv-pal-foot">J and K move through today's letters</p></div></div>`);
+  const veil=document.getElementById("lvPalette"), input=document.getElementById("lvPalIn"), list=document.getElementById("lvPalList");
+  let sel=0, shown=rows;
+  const close=()=>veil.remove();
+  const pick=k=>{ const r=shown[k]; close(); if(r) openFollowUp(r.x); };
+  const draw=()=>{
+    const q=input.value.trim().toLowerCase();
+    shown = q ? rows.filter(r=>r.name.toLowerCase().includes(q) || r.kind.toLowerCase().includes(q)) : rows;
+    sel=Math.min(sel, Math.max(0, shown.length-1));
+    let last="";
+    list.innerHTML = shown.length ? shown.map((r,k)=>{
+      const head = r.label!==last ? `<p class="lv-pal-head">${esc(r.label)}</p>` : ""; last=r.label;
+      return `${head}<button class="lv-pal-row${k===sel?" on":""}" data-k="${k}"><span>${esc(r.name)}</span><em>${esc(r.kind)}</em></button>`;
+    }).join("") : `<p class="lv-pal-empty">No one by that name in the next month.</p>`;
+    list.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>pick(+b.dataset.k));
+    const on=list.querySelector(".on"); if(on) on.scrollIntoView({block:"nearest"});
+  };
+  input.addEventListener("input", ()=>{ sel=0; draw(); });
+  input.addEventListener("keydown", e=>{
+    if(e.key==="ArrowDown"){ e.preventDefault(); sel=Math.min(sel+1, shown.length-1); draw(); }
+    else if(e.key==="ArrowUp"){ e.preventDefault(); sel=Math.max(sel-1, 0); draw(); }
+    else if(e.key==="Enter"){ e.preventDefault(); pick(sel); }
+    else if(e.key==="Escape"){ e.preventDefault(); close(); }
+  });
+  veil.addEventListener("mousedown", e=>{ if(e.target===veil) close(); });
+  draw(); input.focus();
+}
+let _letterKeysWired=false;
+function wireLetterKeys(){
+  if(_letterKeysWired) return; _letterKeysWired=true;
+  document.addEventListener("keydown", e=>{
+    if(!document.body.classList.contains("view-letters")) return;
+    if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==="k"){ e.preventDefault(); openLetterPalette(); return; }
+    const t=e.target, typing=t && (t.tagName==="INPUT" || t.tagName==="TEXTAREA" || t.isContentEditable);
+    if(typing || e.metaKey || e.ctrlKey || e.altKey || document.getElementById("lvPalette") || document.body.classList.contains("lv-ritual")) return;
+    if(e.key==="j" || e.key==="J"){ e.preventDefault(); letterNavigate(1); }
+    else if(e.key==="k" || e.key==="K"){ e.preventDefault(); letterNavigate(-1); }
+  });
+}
+
 /* ---------- the letter, in the post box ----------
    What the post-it used to hold now heads the post box's main pane: what kind
    of letter it is and how pressing, the piece and when, who, why it is in the
@@ -3134,7 +3382,8 @@ function letterContextHTML(x){
   const ctx=letterContext(x);
   const {name,facts}=letterLabelFacts(x);
   const flags=letterFlags(x);
-  const reason=letterReason(x);
+  const reason=(x.state==="upcoming" && x.due
+    ? `Not due until ${new Date(x.due).toLocaleDateString("en-US",{weekday:"long", month:"short", day:"numeric"})}. ` : "") + letterReason(x);
   const when=String(facts[1]||"").match(/[A-Z][a-z]{2}\s+\d{1,2},?\s*(\d{4})/);
   const meta=[facts[0]||"", when ? when[0].replace(/\s+\d{1,2},?\s*/, " ") : ""].filter(Boolean).join(" · ");
   const quote=letterQuoteText(x);
@@ -3286,6 +3535,7 @@ async function loadSkipped(){
 }
 function skipLetter(x){
   const k=letterKey(x); if(!k) return;
+  letterPulled.delete(k);
   const row={ key:k, name:(x.d&&x.d.name)||(x.q&&x.q.name)||"",
     subject:(x.q&&x.q.subject)||(x.d&&x.d.pieces)||"", skipped_by:"",
     skipped_at:new Date().toISOString() };
@@ -3334,19 +3584,20 @@ function renderReaderTop(){
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg></button>
     </div>
     <div class="rd-tabs">
-      <button data-folder="inbox" class="${readerFolder==="inbox"?"on":""}">Received</button>
+      ${[["today","Today",letterQueue.length],["week","This week",planItems(1,8).length],["month","This month",planItems(8,31).length]].map(([f,label,n])=>
+        `<button data-folder="${f}" class="${readerFolder===f?"on":""}">${label}${n?`<span class="rd-tab-count">${n}</span>`:""}</button>`).join("")}
       <button data-folder="sent" class="${readerFolder==="sent"?"on":""}">Sent${(()=>{const n=sentRecent().length;return n?`<span class="rd-tab-badge${letterJustSent?" pop":""}">${n}</span>`:"";})()}</button>
       <button data-folder="skipped" class="${readerFolder==="skipped"?"on":""}">Skipped</button>
     </div>`;
   letterJustSent=false;
   const rb=t.querySelector("#rdRefresh");
   if(readerLoading) rb.classList.add("spin");
-  rb.onclick=()=>{ readerMsgs=null; readerOpen=null; readerMode="post"; loadReader(); };
+  rb.onclick=()=>{ readerMsgs=null; readerOpen=null; readerMode="post"; _lastMsg.clear(); loadReader(); };
   t.querySelectorAll("[data-folder]").forEach(b=>b.onclick=()=>{
     if(readerFolder===b.dataset.folder) return;
     readerFolder=b.dataset.folder; readerMsgs=null; readerOpen=null; readerMode="post";
     // Skipped letters are ours, not Gmail's: nothing to fetch.
-    if(readerFolder==="skipped") renderReader(); else loadReader();
+    if(readerFolder==="sent") loadReader(); else renderReader();
   });
 }
 function renderReader(){
@@ -3388,7 +3639,8 @@ function renderReader(){
   }
   // Split, the list is always on the left, whatever the right is showing.
   if(listEl){
-    if(split && gmailReady() && !(readerConnected && !readerConnected.length)) renderReaderList(listEl);
+    if(split && isPlan(readerFolder)) renderPlanList(listEl);
+    else if(split && gmailReady() && !(readerConnected && !readerConnected.length)) renderReaderList(listEl);
     else listEl.innerHTML="";
   }
   const connectRow = "";
@@ -3462,6 +3714,10 @@ function renderReader(){
     wireConnect(el);
     if(cur) wireLetterContext(el, cur);
     return;
+  }
+  if(isPlan(readerFolder)){
+    if(split){ el.innerHTML=`<p class="lv-reader-note rd-pick">Choose someone on the left.</p>`; return; }
+    renderPlanList(el); return;
   }
   if(!gmailReady()){
     el.innerHTML=`<p class="lv-reader-note">Sign in to read the studio inbox.</p>`; return;
@@ -3614,6 +3870,7 @@ function maybeShowMorningEnvelope(){
     document.body.classList.remove("lv-ritual");
     hold.cancel(); if(rise) rise.cancel(); hidden.forEach(a=>a.cancel());
     document.removeEventListener("keydown", onKey);
+    const dk=document.getElementById("lvDocket"); if(dk){ dk.classList.remove("flying"); dk.style.transformOrigin=""; }
     placeLetterTopbar();
   };
   const onKey=e=>{ if(e.key==="Escape" && !done){ done=true; mark(); cleanup(); } };
@@ -3647,6 +3904,16 @@ function maybeShowMorningEnvelope(){
       // opening, and stopping short left its point parked over the letter.
       // The arrows were placed while the sheet waited sunk inside; it is home now.
       placeLetterTopbar();
+      // The sticker peels off and flies to the corner, where it stays as the day's docket.
+      const label=front.querySelector(".lv-env2-label"), docket=document.getElementById("lvDocket");
+      if(label && docket && docket.innerHTML.trim()){
+        const a=label.getBoundingClientRect(), b=docket.getBoundingClientRect();
+        docket.classList.add("flying"); docket.style.transformOrigin="0 0"; label.style.visibility="hidden";
+        docket.animate([
+          { transform:`translate(${a.left-b.left}px, ${a.top-b.top}px) scale(${a.width/b.width}, ${a.height/b.height}) rotate(-1deg)` },
+          { transform:"translate(0,0) scale(1,1) rotate(-1deg)" }
+        ], { duration:760, easing:"cubic-bezier(.3,.7,.2,1)" });
+      }
       const away=innerHeight-T+FL+40, E={duration:840, easing:"cubic-bezier(.55,0,.8,.2)", fill:"forwards"};
       back.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
       front.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
@@ -3672,6 +3939,10 @@ function renderLetters(){
   // skipped letters and redrew it a moment later with a different letter on
   // top, so the letters wait until all three are in.
   if(synced && !letterDataReady) return;
+  // The letter templates arrive as a module that loads on its own schedule;
+  // drawing before it lands threw and left the view blank. Wait for it.
+  if(!window.MaconDrafts){ setTimeout(renderLetters, 40); return; }
+  const keepKey = letterQueue[letterIdx] ? letterKey(letterQueue[letterIdx]) : "";
   const all=followUps();
   // The urgent, per-letter view stops at 3 months — anything older still
   // needs attention, but it belongs in Classic's drawer, not the front page.
@@ -3686,6 +3957,9 @@ function renderLetters(){
     const score=f=>(f.patron?4:0)+(f.commissioner?2:0)+(f.window?1:0);
     return score(fb)-score(fa);
   });
+  // Follow-ups brought forward from later in the week or month stay on the pile.
+  letterPulled.forEach((x,k)=>{ if(!letterQueue.some(y=>letterKey(y)===k)) letterQueue.unshift(x); });
+  { const back=letterQueue.findIndex(y=>letterKey(y)===keepKey); if(back>=0) letterIdx=back; }
   if(letterIdx>=letterQueue.length) letterIdx=0;
   if(!letterQueue.length){
     host.innerHTML=doneMarkup(skippedItems(), new Date());
@@ -3822,8 +4096,36 @@ function renderCurrentLetter(){
   const ghosts = Array.from({length:ghostCount}, (_,i)=>
     // Each sheet further down the pile sits 4% darker than the one above it.
     `<div class="lv-ghost" style="transform:${letterGhostPrev[i]||"none"};z-index:${-i};filter:brightness(${(1-0.04*(i+1)).toFixed(2)})"></div>`).join("");
-  const chevron = (dir,label) => `<button class="lv-chev lv-chev-${dir}" id="lvChev${dir}" title="${label}" aria-label="${label}">
-      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="${dir==="prev"?"M20 6 10 16l10 10":"M12 6l10 10-10 10"}"/></svg></button>`;
+  // Index tabs along the top of the pile, one per letter; a longer pile keeps
+  // the current letter's tab in view and the rest behind a count.
+  const MAX_TABS=7;
+  const tabsHTML = composing || letterQueue.length<2 ? "" : (()=>{
+    const n=letterQueue.length, show=n>MAX_TABS ? MAX_TABS-1 : n;
+    const start = n>MAX_TABS ? Math.min(Math.max(0, letterIdx-Math.floor(show/2)), n-show) : 0;
+    return letterQueue.slice(start, start+show).map((y,k)=>{
+      const idx=start+k, nm=(cleanName((y.d&&y.d.name)||(y.q&&y.q.name)||"").split(" ")[0])||"Someone";
+      return `<button class="lv-pile-tab${idx===letterIdx?" on":""}" data-idx="${idx}" title="${esc(letterReason(y))}"><i class="rd-dot-${esc(String(y.priority||"").toLowerCase())}"></i>${esc(nm)}</button>`;
+    }).join("") + (n>MAX_TABS ? `<button class="lv-pile-tab lv-pile-more" data-more="1">+${n-show}</button>` : "");
+  })();
+  // Today at a glance: a dot per letter, grouped by kind, filled once sent.
+  const progressHTML = composing ? "" : (()=>{
+    const done=todayDone();
+    const all=[...done.map(e=>({ done:true, name:e.name, kind:e.kind })),
+      ...letterQueue.map((y,idx)=>({ done:false, idx, kind:y.kind, name:cleanName((y.d&&y.d.name)||(y.q&&y.q.name)||""), why:letterReason(y) }))];
+    return [["custom","Replies owed"],["story","Stories to ask"],["reconnect","Catch-ups"]].map(([kind,label])=>{
+      const g=all.filter(e=>e.kind===kind); if(!g.length) return "";
+      return `<span class="lv-prog-group"><em>${label}</em>${g.map(e=>
+        `<button class="lv-prog-dot${e.done?" done":""}${!e.done&&e.idx===letterIdx?" on":""}" ${e.done?"disabled":`data-idx="${e.idx}"`} title="${esc(e.name+(e.done?": sent":e.why?": "+e.why:""))}"></button>`).join("")}</span>`;
+    }).join("");
+  })();
+  // The envelope's sticker, kept for the day: what is written and what is left.
+  const docketHTML = composing ? "" : (()=>{
+    const done=todayDone(), total=done.length+letterQueue.length; if(!total) return "";
+    const day=new Date().toLocaleDateString("en-US",{weekday:"long", month:"short", day:"numeric"});
+    return `<span class="lv-env2-chip">${esc(day)}</span><p class="lv-docket-count">${done.length} of ${total} written</p><ol>${
+      done.map(e=>`<li class="done">${esc(e.name)}</li>`).join("")}${
+      letterQueue.map((y,idx)=>`<li><button data-idx="${idx}" class="${idx===letterIdx?"on":""}">${esc(cleanName((y.d&&y.d.name)||(y.q&&y.q.name)||"Someone"))}</button></li>`).join("")}</ol>`;
+  })();
 
   host.innerHTML = `
     <div class="lv-scene">
@@ -3831,7 +4133,9 @@ function renderCurrentLetter(){
       <div class="lv-topbar" id="lvTopbar"></div>
       <button class="lv-new" id="lvNew" title="Write to someone new">+ New letter</button>
       ${ghosts}
-      ${composing||letterQueue.length<2?"":chevron("prev","Previous letter")+chevron("next","Next letter")}
+      <div class="lv-pile-tabs" id="lvPileTabs">${tabsHTML}</div>
+      <div class="lv-progress" id="lvProgress">${progressHTML}</div>
+      <div class="lv-docket" id="lvDocket">${docketHTML}</div>
       <div class="lv-paper${letterNoEnter?" lv-noenter":""}">
         <img class="lv-stamp" src="logos/red-stamp-alt.png" alt="" aria-hidden="true">
         <div class="lv-to"><span class="lv-to-l"><span class="lv-to-lab">To:</span><input class="lv-to-in" id="lvTo" value="${esc(email)}" placeholder="who is this going to" spellcheck="false"></span></div>
@@ -3947,9 +4251,16 @@ function renderCurrentLetter(){
     };
     seam.addEventListener("pointermove",move); seam.addEventListener("pointerup",up); seam.addEventListener("pointercancel",up);
   };
-  const prev=host.querySelector("#lvChevprev"), next=host.querySelector("#lvChevnext");
-  if(prev) prev.onclick=()=>letterNavigate(-1);
-  if(next) next.onclick=()=>letterNavigate(1);
+  host.querySelectorAll(".lv-pile-tab[data-idx], .lv-prog-dot[data-idx]").forEach(b=>b.onclick=()=>letterJump(+b.dataset.idx));
+  const moreTab=host.querySelector(".lv-pile-more");
+  if(moreTab) moreTab.onclick=()=>{ readerFolder="today"; readerMode="post"; renderReader(); };
+  const docket=host.querySelector("#lvDocket");
+  if(docket){
+    docket.classList.toggle("open", docketOpen);
+    docket.onclick=e=>{ if(e.target.closest("[data-idx]")) return; docketOpen=!docketOpen; docket.classList.toggle("open", docketOpen); };
+    docket.querySelectorAll("[data-idx]").forEach(b=>b.onclick=()=>letterJump(+b.dataset.idx));
+  }
+  wireLetterKeys();
   wireLetterNav(host);
   const exitCompose=()=>{ letterComposing=false; letterComposeItem=null; renderLetters(); };
   if(composing){
@@ -3980,6 +4291,7 @@ function renderCurrentLetter(){
     };
     host.querySelector("#lvClose").onclick=()=>{
       playCloseAnimation(()=>{
+        noteDone(x);
         if(q) inqSet(q.id,{status:"closed"}); else markContacted(i);
         letterQueue.splice(letterIdx,1);
         if(letterIdx>=letterQueue.length) letterIdx=0;
@@ -4005,6 +4317,7 @@ function renderCurrentLetter(){
     await new Promise(res=>playSendAnimation(res));
     renderReaderTop();
     if(composing){ recordComposed(q, {to, subj, body}); exitCompose(); return; }
+    noteDone(x);
     completeFollowUp(i, q?q.id:"");
     letterQueue.splice(letterIdx,1);
     if(letterIdx>=letterQueue.length) letterIdx=0;

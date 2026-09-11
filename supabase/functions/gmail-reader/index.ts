@@ -8,6 +8,7 @@
 // Routes
 //   GET  /gmail-reader?path=...&mailbox=...   read Gmail (keepers only)
 //   GET  /gmail-reader?action=status          which boxes are connected
+//   GET  /gmail-reader?action=last&emails=... the latest message from each address
 //   GET  /gmail-reader?action=connect_url&mailbox=...  a signed consent link
 //   GET  /gmail-reader/callback               Google's redirect, no auth header
 //
@@ -295,6 +296,44 @@ Deno.serve(async (req) => {
       }));
       const rows = all.flat().sort((a, b) => (b as {at:number}).at - (a as {at:number}).at);
       return json({ messages: rows });
+    }
+
+    // The last thing each person sent the studio, for the post box's plan lists:
+    // one request from the browser, the look-ups fanned out here beside Google,
+    // six at a time so a month of names does not trip Gmail's rate limit.
+    if (action === "last") {
+      const emails = (url.searchParams.get("emails") || "").split(",")
+        .map((v) => v.trim().toLowerCase()).filter((v) => /^[^@\s]+@[^@\s]+$/.test(v)).slice(0, 40);
+      const boxes = (await Promise.all(MAILBOXES.map(async (box) => {
+        try { return { box, token: await accessToken(box) }; } catch { return null; }
+      }))).filter(Boolean) as { box: string; token: string }[];
+      const last: Record<string, unknown> = {};
+      let next = 0;
+      const worker = async () => {
+        while (next < emails.length) {
+          const email = emails[next++];
+          let best: { at: number; snippet: string; subject: string; box: string } | null = null;
+          for (const { box, token } of boxes) {
+            try {
+              const h = { Authorization: `Bearer ${token}` };
+              const lr = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent("from:" + email)}&maxResults=1`, { headers: h });
+              if (!lr.ok) continue;
+              const id = (await lr.json()).messages?.[0]?.id;
+              if (!id) continue;
+              const r = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=metadata&metadataHeaders=Subject`, { headers: h });
+              if (!r.ok) continue;
+              const m = await r.json();
+              const at = Number(m.internalDate);
+              const subject = ((m.payload && m.payload.headers) || [])
+                .find((x: { name: string }) => x.name.toLowerCase() === "subject")?.value || "";
+              if (!best || at > best.at) best = { at, snippet: m.snippet || "", subject, box };
+            } catch { /* one box failing leaves the other */ }
+          }
+          last[email] = best;
+        }
+      };
+      await Promise.all(Array.from({ length: Math.min(6, emails.length) }, worker));
+      return json({ last });
     }
 
     const path = url.searchParams.get("path") || "";
