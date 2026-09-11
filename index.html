@@ -2857,13 +2857,51 @@ async function loadReader(){
 }
 // A message id belongs to the mailbox it was listed from, so the box has to
 // travel with it or a message from one box is fetched against the other.
+/* Opening a message: the box eases from the height it held while loading to the
+   height of the message, empty, and only then is the text written in, top to
+   bottom, the way a letter is. Links and paragraphs keep their markup: it is
+   the text inside them that fills. A re-render mid-way simply shows it whole. */
+function revealMessage(fromH){
+  const pane=document.getElementById("rdScroll"); if(!pane) return;
+  const card=pane.querySelector(".rd-m"), body=card && card.querySelector(".rd-body");
+  if(!card || !body || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const nodes=[];
+  const tw=document.createTreeWalker(body, NodeFilter.SHOW_TEXT);
+  for(let n=tw.nextNode(); n; n=tw.nextNode()) if(n.nodeValue.trim()) nodes.push([n, n.nodeValue]);
+  const total=nodes.reduce((a,[,t])=>a+t.length, 0);
+  const toH=card.offsetHeight;                     // measured with every word in place
+  nodes.forEach(([n])=>{ n.nodeValue=""; });
+  const release=()=>{ card.style.transition=""; card.style.height=""; card.style.overflow=""; };
+  card.style.overflow="hidden";
+  card.style.height=(fromH && fromH<toH ? fromH : toH)+"px";
+  void card.offsetHeight;
+  card.style.transition="height .38s cubic-bezier(.22,.7,.2,1)";
+  card.style.height=toH+"px";
+  setTimeout(()=>{
+    if(!card.isConnected) return;
+    if(!total){ release(); return; }
+    const dur=Math.min(1100, 360+total*0.9), t0=performance.now();
+    (function step(now){
+      if(!card.isConnected) return;
+      const q=Math.min((now-t0)/dur, 1), e=1-Math.pow(1-q, 2);
+      let budget=Math.round(total*e);
+      for(const [n,t] of nodes){ const k=Math.min(t.length, budget); n.nodeValue=t.slice(0,k); budget-=k; }
+      if(q<1) requestAnimationFrame(step);
+      else { nodes.forEach(([n,t])=>{ n.nodeValue=t; }); release(); }
+    })(performance.now());
+  }, 400);
+}
 async function openReaderMsg(id, box){
   readerOpen={id, box, body:"…"}; renderReader();
   try{
     const m=await gmail(`messages/${id}?format=full`, box);
     readerOpen={ id, box, from:cleanName(hdr(m,"From")), subject:hdr(m,"Subject"), at:Number(m.internalDate), body:gmailPlainText(m.payload)||unent(m.snippet||"") };
   }catch(e){ readerOpen={id, box, from:"", subject:"", body:"Could not open this one. "+(e&&e.message?e.message:"Unknown error")+"."}; }
+  // The box grows from its "Opening" size to the message's, then the words fill in.
+  const pane=document.getElementById("rdScroll"), was=pane && pane.querySelector(".rd-m");
+  const fromH=was ? was.offsetHeight : 0;
   renderReader();
+  revealMessage(fromH);
 }
 /* ---------- making a raw plain-text mail readable ----------
    Mail arrives hard-wrapped at 72 columns, trailing a quoted copy of the whole
