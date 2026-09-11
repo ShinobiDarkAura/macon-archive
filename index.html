@@ -197,7 +197,7 @@
   .lv-cnr i{display:block;font-style:normal;line-height:1.5;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .lv-cnr-r{text-align:right}
-  .lv-name{font-family:"TAY Flapjack",var(--serif-soul);font-weight:400;font-size:57px;line-height:.96;
+  .lv-name{font-family:"Knickerbocker",var(--serif-soul);font-weight:400;font-size:57px;line-height:.96;
     letter-spacing:-.03em;color:#26221C;margin:0;text-transform:none}
   .lv-n1,.lv-n2{display:block}
   .lv-n1{font-size:.61em;line-height:1.04;margin-bottom:-6px}
@@ -277,9 +277,9 @@
   .lv-to-in:focus{outline:none;color:var(--ink)}
   .lv-to-in::placeholder{color:#cfc5b0;text-transform:none;letter-spacing:.06em}
   .lv-fromline::before{content:"\2022";margin-right:16px;color:#d5cbb6}
-  .lv-subj{width:100%;border:none;background:transparent;font-family:"TAY Flapjack",var(--serif-soul);font-weight:400;
+  .lv-subj{width:100%;border:none;background:transparent;font-family:"Knickerbocker",var(--serif-soul);font-weight:400;
     font-size:38px;line-height:1.2;color:#1C1A18;padding:0 0 14px;margin-bottom:18px;border-bottom:1px solid #E3DED0;
-    resize:none;overflow:hidden;display:block;letter-spacing:-.02em;flex:0 0 auto;text-transform:uppercase}
+    resize:none;overflow:hidden;display:block;letter-spacing:-.02em;flex:0 0 auto}
   .lv-subj:focus{outline:none;border-bottom-color:var(--accent)}
   /* Two flexible spacers rather than a single centered box: a 4:6 split
      settles the block 10% above true center (50/50 would be dead center),
@@ -305,8 +305,7 @@
   .lv-empty-skipped button{font-family:var(--sans);font-size:12.5px;color:#8c7f68;background:transparent;
     border:1px solid var(--rule);border-radius:999px;padding:5px 12px;cursor:pointer}
   .lv-empty-skipped button:hover{border-color:var(--accent);color:var(--accent-deep)}
-  .lv-tonerow{display:flex;justify-content:flex-end;gap:8px;flex:0 0 auto;padding-bottom:14px;
-    width:78%;align-self:center}
+  .lv-tonerow{display:flex;justify-content:flex-end;gap:8px;flex:0 0 auto;padding-bottom:14px}
   .lv-tone[disabled]{opacity:.4;cursor:default}
   .lv-tone[data-busy]{color:var(--ink)}
   .lv-tone{font-size:11.5px;letter-spacing:.1em;color:#a89d89;
@@ -2386,9 +2385,11 @@ let _letterFontsReady=false;
 async function loadLetterFonts(){
   if(_letterFontsReady || !sb) return;
   try{
-    const [flap,birdie,gab,loma,gabd,gabb,ash]=await Promise.all([
+    const [flap,birdie,gab,loma,gabd,gabb,ash,knick]=await Promise.all([
       invAsset("tay-flapjack.ttf"), invAsset("tay-birdie.ttf"), invAsset("gabriele-l.ttf"), invAsset("loma.ttf"),
-      invAsset("gabriele-d.ttf"), invAsset("gabriele-br.ttf"), invAsset("ashcroft-light.woff2")
+      invAsset("gabriele-d.ttf"), invAsset("gabriele-br.ttf"), invAsset("ashcroft-light.woff2"),
+      // Optional: the names and subjects fall back to the serif without it.
+      invAsset("knickerbocker.otf").catch(()=>null)
     ]);
     FONT_CHARS["TAY Flapjack"]=fontCodepoints(flap);
     FONT_CHARS["TAY Birdie"]=fontCodepoints(birdie);
@@ -2396,6 +2397,7 @@ async function loadLetterFonts(){
     FONT_CHARS["Gabriele Dark"]=fontCodepoints(gabd);
     FONT_CHARS["LOMA"]=fontCodepoints(loma);
     FONT_CHARS["Gabriele Black"]=fontCodepoints(gabb);
+    if(knick) FONT_CHARS["Knickerbocker"]=fontCodepoints(knick);
     const faces=[
       new FontFace("TAY Flapjack", flap),
       new FontFace("TAY Birdie", birdie),
@@ -2404,6 +2406,7 @@ async function loadLetterFonts(){
       new FontFace("LOMA", loma),
       new FontFace("Gabriele Black", gabb),
       new FontFace("Ashcroft Light", ash),
+      ...(knick ? [new FontFace("Knickerbocker", knick)] : []),
     ];
     await Promise.all(faces.map(f=>f.load().then(loaded=>document.fonts.add(loaded))));
     _letterFontsReady=true;
@@ -3259,6 +3262,14 @@ function renderLetters(){
   renderCurrentLetter();
 }
 
+/* Subjects show as written, in sentence case. Knickerbocker has no curly
+   quotes, and one missing glyph drops the whole line to the fallback serif,
+   so they are straightened here. Piece names keep their capitals: they are
+   names. */
+function sentenceSubject(t){
+  const v=String(t||"").replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"').trim();
+  return v ? v.charAt(0).toUpperCase()+v.slice(1) : v;
+}
 function renderCurrentLetter(){
   const host=document.getElementById("lettersView"); if(!host) return;
   const x = letterComposing ? letterComposeItem : letterQueue[letterIdx];
@@ -3268,6 +3279,7 @@ function renderCurrentLetter(){
   let {subject,body,toneName} = composing
     ? { subject:"", body:`Hi ${esc(d.name).split(" ")[0]||"there"},\n\n\n\n${letterSignoff}`, toneName:"Blank" }
     : draftEmail(d, letterToneIdx, kind, q, letterSignoff);
+  subject=sentenceSubject(subject);
   // The name is rendered once, as the clickable button below the letter —
   // strip it from the end of the body itself so it doesn't appear twice.
   if(body.endsWith(letterSignoff)) body=body.slice(0, -letterSignoff.length).replace(/\s+$/,"");
@@ -3321,7 +3333,8 @@ function renderCurrentLetter(){
     });
   })();
   const ghosts = ghostT.map((t,i)=>
-    `<div class="lv-ghost" style="transform:${letterGhostPrev[i]||t};z-index:${-i}" data-t="${t}"></div>`).join("");
+    // Each sheet further down the pile sits 4% darker than the one above it.
+    `<div class="lv-ghost" style="transform:${letterGhostPrev[i]||t};z-index:${-i};filter:brightness(${(1-0.04*(i+1)).toFixed(2)})" data-t="${t}"></div>`).join("");
   letterGhostPrev = ghostT;
   const chevron = (dir,label) => `<button class="lv-chev lv-chev-${dir}" id="lvChev${dir}" title="${label}" aria-label="${label}">
       <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="${dir==="prev"?"M20 6 10 16l10 10":"M12 6l10 10-10 10"}"/></svg></button>`;
@@ -3341,7 +3354,7 @@ function renderCurrentLetter(){
             ${cardMeta.split(" \u00b7 ").map(x=>`<i>${esc(x)}</i>`).join("")}
           </span>
         </div>
-        <div class="lv-name" id="lvCardName" style="font-family:${safeFont("TAY Flapjack","var(--serif-soul)",name)}">${(()=>{
+        <div class="lv-name" id="lvCardName" style="font-family:${safeFont("Knickerbocker","var(--serif-soul)",name)}">${(()=>{
           const parts=String(name||"").trim().split(/\s+/);
           const last=cardNameFit(parts.pop()||"");
           const given=cardNameFit(parts.join(" "));
@@ -3380,7 +3393,7 @@ function renderCurrentLetter(){
       <div class="lv-paper${letterNoEnter?" lv-noenter":""}">
         <img class="lv-stamp" src="logos/red-stamp-alt.png" alt="" aria-hidden="true">
         <div class="lv-to"><span class="lv-to-l"><span class="lv-to-lab">To:</span><input class="lv-to-in" id="lvTo" value="${esc(email)}" placeholder="who is this going to" spellcheck="false"></span></div>
-        <textarea class="lv-subj" id="lvSubj" rows="1" style="font-family:${safeFont("TAY Flapjack","var(--serif-soul)",subject)}">${esc(subject)}</textarea>
+        <textarea class="lv-subj" id="lvSubj" rows="1" style="font-family:${safeFont("Knickerbocker","var(--serif-soul)",subject)}">${esc(subject)}</textarea>
         <div class="lv-body-wrap"><textarea class="lv-body" id="lvBody">${esc(body)}</textarea>
         <button class="lv-signoff" id="lvSignoff" title="Click to change who signs">${esc(letterSignoff)}</button></div>
         ${composing?"":`<div class="lv-tonerow"><button class="lv-tone lv-overline" id="lvTone">Tone \u00b7 ${esc(toneName)}</button></div>`}
@@ -3488,7 +3501,7 @@ function renderCurrentLetter(){
       let nextBody=r.body.split("{{SIGNOFF}}").join(letterSignoff);
       if(nextBody.endsWith(letterSignoff)) nextBody=nextBody.slice(0,-letterSignoff.length).replace(/\s+$/,"");
       readBtn.textContent="From the thread";
-      retypeInto(subjEl, r.subject, autosizeSubj);
+      retypeInto(subjEl, sentenceSubject(r.subject), autosizeSubj);
       retypeInto(bodyEl, nextBody, autosizeBody, ()=>{ delete readBtn.dataset.busy; });
     }catch(e){
       readBtn.textContent=was; delete readBtn.dataset.busy;
@@ -3517,7 +3530,7 @@ function renderCurrentLetter(){
       if(nextBody.endsWith(letterSignoff)) nextBody=nextBody.slice(0,-letterSignoff.length).replace(/\s+$/,"");
       btn.dataset.busy="1";
       btn.textContent="Tone \u00b7 "+r.toneName;
-      retypeInto(subjEl, r.subject, autosizeSubj);
+      retypeInto(subjEl, sentenceSubject(r.subject), autosizeSubj);
       retypeInto(bodyEl, nextBody, autosizeBody, ()=>{ delete btn.dataset.busy; });
     };
     host.querySelector("#lvSkip").onclick=()=>{
@@ -4203,7 +4216,7 @@ async function invAsset(name){
 }
 // Pull them down once so the first press is as quick as the rest.
 function invWarmAssets(){
-  ["tay-flapjack.ttf","tay-birdie.ttf","loma.ttf","gabriele-l.ttf","gabriele-d.ttf","gabriele-br.ttf","ashcroft-light.woff2","red-stamp-alt.png"]
+  ["tay-flapjack.ttf","tay-birdie.ttf","loma.ttf","gabriele-l.ttf","gabriele-d.ttf","gabriele-br.ttf","ashcroft-light.woff2","knickerbocker.otf","red-stamp-alt.png"]
     .forEach(n=>invAsset(n).catch(()=>{}));
 }
 
