@@ -237,7 +237,7 @@
   .lv-cnr i{display:block;font-style:normal;line-height:1.5;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .lv-cnr-r{text-align:right}
-  .lv-name{font-family:"TAY Rosemary",var(--serif-soul);font-weight:400;font-size:66px;line-height:.96;
+  .lv-name{font-family:"TAY Kari",var(--serif-soul);font-weight:400;font-size:66px;line-height:.96;
     letter-spacing:.03em;color:#26221C;margin:0;text-transform:none}
   .lv-n1,.lv-n2{display:block}
   .lv-n1{font-size:.61em;line-height:1.04;margin-bottom:0}
@@ -2452,12 +2452,13 @@ let _letterFontsReady=false;
 async function loadLetterFonts(){
   if(_letterFontsReady || !sb) return;
   try{
-    const [flap,birdie,gab,loma,gabd,gabb,ash,knick,rose]=await Promise.all([
+    const [flap,birdie,gab,loma,gabd,gabb,ash,knick,rose,kari]=await Promise.all([
       invAsset("tay-flapjack.ttf"), invAsset("tay-birdie.ttf"), invAsset("gabriele-l.ttf"), invAsset("loma.ttf"),
       invAsset("gabriele-d.ttf"), invAsset("gabriele-br.ttf"), invAsset("ashcroft-light.woff2"),
       // Optional: the names and subjects fall back to the serif without it.
       invAsset("knickerbocker.otf").catch(()=>null),
-      invAsset("tay-rosemary.otf").catch(()=>null)
+      invAsset("tay-rosemary.otf").catch(()=>null),
+      invAsset("tay-kari.otf").catch(()=>null)
     ]);
     FONT_CHARS["TAY Flapjack"]=fontCodepoints(flap);
     FONT_CHARS["TAY Birdie"]=fontCodepoints(birdie);
@@ -2467,6 +2468,7 @@ async function loadLetterFonts(){
     FONT_CHARS["Gabriele Black"]=fontCodepoints(gabb);
     if(knick) FONT_CHARS["Knickerbocker"]=fontCodepoints(knick);
     if(rose) FONT_CHARS["TAY Rosemary"]=fontCodepoints(rose);
+    if(kari) FONT_CHARS["TAY Kari"]=fontCodepoints(kari);
     const faces=[
       new FontFace("TAY Flapjack", flap),
       new FontFace("TAY Birdie", birdie),
@@ -2477,6 +2479,7 @@ async function loadLetterFonts(){
       new FontFace("Ashcroft Light", ash),
       ...(knick ? [new FontFace("Knickerbocker", knick)] : []),
       ...(rose ? [new FontFace("TAY Rosemary", rose)] : []),
+      ...(kari ? [new FontFace("TAY Kari", kari)] : []),
     ];
     await Promise.all(faces.map(f=>f.load().then(loaded=>document.fonts.add(loaded))));
     _letterFontsReady=true;
@@ -3681,7 +3684,7 @@ function renderCurrentLetter(){
             ${cardMeta.split(" \u00b7 ").map(x=>`<i>${esc(x)}</i>`).join("")}
           </span>
         </div>
-        <div class="lv-name" id="lvCardName" style="font-family:${safeFont("TAY Rosemary","var(--serif-soul)",name)}">${(()=>{
+        <div class="lv-name" id="lvCardName" style="font-family:${safeFont("TAY Kari","var(--serif-soul)",name)}">${(()=>{
           const parts=String(name||"").trim().split(/\s+/);
           const last=cardNameFit(parts.pop()||"");
           const given=cardNameFit(parts.join(" "));
@@ -4546,7 +4549,7 @@ async function invAsset(name){
 }
 // Pull them down once so the first press is as quick as the rest.
 function invWarmAssets(){
-  ["tay-flapjack.ttf","tay-birdie.ttf","loma.ttf","gabriele-l.ttf","gabriele-d.ttf","gabriele-br.ttf","ashcroft-light.woff2","knickerbocker.otf","tay-rosemary.otf","red-stamp-alt.png"]
+  ["tay-flapjack.ttf","tay-birdie.ttf","loma.ttf","gabriele-l.ttf","gabriele-d.ttf","gabriele-br.ttf","ashcroft-light.woff2","knickerbocker.otf","tay-rosemary.otf","tay-kari.otf","red-stamp-alt.png"]
     .forEach(n=>invAsset(n).catch(()=>{}));
 }
 
