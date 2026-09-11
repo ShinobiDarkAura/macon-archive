@@ -245,7 +245,7 @@
   .lv-quote-edit{resize:vertical;min-height:66px}
   .lv-quote-edit:focus{outline:none}
 
-  .lv-paper{grid-column:2;grid-row:1;align-self:end;margin-bottom:calc(2vh - 20px);height:min(92%, calc((100vw - var(--rd-w, 40vw) - 316px) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
+  .lv-paper{grid-column:2;grid-row:1;align-self:end;margin-bottom:calc(3vh - 20px);height:min(92%, calc((100vw - var(--rd-w, 40vw) - 316px) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
     box-shadow:0 1px 1px rgba(24,17,8,.22),0 2px 4px rgba(24,17,8,.18);
     padding:44px 48px 0;box-sizing:border-box;position:relative;overflow:hidden;z-index:3;
     display:flex;flex-direction:column}
@@ -364,7 +364,7 @@
   /* the stack: a couple of blank sheets behind the real one, each nudged and
      tilted, each with its own shadow, so the pile reads as physical */
   .lv-ghost.lv-settling{transition:transform .6s cubic-bezier(.22,.7,.2,1)}
-  .lv-ghost{grid-column:2;grid-row:1;align-self:end;margin-bottom:calc(2vh - 20px);height:min(92%, calc((100vw - var(--rd-w, 40vw) - 316px) * 1.2941));aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
+  .lv-ghost{grid-column:2;grid-row:1;align-self:end;margin-bottom:-20px;height:min(92%, calc((100vw - var(--rd-w, 40vw) - 316px) * 1.2941));aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
     box-shadow:0 1px 1px rgba(24,17,8,.20),0 2px 4px rgba(24,17,8,.16);pointer-events:none}
 
   /* ---------- the post drawer, hung on the right edge ---------- */
@@ -2582,8 +2582,8 @@ function fitCardName(el){
 /* The pile under the letter. Each letter seeds its own angles, so it is stable
    while you read and different when you move. Each sheet's drop is then solved
    from its angle and the sheet's size so the deepest one's lowest corner lands
-   exactly on the top sheet's bottom edge, the post box's bottom line, and the
-   others sit a little above it. Nothing in the pile hangs below the line. */
+   exactly on the post box's bottom line and the others sit a little above it.
+   The top letter rides 3% higher, so the pile shows beneath it. */
 function pileSeed(idx, n){
   let seed=(idx+1)*2654435761 >>> 0;
   const rnd=()=>{ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; };
