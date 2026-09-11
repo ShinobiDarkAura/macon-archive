@@ -2642,7 +2642,7 @@ function placeLetterTopbar(){
     const OVERLAP=0.30, CARD_SCALE=0.85;          // the post-it is drawn at 85%
     const drawer=host.querySelector(".lv-reader");
     const w=(cards.offsetWidth||1)*CARD_SCALE;
-    const left=p.right-h.left-w*OVERLAP;
+    const left=p.right-h.left-w*OVERLAP-innerWidth*0.03;   // nudged 3% of the window further over the sheet
     const drawerL=drawer ? drawer.getBoundingClientRect().left-h.left : h.width-552;
     // On a narrow window there is less margin than card. Scaling it down
     // keeps it whole rather than sliding it under the drawer.
