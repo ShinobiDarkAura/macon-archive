@@ -3637,7 +3637,9 @@ function maybeShowMorningEnvelope(){
     }, 720);
     // 4. the envelope drops off the bottom of the page and the letter is written in
     setTimeout(()=>{
-      const away=innerHeight-T+40, E={duration:840, easing:"cubic-bezier(.55,0,.8,.2)", fill:"forwards"};
+      // Far enough for the opened flap too: it stands a flap's depth above the
+      // opening, and stopping short left its point parked over the letter.
+      const away=innerHeight-T+FL+40, E={duration:840, easing:"cubic-bezier(.55,0,.8,.2)", fill:"forwards"};
       back.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
       front.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
       flap.animate([{transform:"perspective(1600px) rotateX(180deg) translateY(0)"},{transform:`perspective(1600px) rotateX(180deg) translateY(${-away}px)`}], E);
