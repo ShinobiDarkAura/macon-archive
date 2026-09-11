@@ -2757,7 +2757,7 @@ function placeLetterTopbar(){
   }
   const p=paper.getBoundingClientRect(), h=host.getBoundingClientRect();
   // The tabs are cards behind the sheet: as tall as it, standing TAB_RISE clear
-  // of its top edge. The progress strip sits above them.
+  // of its top edge. The progress strip sits in the top bar.
   const TAB_RISE=30;
   const tabs=host.querySelector("#lvPileTabs");
   if(tabs){
@@ -2769,7 +2769,9 @@ function placeLetterTopbar(){
   const prog=host.querySelector("#lvProgress");
   if(prog){
     prog.style.left=(p.left-h.left+p.width/2)+"px";
-    prog.style.top=Math.max(8, p.top-h.top-(tabs?TAB_RISE:0)-prog.offsetHeight-14)+"px";
+    // Up in the top bar, level with the Letters / Classic switch.
+    const vt=document.getElementById("viewToggle"), vr=vt && vt.getBoundingClientRect();
+    prog.style.top=(vr && vr.height ? vr.top+vr.height/2-prog.offsetHeight/2-h.top : 16)+"px";
   }
   // Centred on the corner point itself, not nudged: half the badge sits on the
   // sheet and half off it, in both axes.
