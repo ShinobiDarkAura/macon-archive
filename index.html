@@ -153,34 +153,22 @@
   .lv-env2-veil.opening p{opacity:0}
   .lv-env2-date{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#7A7262}
   .lv-env2-hint{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#A89D89}
-  /* Paper, not paint: flat manila tones with a lit paper tooth, soft blotching
-     and faint fibres drawn as SVG noise. Depth comes from hard, shallow shadows. */
-  .lv-env2-back,.lv-env2-front,.lv-env2-flap-face{background-color:#CBA468;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='380' height='380'><filter id='t' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' seed='7' stitchTiles='stitch' result='n'/><feDiffuseLighting in='n' lighting-color='white' surfaceScale='1.4'><feDistantLight azimuth='225' elevation='58'/></feDiffuseLighting><feColorMatrix values='0 0 0 0 .22 0 0 0 0 .15 0 0 0 0 .06 -.18 0 0 0 .18'/></filter><rect width='100%25' height='100%25' filter='url(%23t)'/></svg>"),url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='520'><filter id='f' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.06 .7' numOctaves='2' seed='5' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 .96 0 0 0 0 .86 0 0 0 .4 -.24'/></filter><rect width='100%25' height='100%25' filter='url(%23f)'/></svg>"),url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='760' height='760'><filter id='m' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.006' numOctaves='3' seed='11' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35 0 0 0 0 .24 0 0 0 0 .1 0 0 0 .35 -.17'/></filter><rect width='100%25' height='100%25' filter='url(%23m)'/></svg>");
-    background-size:380px 380px,520px 520px,760px 760px}
-  .lv-env2-back,.lv-env2-front{position:fixed;border-radius:3px}
-  .lv-env2-back{z-index:305;box-shadow:0 2px 0 rgba(40,26,8,.16),0 1px 1px rgba(40,26,8,.24)}
-  .lv-env2-front{z-index:320;box-shadow:inset 0 1px 0 rgba(255,244,220,.38),0 2px 0 rgba(40,26,8,.16),0 1px 1px rgba(40,26,8,.24)}
-  /* the seams on the back of a catalogue envelope */
-  .lv-env2-front::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;
-    background:linear-gradient(180deg,transparent,rgba(70,48,20,.22) 14%,rgba(70,48,20,.22))}
-  .lv-env2-front::after{content:"";position:absolute;left:0;right:0;bottom:0;height:34%;
-    background:linear-gradient(to top right,transparent 49.6%,rgba(70,48,20,.18) 50%,transparent 50.4%) left/50% 100% no-repeat,
-      linear-gradient(to top left,transparent 49.6%,rgba(70,48,20,.18) 50%,transparent 50.4%) right/50% 100% no-repeat}
-  /* The flap's point is a clip, and a clip cuts its own shadow off; the wrapper
-     casts the shadow and the face inside carries the shape. */
-  .lv-env2-flap{position:fixed;z-index:330;transform-origin:50% 0;
-    filter:drop-shadow(0 2px 0 rgba(40,26,8,.2)) drop-shadow(0 1px 1px rgba(40,26,8,.18))}
-  .lv-env2-flap-face{position:absolute;inset:0;display:block;background-color:#C29859;
-    clip-path:polygon(0 0,100% 0,100% 16%,58% 95%,50% 100%,42% 95%,0 16%)}
-  .lv-env2-label{position:absolute;left:50%;top:calc(var(--flap) + 120px);transform:translateX(-50%) rotate(-1deg);width:47.6%;
+  /* The envelope is photographed (generated through Codex, cut out with its
+     shadow kept). Closed is one layer in front of the sheet; open is two, the
+     standing flap behind the sheet and the body in front, so the letter rises
+     between them. */
+  .lv-env2-img{position:fixed;display:block;pointer-events:none;user-select:none}
+  .lv-env2-closed{z-index:320}
+  .lv-env2-open-flap{z-index:305;opacity:0}
+  .lv-env2-open-body{z-index:320;opacity:0}
+  .lv-env2-label{position:fixed;z-index:325;transform:translateX(-50%) rotate(-1deg);
     background:#FBF6EA;padding:29px 26px 29px;text-align:center;box-sizing:border-box;
     box-shadow:0 1px 0 rgba(40,26,8,.2),0 2px 1px rgba(40,26,8,.1)}
   .lv-env2-chip{display:inline-block;font-family:"Public Sans",var(--sans);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
     color:#7A7262;border:1px solid rgba(90,70,40,.34);border-radius:999px;padding:4px 11px;margin:0 0 14px;white-space:nowrap}
   .lv-env2-count{font-family:"Knickerbocker",var(--serif-soul);font-size:46px;line-height:1;text-transform:uppercase;color:#2A241C;margin:0 0 10px}
   .lv-env2-parts{font-family:"Public Sans",var(--sans);font-size:13.5px;line-height:1.6;color:#5D564A;margin:0}
-  .lv-env2-seal{position:fixed;z-index:340;width:104px;height:104px;padding:0;border:none;background:transparent;cursor:pointer;
+  .lv-env2-seal{position:fixed;z-index:340;padding:0;border:none;background:transparent;cursor:pointer;
     transform:translate(-50%,-50%) rotate(-8deg);filter:drop-shadow(0 1px 1px rgba(24,17,8,.35)) drop-shadow(0 3px 5px rgba(24,17,8,.25));}
   .lv-env2-seal img{width:100%;height:100%;object-fit:contain;display:block}
   /* Badge + compose live in the fixed top bar now, not on the paper — the
@@ -303,6 +291,9 @@
     padding:44px 48px 0;box-sizing:border-box;position:relative;overflow:hidden;z-index:3;
     display:flex;flex-direction:column}
   .lv-paper::before{content:"";position:absolute;inset:14px;border:1px solid rgba(140,106,71,.12);pointer-events:none}
+  /* A faint cotton tooth over the sheet, blended in so the paper stays white. */
+  .lv-paper::after{content:"";position:absolute;inset:0;background:url("logos/letter-paper.webp") center/600px;
+    mix-blend-mode:multiply;opacity:.55;pointer-events:none;z-index:0}
   .lv-stamp{position:absolute;left:-16px;bottom:10%;width:175px;height:auto;opacity:.92;
     transform:rotate(-12deg);pointer-events:none;mix-blend-mode:multiply;z-index:2}
   /* the email line reads like the margin's overline facts (Public Sans, plain
@@ -3843,12 +3834,19 @@ function maybeShowMorningEnvelope(){
   // transform does not skew it.
   const hr=host.getBoundingClientRect();
   const P={ left:hr.left+paper.offsetLeft, top:hr.top+paper.offsetTop, w:paper.offsetWidth, h:paper.offsetHeight };
+  // The photographs' geometry, in image pixels: the closed shot is a 1254-wide
+  // canvas whose body sits at (185,65) 883x1113 with the flap's tip at (633,483);
+  // the open shot is split at its body's top edge into a 290px-tall flap layer
+  // and an 1189px-tall body layer. Everything is placed from the body rect.
+  const IMG={ w:1254, bx:185, by:65, bw:883, bh:1113, tipX:633, tipY:483, flapH:290, flapBody:288, bodyLayerH:1189 };
   const W=Math.round(P.w*1.14), L=Math.round(P.left+P.w/2-W/2);
   const T=Math.round(P.top+P.h*0.20);        // the opening: the sheet's top fifth will show above it
-  const H=Math.round(P.h*1.02+60);           // deep enough to hold the sheet while it waits lower down
-  const FL=Math.round(W*0.34);               // flap depth
+  const sc=W/IMG.bw, IW=Math.round(IMG.w*sc);
+  const imgL=Math.round(L-IMG.bx*sc);
+  const closedTop=Math.round(T-IMG.by*sc), flapTop=Math.round(T-IMG.flapBody*sc);
+  const sealX=Math.round(L+(IMG.tipX-IMG.bx)*sc), sealY=Math.round(T+(IMG.tipY-IMG.by)*sc), sealW=Math.round(W*0.14);
   const sink=Math.round(P.h*0.20+40);        // how far the sheet sits inside before it rises
-  const box=`left:${L}px;top:${T}px;width:${W}px;height:${H}px`;
+  const FL=Math.round(IMG.flapBody*sc);      // how far the open flap stands above the opening
 
   document.body.classList.add("lv-ritual");
   document.body.insertAdjacentHTML("beforeend", `
@@ -3857,19 +3855,18 @@ function maybeShowMorningEnvelope(){
         <p class="lv-env2-hint">Break the seal to begin</p>
       </div>
     </div>
-    <div class="lv-env2-back" id="lvEnvBack" style="${box}"></div>
-    <div class="lv-env2-front" id="lvEnvFront" style="${box};--flap:${FL}px">
-      <div class="lv-env2-label">
-        <span class="lv-env2-chip">${esc(day)}</span>
-        <p class="lv-env2-count">${esc(count(c.all,"letter","letters"))}</p>
-        <p class="lv-env2-parts">${parts.map(esc).join("<br>")}</p>
-      </div>
+    <img class="lv-env2-img lv-env2-open-flap" id="lvEnvFlap" src="logos/env-open-flap.webp" alt="" style="left:${imgL}px;top:${flapTop}px;width:${IW}px">
+    <img class="lv-env2-img lv-env2-open-body" id="lvEnvBody" src="logos/env-open-body.webp" alt="" style="left:${imgL}px;top:${T}px;width:${IW}px">
+    <img class="lv-env2-img lv-env2-closed" id="lvEnvClosed" src="logos/env-closed.webp" alt="" style="left:${imgL}px;top:${closedTop}px;width:${IW}px">
+    <div class="lv-env2-label" id="lvEnvLabel" style="left:${L+W/2}px;top:${Math.round(T+W*0.58)}px;width:${Math.round(W*0.476)}px">
+      <span class="lv-env2-chip">${esc(day)}</span>
+      <p class="lv-env2-count">${esc(count(c.all,"letter","letters"))}</p>
+      <p class="lv-env2-parts">${parts.map(esc).join("<br>")}</p>
     </div>
-    <div class="lv-env2-flap" id="lvEnvFlap" style="left:${L}px;top:${T}px;width:${W}px;height:${FL}px"><i class="lv-env2-flap-face"></i></div>
-    <button class="lv-env2-seal" id="lvEnvSeal" style="left:${L+W/2}px;top:${T+FL-6}px" aria-label="Break the seal and open today's letters"><img src="logos/wax-seal.webp" alt=""></button>`);
+    <button class="lv-env2-seal" id="lvEnvSeal" style="left:${sealX}px;top:${sealY}px;width:${sealW}px;height:${sealW}px" aria-label="Break the seal and open today's letters"><img src="logos/wax-seal.webp" alt=""></button>`);
 
-  const veil=document.getElementById("lvEnvVeil"), back=document.getElementById("lvEnvBack"),
-        front=document.getElementById("lvEnvFront"), flap=document.getElementById("lvEnvFlap"), seal=document.getElementById("lvEnvSeal");
+  const veil=document.getElementById("lvEnvVeil"), closed=document.getElementById("lvEnvClosed"), body=document.getElementById("lvEnvBody"),
+        flap=document.getElementById("lvEnvFlap"), label=document.getElementById("lvEnvLabel"), seal=document.getElementById("lvEnvSeal");
   const ghosts=[...host.querySelectorAll(".lv-ghost")];
   // The pile waits out of sight, so nothing reads as a sheet already out.
   const hidden=ghosts.map(g=>g.animate([{opacity:0},{opacity:0}], {duration:1, fill:"forwards"}));
@@ -3879,7 +3876,7 @@ function maybeShowMorningEnvelope(){
   let rise=null, done=false;
   const mark=()=>{ try{ localStorage.setItem("macon.envelope", todayKey()); }catch{} };
   const cleanup=()=>{
-    [veil,back,front,flap,seal].forEach(n=>n && n.remove());
+    [veil,closed,body,flap,label,seal].forEach(n=>n && n.remove());
     document.body.classList.remove("lv-ritual");
     hold.cancel(); if(rise) rise.cancel(); hidden.forEach(a=>a.cancel());
     document.removeEventListener("keydown", onKey);
@@ -3899,11 +3896,14 @@ function maybeShowMorningEnvelope(){
       {transform:"translate(-50%,-50%) rotate(-22deg) scale(1.12)", opacity:1, offset:.35},
       {transform:"translate(-50%,-50%) rotate(-40deg) scale(.4)", opacity:0}
     ], {duration:380, easing:"ease-in", fill:"forwards"});
-    // 2. the flap lifts; past upright it drops behind the sheet
+    // 2. the flap opens: the closed photograph gives way to the open one, whose
+    //    standing flap sits behind the sheet and whose body stays in front
     setTimeout(()=>{
-      flap.animate([{transform:"perspective(1600px) rotateX(0deg)"},{transform:"perspective(1600px) rotateX(180deg)"}],
-        {duration:560, easing:"cubic-bezier(.45,0,.2,1)", fill:"forwards"});
-      setTimeout(()=>{ flap.style.zIndex="305"; }, 280);
+      const E={duration:420, easing:"ease-in-out", fill:"forwards"};
+      closed.animate([{opacity:1},{opacity:0}], E);
+      label.animate([{opacity:1},{opacity:0}], {duration:260, fill:"forwards"});
+      body.animate([{opacity:0},{opacity:1}], E);
+      flap.animate([{opacity:0, transform:"translateY(18px)"},{opacity:1, transform:"translateY(0)"}], {duration:480, easing:"cubic-bezier(.2,.8,.2,1)", fill:"forwards"});
     }, 180);
     // 3. the letter rises until its top fifth shows above the opening
     setTimeout(()=>{
@@ -3916,10 +3916,9 @@ function maybeShowMorningEnvelope(){
       // opening, and stopping short left its point parked over the letter.
       // The arrows were placed while the sheet waited sunk inside; it is home now.
       placeLetterTopbar();
-      const away=innerHeight-T+FL+40, E={duration:840, easing:"cubic-bezier(.55,0,.8,.2)", fill:"forwards"};
-      back.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
-      front.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
-      flap.animate([{transform:"perspective(1600px) rotateX(180deg) translateY(0)"},{transform:`perspective(1600px) rotateX(180deg) translateY(${-away}px)`}], E);
+      const away=innerHeight-flapTop+40, E={duration:840, easing:"cubic-bezier(.55,0,.8,.2)", fill:"forwards"};
+      body.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
+      flap.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
     }, 1620);
     // 5. the room comes back into focus and the pile settles into place
     setTimeout(()=>{
