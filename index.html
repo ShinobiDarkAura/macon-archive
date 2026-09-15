@@ -318,7 +318,7 @@
   .lv-quote-edit{resize:vertical;min-height:66px}
   .lv-quote-edit:focus{outline:none}
 
-  .lv-paper{grid-column:2;grid-row:1;align-self:end;margin-bottom:calc(3vh - 20px);height:min(92%, calc((100vw - 720px - 136px - 3vw) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
+  .lv-paper{grid-column:2;grid-row:1;align-self:end;margin-bottom:calc(3vh - 20px);height:min(92%, calc((100vw - 760px - 136px - 3vw) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
     box-shadow:0 1px 1px rgba(24,17,8,.22),0 2px 4px rgba(24,17,8,.18),0 -1px 3px rgba(24,17,8,.14);
     padding:44px 48px 0;box-sizing:border-box;position:relative;overflow:hidden;z-index:3;
     display:flex;flex-direction:column}
@@ -440,7 +440,7 @@
   /* the stack: a couple of blank sheets behind the real one, each nudged and
      tilted, each with its own shadow, so the pile reads as physical */
   .lv-ghost.lv-settling{transition:transform .6s cubic-bezier(.22,.7,.2,1)}
-  .lv-ghost{grid-column:2;grid-row:1;align-self:end;margin-bottom:-20px;height:min(92%, calc((100vw - 720px - 136px - 3vw) * 1.2941));aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
+  .lv-ghost{grid-column:2;grid-row:1;align-self:end;margin-bottom:-20px;height:min(92%, calc((100vw - 760px - 136px - 3vw) * 1.2941));aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
     box-shadow:0 1px 1px rgba(24,17,8,.20),0 2px 4px rgba(24,17,8,.16);pointer-events:none}
 
   /* ---------- the post drawer, hung on the right edge ---------- */
@@ -456,7 +456,7 @@
   /* The post is a small, quiet surface floating in the right column, the way
      it began: the letters are the point, and the mail sits beside them. All
      the reading, planning and sending underneath is unchanged. */
-  .lv-tag{grid-column:1;grid-row:1;justify-self:center;align-self:center;width:300px;max-height:88%;overflow-y:auto;
+  .lv-tag{grid-column:1;grid-row:1;justify-self:center;align-self:center;width:340px;min-height:420px;max-height:88%;overflow-y:auto;
     box-sizing:border-box;padding:16px 16px 18px;border-radius:8px;scrollbar-width:none;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
     background:rgba(255,255,255,.44);box-shadow:0 1px 1px rgba(24,17,8,.06)}
@@ -3835,7 +3835,10 @@ function maybeShowMorningEnvelope(){
   // canvas whose body sits at (185,65) 883x1113 with the flap's tip at (633,483);
   // the open shot is split at its body's top edge into a 290px-tall flap layer
   // and an 1189px-tall body layer. Everything is placed from the body rect.
-  const IMG={ w:1254, bx:185, by:65, bw:883, bh:1113, tipX:633, tipY:483, flapH:290, flapBody:288, bodyLayerH:1189 };
+  // The open shot is split at the pocket's seam (row 355), 67 rows below the
+  // body's top edge, so the letter comes up out of the pocket rather than
+  // from behind the envelope's inner lip.
+  const IMG={ w:1254, bx:185, by:65, bw:883, bh:1113, tipX:633, tipY:483, flapBody:288, seam:355 };
   const W=Math.round(P.w*1.14), L=Math.round(P.left+P.w/2-W/2);
   // The opening sits a tenth of the screen above where the sheet's top fifth
   // would show, so the envelope reads high on the page while it is sealed.
@@ -3844,7 +3847,8 @@ function maybeShowMorningEnvelope(){
   const imgL=Math.round(L-IMG.bx*sc);
   const closedTop=Math.round(T-IMG.by*sc), flapTop=Math.round(T-IMG.flapBody*sc);
   const sealX=Math.round(L+(IMG.tipX-IMG.bx)*sc), sealY=Math.round(T+(IMG.tipY-IMG.by)*sc), sealW=Math.round(W*0.14);
-  const sink=Math.max(24, Math.round(T-P.top+40));   // the sheet's top sits 40px inside the opening
+  const seamY=Math.round(T+(IMG.seam-IMG.flapBody)*sc);   // where the pocket's top edge lands on screen
+  const sink=Math.max(24, Math.round(seamY-P.top+40));     // the sheet's top sits 40px inside the pocket
   const FL=Math.round(IMG.flapBody*sc);      // how far the open flap stands above the opening
 
   document.documentElement.style.setProperty("--env-sink", sink+"px");
@@ -3854,7 +3858,7 @@ function maybeShowMorningEnvelope(){
     <div class="lv-env2-veil" id="lvEnvVeil" role="dialog" aria-label="Today's letters">
     </div>
     <img class="lv-env2-img lv-env2-open-flap" id="lvEnvFlap" src="logos/env-open-flap.webp" alt="" style="left:${imgL}px;top:${flapTop}px;width:${IW}px">
-    <img class="lv-env2-img lv-env2-open-body" id="lvEnvBody" src="logos/env-open-body.webp" alt="" style="left:${imgL}px;top:${T}px;width:${IW}px">
+    <img class="lv-env2-img lv-env2-open-body" id="lvEnvBody" src="logos/env-open-body.webp" alt="" style="left:${imgL}px;top:${seamY}px;width:${IW}px">
     <img class="lv-env2-img lv-env2-closed" id="lvEnvClosed" src="logos/env-closed.webp" alt="" style="left:${imgL}px;top:${closedTop}px;width:${IW}px">
     <div class="lv-env2-label" id="lvEnvLabel" style="left:${L+W/2}px;top:${Math.round(T+W*0.56)+56}px;width:${Math.round(W*0.405)}px">
       <span class="lv-env2-chip">${esc(day)}</span>
