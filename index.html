@@ -148,7 +148,11 @@
   /* Sealed, the envelope sits a tenth of the screen higher; it settles down as it opens. */
   .lv-env2-img,.lv-env2-label,.lv-env2-seal,.lv-env2-caption{transition:translate .65s cubic-bezier(.3,.7,.2,1)}
   body.lv-env-lifted :is(.lv-env2-img,.lv-env2-label,.lv-env2-seal,.lv-env2-caption){translate:0 -10vh}
-  body.lv-ritual:not(.lv-env-out) .lv-ghost,body.lv-ritual .lv-pile-tabs{visibility:hidden}
+  body.lv-ritual:not(.lv-env-out) .lv-ghost{visibility:hidden}
+  /* Nothing else is on the desk while the envelope is: the post, the buttons,
+     the tabs and the strip arrive only once the pile has settled. */
+  .lv-reader,.lv-topleft,.lv-progress,.lv-pile-tabs,#viewToggle,.chat-fab{transition:opacity .55s ease}
+  body.lv-ritual:not(.lv-env-out) :is(.lv-reader,.lv-topleft,.lv-progress,.lv-pile-tabs,#viewToggle,.chat-fab){opacity:0;pointer-events:none}
   /* The envelope runs off the bottom of the page; it fades into the room instead of ending at the edge. */
   .lv-env2-fade{position:fixed;left:0;right:0;bottom:0;height:24vh;z-index:335;pointer-events:none;
     background:linear-gradient(to bottom,rgba(244,240,231,0),#F4F0E7 80%);transition:opacity .5s ease}
@@ -183,10 +187,8 @@
   .lv-env2-seal{position:fixed;z-index:340;padding:0;border:none;background:transparent;cursor:pointer;
     transform:translate(-50%,-50%) rotate(-8deg);filter:drop-shadow(0 1px 1px rgba(24,17,8,.35)) drop-shadow(0 3px 5px rgba(24,17,8,.25));
     transition:transform .3s cubic-bezier(.2,.7,.2,1),filter .3s ease,translate .65s cubic-bezier(.3,.7,.2,1)}
-  /* Hinged along its top edge: the bottom of the wax curls up towards you. */
-  .lv-env2-seal img{transform-origin:50% 0;backface-visibility:hidden;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
-  .lv-env2-seal:hover img{transform:perspective(240px) rotateX(-18deg)}
-  .lv-env2-seal:hover{filter:drop-shadow(0 2px 1px rgba(24,17,8,.3)) drop-shadow(0 7px 8px rgba(24,17,8,.22))}
+  /* On hover the wax turns eight degrees clockwise, nothing more. */
+  .lv-env2-seal:hover{transform:translate(-50%,-50%) rotate(0deg)}
   .lv-env2-seal img{width:100%;height:100%;object-fit:contain;display:block}
   /* Badge + compose live in the fixed top bar now, not on the paper — the
      paper's own overflow:hidden (needed to clip the stamp) was clipping them
