@@ -511,7 +511,7 @@
   .rd-pills{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 10px;min-height:18px}
   .rd-pill{font-family:"Public Sans",var(--sans);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;line-height:1;
     color:#6E6450;background:rgba(120,102,70,.12);border-radius:999px;padding:5px 8px;white-space:nowrap}
-  .rd-pill.k-custom{background:rgba(192,57,43,.13);color:#8E2E1E}
+  .rd-pill.k-custom{background:rgba(140,106,71,.16);color:#6F5235}
   .rd-pill.k-story{background:rgba(184,147,95,.18);color:#7A5A2A}
   .rd-pill.k-reconnect{background:rgba(110,154,90,.16);color:#3F6B33}
   .rd-pill.u-high{background:rgba(192,57,43,.13);color:#8E2E1E}
@@ -3451,10 +3451,7 @@ function letterContextHTML(x){
       ${flags.patron && d.phone ? `<a href="tel:${esc(String(d.phone).replace(/[^0-9+]/g,""))}" title="Email replies run about 3 percent. Ring them instead.">Call ${esc((d.name||"").split(" ")[0]||"them")}</a>` : ""}
     </div>`);
   const piece=String(facts[0]||"").trim();
-  const pills=`<div class="rd-pills">
-    <span class="rd-pill k-${esc(kind)}">${esc(ctx.kindLabel)}</span>
-    <span class="rd-pill u-${esc(ctx.priority.toLowerCase())}">${esc(ctx.priority)}</span>
-    ${piece?`<span class="rd-pill">${esc(piece)}</span>`:""}</div>`;
+  const pills=`<div class="rd-pills"><span class="rd-pill k-${esc(kind)}">${esc(ctx.kindLabel)}</span></div>`;
   return `<section class="rd-ctx">
     ${pills}
     <h3 class="rd-ctx-name" style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",name)}">${esc(String(name||"").toUpperCase())}</h3>
@@ -3614,11 +3611,8 @@ function renderReaderTop(){
   const t=document.getElementById("rdTop"); if(!t) return;
   const unread=(readerMsgs||[]).filter(m=>m.unread && (readerShowBulk||!m.bulk)).length;
   const boxes=(readerConnected||[]).map(b=>boxLabel(b)+"@");
-  const top=[
-    `<span class="rd-pill">${letterQueue.length} today</span>`,
-    unread ? `<span class="rd-pill u-high">${unread} unread</span>` : "",
-    !gmailReady() ? "" : boxes.length ? `<span class="rd-pill k-reconnect">${esc(boxes.join(" · "))}</span>` : `<span class="rd-pill u-high">No mailbox connected</span>`
-  ].filter(Boolean).join("");
+  // One pill per connected mailbox, side by side.
+  const top = !gmailReady() ? "" : boxes.length ? boxes.map(b=>`<span class="rd-pill">${esc(b)}</span>`).join("") : `<span class="rd-pill u-medium">No mailbox connected</span>`;
   t.innerHTML=`
     <div class="rd-pills">${top}</div>
     <div class="rd-top-row">
