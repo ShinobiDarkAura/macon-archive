@@ -508,6 +508,15 @@
   .rd-top{flex:0 0 auto;padding:14px 16px 0;background:transparent;border-bottom:1px solid var(--rl);
     display:flex;flex-direction:column;justify-content:space-between}
   .rd-top-row{display:flex;align-items:center;gap:11px}
+  .rd-pills{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 10px;min-height:18px}
+  .rd-pill{font-family:"Public Sans",var(--sans);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;line-height:1;
+    color:#6E6450;background:rgba(120,102,70,.12);border-radius:999px;padding:5px 8px;white-space:nowrap}
+  .rd-pill.k-custom{background:rgba(192,57,43,.13);color:#8E2E1E}
+  .rd-pill.k-story{background:rgba(184,147,95,.18);color:#7A5A2A}
+  .rd-pill.k-reconnect{background:rgba(110,154,90,.16);color:#3F6B33}
+  .rd-pill.u-high{background:rgba(192,57,43,.13);color:#8E2E1E}
+  .rd-pill.u-medium{background:rgba(184,147,95,.18);color:#7A5A2A}
+  .rd-pill.u-low{background:rgba(110,154,90,.16);color:#3F6B33}
   .rd-top h2{margin:0;font-size:32px;line-height:1;letter-spacing:-.02em;text-transform:uppercase;color:var(--ink-1);font-weight:400}
   .rd-unread{font-family:var(--sans);font-size:11.5px;font-weight:600;color:#fff;background:var(--accent-grad);
     border-radius:999px;min-width:22px;height:22px;padding:0 6px;display:inline-flex;align-items:center;
@@ -3441,7 +3450,13 @@ function letterContextHTML(x){
       <button type="button" id="lvFileOpen">${(d.story||d.lives||d.why)?"Edit what they said":"File a reply"}</button>
       ${flags.patron && d.phone ? `<a href="tel:${esc(String(d.phone).replace(/[^0-9+]/g,""))}" title="Email replies run about 3 percent. Ring them instead.">Call ${esc((d.name||"").split(" ")[0]||"them")}</a>` : ""}
     </div>`);
+  const piece=String(facts[0]||"").trim();
+  const pills=`<div class="rd-pills">
+    <span class="rd-pill k-${esc(kind)}">${esc(ctx.kindLabel)}</span>
+    <span class="rd-pill u-${esc(ctx.priority.toLowerCase())}">${esc(ctx.priority)}</span>
+    ${piece?`<span class="rd-pill">${esc(piece)}</span>`:""}</div>`;
   return `<section class="rd-ctx">
+    ${pills}
     <h3 class="rd-ctx-name" style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",name)}">${esc(String(name||"").toUpperCase())}</h3>
     ${note}
     ${act}
@@ -3598,7 +3613,14 @@ function noteSent(){
 function renderReaderTop(){
   const t=document.getElementById("rdTop"); if(!t) return;
   const unread=(readerMsgs||[]).filter(m=>m.unread && (readerShowBulk||!m.bulk)).length;
+  const boxes=(readerConnected||[]).map(b=>boxLabel(b)+"@");
+  const top=[
+    `<span class="rd-pill">${letterQueue.length} today</span>`,
+    unread ? `<span class="rd-pill u-high">${unread} unread</span>` : "",
+    !gmailReady() ? "" : boxes.length ? `<span class="rd-pill k-reconnect">${esc(boxes.join(" · "))}</span>` : `<span class="rd-pill u-high">No mailbox connected</span>`
+  ].filter(Boolean).join("");
   t.innerHTML=`
+    <div class="rd-pills">${top}</div>
     <div class="rd-top-row">
       <h2 style="font-family:${safeFont("TAY Flapjack","var(--serif-soul)","POST BOX")}">Post box</h2>
       ${unread?`<span class="rd-unread">${unread}</span>`:""}
