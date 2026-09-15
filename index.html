@@ -183,8 +183,9 @@
   .lv-env2-seal{position:fixed;z-index:340;padding:0;border:none;background:transparent;cursor:pointer;
     transform:translate(-50%,-50%) rotate(-8deg);filter:drop-shadow(0 1px 1px rgba(24,17,8,.35)) drop-shadow(0 3px 5px rgba(24,17,8,.25));
     transition:transform .3s cubic-bezier(.2,.7,.2,1),filter .3s ease,translate .65s cubic-bezier(.3,.7,.2,1)}
-  .lv-env2-seal img{transform-origin:50% 100%;transition:transform .3s cubic-bezier(.2,.7,.2,1)}
-  .lv-env2-seal:hover img{transform:perspective(320px) rotateX(14deg) scale(1.02)}
+  /* Hinged along its top edge: the bottom of the wax curls up towards you. */
+  .lv-env2-seal img{transform-origin:50% 0;backface-visibility:hidden;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+  .lv-env2-seal:hover img{transform:perspective(240px) rotateX(-18deg)}
   .lv-env2-seal:hover{filter:drop-shadow(0 2px 1px rgba(24,17,8,.3)) drop-shadow(0 7px 8px rgba(24,17,8,.22))}
   .lv-env2-seal img{width:100%;height:100%;object-fit:contain;display:block}
   /* Badge + compose live in the fixed top bar now, not on the paper — the
