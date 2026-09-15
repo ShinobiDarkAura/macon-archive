@@ -644,9 +644,9 @@
     letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:0 0 12px}
   :is(.lv-reader,.lv-tag) .rd-ctx-meta b{font-weight:600}
   :is(.lv-reader,.lv-tag) .rd-pri-high{color:#C0392B} :is(.lv-reader,.lv-tag) .rd-pri-medium{color:#B8935F} :is(.lv-reader,.lv-tag) .rd-pri-low{color:#6E9A5A}
-  :is(.lv-reader,.lv-tag) .rd-ctx-name{font-family:"Knickerbocker",var(--serif-soul);font-weight:400;font-size:24px;line-height:1;
+  :is(.lv-reader,.lv-tag) .rd-ctx-name{font-family:"TAY Birdie",var(--serif-soul);font-weight:400;font-size:24px;line-height:1;
     color:var(--ink-1);margin:0 0 14px;text-wrap:balance}
-  :is(.lv-reader,.lv-tag) .rd-ctx-why{font-family:var(--sans);font-size:13px;line-height:1.5;font-weight:700;color:var(--ink-1);margin:0 0 12px}
+  :is(.lv-reader,.lv-tag) .rd-ctx-why{font-family:var(--sans);font-size:13px;line-height:1.5;font-weight:400;color:var(--ink-2);margin:0 0 12px}
   :is(.lv-reader,.lv-tag) .rd-ctx-note{background:#fff;border-radius:9px;padding:14px 16px 16px;box-shadow:0 1px 2px rgba(24,17,8,.26)}
   :is(.lv-reader,.lv-tag) .rd-ctx-note span{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--ink-3);margin:0 0 6px}
@@ -3437,7 +3437,7 @@ function letterContextHTML(x){
     </div>`);
   return `<section class="rd-ctx">
     <div class="rd-ctx-meta"><span>${esc(ctx.kindLabel)} · <b class="rd-pri-${esc(ctx.priority.toLowerCase())}">${esc(ctx.priority)}</b></span><span>${esc(meta)}</span></div>
-    <h3 class="rd-ctx-name">${esc(String(name||"").toUpperCase())}</h3>
+    <h3 class="rd-ctx-name" style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",name)}">${esc(String(name||"").toUpperCase())}</h3>
     ${reason?`<p class="rd-ctx-why">${esc(reason)}</p>`:""}
     ${note}
     ${act}
