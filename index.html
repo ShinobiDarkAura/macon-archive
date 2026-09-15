@@ -315,7 +315,7 @@
   .lv-quote-edit{resize:vertical;min-height:66px}
   .lv-quote-edit:focus{outline:none}
 
-  .lv-paper{grid-column:2;grid-row:1;align-self:end;margin-bottom:calc(3vh - 20px);height:min(92%, calc((100vw - 380px - 136px - 3vw) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
+  .lv-paper{grid-column:2;grid-row:1;align-self:end;margin-bottom:calc(3vh - 20px);height:min(92%, calc((100vw - 720px - 136px - 3vw) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
     box-shadow:0 1px 1px rgba(24,17,8,.22),0 2px 4px rgba(24,17,8,.18),0 -1px 3px rgba(24,17,8,.14);
     padding:44px 48px 0;box-sizing:border-box;position:relative;overflow:hidden;z-index:3;
     display:flex;flex-direction:column}
@@ -437,7 +437,7 @@
   /* the stack: a couple of blank sheets behind the real one, each nudged and
      tilted, each with its own shadow, so the pile reads as physical */
   .lv-ghost.lv-settling{transition:transform .6s cubic-bezier(.22,.7,.2,1)}
-  .lv-ghost{grid-column:2;grid-row:1;align-self:end;margin-bottom:-20px;height:min(92%, calc((100vw - 380px - 136px - 3vw) * 1.2941));aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
+  .lv-ghost{grid-column:2;grid-row:1;align-self:end;margin-bottom:-20px;height:min(92%, calc((100vw - 720px - 136px - 3vw) * 1.2941));aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
     box-shadow:0 1px 1px rgba(24,17,8,.20),0 2px 4px rgba(24,17,8,.16);pointer-events:none}
 
   /* ---------- the post drawer, hung on the right edge ---------- */
@@ -449,10 +449,17 @@
   /* The post box sets the width; the letter side takes what is left. 56px is
      the drawer's inset and a
      gap before the drawer. */
-  body.view-letters .letters-view{padding-left:calc(40px + 3vw);padding-right:40px}
+  body.view-letters .letters-view{padding-left:40px;padding-right:40px}
   /* The post is a small, quiet surface floating in the right column, the way
      it began: the letters are the point, and the mail sits beside them. All
      the reading, planning and sending underneath is unchanged. */
+  .lv-tag{grid-column:1;grid-row:1;justify-self:center;align-self:center;width:300px;max-height:88%;overflow-y:auto;
+    box-sizing:border-box;padding:16px 16px 18px;border-radius:8px;scrollbar-width:none;
+    --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
+    background:rgba(255,255,255,.44);box-shadow:0 1px 1px rgba(24,17,8,.06)}
+  .lv-tag::-webkit-scrollbar{display:none}
+  .lv-tag:empty{display:none}
+  .lv-tag .rd-ctx{margin:0;padding:0;border:none}
   .lv-reader{grid-column:3;grid-row:1;justify-self:center;align-self:center;width:340px;max-height:88%;
     overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;border-radius:8px;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
@@ -632,25 +639,25 @@
   .rd-search{display:block;width:100%;box-sizing:border-box;height:auto;margin:0 0 10px;padding:8px 10px;border:1px solid var(--rl);border-radius:6px;
     background:rgba(255,255,255,.7);font-family:var(--sans);font-size:12.5px;color:var(--ink-1)}
   .rd-search:focus{outline:none;border-color:var(--ink-3)}
-  .lv-reader .rd-ctx{margin:0 0 30px;padding:0 0 26px;border-bottom:1px dashed var(--rl)}
-  .lv-reader .rd-ctx-meta{display:flex;justify-content:space-between;gap:12px;font-family:var(--sans);font-size:11px;
+  :is(.lv-reader,.lv-tag) .rd-ctx{margin:0 0 30px;padding:0 0 26px;border-bottom:1px dashed var(--rl)}
+  :is(.lv-reader,.lv-tag) .rd-ctx-meta{display:flex;justify-content:space-between;gap:12px;font-family:var(--sans);font-size:11px;
     letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:0 0 12px}
-  .lv-reader .rd-ctx-meta b{font-weight:600}
-  .lv-reader .rd-pri-high{color:#C0392B} .lv-reader .rd-pri-medium{color:#B8935F} .lv-reader .rd-pri-low{color:#6E9A5A}
-  .lv-reader .rd-ctx-name{font-family:"Knickerbocker",var(--serif-soul);font-weight:400;font-size:24px;line-height:1;
+  :is(.lv-reader,.lv-tag) .rd-ctx-meta b{font-weight:600}
+  :is(.lv-reader,.lv-tag) .rd-pri-high{color:#C0392B} :is(.lv-reader,.lv-tag) .rd-pri-medium{color:#B8935F} :is(.lv-reader,.lv-tag) .rd-pri-low{color:#6E9A5A}
+  :is(.lv-reader,.lv-tag) .rd-ctx-name{font-family:"Knickerbocker",var(--serif-soul);font-weight:400;font-size:24px;line-height:1;
     color:var(--ink-1);margin:0 0 14px;text-wrap:balance}
-  .lv-reader .rd-ctx-why{font-family:var(--sans);font-size:13px;line-height:1.5;font-weight:700;color:var(--ink-1);margin:0 0 12px}
-  .lv-reader .rd-ctx-note{background:#fff;border-radius:9px;padding:14px 16px 16px;box-shadow:0 1px 2px rgba(24,17,8,.26)}
-  .lv-reader .rd-ctx-note span{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  :is(.lv-reader,.lv-tag) .rd-ctx-why{font-family:var(--sans);font-size:13px;line-height:1.5;font-weight:700;color:var(--ink-1);margin:0 0 12px}
+  :is(.lv-reader,.lv-tag) .rd-ctx-note{background:#fff;border-radius:9px;padding:14px 16px 16px;box-shadow:0 1px 2px rgba(24,17,8,.26)}
+  :is(.lv-reader,.lv-tag) .rd-ctx-note span{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--ink-3);margin:0 0 6px}
-  .lv-reader .rd-ctx-note textarea,.lv-reader .rd-ctx-note p{display:block;width:100%;border:none;background:transparent;resize:none;
+  :is(.lv-reader,.lv-tag) .rd-ctx-note textarea,:is(.lv-reader,.lv-tag) .rd-ctx-note p{display:block;width:100%;border:none;background:transparent;resize:none;
     font-family:var(--sans);font-size:15px;line-height:1.6;color:var(--ink-2);margin:0;padding:0;overflow:hidden;box-sizing:border-box}
-  .lv-reader .rd-ctx-note textarea:focus{outline:none}
-  .lv-reader .rd-ctx-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-  .lv-reader .rd-ctx-act button,.lv-reader .rd-ctx-act a{font-family:var(--sans);font-size:12px;color:var(--ink-2);background:transparent;
+  :is(.lv-reader,.lv-tag) .rd-ctx-note textarea:focus{outline:none}
+  :is(.lv-reader,.lv-tag) .rd-ctx-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  :is(.lv-reader,.lv-tag) .rd-ctx-act button,:is(.lv-reader,.lv-tag) .rd-ctx-act a{font-family:var(--sans);font-size:12px;color:var(--ink-2);background:transparent;
     border:1px solid var(--rl);border-radius:999px;padding:6px 13px;cursor:pointer;text-decoration:none}
-  .lv-reader .rd-ctx-act button:hover,.lv-reader .rd-ctx-act a:hover{border-color:var(--ink-3);color:var(--ink-1)}
-  .lv-reader .rd-ctx-file{margin-top:14px}
+  :is(.lv-reader,.lv-tag) .rd-ctx-act button:hover,:is(.lv-reader,.lv-tag) .rd-ctx-act a:hover{border-color:var(--ink-3);color:var(--ink-1)}
+  :is(.lv-reader,.lv-tag) .rd-ctx-file{margin-top:14px}
   .lv-reader .rd-load-inline{position:relative;height:240px}
   .lv-reader .rd-m{margin-bottom:12px;font-family:var(--sans);background:rgba(255,255,255,.85);border-radius:8px;
     padding:16px 17px 17px;box-shadow:0 1px 2px rgba(24,17,8,.26)}
@@ -684,7 +691,7 @@
   .lv-chev:disabled{opacity:.25;cursor:default;box-shadow:none}
 
   @media(max-width:1100px){ .lv-paper{padding:36px 28px 0} .lv-subj{font-size:24px} .lv-body{font-size:14px}
-    .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none}
+    .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none} .lv-tag{display:none}
     .lv-pile-tabs,.lv-progress{display:none}
     .lv-paper,.lv-ghost{height:92%}
     body.view-letters .letters-view{padding-right:40px} }
@@ -3595,7 +3602,7 @@ function renderReaderTop(){
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg></button>
     </div>
     <div class="rd-tabs">
-      <button data-folder="letter" class="${readerFolder==="letter"?"on":""}">Letter</button>
+      <button data-folder="letter" class="${readerFolder==="letter"?"on":""}">Mail</button>
       <button data-folder="upcoming" class="${readerFolder==="upcoming"?"on":""}">Upcoming${(n=>n?`<span class="rd-tab-count">${n}</span>`:"")(planItems(1,31).length)}</button>
       <button data-folder="postponed" class="${readerFolder==="postponed"?"on":""}">Postponed${(n=>n?`<span class="rd-tab-count">${n}</span>`:"")(skippedItems().length)}</button>
       <button data-folder="sent" class="${readerFolder==="sent"?"on":""}">Sent${(()=>{const n=sentRecent().length;return n?`<span class="rd-tab-badge${letterJustSent?" pop":""}">${n}</span>`:"";})()}</button>
@@ -3625,6 +3632,9 @@ function renderReader(){
   const wireConnect = el => el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
   renderMailbar();
   const curEmail = cur ? String((cur.d&&cur.d.email)||(cur.q&&cur.q.email)||"").toLowerCase() : "";
+  // The person's tag sits on the left of the letter, whatever the post box shows.
+  const tag=document.getElementById("lvTag");
+  if(tag){ tag.innerHTML = cur ? letterContextHTML(cur) : ""; if(cur) wireLetterContext(tag, cur); }
 
   // The thread, folded to its latest message; a chevron opens the earlier ones.
   const threadHTML=(t)=>{
@@ -3660,8 +3670,8 @@ function renderReader(){
     const mail = !gmailReady() ? `<p class="lv-reader-note">Sign in to read their mail beside this letter.</p>`
       : !curEmail ? `<p class="lv-reader-note">No email address on file.</p>`
       : t ? threadHTML(t) : `<p class="lv-reader-note">Looking for their mail…</p>`;
-    el.innerHTML = letterContextHTML(cur) + mail;
-    wireLetterContext(el, cur); wireThread(); wireConnect(el);
+    el.innerHTML = mail;
+    wireThread(); wireConnect(el);
     return;
   }
   if(readerFolder==="upcoming"){ renderPlanList(el); return; }
@@ -4164,6 +4174,7 @@ function renderCurrentLetter(){
           </div>
         </div>
       </div>
+      <aside class="lv-tag" id="lvTag"></aside>
       <aside class="lv-reader" id="lvReader">
         <header class="rd-top" id="rdTop"></header>
         <div class="rd-panes"><div class="rd-list" id="rdList"></div><div class="rd-scroll" id="rdScroll"></div></div>
