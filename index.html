@@ -175,7 +175,7 @@
   .lv-env2-img{position:fixed;display:block;pointer-events:none;user-select:none}
   .lv-env2-closed{z-index:320}
   .lv-env2-open-flap{z-index:305;opacity:0}
-  .lv-env2-open-body{z-index:320;opacity:0}
+  .lv-env2-open-body{z-index:319}
   .lv-env2-label{position:fixed;z-index:325;transform:translateX(-50%) rotate(-1deg);
     background:#FBF6EA;padding:34px;text-align:center;box-sizing:border-box;
     box-shadow:0 1px 0 rgba(40,26,8,.2),0 2px 1px rgba(40,26,8,.1)}
@@ -3901,7 +3901,6 @@ function maybeShowMorningEnvelope(){
       const E={duration:420, easing:"ease-in-out", fill:"forwards"};
       closed.animate([{opacity:1},{opacity:0}], E);
       label.animate([{opacity:1},{opacity:0}], {duration:260, fill:"forwards"});
-      body.animate([{opacity:0},{opacity:1}], E);
       flap.animate([{opacity:0, transform:"translateY(18px)"},{opacity:1, transform:"translateY(0)"}], {duration:480, easing:"cubic-bezier(.2,.8,.2,1)", fill:"forwards"});
       document.body.classList.add("lv-env-open");
     }, 180);
