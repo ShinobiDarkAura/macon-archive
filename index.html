@@ -464,7 +464,7 @@
   .lv-tag:empty{display:none}
   .lv-tag .rd-ctx{margin:0;padding:0;border:none}
   .lv-tag .rd-ctx-note textarea{margin:0}
-  .lv-reader{grid-column:3;grid-row:1;justify-self:center;align-self:center;width:340px;max-height:88%;
+  .lv-reader{grid-column:3;grid-row:1;justify-self:center;align-self:center;width:340px;min-height:420px;max-height:88%;
     overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;border-radius:8px;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
     background:rgba(255,255,255,.44);box-shadow:0 1px 1px rgba(24,17,8,.06)}
@@ -508,7 +508,7 @@
   .rd-top{flex:0 0 auto;padding:14px 16px 0;background:transparent;border-bottom:1px solid var(--rl);
     display:flex;flex-direction:column;justify-content:space-between}
   .rd-top-row{display:flex;align-items:center;gap:11px}
-  .rd-top h2{margin:0;font-size:22px;line-height:1;letter-spacing:.02em;text-transform:uppercase;color:var(--ink-1);font-weight:400}
+  .rd-top h2{margin:0;font-size:28px;line-height:1;letter-spacing:.02em;text-transform:uppercase;color:var(--ink-1);font-weight:400}
   .rd-unread{font-family:var(--sans);font-size:11.5px;font-weight:600;color:#fff;background:var(--accent-grad);
     border-radius:999px;min-width:22px;height:22px;padding:0 6px;display:inline-flex;align-items:center;
     justify-content:center;align-self:center;position:relative;top:-2px}
@@ -518,7 +518,7 @@
   .rd-refresh.spin svg{animation:rdSpin .7s linear infinite}
   @keyframes rdSpin{to{transform:rotate(360deg)}}
   .rd-refresh:hover{color:var(--ink-1)}
-  .rd-tabs{display:flex;gap:10px;margin-top:12px}
+  .rd-tabs{display:flex;gap:10px;margin-top:36px}
   .rd-tabs button{background:transparent;border:none;padding:0 4px 8px;cursor:pointer;
     font-family:var(--sans);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);
     border-bottom:2px solid transparent;margin-bottom:-1px}
@@ -544,6 +544,8 @@
   .rd-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px 16px 40px;position:relative;
     scrollbar-width:none}
   .rd-scroll::-webkit-scrollbar{width:0;display:none}
+  /* A lone line (nothing to show yet) sits in the middle of the empty space. */
+  .rd-scroll:has(> .lv-reader-note:only-child){display:flex;align-items:center;justify-content:center;text-align:center}
   .rd-nothread{margin-top:18px;display:flex;flex-direction:column;gap:12px}
   .rd-nothread div{display:flex;flex-direction:column;gap:2px;padding-bottom:12px;border-bottom:1px dashed var(--rl)}
   .rd-nothread span{font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
@@ -3440,7 +3442,7 @@ function letterContextHTML(x){
       ${flags.patron && d.phone ? `<a href="tel:${esc(String(d.phone).replace(/[^0-9+]/g,""))}" title="Email replies run about 3 percent. Ring them instead.">Call ${esc((d.name||"").split(" ")[0]||"them")}</a>` : ""}
     </div>`);
   return `<section class="rd-ctx">
-    <div class="rd-ctx-meta"><span>${esc(ctx.kindLabel)} · <b class="rd-pri-${esc(ctx.priority.toLowerCase())}">${esc(ctx.priority)}</b></span>${meta?`<span>${esc(meta)}</span>`:""}</div>
+    ${meta?`<div class="rd-ctx-meta"><span>${esc(meta)}</span></div>`:""}
     <h3 class="rd-ctx-name" style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",name)}">${esc(String(name||"").toUpperCase())}</h3>
     ${note}
     ${act}
@@ -3606,10 +3608,10 @@ function renderReaderTop(){
     </div>
     <div class="rd-tabs">
       <button data-folder="letter" class="${readerFolder==="letter"?"on":""}">Mail</button>
-      <button data-folder="upcoming" class="${readerFolder==="upcoming"?"on":""}">Upcoming${(n=>n?`<span class="rd-tab-count">${n}</span>`:"")(planItems(1,31).length)}</button>
-      <button data-folder="postponed" class="${readerFolder==="postponed"?"on":""}">Postponed${(n=>n?`<span class="rd-tab-count">${n}</span>`:"")(skippedItems().length)}</button>
+      <button data-folder="upcoming" class="${readerFolder==="upcoming"?"on":""}">Soon${(n=>n?`<span class="rd-tab-count">${n}</span>`:"")(planItems(1,31).length)}</button>
+      <button data-folder="postponed" class="${readerFolder==="postponed"?"on":""}">Later${(n=>n?`<span class="rd-tab-count">${n}</span>`:"")(skippedItems().length)}</button>
       <button data-folder="sent" class="${readerFolder==="sent"?"on":""}">Sent${(()=>{const n=sentRecent().length;return n?`<span class="rd-tab-badge${letterJustSent?" pop":""}">${n}</span>`:"";})()}</button>
-      <button data-folder="archive" class="${readerFolder==="archive"?"on":""}">Archive</button>
+      <button data-folder="archive" class="${readerFolder==="archive"?"on":""}">Closed</button>
     </div>`;
   letterJustSent=false;
   const rb=t.querySelector("#rdRefresh");
