@@ -150,8 +150,11 @@
   body.lv-ritual:not(.lv-env-out) .lv-ghost{visibility:hidden}
   /* Nothing else is on the desk while the envelope is: the post, the buttons,
      the tabs and the strip arrive only once the pile has settled. */
-  .lv-reader,.lv-topleft,.lv-progress,.lv-pile-tabs,#viewToggle,.chat-fab{transition:opacity .55s ease}
-  body.lv-ritual:not(.lv-env-done) :is(.lv-reader,.lv-topleft,.lv-progress,.lv-pile-tabs,#viewToggle,.chat-fab){opacity:0;pointer-events:none}
+  .lv-reader,.lv-tag,.lv-topleft,.lv-progress,.lv-pile-tabs,#viewToggle,.chat-fab{transition:opacity .55s ease}
+  body.lv-ritual:not(.lv-env-done) :is(.lv-reader,.lv-tag,.lv-topleft,.lv-progress,.lv-pile-tabs,#viewToggle,.chat-fab){opacity:0;pointer-events:none}
+  /* The sheet stays unseen until the envelope photograph has actually painted;
+     before that the sealed envelope is not there to hide it. */
+  body.lv-ritual:not(.lv-env-ready) .lv-paper{visibility:hidden}
   /* The envelope runs off the bottom of the page; it fades into the room instead of ending at the edge. */
   .lv-env2-fade{position:fixed;left:0;right:0;bottom:0;height:24vh;z-index:335;pointer-events:none;
     background:linear-gradient(to bottom,rgba(244,240,231,0),#F4F0E7 80%);transition:opacity .5s ease}
@@ -460,6 +463,7 @@
   .lv-tag::-webkit-scrollbar{display:none}
   .lv-tag:empty{display:none}
   .lv-tag .rd-ctx{margin:0;padding:0;border:none}
+  .lv-tag .rd-ctx-note textarea{margin:0}
   .lv-reader{grid-column:3;grid-row:1;justify-self:center;align-self:center;width:340px;max-height:88%;
     overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;border-radius:8px;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
@@ -640,14 +644,14 @@
     background:rgba(255,255,255,.7);font-family:var(--sans);font-size:12.5px;color:var(--ink-1)}
   .rd-search:focus{outline:none;border-color:var(--ink-3)}
   :is(.lv-reader,.lv-tag) .rd-ctx{margin:0 0 30px;padding:0 0 26px;border-bottom:1px dashed var(--rl)}
-  :is(.lv-reader,.lv-tag) .rd-ctx-meta{display:flex;justify-content:space-between;gap:12px;font-family:var(--sans);font-size:11px;
+  :is(.lv-reader,.lv-tag) .rd-ctx-meta{display:flex;flex-direction:column;gap:3px;font-family:var(--sans);font-size:10.5px;
     letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:0 0 12px}
   :is(.lv-reader,.lv-tag) .rd-ctx-meta b{font-weight:600}
   :is(.lv-reader,.lv-tag) .rd-pri-high{color:#C0392B} :is(.lv-reader,.lv-tag) .rd-pri-medium{color:#B8935F} :is(.lv-reader,.lv-tag) .rd-pri-low{color:#6E9A5A}
   :is(.lv-reader,.lv-tag) .rd-ctx-name{font-family:"TAY Birdie",var(--serif-soul);font-weight:400;font-size:24px;line-height:1;
     color:var(--ink-1);margin:0 0 14px;text-wrap:balance}
   :is(.lv-reader,.lv-tag) .rd-ctx-why{font-family:var(--sans);font-size:13px;line-height:1.5;font-weight:400;color:var(--ink-2);margin:0 0 12px}
-  :is(.lv-reader,.lv-tag) .rd-ctx-note{background:#fff;border-radius:9px;padding:14px 16px 16px;box-shadow:0 1px 2px rgba(24,17,8,.26)}
+  :is(.lv-reader,.lv-tag) .rd-ctx-note{background:#fff;border-radius:9px;padding:14px;box-shadow:0 1px 2px rgba(24,17,8,.26)}
   :is(.lv-reader,.lv-tag) .rd-ctx-note span{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--ink-3);margin:0 0 6px}
   :is(.lv-reader,.lv-tag) .rd-ctx-note textarea,:is(.lv-reader,.lv-tag) .rd-ctx-note p{display:block;width:100%;border:none;background:transparent;resize:none;
@@ -3436,9 +3440,8 @@ function letterContextHTML(x){
       ${flags.patron && d.phone ? `<a href="tel:${esc(String(d.phone).replace(/[^0-9+]/g,""))}" title="Email replies run about 3 percent. Ring them instead.">Call ${esc((d.name||"").split(" ")[0]||"them")}</a>` : ""}
     </div>`);
   return `<section class="rd-ctx">
-    <div class="rd-ctx-meta"><span>${esc(ctx.kindLabel)} · <b class="rd-pri-${esc(ctx.priority.toLowerCase())}">${esc(ctx.priority)}</b></span><span>${esc(meta)}</span></div>
+    <div class="rd-ctx-meta"><span>${esc(ctx.kindLabel)} · <b class="rd-pri-${esc(ctx.priority.toLowerCase())}">${esc(ctx.priority)}</b></span>${meta?`<span>${esc(meta)}</span>`:""}</div>
     <h3 class="rd-ctx-name" style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",name)}">${esc(String(name||"").toUpperCase())}</h3>
-    ${reason?`<p class="rd-ctx-why">${esc(reason)}</p>`:""}
     ${note}
     ${act}
   </section>`;
@@ -3797,6 +3800,7 @@ function envelopeCounts(q){
   return c;
 }
 let _envShown=false, _renderAfterRitual=false;
+["env-closed","env-open-flap","env-open-body","wax-seal"].forEach(n=>{ const i=new Image(); i.src="logos/"+n+".webp"; });
 function envelopeDue(){
   if(_envShown || letterComposing || !letterQueue.length) return false;
   if(!document.body.classList.contains("view-letters")) return false;
@@ -3857,6 +3861,8 @@ function maybeShowMorningEnvelope(){
     </div>
     <button class="lv-env2-seal" id="lvEnvSeal" style="left:${sealX}px;top:${sealY}px;width:${sealW}px;height:${sealW}px" aria-label="Break the seal and open today's letters"><img src="logos/wax-seal.webp" alt=""></button>`);
 
+  const ready=()=>document.body.classList.add("lv-env-ready");
+  { const c=document.getElementById("lvEnvClosed"); if(c.complete && c.naturalWidth) ready(); else { c.onload=ready; c.onerror=ready; } }
   const veil=document.getElementById("lvEnvVeil"), closed=document.getElementById("lvEnvClosed"), body=document.getElementById("lvEnvBody"),
         flap=document.getElementById("lvEnvFlap"), label=document.getElementById("lvEnvLabel"), seal=document.getElementById("lvEnvSeal");
   // The sheet and pile may be redrawn while the envelope is up, so they are
@@ -3867,7 +3873,7 @@ function maybeShowMorningEnvelope(){
   const mark=()=>{ try{ localStorage.setItem("macon.envelope", todayKey()); }catch{} };
   const cleanup=()=>{
     [veil,closed,body,flap,label,seal,fade].forEach(n=>n && n.remove());
-    document.body.classList.remove("lv-ritual","lv-env-open","lv-env-out","lv-env-done");
+    document.body.classList.remove("lv-ritual","lv-env-open","lv-env-out","lv-env-done","lv-env-ready");
     document.documentElement.style.removeProperty("--env-sink");
     document.removeEventListener("keydown", onKey);
     // Anything that asked to redraw while the envelope was up is drawn now.
