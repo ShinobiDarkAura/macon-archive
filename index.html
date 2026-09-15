@@ -143,16 +143,15 @@
      The sheet itself rises out of it, so the envelope is built as separate
      layers on the page (back, front, flap, seal) with the sheet lifted between
      back and front. One container would flatten them into a single layer. */
-  body.lv-ritual .lv-paper{z-index:310;top:var(--env-sink,0px);transition:top .65s cubic-bezier(.3,.7,.2,1)}
-  body.lv-ritual.lv-env-lifted .lv-paper{top:calc(var(--env-sink,0px) - 10vh)}
-  /* Sealed, the envelope sits a tenth of the screen higher; it settles down as it opens. */
-  .lv-env2-img,.lv-env2-label,.lv-env2-seal,.lv-env2-caption{transition:translate .65s cubic-bezier(.3,.7,.2,1)}
-  body.lv-env-lifted :is(.lv-env2-img,.lv-env2-label,.lv-env2-seal,.lv-env2-caption){translate:0 -10vh}
+  /* Sealed, the sheet waits inside; as the flap opens it rises to its place.
+     The pile appears once the envelope has gone, the rest of the desk after that. */
+  body.lv-ritual .lv-paper{z-index:310;top:var(--env-sink,0px)}
+  body.lv-ritual.lv-env-open .lv-paper{top:0;transition:top .7s cubic-bezier(.2,.8,.2,1)}
   body.lv-ritual:not(.lv-env-out) .lv-ghost{visibility:hidden}
   /* Nothing else is on the desk while the envelope is: the post, the buttons,
      the tabs and the strip arrive only once the pile has settled. */
   .lv-reader,.lv-topleft,.lv-progress,.lv-pile-tabs,#viewToggle,.chat-fab{transition:opacity .55s ease}
-  body.lv-ritual:not(.lv-env-out) :is(.lv-reader,.lv-topleft,.lv-progress,.lv-pile-tabs,#viewToggle,.chat-fab){opacity:0;pointer-events:none}
+  body.lv-ritual:not(.lv-env-done) :is(.lv-reader,.lv-topleft,.lv-progress,.lv-pile-tabs,#viewToggle,.chat-fab){opacity:0;pointer-events:none}
   /* The envelope runs off the bottom of the page; it fades into the room instead of ending at the edge. */
   .lv-env2-fade{position:fixed;left:0;right:0;bottom:0;height:24vh;z-index:335;pointer-events:none;
     background:linear-gradient(to bottom,rgba(244,240,231,0),#F4F0E7 80%);transition:opacity .5s ease}
@@ -175,15 +174,23 @@
   .lv-env2-open-flap{z-index:305;opacity:0}
   .lv-env2-open-body{z-index:320;opacity:0}
   .lv-env2-label{position:fixed;z-index:325;transform:translateX(-50%) rotate(-1deg);
-    background:#FBF6EA;padding:40px;text-align:center;box-sizing:border-box;
+    background:#FBF6EA;padding:34px;text-align:center;box-sizing:border-box;
     box-shadow:0 1px 0 rgba(40,26,8,.2),0 2px 1px rgba(40,26,8,.1)}
-  .lv-env2-label::before{content:"";position:absolute;inset:16px;border:1px solid rgba(168,58,40,.55);pointer-events:none}
+  /* A chamfered hairline, 10px in: the red shape with the paper laid back over it a pixel smaller. */
+  .lv-env2-label::before,.lv-env2-label::after{content:"";position:absolute;pointer-events:none;
+    clip-path:polygon(var(--c) 0,calc(100% - var(--c)) 0,100% var(--c),100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,var(--c) 100%,0 calc(100% - var(--c)),0 var(--c))}
+  .lv-env2-label::before{inset:10px;--c:9px;background:rgba(168,58,40,.6)}
+  .lv-env2-label::after{inset:11px;--c:8.3px;background:#FBF6EA}
+  .lv-env2-label>*{position:relative;z-index:1}
   .lv-env2-chip{display:inline-block;font-family:"Public Sans",var(--sans);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
     color:#7A7262;border:1px solid rgba(90,70,40,.34);border-radius:999px;padding:4px 11px;margin:0 0 14px;white-space:nowrap}
   .lv-env2-count{font-family:"Knickerbocker",var(--serif-soul);font-size:39px;line-height:1;text-transform:uppercase;color:#2A241C;margin:0 0 10px}
   .lv-env2-parts{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0}
   .lv-env2-pill{font-family:"Public Sans",var(--sans);font-size:10.5px;letter-spacing:.06em;line-height:1;color:#6E6450;
     background:rgba(120,102,70,.12);border-radius:999px;padding:6px 11px;white-space:nowrap}
+  .lv-env2-pill.k-custom{background:rgba(192,57,43,.13);color:#8E2E1E}
+  .lv-env2-pill.k-story{background:rgba(184,147,95,.18);color:#7A5A2A}
+  .lv-env2-pill.k-reconnect{background:rgba(110,154,90,.16);color:#3F6B33}
   .lv-env2-seal{position:fixed;z-index:340;padding:0;border:none;background:transparent;cursor:pointer;
     transform:translate(-50%,-50%) rotate(-8deg);filter:drop-shadow(0 1px 1px rgba(24,17,8,.35)) drop-shadow(0 3px 5px rgba(24,17,8,.25));
     transition:transform .3s cubic-bezier(.2,.7,.2,1),filter .3s ease,translate .65s cubic-bezier(.3,.7,.2,1)}
@@ -618,6 +625,13 @@
   .lv-pal-row.on{background:#F1ECE0}
   .lv-pal-empty{margin:18px;font-family:"Public Sans",var(--sans);font-size:14px;color:#9A9280}
   .lv-pal-foot{margin:0;padding:10px 18px;border-top:1px solid #E2DCCC;font-family:"Public Sans",var(--sans);font-size:11px;color:#A89D89}
+  .rd-fold{display:flex;align-items:center;gap:6px;margin:0 0 10px;padding:4px 0;border:none;background:transparent;cursor:pointer;
+    font-family:var(--sans);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+  .rd-fold svg{transition:transform .2s} .rd-fold.open svg{transform:rotate(180deg)}
+  .rd-fold:hover{color:var(--ink-1)}
+  .rd-search{display:block;width:100%;box-sizing:border-box;height:auto;margin:0 0 10px;padding:8px 10px;border:1px solid var(--rl);border-radius:6px;
+    background:rgba(255,255,255,.7);font-family:var(--sans);font-size:12.5px;color:var(--ink-1)}
+  .rd-search:focus{outline:none;border-color:var(--ink-3)}
   .lv-reader .rd-ctx{margin:0 0 30px;padding:0 0 26px;border-bottom:1px dashed var(--rl)}
   .lv-reader .rd-ctx-meta{display:flex;justify-content:space-between;gap:12px;font-family:var(--sans);font-size:11px;
     letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:0 0 12px}
@@ -2882,7 +2896,9 @@ const MAILBOXES=["hello@studiomacon.co","hannah@studiomacon.co"];
 const boxLabel=m=>String(m).split("@")[0];
 let readerMsgs=null, readerOpen=null, readerErr="", readerLoading=false;
 // the thread with whoever the current letter is to, when Gmail has one
-let readerMode="post", readerThread=null, readerFolder="today"; const _threads=new Map();
+let readerMode="post", readerThread=null, readerFolder="letter"; const _threads=new Map();
+// The archive tab: a search, and the person whose thread is open there.
+let readerArchiveQ="", readerArchive=null, readerThreadOpen=false;
 const readerOpenMsgs=new Set();
 // Three drawer treatments to try in place. Kept in localStorage so the choice
 // survives a reload while it is being judged.
@@ -3232,7 +3248,7 @@ function planItems(from, to){
   });
   return out.filter(x=>!put[letterKey(x)]).sort((a,b)=>a.due-b.due);
 }
-function isPlan(f){ return f==="today" || f==="week" || f==="month"; }
+function isPlan(f){ return f==="upcoming" || f==="letter"; }
 function planFor(folder){ return folder==="today" ? letterQueue.slice() : folder==="week" ? planItems(1,8) : planItems(8,31); }
 
 /* What has gone out today, for the day's progress. Held in public.letters_done
@@ -3275,7 +3291,7 @@ function openFollowUp(x){
   let at=letterQueue.findIndex(y=>letterKey(y)===k);
   if(at<0){ letterPulled.set(k, x); letterQueue.splice(letterIdx, 0, x); at=letterIdx; }
   letterIdx=at; letterToneIdx=0; letterFilingOpen=false; letterNoEnter=true; letterTypeIn=true;
-  readerMode="thread";
+  readerMode="thread"; readerFolder="letter";
   renderCurrentLetter();
 }
 function letterJump(i){
@@ -3309,35 +3325,18 @@ async function loadLastMessages(items){
 /* Today, This week, This month: who, what kind of follow-up, when, and the last
    thing they sent. Choosing one puts their letter on the desk. */
 function renderPlanList(target){
-  const items=planFor(readerFolder);
-  const done = readerFolder==="today" ? todayDone() : [];
-  const cur = letterComposing ? null : letterQueue[letterIdx], curKey = cur ? letterKey(cur) : "";
+  const items=planItems(1,31);
   loadLastMessages(items);
-  const when=x=>{
-    if(readerFolder==="today" || !x.due) return "";
-    const days=Math.round((x.due-startOfToday())/DAY_MS), d=new Date(x.due);
-    return days<7 ? d.toLocaleDateString("en-US",{weekday:"short"}) : d.toLocaleDateString("en-US",{month:"short", day:"numeric"});
-  };
+  const when=x=>{ const d=new Date(x.due), days=Math.round((x.due-startOfToday())/DAY_MS);
+    return days<7 ? d.toLocaleDateString("en-US",{weekday:"long"}) : d.toLocaleDateString("en-US",{month:"short", day:"numeric"}); };
   const row=x=>{
     const k=letterKey(x), ctx=letterContext(x), pri=x.priority||ctx.priority||"";
     const nm=cleanName((x.d&&x.d.name)||(x.q&&x.q.name)||"Someone");
-    const email=String((x.d&&x.d.email)||(x.q&&x.q.email)||"").toLowerCase();
-    const last=_lastMsg.get(email);
-    const line = !email ? "No email address on file"
-      : !gmailReady() ? "Sign in to see their last message"
-      : last===undefined ? "Looking for their last message…"
-      : last===false ? "Mail could not be reached"
-      : last===null ? "Nothing from them yet"
-      : `${mailDate(last.at)} · ${unent(last.snippet||last.subject||"")}`;
-    return `<button class="lv-reader-row rd-plan-row${k===curKey?" on":""}" data-plan="${esc(k)}">
+    return `<button class="lv-reader-row rd-plan-row" data-plan="${esc(k)}">
       <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(nm)}</span><span class="lv-reader-ago">${esc(when(x))}</span></div>
-      <div class="rd-plan-kind"><span class="rd-plan-dot rd-dot-${esc(pri.toLowerCase())}"></span>${esc(ctx.kindLabel)} · ${esc(pri)}</div>
-      <div class="lv-reader-row-snip">${esc(line)}</div></button>`;
+      <div class="rd-plan-kind"><span class="rd-plan-dot rd-dot-${esc(pri.toLowerCase())}"></span>${esc(ctx.kindLabel)}</div></button>`;
   };
-  const empty = readerFolder==="today" ? "Nothing left for today." : readerFolder==="week" ? "Nothing coming due this week." : "Nothing coming due later this month.";
-  target.innerHTML = (items.length ? `<div class="lv-reader-list">${items.map(row).join("")}</div>` : `<p class="lv-reader-note">${empty}</p>`)
-    + (done.length ? `<div class="rd-plan-donelist"><span class="rd-plan-donehead">Done today</span>${done.map(e=>
-        `<div class="rd-plan-done"><span>${esc(e.name)}</span><i>Sent</i></div>`).join("")}</div>` : "");
+  target.innerHTML = items.length ? `<div class="lv-reader-list">${items.map(row).join("")}</div>` : `<p class="lv-reader-note">Nothing coming due in the next month.</p>`;
   const byKey=new Map(items.map(x=>[letterKey(x), x]));
   target.querySelectorAll("[data-plan]").forEach(b=>b.onclick=()=>openFollowUp(byKey.get(b.dataset.plan)));
 }
@@ -3402,7 +3401,7 @@ function letterContextHTML(x){
   const {name,facts}=letterLabelFacts(x);
   const flags=letterFlags(x);
   const reason=(x.state==="upcoming" && x.due
-    ? `Not due until ${new Date(x.due).toLocaleDateString("en-US",{weekday:"long", month:"short", day:"numeric"})}. ` : "") + letterReason(x);
+    ? `Not due until ${new Date(x.due).toLocaleDateString("en-US",{weekday:"long", month:"short", day:"numeric"})}. ` : "") + letterSummary(x);
   const when=String(facts[1]||"").match(/[A-Z][a-z]{2}\s+\d{1,2},?\s*(\d{4})/);
   const meta=[facts[0]||"", when ? when[0].replace(/\s+\d{1,2},?\s*/, " ") : ""].filter(Boolean).join(" · ");
   const quote=letterQuoteText(x);
@@ -3479,7 +3478,7 @@ async function loadThreadFor(email, name){
   // No address, or no mailbox to read: the post box still shows the letter itself.
   if(!email || !gmailReady()){ readerMode="letter"; readerThread=null; renderReader(); return; }
   readerMode="thread";
-  readerOpenMsgs.clear();
+  readerOpenMsgs.clear(); readerThreadOpen=false;
   if(_threads.has(email)){ readerThread=_threads.get(email); renderReader(); return; }
   readerThread={email, name, loading:true}; renderReader();
   try{
@@ -3596,10 +3595,11 @@ function renderReaderTop(){
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg></button>
     </div>
     <div class="rd-tabs">
-      ${[["today","Today",letterQueue.length],["week","This week",planItems(1,8).length],["month","This month",planItems(8,31).length]].map(([f,label,n])=>
-        `<button data-folder="${f}" class="${readerFolder===f?"on":""}">${label}${n?`<span class="rd-tab-count">${n}</span>`:""}</button>`).join("")}
+      <button data-folder="letter" class="${readerFolder==="letter"?"on":""}">Letter</button>
+      <button data-folder="upcoming" class="${readerFolder==="upcoming"?"on":""}">Upcoming${(n=>n?`<span class="rd-tab-count">${n}</span>`:"")(planItems(1,31).length)}</button>
+      <button data-folder="postponed" class="${readerFolder==="postponed"?"on":""}">Postponed${(n=>n?`<span class="rd-tab-count">${n}</span>`:"")(skippedItems().length)}</button>
       <button data-folder="sent" class="${readerFolder==="sent"?"on":""}">Sent${(()=>{const n=sentRecent().length;return n?`<span class="rd-tab-badge${letterJustSent?" pop":""}">${n}</span>`:"";})()}</button>
-      <button data-folder="skipped" class="${readerFolder==="skipped"?"on":""}">Skipped</button>
+      <button data-folder="archive" class="${readerFolder==="archive"?"on":""}">Archive</button>
     </div>`;
   letterJustSent=false;
   const rb=t.querySelector("#rdRefresh");
@@ -3607,8 +3607,8 @@ function renderReaderTop(){
   rb.onclick=()=>{ readerMsgs=null; readerOpen=null; readerMode="post"; _lastMsg.clear(); loadReader(); };
   t.querySelectorAll("[data-folder]").forEach(b=>b.onclick=()=>{
     if(readerFolder===b.dataset.folder) return;
-    readerFolder=b.dataset.folder; readerMsgs=null; readerOpen=null; readerMode="post";
-    // Skipped letters are ours, not Gmail's: nothing to fetch.
+    readerFolder=b.dataset.folder; readerMsgs=null; readerOpen=null; readerArchive=null;
+    // Only Sent is Gmail's; the rest is drawn from the records.
     if(readerFolder==="sent") loadReader(); else renderReader();
   });
 }
@@ -3616,134 +3616,107 @@ function renderReader(){
   const el=document.getElementById("rdScroll"); if(!el) return;
   renderReaderTop();
   document.getElementById("lvReader").className = "lv-reader rd-"+readerStyle;
-  applyReaderWidth();
-  const split=document.getElementById("lvReader").classList.contains("rd-split");
-  const listEl=document.getElementById("rdList");
-  // The letter on the desk, if there is one, heads the main pane.
   const cur = document.body.classList.contains("view-letters") && !letterComposing ? letterQueue[letterIdx] : null;
-  const ctxBlock = cur ? letterContextHTML(cur) : "";
-  // Which box a letter leaves from depends on the thread, which arrives after
-  // the letter has already been drawn.
   const fl=document.getElementById("lvFromLine"); if(fl) fl.textContent=fromLabel();
-  // Which boxes are connected has to be known in every reader state, not just
-  // the inbox one: a letter opens straight into the thread view, so loading
-  // this only in loadReader left the connect buttons permanently hidden.
   if(gmailReady() && readerConnected===null && !_statusPending){
     _statusPending=true;
     gmailStatus().finally(()=>{ _statusPending=false; renderMailbar(); });
   }
-  // Put aside, still waiting. Sits above every other reader state so choosing
-  // the tab keeps showing it while letters open and threads load underneath.
-  if(readerFolder==="skipped"){
+  const wireConnect = el => el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
+  renderMailbar();
+  const curEmail = cur ? String((cur.d&&cur.d.email)||(cur.q&&cur.q.email)||"").toLowerCase() : "";
+
+  // The thread, folded to its latest message; a chevron opens the earlier ones.
+  const threadHTML=(t)=>{
+    if(t.loading) return `<div class="rd-load-inline"><div class="lv-load"><img src="logos/walking.webp" alt="Loading" width="210" height="210"></div></div>`;
+    if(!t.msgs || !t.msgs.length) return `<p class="lv-reader-note">No mail either way yet${t.email?` at ${esc(t.email)}`:""}.${t.err?" "+esc(t.err):""}</p>`;
+    const n=t.msgs.length;
+    const initials=x=>String(x||"?").trim().split(/\s+/).map(w=>w[0]||"").slice(0,2).join("").toUpperCase()||"?";
+    const isUs=m=>/ma[çc]on/i.test(m.from||"") || MAILBOXES.some(b=>String(m.from||"").toLowerCase().includes(boxLabel(b)));
+    const msg=(m,idx)=>{
+      const r=mailRender(m.body), when=esc(mailDate(m.at)), from=esc(m.from);
+      const tail = (r.quoted?`<button class="rd-more" data-quote="${idx}">Earlier</button><div class="rd-quote" id="mmq${idx}" hidden>${mailLinkify(esc(r.quoted))}</div>`:"")
+                 + (r.sig?`<div class="rd-sig">${mailLinkify(esc(r.sig))}</div>`:"");
+      return `<article class="rd-m ${isUs(m)?"rd-us":""}" data-msg="${idx}">
+          <div class="rd-hd">
+            <span class="rd-av">${isUs(m)?`<img src="logos/mark.png" alt="">`:esc(initials(m.from))}</span>
+            <span class="rd-who"><span class="rd-from">${from}</span><span class="rd-to">to ${esc(boxLabel(m.box||""))}@</span></span>
+            <span class="rd-when" title="${esc(new Date(m.at).toLocaleString())}">${when}</span>
+          </div>
+          <div class="rd-body">${r.html}</div>${tail}</article>`;
+    };
+    const shown = readerThreadOpen ? t.msgs : t.msgs.slice(-1);
+    const fold = n>1 ? `<button class="rd-fold${readerThreadOpen?" open":""}" data-fold><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>${readerThreadOpen ? "Latest only" : `${n-1} earlier`}</button>` : "";
+    return `<div class="rd-sub">${n} message${n>1?"s":""} with ${esc(t.name||t.email)}</div>${fold}${shown.map((m,k)=>msg(m, readerThreadOpen?k:n-1)).join("")}`;
+  };
+  const wireThread=()=>{
+    const f=el.querySelector("[data-fold]"); if(f) f.onclick=()=>{ readerThreadOpen=!readerThreadOpen; renderReader(); };
+    el.querySelectorAll("[data-quote]").forEach(b=>b.onclick=()=>{ const q=el.querySelector("#mmq"+b.dataset.quote); q.hidden=!q.hidden; b.classList.toggle("on",!q.hidden); });
+  };
+
+  if(readerFolder==="letter"){
+    if(!cur){ el.innerHTML=`<p class="lv-reader-note">Nothing on the desk.</p>`; return; }
+    const t = readerThread && readerThread.email && readerThread.email.toLowerCase()===curEmail ? readerThread : null;
+    const mail = !gmailReady() ? `<p class="lv-reader-note">Sign in to read their mail beside this letter.</p>`
+      : !curEmail ? `<p class="lv-reader-note">No email address on file.</p>`
+      : t ? threadHTML(t) : `<p class="lv-reader-note">Looking for their mail…</p>`;
+    el.innerHTML = letterContextHTML(cur) + mail;
+    wireLetterContext(el, cur); wireThread(); wireConnect(el);
+    return;
+  }
+  if(readerFolder==="upcoming"){ renderPlanList(el); return; }
+  if(readerFolder==="postponed"){
     const items=skippedItems();
-    const target = split && listEl ? listEl : el;
-    target.innerHTML = items.length ? `<div class="lv-reader-list">${items.map(({x,at})=>{
+    el.innerHTML = items.length ? `<div class="lv-reader-list">${items.map(({x,at})=>{
       const nm=(x.d&&x.d.name)||(x.q&&x.q.name)||"Someone";
       const what=(x.q&&x.q.subject)||(x.d&&x.d.pieces)||"";
       return `<button class="lv-reader-row" data-skip="${esc(letterKey(x))}">
         <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(cleanName(nm))}</span><span class="lv-reader-ago">${esc(mailDate(at))}</span></div>
         ${what?`<div class="lv-reader-row-subj">${esc(what)}</div>`:""}
         <div class="lv-reader-row-snip">Put aside. Click to pick it back up.</div></button>`;
-    }).join("")}</div>` : `<p class="lv-reader-note">Nothing skipped. Anything you set aside waits here.</p>`;
-    target.querySelectorAll("[data-skip]").forEach(b=>b.onclick=()=>unskipLetter(b.dataset.skip));
-    if(target!==el) el.innerHTML=`<p class="lv-reader-note rd-pick">Choose a letter on the left to pick it back up.</p>`;
+    }).join("")}</div>` : `<p class="lv-reader-note">Nothing postponed.</p>`;
+    el.querySelectorAll("[data-skip]").forEach(b=>b.onclick=()=>unskipLetter(b.dataset.skip));
     return;
   }
-  // Split, the list is always on the left, whatever the right is showing.
-  if(listEl){
-    if(split && isPlan(readerFolder)) renderPlanList(listEl);
-    else if(split && gmailReady() && !(readerConnected && !readerConnected.length)) renderReaderList(listEl);
-    else listEl.innerHTML="";
-  }
-  const connectRow = "";
-  const wireConnect = el => el.querySelectorAll("[data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
-  renderMailbar();
-  if(readerMode==="letter" && cur){
-    el.innerHTML = ctxBlock + `<p class="lv-reader-note">${!gmailReady()
-      ? "Sign in to read their mail beside this letter."
-      : "No email address on file, so there is no thread to show."}</p>`;
-    wireLetterContext(el, cur);
-    return;
-  }
-  if(gmailReady() && readerMode==="thread" && readerThread){
-    const t=readerThread;
-    const back=`<button class="lv-reader-back" id="lvReaderPost" title="Back to the post" aria-label="Back to the post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>`;
-    if(t.loading){ el.innerHTML=`${back}${ctxBlock}<div class="rd-load-inline"><div class="lv-load"><img src="logos/walking.webp" alt="Loading" width="210" height="210"></div></div>`; }
-    else if(!t.msgs.length){
-      el.innerHTML=`${back}${ctxBlock || `<div class="rd-title">${esc(t.name||t.email)}</div>`}
-        <div class="rd-sub">No mail either way yet</div>
-        <div class="rd-nothread">
-          <div><span>Address</span><b>${esc(t.email||"none on file")}</b></div>
-          <div><span>Searched</span><b>${esc(MAILBOXES.map(boxLabel).join("@, ")+"@")}</b></div>
-          <div><span>Record</span><b>${esc(t.origin||"Bureau archive")}</b></div>
-        </div>
-        ${t.err?`<p class="lv-reader-note">${esc(t.err)}</p>`:""}`;
+  if(readerFolder==="archive"){
+    // Closed enquiries, searchable, each opening its thread here.
+    if(readerArchive){
+      const t = readerThread && readerThread.email===readerArchive.email ? readerThread : {loading:true};
+      el.innerHTML=`<button class="lv-reader-back" id="lvArcBack" aria-label="Back to the archive"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>
+        <div class="rd-title">${esc(readerArchive.name||readerArchive.email)}</div>
+        ${readerArchive.outcome?`<p class="rd-ctx-why">${esc(readerArchive.outcome)}</p>`:""}${threadHTML(t)}`;
+      el.querySelector("#lvArcBack").onclick=()=>{ readerArchive=null; renderReader(); };
+      wireThread(); return;
     }
-    else{
-      const n=t.msgs.length;
-      const who=esc(t.name||t.email);
-      const subj=esc(t.msgs[0].subject||"Thread");
-      const initials=x=>String(x||"?").trim().split(/\s+/).map(w=>w[0]||"").slice(0,2).join("").toUpperCase()||"?";
-      const isUs=m=>/ma[\u00e7c]on/i.test(m.from||"") || MAILBOXES.some(b=>String(m.from||"").toLowerCase().includes(boxLabel(b)));
-      // Open the last two, and whatever the other person said last, since that
-      // is the message the reply has to answer.
-      const openByDefault=new Set([n-1, n-2].filter(k=>k>=0));
-      for(let k=n-1;k>=0;k--){ if(!isUs(t.msgs[k])){ openByDefault.add(k); break; } }
-      let lastDay="";
-      const msg=(m,idx)=>{
-        const open=openByDefault.has(idx)||readerOpenMsgs.has(idx);
-        const r=mailRender(m.body);
-        const when=esc(mailDate(m.at)), from=esc(m.from);
-        const tail = (r.quoted?`<button class="rd-more" data-quote="${idx}">Earlier</button><div class="rd-quote" id="mmq${idx}" hidden>${mailLinkify(esc(r.quoted))}</div>`:"")
-                   + (r.sig?`<div class="rd-sig">${mailLinkify(esc(r.sig))}</div>`:"");
-        if(!open) return `<article class="rd-m rd-shut" data-msg="${idx}">
-            <div class="rd-hd"><span class="rd-from">${from}</span><span class="rd-when">${when}</span></div>
-            <div class="rd-snip">${esc(String(m.body||"").replace(/\s+/g," ").slice(0,88))}</div></article>`;
-        const day=new Date(m.at).toLocaleDateString([], {day:"numeric", month:"long"});
-        const rule = day!==lastDay ? `<div class="rd-day"><span>${esc(day)}</span></div>` : "";
-        lastDay=day;
-        return `${rule}<article class="rd-m ${isUs(m)?"rd-us":""}" data-msg="${idx}">
-            <div class="rd-hd">
-              <span class="rd-av">${isUs(m)?`<img src="logos/mark.png" alt="">`:esc(initials(m.from))}</span>
-              <span class="rd-who"><span class="rd-from">${from}</span><span class="rd-to">to ${esc(boxLabel(m.box||""))}@</span></span>
-              <span class="rd-when" title="${esc(new Date(m.at).toLocaleString())}">${when}</span>
-            </div>
-            <div class="rd-body">${r.html}</div>${tail}</article>`;
-      };
-      const cards=t.msgs.map(msg).join("");
-      const head = `<div class="rd-sub">${n} message${n>1?"s":""} with ${who}</div><div class="rd-title">${subj}</div>`;
-      const foot=`<div class="rd-foot">${MAILBOXES.map(m=>
-        `<button data-box="${esc(m)}">Reconnect ${esc(boxLabel(m))}@</button>`).join("")}</div>`;
-      el.innerHTML=`${back}${ctxBlock}${head}${cards}${foot}`;
-      el.querySelectorAll(".rd-foot [data-box]").forEach(b=>b.onclick=()=>gmailConnect(b.dataset.box));
-      el.querySelectorAll(".rd-shut").forEach(a=>a.onclick=()=>{ readerOpenMsgs.add(Number(a.dataset.msg)); renderReader(); });
-      el.querySelectorAll("[data-quote]").forEach(b=>b.onclick=()=>{
-        const q=el.querySelector("#mmq"+b.dataset.quote); q.hidden=!q.hidden; b.classList.toggle("on",!q.hidden);
-      });
-    }
-    el.insertAdjacentHTML("beforeend", connectRow);
-    el.querySelector("#lvReaderPost").onclick=()=>{ readerMode="post"; renderReader(); };
-    wireConnect(el);
-    if(cur) wireLetterContext(el, cur);
+    const q=readerArchiveQ.toLowerCase();
+    const closed=(inquiries||[]).filter(x=>x.status==="closed")
+      .filter(x=>!q || [x.name,x.email,x.subject,x.outcome,x.note].some(v=>String(v||"").toLowerCase().includes(q)))
+      .sort((a,b)=>String(b.updated_at||b.first_seen).localeCompare(String(a.updated_at||a.first_seen)));
+    el.innerHTML=`<input class="rd-search" id="rdArcQ" placeholder="Search closed enquiries" value="${esc(readerArchiveQ)}">
+      ${closed.length ? `<div class="lv-reader-list">${closed.map(x=>`<button class="lv-reader-row" data-arc="${esc(x.id)}">
+        <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(cleanName(x.name||x.email||"Someone"))}</span><span class="lv-reader-ago">${esc(mailDate(Date.parse(x.updated_at||x.first_seen)))}</span></div>
+        ${x.subject?`<div class="lv-reader-row-subj">${esc(x.subject)}</div>`:""}
+        <div class="lv-reader-row-snip">${esc(x.outcome||x.note||"Closed")}</div></button>`).join("")}</div>`
+      : `<p class="lv-reader-note">${q?"Nothing in the archive matches.":"Nothing closed yet."}</p>`}`;
+    const inp=el.querySelector("#rdArcQ");
+    inp.oninput=()=>{ readerArchiveQ=inp.value; renderReader(); const i2=el.querySelector("#rdArcQ"); if(i2){ i2.focus(); i2.setSelectionRange(i2.value.length,i2.value.length); } };
+    el.querySelectorAll("[data-arc]").forEach(b=>b.onclick=()=>{
+      const x=(inquiries||[]).find(y=>String(y.id)===b.dataset.arc); if(!x) return;
+      readerArchive={ email:String(x.email||"").toLowerCase(), name:x.name, outcome:x.outcome };
+      if(x.email && gmailReady()) loadThreadFor(x.email, x.name); else renderReader();
+    });
     return;
   }
-  if(isPlan(readerFolder)){
-    if(split){ el.innerHTML=`<p class="lv-reader-note rd-pick">Choose someone on the left.</p>`; return; }
-    renderPlanList(el); return;
-  }
-  if(!gmailReady()){
-    el.innerHTML=`<p class="lv-reader-note">Sign in to read the studio inbox.</p>`; return;
-  }
+  // Sent: Gmail's list, and an opened message
+  if(!gmailReady()){ el.innerHTML=`<p class="lv-reader-note">Sign in to read the studio's sent mail.</p>`; return; }
   if(readerConnected && !readerConnected.length){
-    el.innerHTML=`
-      <p class="lv-reader-note">Connect a studio mailbox to read what has come in beside what you are writing. The buttons are at the top of the screen.</p>`;
-    wireConnect(el);
-    return;
+    el.innerHTML=`<p class="lv-reader-note">Connect a studio mailbox to see what has gone out. The buttons are at the top of the screen.</p>`;
+    wireConnect(el); return;
   }
   if(readerOpen){
     const o=readerOpen;
-    const rr = o.body==="\u2026" ? {html:"<p>Opening\u2026</p>",quoted:"",sig:""} : mailRender(o.body);
-    el.innerHTML=`<button class="lv-reader-back" id="lvReaderBack" title="Back to the post" aria-label="Back to the post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>
+    const rr = o.body==="…" ? {html:"<p>Opening…</p>",quoted:"",sig:""} : mailRender(o.body);
+    el.innerHTML=`<button class="lv-reader-back" id="lvReaderBack" title="Back" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>
       <div class="rd-title">${esc(unent(o.subject||""))}</div>
       <article class="rd-m">
         <div class="rd-hd"><span class="rd-from">${esc(cleanName(o.from||""))}</span><span class="rd-when">${o.at?esc(mailDate(o.at)):""}</span></div>
@@ -3755,7 +3728,6 @@ function renderReader(){
     if(qb) qb.onclick=()=>{ const q=el.querySelector("#mmqOpen"); q.hidden=!q.hidden; qb.classList.toggle("on",!q.hidden); };
     el.querySelector("#lvReaderBack").onclick=()=>{ readerOpen=null; renderReader(); }; return;
   }
-  if(split){ el.innerHTML=`<p class="lv-reader-note rd-pick">Choose a message on the left.</p>`; return; }
   renderReaderList(el);
 }
 // The list of what came in or went out, drawn into whichever pane holds it.
@@ -3814,7 +3786,7 @@ function envelopeCounts(q){
   q.forEach(x=>{ if(c[x.kind]!=null) c[x.kind]++; });
   return c;
 }
-let _envShown=false;
+let _envShown=false, _renderAfterRitual=false;
 function envelopeDue(){
   if(_envShown || letterComposing || !letterQueue.length) return false;
   if(!document.body.classList.contains("view-letters")) return false;
@@ -3833,9 +3805,9 @@ function maybeShowMorningEnvelope(){
   const count=(n,one,many)=>`${n} ${n===1?one:many}`;
   // One word each, in a muted pill under the count.
   const parts=[
-    c.custom ? count(c.custom,"Enquiry","Enquiries") : "",
-    c.story ? count(c.story,"Story","Stories") : "",
-    c.reconnect ? count(c.reconnect,"Catch-up","Catch-ups") : ""
+    c.custom ? ["custom", count(c.custom,"Enquiry","Enquiries")] : null,
+    c.story ? ["story", count(c.story,"Story","Stories")] : null,
+    c.reconnect ? ["reconnect", count(c.reconnect,"Catch-up","Catch-ups")] : null
   ].filter(Boolean);
   const day=new Date().toLocaleDateString("en-US",{weekday:"long", month:"short", day:"numeric"});
 
@@ -3849,16 +3821,18 @@ function maybeShowMorningEnvelope(){
   // and an 1189px-tall body layer. Everything is placed from the body rect.
   const IMG={ w:1254, bx:185, by:65, bw:883, bh:1113, tipX:633, tipY:483, flapH:290, flapBody:288, bodyLayerH:1189 };
   const W=Math.round(P.w*1.14), L=Math.round(P.left+P.w/2-W/2);
-  const T=Math.round(P.top+P.h*0.20);        // the opening: the sheet's top fifth will show above it
+  // The opening sits a tenth of the screen above where the sheet's top fifth
+  // would show, so the envelope reads high on the page while it is sealed.
+  const T=Math.round(P.top+P.h*0.20-innerHeight*0.10);
   const sc=W/IMG.bw, IW=Math.round(IMG.w*sc);
   const imgL=Math.round(L-IMG.bx*sc);
   const closedTop=Math.round(T-IMG.by*sc), flapTop=Math.round(T-IMG.flapBody*sc);
   const sealX=Math.round(L+(IMG.tipX-IMG.bx)*sc), sealY=Math.round(T+(IMG.tipY-IMG.by)*sc), sealW=Math.round(W*0.14);
-  const sink=Math.round(P.h*0.20+40);        // how far the sheet sits inside before it rises
+  const sink=Math.max(24, Math.round(T-P.top+40));   // the sheet's top sits 40px inside the opening
   const FL=Math.round(IMG.flapBody*sc);      // how far the open flap stands above the opening
 
   document.documentElement.style.setProperty("--env-sink", sink+"px");
-  document.body.classList.add("lv-ritual","lv-env-lifted");
+  document.body.classList.add("lv-ritual");
   document.body.insertAdjacentHTML("beforeend", `
     <div class="lv-env2-fade" id="lvEnvFade"></div>
     <div class="lv-env2-veil" id="lvEnvVeil" role="dialog" aria-label="Today's letters">
@@ -3869,7 +3843,7 @@ function maybeShowMorningEnvelope(){
     <div class="lv-env2-label" id="lvEnvLabel" style="left:${L+W/2}px;top:${Math.round(T+W*0.56)+56}px;width:${Math.round(W*0.405)}px">
       <span class="lv-env2-chip">${esc(day)}</span>
       <p class="lv-env2-count">${esc(count(c.all,"letter","letters"))}</p>
-      <p class="lv-env2-parts">${parts.map(t=>`<span class="lv-env2-pill">${esc(t)}</span>`).join("")}</p>
+      <p class="lv-env2-parts">${parts.map(([k,t])=>`<span class="lv-env2-pill k-${k}">${esc(t)}</span>`).join("")}</p>
     </div>
     <button class="lv-env2-seal" id="lvEnvSeal" style="left:${sealX}px;top:${sealY}px;width:${sealW}px;height:${sealW}px" aria-label="Break the seal and open today's letters"><img src="logos/wax-seal.webp" alt=""></button>`);
 
@@ -3879,14 +3853,15 @@ function maybeShowMorningEnvelope(){
   // looked up fresh at each step rather than held from here.
   const sheet=()=>host.querySelector(".lv-paper");
   const fade=document.getElementById("lvEnvFade");
-  let rise=null, done=false;
+  let done=false;
   const mark=()=>{ try{ localStorage.setItem("macon.envelope", todayKey()); }catch{} };
   const cleanup=()=>{
     [veil,closed,body,flap,label,seal,fade].forEach(n=>n && n.remove());
-    document.body.classList.remove("lv-ritual","lv-env-out","lv-env-lifted");
+    document.body.classList.remove("lv-ritual","lv-env-open","lv-env-out","lv-env-done");
     document.documentElement.style.removeProperty("--env-sink");
-    if(rise) rise.cancel();
     document.removeEventListener("keydown", onKey);
+    // Anything that asked to redraw while the envelope was up is drawn now.
+    if(_renderAfterRitual){ _renderAfterRitual=false; renderLetters(); }
     placeLetterTopbar();
   };
   const onKey=e=>{ if(e.key==="Escape" && !done){ done=true; mark(); cleanup(); } };
@@ -3897,49 +3872,43 @@ function maybeShowMorningEnvelope(){
     document.removeEventListener("keydown", onKey);
     if(matchMedia("(prefers-reduced-motion: reduce)").matches){ cleanup(); return; }
     veil.classList.add("opening");
-    document.body.classList.remove("lv-env-lifted");   // the envelope settles down as it opens
     // 1. the seal gives
     seal.animate([
       {transform:"translate(-50%,-50%) rotate(-8deg) scale(1)", opacity:1},
       {transform:"translate(-50%,-50%) rotate(-22deg) scale(1.12)", opacity:1, offset:.35},
       {transform:"translate(-50%,-50%) rotate(-40deg) scale(.4)", opacity:0}
     ], {duration:380, easing:"ease-in", fill:"forwards"});
-    // 2. the flap opens: the closed photograph gives way to the open one, whose
-    //    standing flap sits behind the sheet and whose body stays in front
+    // 2. the flap opens and the sheet rises until only its top shows
     setTimeout(()=>{
       const E={duration:420, easing:"ease-in-out", fill:"forwards"};
       closed.animate([{opacity:1},{opacity:0}], E);
       label.animate([{opacity:1},{opacity:0}], {duration:260, fill:"forwards"});
       body.animate([{opacity:0},{opacity:1}], E);
       flap.animate([{opacity:0, transform:"translateY(18px)"},{opacity:1, transform:"translateY(0)"}], {duration:480, easing:"cubic-bezier(.2,.8,.2,1)", fill:"forwards"});
+      document.body.classList.add("lv-env-open");
     }, 180);
-    // 3. the letter rises until its top fifth shows above the opening
+    // 3. the envelope slides down off the page, and the rest of the letter is there
     setTimeout(()=>{
-      const sh=sheet(); if(!sh) return;
-      rise=sh.animate([{top:`${sink}px`},{top:"0px"}], {duration:780, easing:"cubic-bezier(.2,.8,.2,1)", fill:"forwards"});
-    }, 720);
-    // 4. the envelope drops off the bottom of the page and the letter is written in
-    setTimeout(()=>{
-      // Far enough for the opened flap too: it stands a flap's depth above the
-      // opening, and stopping short left its point parked over the letter.
-      // The arrows were placed while the sheet waited sunk inside; it is home now.
-      placeLetterTopbar();
       const away=innerHeight-flapTop+40, E={duration:840, easing:"cubic-bezier(.55,0,.8,.2)", fill:"forwards"};
       body.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
       flap.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
-    }, 1620);
-    // 5. the room comes back into focus and the pile settles into place
+      fade.classList.add("gone");
+    }, 1000);
+    // 4. the room comes back into focus and the pile settles in under the letter
     setTimeout(()=>{
-      veil.classList.add("clear"); fade.classList.add("gone");
+      veil.classList.add("clear");
       document.body.classList.add("lv-env-out");
+      placeLetterTopbar();
       [...host.querySelectorAll(".lv-ghost")].forEach(g=>{
         g.animate([{opacity:0},{opacity:1}], {duration:520, easing:"ease-out"});
         if(!g.dataset.t) return;
         g.style.transition="none"; g.style.transform=`${g.dataset.t} translateY(26px) scale(.985)`;
         void g.offsetWidth; g.style.transition=""; g.classList.add("lv-settling"); g.style.transform=g.dataset.t;
       });
-    }, 2240);
-    setTimeout(cleanup, 3000);
+    }, 1800);
+    // 5. the post and the desk's buttons arrive last
+    setTimeout(()=>{ document.body.classList.add("lv-env-done"); }, 2400);
+    setTimeout(cleanup, 3100);
   };
 }
 function renderLetters(){
@@ -3951,6 +3920,8 @@ function renderLetters(){
   // The letter templates arrive as a module that loads on its own schedule;
   // drawing before it lands threw and left the view blank. Wait for it.
   if(!window.MaconDrafts){ setTimeout(renderLetters, 40); return; }
+  // Nothing is redrawn under the envelope; it would tear the sequence. Drawn when it goes.
+  if(document.body.classList.contains("lv-ritual")){ _renderAfterRitual=true; return; }
   const keepKey = letterQueue[letterIdx] ? letterKey(letterQueue[letterIdx]) : "";
   const all=followUps();
   // The urgent, per-letter view stops at 3 months — anything older still
@@ -4008,6 +3979,42 @@ function letterReason(x){
     return `Bought ${piece}${d.gift_self==="Gift"?" as a gift":""} ${ago(daysSince(d.last_buy))}. Long enough to have settled in, and we don't have its story yet.${asked}`;
   }
   return "";
+}
+/* What the post box says about the person, from everything the record holds:
+   the piece and when, whether it was a gift, where they are, what they said
+   about it, their standing with the studio, and where the thread stands. */
+function letterSummary(x){
+  const d=x.d||{}, q=x.q, out=[];
+  const when=v=>{ const t=Date.parse(v); return isNaN(t) ? "" : new Date(t).toLocaleDateString("en-US",{month:"short", day:"numeric"}); };
+  const ago=n=> n==null ? "" : n<=0 ? "today" : n===1 ? "yesterday" : `${n} days ago`;
+  const clip=(v,n)=>{ v=String(v||"").replace(/\s+/g," ").trim(); return v.length>n ? v.slice(0,n-1)+"…" : v; };
+  if(x.kind==="custom" && q){
+    if(q.source==="composed"){
+      out.push(`We wrote first, on ${when(q.last_touched||q.first_seen)}.`);
+      if(q.intent) out.push(q.intent);
+      if(q.follow_up_on) out.push(`Worth a nudge from ${when(q.follow_up_on)} if nothing comes back.`);
+    } else {
+      out.push(`Wrote in on ${when(q.first_seen)}${q.subject?` about ${q.subject}`:""}${q.source&&q.source!=="direct"?`, via ${q.source}`:""}.`);
+      if(q.repeat_buyer) out.push("A returning collector.");
+      out.push(q.status==="open" ? "Still unanswered." : `We last wrote ${ago(daysSince(q.last_touched||q.first_seen))}, and nothing has moved since.`);
+    }
+  } else {
+    const piece=firstPiece(d.pieces)||"a piece", n=countPieces(d.pieces);
+    const where=(d.location||"").trim();
+    out.push(`Bought ${piece}${d.gift_self==="Gift"?" as a gift":""} on ${when(d.last_buy)}${n>1?`, one of ${n} pieces with the studio`:""}${where?`, ${where}`:""}.`);
+    if(d.lives) out.push(`It lives ${clip(d.lives,90)}.`);
+    if(d.why) out.push(`Bought because ${clip(d.why,110)}.`);
+    if(x.kind==="reconnect"){
+      out.push(d.first_look ? "On the First Look list." : `$${Math.round(num(d.ltv)).toLocaleString()} with the studio.`);
+      out.push(d.last_contact ? `We last wrote ${ago(daysSince(d.last_contact))}.` : "We have not written since.");
+    } else if(x.kind==="story"){
+      out.push(d.last_contact ? `We asked for its story ${ago(daysSince(d.last_contact))} and it is still not in.` : "We have not asked for its story yet.");
+    }
+    if(d.notes && !d.story) out.push(clip(d.notes,140));
+  }
+  const email=String(d.email||(q&&q.email)||"").toLowerCase(), last=_lastMsg.get(email);
+  if(last && last.at) out.push(`Their last note, ${mailDate(last.at)}: “${clip(unent(last.snippet||last.subject||""),110)}”`);
+  return out.join(" ");
 }
 /* A letter we start ourselves is read once at send. If it asked for something,
    it comes back after a sensible wait with that reason; if it didn't, it never
@@ -4236,7 +4243,7 @@ function renderCurrentLetter(){
   };
   host.querySelectorAll(".lv-pile-tab[data-idx], .lv-prog-dot[data-idx]").forEach(b=>b.onclick=()=>letterJump(+b.dataset.idx));
   const moreTab=host.querySelector(".lv-pile-more");
-  if(moreTab) moreTab.onclick=()=>{ readerFolder="today"; readerMode="post"; renderReader(); };
+  if(moreTab) moreTab.onclick=()=>{ readerFolder="upcoming"; renderReader(); };
   wireLetterKeys();
   wireLetterNav(host);
   const exitCompose=()=>{ letterComposing=false; letterComposeItem=null; renderLetters(); };
