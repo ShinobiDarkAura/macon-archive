@@ -144,10 +144,10 @@
      layers on the page (back, front, flap, seal) with the sheet lifted between
      back and front. One container would flatten them into a single layer. */
   body.lv-ritual .lv-paper{z-index:310;top:var(--env-sink,0px);transition:top .65s cubic-bezier(.3,.7,.2,1)}
-  body.lv-ritual.lv-env-lifted .lv-paper{top:calc(var(--env-sink,0px) - 20vh)}
-  /* Sealed, the envelope sits a fifth of the screen higher; it settles down as it opens. */
+  body.lv-ritual.lv-env-lifted .lv-paper{top:calc(var(--env-sink,0px) - 10vh)}
+  /* Sealed, the envelope sits a tenth of the screen higher; it settles down as it opens. */
   .lv-env2-img,.lv-env2-label,.lv-env2-seal,.lv-env2-caption{transition:translate .65s cubic-bezier(.3,.7,.2,1)}
-  body.lv-env-lifted :is(.lv-env2-img,.lv-env2-label,.lv-env2-seal,.lv-env2-caption){translate:0 -20vh}
+  body.lv-env-lifted :is(.lv-env2-img,.lv-env2-label,.lv-env2-seal,.lv-env2-caption){translate:0 -10vh}
   body.lv-ritual:not(.lv-env-out) .lv-ghost,body.lv-ritual .lv-pile-tabs{visibility:hidden}
   /* The envelope runs off the bottom of the page; it fades into the room instead of ending at the edge. */
   .lv-env2-fade{position:fixed;left:0;right:0;bottom:0;height:24vh;z-index:335;pointer-events:none;
@@ -209,7 +209,10 @@
   .lv-mb-connect{color:#fff;background:var(--accent-grad);border:none;box-shadow:0 3px 10px rgba(189,84,64,.28)}
   .lv-mb-reconnect{color:#a89d89;background:rgba(255,255,255,.72);border:1px solid var(--rule)}
   .lv-mb-reconnect:hover{color:var(--accent-deep);border-color:var(--accent)}
-  .lv-new{position:fixed;top:56px;left:16px;z-index:70;height:30px;padding:0 14px;border-radius:999px;
+  .lv-topleft{position:fixed;top:56px;left:16px;z-index:70;display:flex;gap:8px;align-items:center}
+  .lv-todo{width:30px;padding:0;display:flex;align-items:center;justify-content:center}
+  .lv-todo svg{width:14px;height:14px;display:block;flex:0 0 auto}
+  .lv-new{height:30px;padding:0 14px;border-radius:999px;
     border:1px solid var(--rule);background:transparent;color:#8c7f68;cursor:pointer;
     font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
   .lv-new:hover{color:var(--ink);border-color:#a89d89;background:transparent}
@@ -303,7 +306,7 @@
   .lv-quote-edit{resize:vertical;min-height:66px}
   .lv-quote-edit:focus{outline:none}
 
-  .lv-paper{grid-column:2;grid-row:1;align-self:end;margin-bottom:calc(3vh - 20px);height:min(92%, calc((100vw - var(--rd-w, 40vw) - 96px - 3vw) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
+  .lv-paper{grid-column:2;grid-row:1;align-self:end;margin-bottom:calc(3vh - 20px);height:min(92%, calc((100vw - 380px - 136px - 3vw) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
     box-shadow:0 1px 1px rgba(24,17,8,.22),0 2px 4px rgba(24,17,8,.18),0 -1px 3px rgba(24,17,8,.14);
     padding:44px 48px 0;box-sizing:border-box;position:relative;overflow:hidden;z-index:3;
     display:flex;flex-direction:column}
@@ -425,7 +428,7 @@
   /* the stack: a couple of blank sheets behind the real one, each nudged and
      tilted, each with its own shadow, so the pile reads as physical */
   .lv-ghost.lv-settling{transition:transform .6s cubic-bezier(.22,.7,.2,1)}
-  .lv-ghost{grid-column:2;grid-row:1;align-self:end;margin-bottom:-20px;height:min(92%, calc((100vw - var(--rd-w, 40vw) - 96px - 3vw) * 1.2941));aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
+  .lv-ghost{grid-column:2;grid-row:1;align-self:end;margin-bottom:-20px;height:min(92%, calc((100vw - 380px - 136px - 3vw) * 1.2941));aspect-ratio:8.5/11;background:#FFFEFC;border-radius:2px;
     box-shadow:0 1px 1px rgba(24,17,8,.20),0 2px 4px rgba(24,17,8,.16);pointer-events:none}
 
   /* ---------- the post drawer, hung on the right edge ---------- */
@@ -437,13 +440,14 @@
   /* The post box sets the width; the letter side takes what is left. 56px is
      the drawer's inset and a
      gap before the drawer. */
-  body.view-letters .letters-view{padding-left:calc(40px + 3vw);padding-right:calc(var(--rd-w, 40vw) + 56px)}
-  .lv-reader{position:fixed;top:28px;right:28px;bottom:28px;width:var(--rd-w, 40vw);z-index:55;border-radius:12px;
-    overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;
+  body.view-letters .letters-view{padding-left:calc(40px + 3vw);padding-right:40px}
+  /* The post is a small, quiet surface floating in the right column, the way
+     it began: the letters are the point, and the mail sits beside them. All
+     the reading, planning and sending underneath is unchanged. */
+  .lv-reader{grid-column:3;grid-row:1;justify-self:center;align-self:center;width:340px;max-height:88%;
+    overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;border-radius:8px;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
-    background:#FCFAF6;
-    box-shadow:0 1px 0 rgba(255,255,255,.9) inset,
-      0 0 0 1px rgba(120,102,70,.13), 0 1px 1px rgba(24,17,8,.20), 0 3px 5px rgba(24,17,8,.18)}
+    background:rgba(255,255,255,.44);box-shadow:0 1px 1px rgba(24,17,8,.06)}
   .lv-reader{scrollbar-width:none;-ms-overflow-style:none}
   .lv-reader::-webkit-scrollbar{width:0;height:0;display:none}
   .lv-reader-back{background:transparent;border:1.5px solid var(--rl);border-radius:50%;cursor:pointer;
@@ -481,10 +485,10 @@
   .lv-dots i:nth-child(2){animation-delay:.2s}
   .lv-dots i:nth-child(3){animation-delay:.4s}
   @keyframes lvDot{0%,60%,100%{opacity:.25}30%{opacity:1}}
-  .rd-top{flex:0 0 auto;min-height:10%;padding:34px 30px 0;background:#F9F7F3;border-bottom:1px solid var(--rl);
+  .rd-top{flex:0 0 auto;padding:14px 16px 0;background:transparent;border-bottom:1px solid var(--rl);
     display:flex;flex-direction:column;justify-content:space-between}
   .rd-top-row{display:flex;align-items:center;gap:11px}
-  .rd-top h2{margin:0;font-size:44px;line-height:1;letter-spacing:.02em;text-transform:uppercase;color:var(--ink-1);font-weight:400}
+  .rd-top h2{margin:0;font-family:"Public Sans",var(--sans)!important;font-size:11px;line-height:1;letter-spacing:.14em;text-transform:uppercase;color:#8c7f68;font-weight:400}
   .rd-unread{font-family:var(--sans);font-size:11.5px;font-weight:600;color:#fff;background:var(--accent-grad);
     border-radius:999px;min-width:22px;height:22px;padding:0 6px;display:inline-flex;align-items:center;
     justify-content:center;align-self:center;position:relative;top:-2px}
@@ -494,8 +498,8 @@
   .rd-refresh.spin svg{animation:rdSpin .7s linear infinite}
   @keyframes rdSpin{to{transform:rotate(360deg)}}
   .rd-refresh:hover{color:var(--ink-1)}
-  .rd-tabs{display:flex;gap:14px;margin-top:26px}
-  .rd-tabs button{background:transparent;border:none;padding:0 8px 9px;cursor:pointer;
+  .rd-tabs{display:flex;gap:10px;margin-top:12px}
+  .rd-tabs button{background:transparent;border:none;padding:0 4px 8px;cursor:pointer;
     font-family:var(--sans);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);
     border-bottom:2px solid transparent;margin-bottom:-1px}
   .rd-tabs button.on{color:var(--accent-deep);border-bottom-color:var(--accent)}
@@ -517,15 +521,7 @@
   .lv-reader.rd-split .lv-reader-back{display:none}
   .rd-list .lv-reader-row.on{background:rgba(255,255,255,.95);box-shadow:0 0 0 1px var(--rl) inset}
   .rd-pick{margin-top:48px;text-align:center}
-  /* The seam between the letters and the box: drag it to share the width. */
-  .lv-rdhandle{position:fixed;top:28px;bottom:28px;right:calc(var(--rd-w, 40vw) + 28px);width:22px;
-    transform:translateX(50%);z-index:57;cursor:col-resize;touch-action:none;background:transparent}
-  .lv-rdhandle::before{content:"";position:absolute;left:50%;top:50%;width:4px;height:46px;border-radius:3px;
-    transform:translate(-50%,-50%);background:rgba(120,102,70,.28);transition:background .15s,height .15s}
-  .lv-rdhandle:hover::before,body.rd-dragging .lv-rdhandle::before{background:rgba(120,102,70,.6);height:64px}
-  body.rd-dragging{cursor:col-resize;user-select:none}
-  html.rd-wide .lv-paper,html.rd-wide .lv-ghost,html.rd-wide .lv-cardstack,html.rd-wide .lv-chev{visibility:hidden}
-  .rd-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:22px 30px 80px;position:relative;
+  .rd-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px 16px 40px;position:relative;
     scrollbar-width:none}
   .rd-scroll::-webkit-scrollbar{width:0;display:none}
   .rd-nothread{margin-top:18px;display:flex;flex-direction:column;gap:12px}
@@ -540,13 +536,13 @@
   .lv-reader-row:hover{background:rgba(255,255,255,.7)}
   .lv-reader-row.unread{background:rgba(30,22,14,.03)}
   .lv-reader-row-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:3px}
-  .lv-reader-from{font-size:15.5px;font-weight:600;color:var(--ink-1);
+  .lv-reader-from{font-size:13px;font-weight:600;color:var(--ink-1);
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-  .lv-reader-ago{font-size:13px;color:var(--ink-3);flex:0 0 auto;white-space:nowrap}
-  .lv-reader-row-subj{font-size:15.5px;color:var(--ink-1);margin-bottom:3px;
+  .lv-reader-ago{font-size:11px;color:var(--ink-3);flex:0 0 auto;white-space:nowrap}
+  .lv-reader-row-subj{font-size:13px;color:var(--ink-1);margin-bottom:2px;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .lv-reader-row.unread .lv-reader-row-subj{font-weight:600}
-  .lv-reader-row-snip{font-size:14.5px;line-height:1.5;color:var(--ink-3);
+  .lv-reader-row-snip{font-size:12px;line-height:1.45;color:var(--ink-3);
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .rd-bulk{display:block;width:100%;margin:18px 0 0;padding:11px 0;background:transparent;
     border:none;border-top:1px dashed var(--rl);cursor:pointer;
@@ -563,7 +559,7 @@
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
   /* 05 QUIET */
-  .lv-reader .rd-title{font-family:"TAY Flapjack",var(--serif-soul);font-size:36px;line-height:0.98;
+  .lv-reader .rd-title{font-family:"TAY Flapjack",var(--serif-soul);font-size:22px;line-height:1;
     color:var(--ink-1);letter-spacing:-.005em;margin-bottom:34px;text-wrap:balance}
   .lv-reader .rd-sub{font-family:var(--sans);font-size:12px;letter-spacing:.06em;text-transform:uppercase;
     color:var(--ink-3);margin-bottom:8px}
@@ -625,9 +621,9 @@
     letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:0 0 12px}
   .lv-reader .rd-ctx-meta b{font-weight:600}
   .lv-reader .rd-pri-high{color:#C0392B} .lv-reader .rd-pri-medium{color:#B8935F} .lv-reader .rd-pri-low{color:#6E9A5A}
-  .lv-reader .rd-ctx-name{font-family:"Knickerbocker",var(--serif-soul);font-weight:400;font-size:40px;line-height:1;
+  .lv-reader .rd-ctx-name{font-family:"Knickerbocker",var(--serif-soul);font-weight:400;font-size:24px;line-height:1;
     color:var(--ink-1);margin:0 0 14px;text-wrap:balance}
-  .lv-reader .rd-ctx-why{font-family:var(--sans);font-size:15.5px;line-height:1.55;font-weight:700;color:var(--ink-1);margin:0 0 18px}
+  .lv-reader .rd-ctx-why{font-family:var(--sans);font-size:13px;line-height:1.5;font-weight:700;color:var(--ink-1);margin:0 0 12px}
   .lv-reader .rd-ctx-note{background:#fff;border-radius:9px;padding:14px 16px 16px;box-shadow:0 1px 2px rgba(24,17,8,.26)}
   .lv-reader .rd-ctx-note span{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--ink-3);margin:0 0 6px}
@@ -640,7 +636,7 @@
   .lv-reader .rd-ctx-act button:hover,.lv-reader .rd-ctx-act a:hover{border-color:var(--ink-3);color:var(--ink-1)}
   .lv-reader .rd-ctx-file{margin-top:14px}
   .lv-reader .rd-load-inline{position:relative;height:240px}
-  .lv-reader .rd-m{margin-bottom:18px;font-family:var(--sans);background:#fff;border-radius:9px;
+  .lv-reader .rd-m{margin-bottom:12px;font-family:var(--sans);background:rgba(255,255,255,.85);border-radius:8px;
     padding:16px 17px 17px;box-shadow:0 1px 2px rgba(24,17,8,.26)}
   .lv-reader .rd-m.rd-us{background:#fff;box-shadow:0 1px 2px rgba(24,17,8,.26)}
   .lv-reader .rd-hd{display:flex;align-items:center;gap:10px}
@@ -650,11 +646,11 @@
   .lv-reader .rd-us .rd-av{background:#F2EDE1;padding:0;overflow:hidden}
   .lv-reader .rd-av img{width:100%;height:100%;object-fit:contain;display:block}
   .lv-reader .rd-who{min-width:0;flex:1}
-  .lv-reader .rd-from{display:block;font-size:15px;font-weight:600;color:var(--ink-1);line-height:1.25;
+  .lv-reader .rd-from{display:block;font-size:13px;font-weight:600;color:var(--ink-1);line-height:1.25;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .lv-reader .rd-when{font-size:12px;color:var(--ink-3);flex:0 0 auto;align-self:flex-start;padding-top:2px}
   .lv-reader .rd-to{font-size:11.5px;color:var(--ink-3);line-height:1.3;margin-top:0}
-  .lv-reader .rd-body{font-family:var(--sans);font-size:15.5px;line-height:1.68;color:var(--ink-1);margin-top:6px}
+  .lv-reader .rd-body{font-family:var(--sans);font-size:13px;line-height:1.6;color:var(--ink-1);margin-top:4px}
   .lv-reader .rd-body p{margin:0 0 1em}
   .lv-reader .rd-shut{background:transparent;box-shadow:none;padding:0 0 16px;margin-bottom:16px;
     border-bottom:1px solid rgba(120,102,70,.14)}
@@ -672,7 +668,7 @@
   .lv-chev:disabled{opacity:.25;cursor:default;box-shadow:none}
 
   @media(max-width:1100px){ .lv-paper{padding:36px 28px 0} .lv-subj{font-size:24px} .lv-body{font-size:14px}
-    .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none} .lv-rdhandle{display:none}
+    .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none}
     .lv-pile-tabs,.lv-progress{display:none}
     .lv-paper,.lv-ghost{height:92%}
     body.view-letters .letters-view{padding-right:40px} }
@@ -3518,18 +3514,11 @@ async function loadThreadFor(email, name){
 const RD_MIN=340, RD_MAX=0.40, RD_SPLIT_MIN_PX=520, RD_INSET=28;
 let readerFrac=(()=>{ try{ const v=parseFloat(localStorage.getItem("macon.postbox")); return v>0 && v<=1 ? v : RD_MAX; }catch{ return RD_MAX; } })();
 function applyReaderWidth(){
-  // Held to the 40% ceiling, including a wider width remembered from before it.
-  const frac = Math.min(readerFrac, RD_MAX);
-  const w=Math.round(Math.max(RD_MIN, Math.min(innerWidth-RD_INSET*2, frac*innerWidth)));
-  document.documentElement.style.setProperty("--rd-w", w+"px");
-  const rd=document.getElementById("lvReader");
-  // Two columns at full width, provided full width leaves the list legible.
-  const split = frac >= RD_MAX-0.002 && w >= RD_SPLIT_MIN_PX;
-  if(rd) rd.classList.toggle("rd-split", split);
-  // With too little room left to hold a legible sheet, the letter side steps
-  // out of the way rather than shrinking to a stub.
-  document.documentElement.classList.toggle("rd-wide", innerWidth*0.97-w-96 < 280);
-  return w;
+  // The post is a fixed small panel now; nothing to size, never split.
+  document.documentElement.style.setProperty("--rd-w", "380px");
+  const rd=document.getElementById("lvReader"); if(rd) rd.classList.remove("rd-split");
+  document.documentElement.classList.remove("rd-wide");
+  return 380;
 }
 applyReaderWidth();
 /* A letter sent counts for a fortnight. Kept in localStorage rather than the
@@ -4143,7 +4132,10 @@ function renderCurrentLetter(){
     <div class="lv-scene">
       <div class="lv-mailbar" id="lvMailbar"></div>
       <div class="lv-topbar" id="lvTopbar"></div>
-      <button class="lv-new" id="lvNew" title="Write to someone new">+ New letter</button>
+      <div class="lv-topleft">
+        <button class="lv-new" id="lvNew" title="Write to someone new">+ New letter</button>
+        <button class="lv-new lv-todo" id="lvTodo" title="Today at the Bureau" aria-label="Today's checklist"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg></button>
+      </div>
       ${ghosts}
       <div class="lv-pile-tabs" id="lvPileTabs">${tabsHTML}</div>
       <div class="lv-progress" id="lvProgress">${progressHTML}</div>
@@ -4167,7 +4159,6 @@ function renderCurrentLetter(){
         <header class="rd-top" id="rdTop"></header>
         <div class="rd-panes"><div class="rd-list" id="rdList"></div><div class="rd-scroll" id="rdScroll"></div></div>
       </aside>
-      <div class="lv-rdhandle" id="lvRdHandle" role="separator" aria-orientation="vertical" aria-label="Resize the post box" title="Drag to resize"></div>
     </div>`;
   loadThreadFor(email, name);
 
@@ -4180,6 +4171,7 @@ function renderCurrentLetter(){
     const fl=host.querySelector("#lvFromLine"); if(fl) fl.textContent = fromLabel();
   };
   host.querySelector("#lvNew").onclick=composeBlankLetter;
+  const todo=host.querySelector("#lvTodo"); if(todo) todo.onclick=()=>{ if(window._briefToggle) window._briefToggle(); };
   const toIn=host.querySelector("#lvTo");
   if(toIn && !toIn.value) setTimeout(()=>toIn.focus(), 60);
   // A letter whose send failed is kept and offered back rather than lost.
@@ -4239,28 +4231,6 @@ function renderCurrentLetter(){
         : e.message==="no_thread" ? "That conversation came back empty."
         : "Could not write from the thread: "+e.message);
     }
-  };
-  // Drag the seam to share the width between the letters and the post box.
-  const seam=host.querySelector("#lvRdHandle");
-  if(seam) seam.onpointerdown=e=>{
-    e.preventDefault();
-    seam.setPointerCapture(e.pointerId);
-    document.body.classList.add("rd-dragging");
-    const move=ev=>{
-      readerFrac=Math.min(RD_MAX, (innerWidth-RD_INSET-ev.clientX)/innerWidth);
-      const rd=document.getElementById("lvReader"), was=rd && rd.classList.contains("rd-split");
-      const w=applyReaderWidth();
-      readerFrac=w/innerWidth;
-      if(rd && was!==rd.classList.contains("rd-split")) renderReader();
-      placeLetterTopbar();
-      relayPile();
-    };
-    const up=()=>{
-      seam.removeEventListener("pointermove",move); seam.removeEventListener("pointerup",up); seam.removeEventListener("pointercancel",up);
-      document.body.classList.remove("rd-dragging");
-      try{ localStorage.setItem("macon.postbox", String(readerFrac)); }catch{}
-    };
-    seam.addEventListener("pointermove",move); seam.addEventListener("pointerup",up); seam.addEventListener("pointercancel",up);
   };
   host.querySelectorAll(".lv-pile-tab[data-idx], .lv-prog-dot[data-idx]").forEach(b=>b.onclick=()=>letterJump(+b.dataset.idx));
   const moreTab=host.querySelector(".lv-pile-more");
