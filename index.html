@@ -143,7 +143,11 @@
      The sheet itself rises out of it, so the envelope is built as separate
      layers on the page (back, front, flap, seal) with the sheet lifted between
      back and front. One container would flatten them into a single layer. */
-  body.lv-ritual .lv-paper{z-index:310;top:var(--env-sink,0px)}
+  body.lv-ritual .lv-paper{z-index:310;top:var(--env-sink,0px);transition:top .65s cubic-bezier(.3,.7,.2,1)}
+  body.lv-ritual.lv-env-lifted .lv-paper{top:calc(var(--env-sink,0px) - 20vh)}
+  /* Sealed, the envelope sits a fifth of the screen higher; it settles down as it opens. */
+  .lv-env2-img,.lv-env2-label,.lv-env2-seal,.lv-env2-caption{transition:translate .65s cubic-bezier(.3,.7,.2,1)}
+  body.lv-env-lifted :is(.lv-env2-img,.lv-env2-label,.lv-env2-seal,.lv-env2-caption){translate:0 -20vh}
   body.lv-ritual:not(.lv-env-out) .lv-ghost,body.lv-ritual .lv-pile-tabs{visibility:hidden}
   /* The envelope runs off the bottom of the page; it fades into the room instead of ending at the edge. */
   .lv-env2-fade{position:fixed;left:0;right:0;bottom:0;height:24vh;z-index:335;pointer-events:none;
@@ -167,14 +171,19 @@
   .lv-env2-open-flap{z-index:305;opacity:0}
   .lv-env2-open-body{z-index:320;opacity:0}
   .lv-env2-label{position:fixed;z-index:325;transform:translateX(-50%) rotate(-1deg);
-    background:#FBF6EA;padding:29px 26px 29px;text-align:center;box-sizing:border-box;
+    background:#FBF6EA;padding:40px;text-align:center;box-sizing:border-box;
     box-shadow:0 1px 0 rgba(40,26,8,.2),0 2px 1px rgba(40,26,8,.1)}
-  .lv-env2-chip{display:inline-block;font-family:"Public Sans",var(--sans);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  .lv-env2-label::before{content:"";position:absolute;inset:16px;border:1px solid rgba(168,58,40,.55);pointer-events:none}
+  .lv-env2-chip{display:inline-block;font-family:"Public Sans",var(--sans);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
     color:#7A7262;border:1px solid rgba(90,70,40,.34);border-radius:999px;padding:4px 11px;margin:0 0 14px;white-space:nowrap}
-  .lv-env2-count{font-family:"Knickerbocker",var(--serif-soul);font-size:46px;line-height:1;text-transform:uppercase;color:#2A241C;margin:0 0 10px}
-  .lv-env2-parts{font-family:"Public Sans",var(--sans);font-size:13.5px;line-height:1.6;color:#5D564A;margin:0}
+  .lv-env2-count{font-family:"Knickerbocker",var(--serif-soul);font-size:39px;line-height:1;text-transform:uppercase;color:#2A241C;margin:0 0 10px}
+  .lv-env2-parts{font-family:"Public Sans",var(--sans);font-size:11.5px;line-height:1.6;color:#5D564A;margin:0}
   .lv-env2-seal{position:fixed;z-index:340;padding:0;border:none;background:transparent;cursor:pointer;
-    transform:translate(-50%,-50%) rotate(-8deg);filter:drop-shadow(0 1px 1px rgba(24,17,8,.35)) drop-shadow(0 3px 5px rgba(24,17,8,.25));}
+    transform:translate(-50%,-50%) rotate(-8deg);filter:drop-shadow(0 1px 1px rgba(24,17,8,.35)) drop-shadow(0 3px 5px rgba(24,17,8,.25));
+    transition:transform .3s cubic-bezier(.2,.7,.2,1),filter .3s ease,translate .65s cubic-bezier(.3,.7,.2,1)}
+  .lv-env2-seal img{transform-origin:50% 100%;transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+  .lv-env2-seal:hover img{transform:perspective(320px) rotateX(14deg) scale(1.02)}
+  .lv-env2-seal:hover{filter:drop-shadow(0 2px 1px rgba(24,17,8,.3)) drop-shadow(0 7px 8px rgba(24,17,8,.22))}
   .lv-env2-seal img{width:100%;height:100%;object-fit:contain;display:block}
   /* Badge + compose live in the fixed top bar now, not on the paper — the
      paper's own overflow:hidden (needed to clip the stamp) was clipping them
@@ -3854,18 +3863,15 @@ function maybeShowMorningEnvelope(){
   const FL=Math.round(IMG.flapBody*sc);      // how far the open flap stands above the opening
 
   document.documentElement.style.setProperty("--env-sink", sink+"px");
-  document.body.classList.add("lv-ritual");
+  document.body.classList.add("lv-ritual","lv-env-lifted");
   document.body.insertAdjacentHTML("beforeend", `
     <div class="lv-env2-fade" id="lvEnvFade"></div>
     <div class="lv-env2-veil" id="lvEnvVeil" role="dialog" aria-label="Today's letters">
-      <div class="lv-env2-caption" style="left:${L+W/2}px;top:${Math.max(24, T-52)}px">
-        <p class="lv-env2-hint">Break the seal to begin</p>
-      </div>
     </div>
     <img class="lv-env2-img lv-env2-open-flap" id="lvEnvFlap" src="logos/env-open-flap.webp" alt="" style="left:${imgL}px;top:${flapTop}px;width:${IW}px">
     <img class="lv-env2-img lv-env2-open-body" id="lvEnvBody" src="logos/env-open-body.webp" alt="" style="left:${imgL}px;top:${T}px;width:${IW}px">
     <img class="lv-env2-img lv-env2-closed" id="lvEnvClosed" src="logos/env-closed.webp" alt="" style="left:${imgL}px;top:${closedTop}px;width:${IW}px">
-    <div class="lv-env2-label" id="lvEnvLabel" style="left:${L+W/2}px;top:${Math.round(T+W*0.56)}px;width:${Math.round(W*0.476)}px">
+    <div class="lv-env2-label" id="lvEnvLabel" style="left:${L+W/2}px;top:${Math.round(T+W*0.56)+56}px;width:${Math.round(W*0.405)}px">
       <span class="lv-env2-chip">${esc(day)}</span>
       <p class="lv-env2-count">${esc(count(c.all,"letter","letters"))}</p>
       <p class="lv-env2-parts">${parts.map(esc).join("<br>")}</p>
@@ -3882,7 +3888,7 @@ function maybeShowMorningEnvelope(){
   const mark=()=>{ try{ localStorage.setItem("macon.envelope", todayKey()); }catch{} };
   const cleanup=()=>{
     [veil,closed,body,flap,label,seal,fade].forEach(n=>n && n.remove());
-    document.body.classList.remove("lv-ritual","lv-env-out");
+    document.body.classList.remove("lv-ritual","lv-env-out","lv-env-lifted");
     document.documentElement.style.removeProperty("--env-sink");
     if(rise) rise.cancel();
     document.removeEventListener("keydown", onKey);
@@ -3896,6 +3902,7 @@ function maybeShowMorningEnvelope(){
     document.removeEventListener("keydown", onKey);
     if(matchMedia("(prefers-reduced-motion: reduce)").matches){ cleanup(); return; }
     veil.classList.add("opening");
+    document.body.classList.remove("lv-env-lifted");   // the envelope settles down as it opens
     // 1. the seal gives
     seal.animate([
       {transform:"translate(-50%,-50%) rotate(-8deg) scale(1)", opacity:1},
