@@ -151,6 +151,8 @@
   /* Nothing else is on the desk while the envelope is: the post, the buttons,
      the tabs and the strip arrive only once the pile has settled. */
   .lv-reader,.lv-tag,.lv-topleft,.lv-progress,.lv-pile-tabs,#viewToggle,.chat-fab{transition:opacity .55s ease}
+  /* On any load the two surfaces wait until the letters have settled. */
+  body.view-letters:not(.lv-desk-in) :is(.lv-reader,.lv-tag){opacity:0;pointer-events:none}
   body.lv-ritual:not(.lv-env-done) :is(.lv-reader,.lv-tag,.lv-topleft,.lv-progress,.lv-pile-tabs,#viewToggle,.chat-fab){opacity:0;pointer-events:none}
   /* The sheet stays unseen until the envelope photograph has actually painted;
      before that the sealed envelope is not there to hide it. */
@@ -319,7 +321,7 @@
   .lv-quote-edit:focus{outline:none}
 
   .lv-paper{grid-column:2;grid-row:1;align-self:end;margin-bottom:calc(3vh - 20px);height:min(92%, calc((100vw - 760px - 136px - 3vw) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
-    box-shadow:0 1px 1px rgba(24,17,8,.22),0 2px 4px rgba(24,17,8,.18),0 -1px 3px rgba(24,17,8,.14);
+    box-shadow:0 1px 1px rgba(24,17,8,.22),0 2px 4px rgba(24,17,8,.18);
     padding:44px 48px 0;box-sizing:border-box;position:relative;overflow:hidden;z-index:3;
     display:flex;flex-direction:column}
   .lv-paper::before{content:"";position:absolute;inset:14px;border:1px solid rgba(140,106,71,.12);pointer-events:none}
@@ -457,15 +459,18 @@
      it began: the letters are the point, and the mail sits beside them. All
      the reading, planning and sending underneath is unchanged. */
   .lv-tag{grid-column:1;grid-row:1;justify-self:center;align-self:center;width:340px;min-height:420px;max-height:88%;overflow-y:auto;
-    box-sizing:border-box;padding:14px 16px 18px;border-radius:8px;scrollbar-width:none;
+    box-sizing:border-box;padding:22px 24px 26px;border-radius:16px;scrollbar-width:none;display:flex;flex-direction:column;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
     background:rgba(255,255,255,.44);box-shadow:0 1px 1px rgba(24,17,8,.06)}
   .lv-tag::-webkit-scrollbar{display:none}
   .lv-tag:empty{display:none}
-  .lv-tag section.rd-ctx{margin:0;padding:0;border:none}   /* outranks the post box's rule, which comes later */
+  .lv-tag section.rd-ctx{margin:0;padding:0;border:none;flex:1;display:flex;flex-direction:column}   /* outranks the post box's rule, which comes later */
+  .lv-tag .rd-ctx-note{flex:1;display:flex;flex-direction:column}
+  .lv-tag .rd-ctx-note textarea{flex:1;min-height:120px}
+  .lv-tag .rd-ctx-name span{display:block}
   .lv-tag .rd-ctx-note textarea{margin:0}
-  .lv-reader{grid-column:3;grid-row:1;justify-self:center;align-self:center;width:340px;min-height:420px;max-height:88%;
-    overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;border-radius:8px;
+  .lv-reader{grid-column:3;grid-row:1;justify-self:center;align-self:center;width:340px;min-height:420px;max-height:min(567px,88%);
+    overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;border-radius:16px;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
     background:rgba(255,255,255,.44);box-shadow:0 1px 1px rgba(24,17,8,.06)}
   .lv-reader{scrollbar-width:none;-ms-overflow-style:none}
@@ -505,7 +510,7 @@
   .lv-dots i:nth-child(2){animation-delay:.2s}
   .lv-dots i:nth-child(3){animation-delay:.4s}
   @keyframes lvDot{0%,60%,100%{opacity:.25}30%{opacity:1}}
-  .rd-top{flex:0 0 auto;padding:14px 16px 0;background:transparent;border-bottom:1px solid var(--rl);
+  .rd-top{flex:0 0 auto;padding:22px 24px 0;background:transparent;border-bottom:1px solid var(--rl);
     display:flex;flex-direction:column;justify-content:space-between}
   .rd-top-row{display:flex;align-items:center;gap:11px}
   .rd-pills{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 10px;min-height:18px}
@@ -517,7 +522,7 @@
   .rd-pill.u-high{background:rgba(192,57,43,.13);color:#8E2E1E}
   .rd-pill.u-medium{background:rgba(184,147,95,.18);color:#7A5A2A}
   .rd-pill.u-low{background:rgba(110,154,90,.16);color:#3F6B33}
-  .rd-top h2{margin:0;font-size:32px;line-height:1;letter-spacing:-.02em;text-transform:uppercase;color:var(--ink-1);font-weight:400}
+  .rd-top h2{margin:0;font-size:40px;line-height:1;letter-spacing:-.02em;text-transform:uppercase;color:var(--ink-1);font-weight:400}
   .rd-unread{font-family:var(--sans);font-size:11.5px;font-weight:600;color:#fff;background:var(--accent-grad);
     border-radius:999px;min-width:22px;height:22px;padding:0 6px;display:inline-flex;align-items:center;
     justify-content:center;align-self:center;position:relative;top:-2px}
@@ -550,7 +555,7 @@
   .lv-reader.rd-split .lv-reader-back{display:none}
   .rd-list .lv-reader-row.on{background:rgba(255,255,255,.95);box-shadow:0 0 0 1px var(--rl) inset}
   .rd-pick{margin-top:48px;text-align:center}
-  .rd-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px 16px 40px;position:relative;
+  .rd-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:20px 24px 48px;position:relative;background:#fff;
     scrollbar-width:none}
   .rd-scroll::-webkit-scrollbar{width:0;display:none}
   /* A lone line (nothing to show yet) sits in the middle of the empty space. */
@@ -616,14 +621,16 @@
   /* Index tabs along the top of the pile; the letter on the desk is raised and joined to the sheet. */
   /* Each tab is a whole card filed behind the letter, as tall as it, with only
      its top standing clear; the letter's shadow falls across them. */
+  /* No stacking context on the row, so the chosen tab can sit above the sheet
+     itself (z 4 over 3) and join it with no shadow across the seam. */
   .lv-pile-tabs{position:absolute;z-index:2;display:flex;align-items:stretch;gap:6px;pointer-events:none}
-  .lv-pile-tab{pointer-events:auto;flex:0 1 auto;min-width:0;max-width:130px;margin-top:5px;padding:8px 12px 0;border:none;border-radius:6px 6px 0 0;
+  .lv-pile-tab{pointer-events:auto;position:relative;z-index:2;flex:0 1 auto;min-width:0;max-width:130px;margin-top:5px;padding:2px 12px 0;border:none;border-radius:6px 6px 0 0;
     display:flex;align-items:flex-start;gap:6px;cursor:pointer;background:#EFE9DC;color:#8C8272;
-    font-family:"Public Sans",var(--sans);font-size:10.5px;line-height:14px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;overflow:hidden;
+    font-family:"Public Sans",var(--sans);font-size:11px;line-height:14px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;
     box-shadow:0 -1px 1px rgba(24,17,8,.12);transition:margin-top .15s,background .15s,color .15s}
   .lv-pile-tab:hover{margin-top:1px;color:#4A443A}
-  .lv-pile-tab.on{margin-top:0;background:#FFFEFC;color:#26221C;box-shadow:0 -1px 1px rgba(24,17,8,.14)}
-  .lv-pile-tab i{width:6px;height:6px;border-radius:50%;flex:0 0 auto;background:#B5AB97;margin-top:4px}
+  .lv-pile-tab.on{margin-top:0;background:#FFFEFC;color:#26221C;box-shadow:none}
+  .lv-pile-tab svg{width:11px;height:11px;flex:0 0 auto;margin-top:1.5px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
   /* A dot per letter today, grouped by kind. */
   .lv-progress{position:absolute;z-index:4;display:flex;gap:20px;align-items:center;white-space:nowrap;transform:translateX(-50%)}
   .lv-prog-group{display:flex;align-items:center;gap:5px}
@@ -668,6 +675,11 @@
   :is(.lv-reader,.lv-tag) .rd-ctx-note textarea,:is(.lv-reader,.lv-tag) .rd-ctx-note p{display:block;width:100%;border:none;background:transparent;resize:none;
     font-family:var(--sans);font-size:15px;line-height:1.6;color:var(--ink-2);margin:0;padding:0;overflow:hidden;box-sizing:border-box}
   :is(.lv-reader,.lv-tag) .rd-ctx-note textarea:focus{outline:none}
+  .rd-note-read{cursor:text;flex:1}
+  .rd-note-sum{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--ink-1);margin:0 0 8px}
+  .rd-note-pts{margin:0;padding:0 0 0 16px;font-family:var(--sans);font-size:13px;line-height:1.5;color:var(--ink-2)}
+  .rd-note-pts li{margin:0 0 4px}
+  .rd-note-empty{font-family:var(--sans);font-size:13px;color:var(--ink-3);margin:0}
   :is(.lv-reader,.lv-tag) .rd-ctx-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
   :is(.lv-reader,.lv-tag) .rd-ctx-act button,:is(.lv-reader,.lv-tag) .rd-ctx-act a{font-family:var(--sans);font-size:12px;color:var(--ink-2);background:transparent;
     border:1px solid var(--rl);border-radius:999px;padding:6px 13px;cursor:pointer;text-decoration:none}
@@ -3417,6 +3429,14 @@ function wireLetterKeys(){
    What the post-it used to hold now heads the post box's main pane: what kind
    of letter it is and how pressing, the piece and when, who, why it is in the
    pile, the working note, and filing what they said. */
+/* A note reads as its first sentence, then the rest as points. */
+function noteHTML(text){
+  const t=String(text||"").replace(/\s+/g," ").trim();
+  if(!t) return `<p class="rd-note-empty">Nothing noted yet. Click to add.</p>`;
+  const sents=t.match(/[^.!?]+[.!?]+["')\]]*|[^.!?]+$/g)||[t];
+  const first=sents.shift().trim(), rest=sents.map(v=>v.trim()).filter(Boolean);
+  return `<p class="rd-note-sum">${esc(first)}</p>`+(rest.length?`<ul class="rd-note-pts">${rest.map(v=>`<li>${esc(v)}</li>`).join("")}</ul>`:"");
+}
 function letterContextHTML(x){
   const {d,q,kind}=x;
   const ctx=letterContext(x);
@@ -3428,8 +3448,8 @@ function letterContextHTML(x){
   const meta=[facts[0]||"", when ? when[0].replace(/\s+\d{1,2},?\s*/, " ") : ""].filter(Boolean).join(" · ");
   const quote=letterQuoteText(x);
   const note = kind==="custom"
-    ? `<div class="rd-ctx-note"><span>Notes</span><textarea id="lvNote" rows="1" placeholder="What happened, and what you owe them next">${esc(q.note||"")}</textarea></div>`
-    : (quote ? `<div class="rd-ctx-note"><span>What they said</span><p>${esc(quote)}</p></div>` : "");
+    ? `<div class="rd-ctx-note"><span>Notes</span><div class="rd-note-read" id="lvNoteRead" title="Click to edit">${noteHTML(q.note||"")}</div><textarea id="lvNote" rows="1" placeholder="What happened, and what you owe them next" hidden>${esc(q.note||"")}</textarea></div>`
+    : (quote ? `<div class="rd-ctx-note"><span>What they said</span>${noteHTML(quote)}</div>` : "");
   const act = kind==="custom" ? "" : (letterFilingOpen ? `
     <form class="lv-file rd-ctx-file" id="lvFile">
       <label>What they said
@@ -3454,23 +3474,27 @@ function letterContextHTML(x){
   const pills=`<div class="rd-pills"><span class="rd-pill k-${esc(kind)}">${esc(ctx.kindLabel)}</span></div>`;
   return `<section class="rd-ctx">
     ${pills}
-    <h3 class="rd-ctx-name" style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",name)}">${esc(String(name||"").toUpperCase())}</h3>
+    <h3 class="rd-ctx-name" style="font-family:${safeFont("TAY Birdie","var(--serif-soul)",name)}">${(()=>{
+      const parts=String(name||"").trim().toUpperCase().split(/\s+/); const last=parts.pop()||"";
+      return (parts.length?`<span>${esc(parts.join(" "))}</span>`:"")+`<span>${esc(last)}</span>`; })()}</h3>
     ${note}
     ${act}
   </section>`;
 }
 function wireLetterContext(root, x){
   const {d,q}=x;
-  const noteEl=root.querySelector("#lvNote");
-  if(noteEl){
-    const size=()=>{ noteEl.style.height="auto"; noteEl.style.height=noteEl.scrollHeight+"px"; };
+  const noteEl=root.querySelector("#lvNote"), readEl=root.querySelector("#lvNoteRead");
+  if(noteEl && readEl){
+    // Read as summary and points; click to edit the words themselves.
+    readEl.onclick=()=>{ readEl.hidden=true; noteEl.hidden=false; noteEl.focus(); size(); };
+    const size=()=>{ noteEl.style.height="auto"; noteEl.style.height=Math.max(120, noteEl.scrollHeight)+"px"; };
     // Saved as you pause, not only on blur: the pane redraws when a thread
     // arrives, and a redraw would otherwise take unsaved words with it.
     const save=()=>{ if(q && noteEl.value!==(q.note||"")) inqSet(q.id,{ note:noteEl.value }); };
     let pause;
     requestAnimationFrame(size);
     noteEl.addEventListener("input", ()=>{ size(); clearTimeout(pause); pause=setTimeout(save, 600); });
-    noteEl.onblur=save;
+    noteEl.onblur=()=>{ save(); readEl.innerHTML=noteHTML(noteEl.value); noteEl.hidden=true; readEl.hidden=false; };
   }
   const open=root.querySelector("#lvFileOpen");
   if(open) open.onclick=()=>{ letterFilingOpen=true; renderReader(); };
@@ -3624,7 +3648,6 @@ function renderReaderTop(){
     <div class="rd-tabs">
       <button data-folder="letter" class="${readerFolder==="letter"?"on":""}">Mail</button>
       <button data-folder="upcoming" class="${readerFolder==="upcoming"?"on":""}">Soon${(n=>n?`<span class="rd-tab-count">${n}</span>`:"")(planItems(1,31).length)}</button>
-      <button data-folder="postponed" class="${readerFolder==="postponed"?"on":""}">Later${(n=>n?`<span class="rd-tab-count">${n}</span>`:"")(skippedItems().length)}</button>
       <button data-folder="sent" class="${readerFolder==="sent"?"on":""}">Sent${(()=>{const n=sentRecent().length;return n?`<span class="rd-tab-badge${letterJustSent?" pop":""}">${n}</span>`:"";})()}</button>
       <button data-folder="archive" class="${readerFolder==="archive"?"on":""}">Closed</button>
     </div>`;
@@ -3875,7 +3898,7 @@ function maybeShowMorningEnvelope(){
     <img class="lv-env2-img lv-env2-open-flap" id="lvEnvFlap" src="logos/env-open-flap.webp" alt="" style="left:${imgL}px;top:${flapTop}px;width:${IW}px">
     <img class="lv-env2-img lv-env2-open-body" id="lvEnvBody" src="logos/env-open-body.webp" alt="" style="left:${imgL}px;top:${seamY}px;width:${IW}px">
     <img class="lv-env2-img lv-env2-closed" id="lvEnvClosed" src="logos/env-closed.webp" alt="" style="left:${imgL}px;top:${closedTop}px;width:${IW}px">
-    <div class="lv-env2-label" id="lvEnvLabel" style="left:${L+W/2}px;top:${Math.round(T+W*0.56)+56}px;width:${Math.round(W*0.405)}px">
+    <div class="lv-env2-label" id="lvEnvLabel" style="left:${L+W/2}px;top:${Math.round(T+W*0.56)+20}px;width:${Math.round(W*0.405)}px">
       <span class="lv-env2-chip">${esc(day)}</span>
       <p class="lv-env2-count">${esc(count(c.all,"letter","letters"))}</p>
       <p class="lv-env2-parts">${parts.map(([k,t])=>`<span class="lv-env2-pill k-${k}">${esc(t)}</span>`).join("")}</p>
@@ -3901,7 +3924,7 @@ function maybeShowMorningEnvelope(){
     if(_renderAfterRitual){ _renderAfterRitual=false; renderLetters(); }
     placeLetterTopbar();
   };
-  const onKey=e=>{ if(e.key==="Escape" && !done){ done=true; mark(); cleanup(); } };
+  const onKey=e=>{ if(e.key==="Escape" && !done){ done=true; mark(); cleanup(); document.body.classList.add("lv-desk-in"); } };
   document.addEventListener("keydown", onKey);
 
   seal.onclick=()=>{
@@ -3943,7 +3966,7 @@ function maybeShowMorningEnvelope(){
       });
     }, 1800);
     // 5. the post and the desk's buttons arrive last
-    setTimeout(()=>{ document.body.classList.add("lv-env-done"); }, 2400);
+    setTimeout(()=>{ document.body.classList.add("lv-env-done","lv-desk-in"); }, 2400);
     setTimeout(cleanup, 3100);
   };
 }
@@ -3987,6 +4010,9 @@ function renderLetters(){
   letterToneIdx=0; letterVaultOpen=false; letterTypeIn=!envelopeDue();
   renderCurrentLetter();
   maybeShowMorningEnvelope();
+  // Without an envelope, the surfaces arrive once the sheet has settled in.
+  if(!document.body.classList.contains("lv-ritual") && !document.body.classList.contains("lv-desk-in"))
+    setTimeout(()=>document.body.classList.add("lv-desk-in"), 900);
 }
 
 /* Every letter the queue recommends carries the specific reason it is there.
@@ -4157,8 +4183,13 @@ function renderCurrentLetter(){
     const n=letterQueue.length, show=n>MAX_TABS ? MAX_TABS-1 : n;
     const start = n>MAX_TABS ? Math.min(Math.max(0, letterIdx-Math.floor(show/2)), n-show) : 0;
     return letterQueue.slice(start, start+show).map((y,k)=>{
-      const idx=start+k, nm=(cleanName((y.d&&y.d.name)||(y.q&&y.q.name)||"").split(" ")[0])||"Someone";
-      return `<button class="lv-pile-tab${idx===letterIdx?" on":""}" data-idx="${idx}" title="${esc(letterReason(y))}"><i class="rd-dot-${esc(String(y.priority||"").toLowerCase())}"></i>${esc(nm)}</button>`;
+      const idx=start+k, raw=(cleanName((y.d&&y.d.name)||(y.q&&y.q.name)||"").split(" ")[0])||"Someone";
+      const nm=raw.charAt(0).toUpperCase()+raw.slice(1).toLowerCase();
+      // What kind of letter it is: a question for an enquiry, a book for a story, a clock for a catch-up.
+      const icon = y.kind==="custom" ? `<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`
+        : y.kind==="reconnect" ? `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`
+        : `<svg viewBox="0 0 24 24"><path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z"/></svg>`;
+      return `<button class="lv-pile-tab${idx===letterIdx?" on":""}" data-idx="${idx}" title="${esc(letterReason(y))}">${icon}${esc(nm)}</button>`;
     }).join("") + (n>MAX_TABS ? `<button class="lv-pile-tab lv-pile-more" data-more="1">+${n-show}</button>` : "");
   })();
   // Today at a glance: a dot per letter, grouped by kind, filled once sent.
