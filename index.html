@@ -161,9 +161,7 @@
   body.lv-ritual:not(.lv-env-ready) .lv-paper{visibility:hidden}
   /* The envelope runs off the bottom of the page; it fades into the room instead of ending at the edge. */
   .lv-env2-fade{position:fixed;left:0;right:0;bottom:0;height:12vh;z-index:335;pointer-events:none;
-    background:linear-gradient(to bottom,rgba(244,240,231,0),#F4F0E7 80%);transition:opacity .5s ease;
-    transform:translateY(100%);animation:lvFadeUp .85s cubic-bezier(.2,.8,.2,1) .1s forwards}
-  @keyframes lvFadeUp{ to{ transform:none } }
+    background:linear-gradient(to bottom,rgba(244,240,231,0),#F4F0E7 80%);transition:opacity .5s ease}
   .lv-env2-fade.gone{opacity:0}
   .lv-env2-veil{position:fixed;inset:0;z-index:300;box-sizing:border-box;
     background:rgba(244,240,231,.5);backdrop-filter:blur(7px) saturate(.92);-webkit-backdrop-filter:blur(7px) saturate(.92);
@@ -475,6 +473,7 @@
      it began: the letters are the point, and the mail sits beside them. All
      the reading, planning and sending underneath is unchanged. */
   .lv-tag{grid-column:1;grid-row:1;justify-self:center;align-self:center;width:340px;min-height:336px;max-height:88%;overflow-y:auto;
+    transition:margin-top .42s cubic-bezier(.22,.7,.2,1);
     box-sizing:border-box;padding:22px 24px 26px;border-radius:16px;scrollbar-width:none;display:flex;flex-direction:column;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
     background:rgba(255,255,255,.72);box-shadow:0 1px 1px rgba(24,17,8,.06)}
@@ -2868,7 +2867,12 @@ function placeLetterTopbar(){
   const tagEl=host.querySelector(".lv-tag"), rdEl=host.querySelector(".lv-reader"), scene=host.querySelector(".lv-scene");
   if(tagEl && rdEl && scene){
     const rr=rdEl.getBoundingClientRect(), sr=scene.getBoundingClientRect();
-    tagEl.style.alignSelf="start"; tagEl.style.marginTop=Math.max(0, rr.top-sr.top)+"px";
+    // While the post box is easing its rect is mid-flight. It is centred, so a
+    // change of height moves its top by half of that: line the tag up with
+    // where it is going, and both settle together.
+    const rh=parseFloat(rdEl.style.height)||rr.height;
+    const top=rr.top+(rr.height-rh)/2;
+    tagEl.style.alignSelf="start"; tagEl.style.marginTop=Math.max(0, top-sr.top)+"px";
   }
   // The tabs are cards behind the sheet: as tall as it, standing TAB_RISE clear
   // of its top edge. The progress strip sits in the top bar.
@@ -3828,7 +3832,7 @@ function renderReader(){
   const el=document.getElementById("rdScroll"); if(!el) return;
   if(!el._hint){ el._hint=true; el.addEventListener("scroll", readerScrollHint, {passive:true}); }
   requestAnimationFrame(readerScrollHint); setTimeout(readerScrollHint, 500);
-  setTimeout(placeLetterTopbar, 460);   // once the post box has eased to its new height, line the tag up with it
+
   renderReaderTop();
   document.getElementById("lvReader").className = "lv-reader rd-"+readerStyle;
   const cur = document.body.classList.contains("view-letters") && !letterComposing ? letterQueue[letterIdx] : null;
@@ -3842,9 +3846,16 @@ function renderReader(){
   const curEmail = cur ? String((cur.d&&cur.d.email)||(cur.q&&cur.q.email)||"").toLowerCase() : "";
   // The person's tag sits on the left of the letter, whatever the post box shows.
   const tag=document.getElementById("lvTag");
+  // The tag takes its new contents now and eases to its height. The post box's
+  // own height is only known once its content is swapped further down, so it is
+  // measured on the next frame and the tag is lined up with where it is going
+  // on that same frame. The two then move together over one span, instead of
+  // the tag resizing and then being nudged into line half a second later.
   if(tag) easeHeight(tag, ()=>{ tag.innerHTML = cur ? letterContextHTML(cur) : ""; if(cur) wireLetterContext(tag, cur); });
-  easeHeight(document.getElementById("lvReader"), ()=>{});   // its content changes below; measured after this function
-  const _rd=document.getElementById("lvReader"); if(_rd) requestAnimationFrame(()=>easeHeight(_rd, null));
+  easeHeight(document.getElementById("lvReader"), ()=>{});
+  const _rd=document.getElementById("lvReader");
+  requestAnimationFrame(()=>{ if(_rd) easeHeight(_rd, null); placeLetterTopbar(); });
+  setTimeout(placeLetterTopbar, 470);   // a correction, if the post box did not land where it said it would
 
   // The thread, folded to its latest message; a chevron opens the earlier ones.
   const threadHTML=(t)=>{
@@ -4081,7 +4092,6 @@ function maybeShowMorningEnvelope(){
     <button class="lv-env2-seal" id="lvEnvSeal" style="left:${sealX}px;top:${sealY}px;width:${sealW}px;height:${sealW}px" aria-label="Break the seal and open today's letters"><img src="logos/wax-seal.webp" alt=""></button>`);
 
   const ready=()=>document.body.classList.add("lv-env-ready");
-  { const c=document.getElementById("lvEnvClosed"); if(c.complete && c.naturalWidth) ready(); else { c.onload=ready; c.onerror=ready; } }
   const veil=document.getElementById("lvEnvVeil"), closed=document.getElementById("lvEnvClosed"),
         flap=document.getElementById("lvEnvFlap"), label=document.getElementById("lvEnvLabel"), seal=document.getElementById("lvEnvSeal"),
         hinge=document.getElementById("lvEnvFlap3d"),
@@ -4090,6 +4100,20 @@ function maybeShowMorningEnvelope(){
   // looked up fresh at each step rather than held from here.
   const sheet=()=>host.querySelector(".lv-paper");
   const fade=document.getElementById("lvEnvFade");
+  // The envelope is carried up from below the fold once its photograph has
+  // painted. All four pieces move on the independent translate property, so
+  // each keeps the transform it already has: the label its tilt, the seal its
+  // eight degrees and its hover. The sheet stays hidden until it has landed.
+  const slideIn=()=>{
+    if(matchMedia("(prefers-reduced-motion: reduce)").matches){ ready(); return; }
+    const from=innerHeight-closedTop+30;
+    let last=null;
+    [closed,flap,label,seal].forEach(el=>{ if(el) last=el.animate(
+      [{translate:`0 ${from}px`},{translate:"0 0"}],
+      {duration:900, easing:"cubic-bezier(.16,.84,.26,1)", fill:"none"}); });
+    last ? last.finished.then(ready, ready) : ready();
+  };
+  { const c=closed; if(c.complete && c.naturalWidth) slideIn(); else { c.onload=slideIn; c.onerror=slideIn; } }
   let done=false;
   const mark=()=>{ try{ localStorage.setItem("macon.envelope", todayKey()); }catch{} };
   const cleanup=()=>{
