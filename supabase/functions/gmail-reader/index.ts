@@ -312,23 +312,38 @@ Deno.serve(async (req) => {
       const worker = async () => {
         while (next < emails.length) {
           const email = emails[next++];
-          let best: { at: number; snippet: string; subject: string; box: string } | null = null;
+          // Both directions: the last thing they sent, and the last thing the
+          // studio sent them. The second is what tells the queue a follow-up
+          // already happened, whichever tool it happened in.
+          let best: { at: number; snippet: string; subject: string; box: string; sentAt: number } | null = null;
+          let sentAt = 0;
           for (const { box, token } of boxes) {
+            const h = { Authorization: `Bearer ${token}` };
             try {
-              const h = { Authorization: `Bearer ${token}` };
               const lr = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent("from:" + email)}&maxResults=1`, { headers: h });
-              if (!lr.ok) continue;
-              const id = (await lr.json()).messages?.[0]?.id;
-              if (!id) continue;
-              const r = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=metadata&metadataHeaders=Subject`, { headers: h });
-              if (!r.ok) continue;
-              const m = await r.json();
-              const at = Number(m.internalDate);
-              const subject = ((m.payload && m.payload.headers) || [])
-                .find((x: { name: string }) => x.name.toLowerCase() === "subject")?.value || "";
-              if (!best || at > best.at) best = { at, snippet: m.snippet || "", subject, box };
+              const id = lr.ok ? (await lr.json()).messages?.[0]?.id : null;
+              if (id) {
+                const r = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=metadata&metadataHeaders=Subject`, { headers: h });
+                if (r.ok) {
+                  const m = await r.json();
+                  const at = Number(m.internalDate);
+                  const subject = ((m.payload && m.payload.headers) || [])
+                    .find((x: { name: string }) => x.name.toLowerCase() === "subject")?.value || "";
+                  if (!best || at > best.at) best = { at, snippet: m.snippet || "", subject, box, sentAt: 0 };
+                }
+              }
             } catch { /* one box failing leaves the other */ }
+            try {
+              const sr = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent("in:sent to:" + email)}&maxResults=1`, { headers: h });
+              const sid = sr.ok ? (await sr.json()).messages?.[0]?.id : null;
+              if (sid) {
+                const r = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${sid}?format=minimal`, { headers: h });
+                if (r.ok) sentAt = Math.max(sentAt, Number((await r.json()).internalDate) || 0);
+              }
+            } catch { /* as above */ }
           }
+          if (best) best.sentAt = sentAt;
+          else if (sentAt) best = { at: 0, snippet: "", subject: "", box: "", sentAt };
           last[email] = best;
         }
       };

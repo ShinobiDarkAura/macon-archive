@@ -53,7 +53,7 @@ type Rec = Record<string, any>;
 // A story ask is for a recent purchase. Past STORY_WINDOW it is not a story ask
 // any more, it is a reconnect, and asking "how has it settled in" about
 // something bought two years ago reads as a form letter.
-const STORY_WINDOW = 180;
+const STORY_WINDOW = 120;
 const PATRON_LTV = 600;
 
 function isDue(d: Rec): boolean {
