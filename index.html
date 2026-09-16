@@ -68,6 +68,9 @@
     -webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);
     animation:db-in .35s cubic-bezier(.2,.8,.2,1);box-sizing:border-box;
     transition:width .38s cubic-bezier(.2,.8,.2,1),height .38s cubic-bezier(.2,.8,.2,1),padding .38s cubic-bezier(.2,.8,.2,1)}
+  /* On the letters desk the buttons are at the top left, so the list drops in
+     under them rather than across them. They end at 86px. */
+  body.view-letters .daybrief{top:98px;left:16px}
   .daybrief.min{display:none}
   .daybrief.min>*:not(.db-icon){display:none}
   .daybrief .db-icon{display:none;border:none;background:transparent;padding:0;margin:0;color:#000;cursor:pointer;line-height:0}
