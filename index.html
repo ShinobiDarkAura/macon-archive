@@ -171,13 +171,23 @@
   .lv-env2-date{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#7A7262}
   .lv-env2-hint{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#A89D89}
   /* The envelope is photographed (generated through Codex, cut out with its
-     shadow kept). Closed is one layer in front of the sheet; open is two, the
-     standing flap behind the sheet and the body in front, so the letter rises
-     between them. */
+     shadow kept). The flap was cut away from the closed shot, so the body has a
+     real triangular hole with the envelope's inside behind it, and the flap is
+     a hinge of its own: one element carrying two faces, the outer one from the
+     closed photograph and the inner one from the open photograph, turned about
+     the fold. The sheet is lifted between the inside and the body. */
   .lv-env2-img{position:fixed;display:block;pointer-events:none;user-select:none}
   .lv-env2-closed{z-index:320}
-  .lv-env2-open-flap{z-index:305;opacity:0}
-  .lv-env2-open-body{z-index:319}
+  .lv-env2-flapwrap{position:fixed;z-index:322;pointer-events:none;perspective:1150px;perspective-origin:50% 0%}
+  /* Once the flap has passed upright it belongs behind the letter, which is
+     rising through the same air. */
+  body.lv-env-flapback .lv-env2-flapwrap{z-index:305}
+  .lv-env2-flap3d{position:absolute;inset:0;transform-style:preserve-3d;transform-origin:50% 0%;will-change:transform}
+  .lv-env2-flap3d img{position:absolute;left:0;top:0;width:100%;display:block;
+    backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  /* Turned about its centre, so the fold edge at the foot of the inner face
+     lands on the hinge and the paper reads the right way up. */
+  .lv-env2-flap3d .f-back{transform:rotateX(180deg)}
   .lv-env2-label{position:fixed;z-index:325;transform:translateX(-50%) rotate(-1deg);
     background:#FBF6EA;padding:34px;text-align:center;box-sizing:border-box;
     box-shadow:0 1px 0 rgba(40,26,8,.2),0 2px 1px rgba(40,26,8,.1)}
@@ -3922,7 +3932,7 @@ function envelopeCounts(q){
   return c;
 }
 let _envShown=false, _renderAfterRitual=false;
-["env-closed","env-open-flap","env-open-body","wax-seal"].forEach(n=>{ const i=new Image(); i.src="logos/"+n+".webp"; });
+["env-body-noflap","env-flap-front","env-flap-back","wax-seal"].forEach(n=>{ const i=new Image(); i.src="logos/"+n+".webp"; });
 function envelopeDue(){
   if(_envShown || letterComposing || !letterQueue.length) return false;
   if(!document.body.classList.contains("view-letters")) return false;
@@ -3954,22 +3964,26 @@ function maybeShowMorningEnvelope(){
   // The photographs' geometry, in image pixels: the closed shot is a 1254-wide
   // canvas whose body sits at (185,65) 883x1113 with the flap's tip at (633,483);
   // the open shot is split at its body's top edge into a 290px-tall flap layer
-  // and an 1189px-tall body layer. Everything is placed from the body rect.
-  // The open shot is split at the pocket's seam (row 355), 67 rows below the
-  // body's top edge, so the letter comes up out of the pocket rather than
-  // from behind the envelope's inner lip.
-  const IMG={ w:1254, bx:185, by:65, bw:883, bh:1113, tipX:633, tipY:483, flapBody:288, seam:355 };
+  // and an 1189px-tall inside layer whose lip sits at the pocket's seam (row
+  // 355), 67 rows below the body's top edge, so the letter comes up out of the
+  // pocket rather than from behind the envelope's inner lip.
+  // foldY is the flap's hinge in the closed shot, flapH the height of the two
+  // flap faces; insidePad is how far the inside layer reaches above the pocket.
+  const IMG={ w:1254, bx:185, by:65, bw:883, bh:1113, tipX:633, tipY:483, flapBody:288, seam:355,
+              foldY:66, flapH:430, flapLen:427 };
   const W=Math.round(P.w*1.14), L=Math.round(P.left+P.w/2-W/2);
   // The opening sits a tenth of the screen above where the sheet's top fifth
   // would show, so the envelope reads high on the page while it is sealed.
   const T=Math.round(P.top+P.h*0.20-innerHeight*0.10);
   const sc=W/IMG.bw, IW=Math.round(IMG.w*sc);
   const imgL=Math.round(L-IMG.bx*sc);
-  const closedTop=Math.round(T-IMG.by*sc), flapTop=Math.round(T-IMG.flapBody*sc);
+  const closedTop=Math.round(T-IMG.by*sc);
+  const foldTop=Math.round(closedTop+IMG.foldY*sc), flapH=Math.round(IMG.flapH*sc);
   const sealX=Math.round(L+(IMG.tipX-IMG.bx)*sc), sealY=Math.round(T+(IMG.tipY-IMG.by)*sc), sealW=Math.round(W*0.14);
   const seamY=Math.round(T+(IMG.seam-IMG.flapBody)*sc);   // where the pocket's top edge lands on screen
   const sink=Math.max(24, Math.round(seamY-P.top+40));     // the sheet's top sits 40px inside the pocket
-  const FL=Math.round(IMG.flapBody*sc);      // how far the open flap stands above the opening
+  const OPEN=-150;                          // how far the flap turns back, in degrees
+  const FL=Math.round(IMG.flapLen*sc*Math.abs(Math.cos(OPEN*Math.PI/180)));  // how far it then stands above the fold
 
   document.documentElement.style.setProperty("--env-sink", sink+"px");
   document.body.classList.add("lv-ritual");
@@ -3977,9 +3991,13 @@ function maybeShowMorningEnvelope(){
     <div class="lv-env2-fade" id="lvEnvFade"></div>
     <div class="lv-env2-veil" id="lvEnvVeil" role="dialog" aria-label="Today's letters">
     </div>
-    <img class="lv-env2-img lv-env2-open-flap" id="lvEnvFlap" src="logos/env-open-flap.webp" alt="" style="left:${imgL}px;top:${flapTop}px;width:${IW}px">
-    <img class="lv-env2-img lv-env2-open-body" id="lvEnvBody" src="logos/env-open-body.webp" alt="" style="left:${imgL}px;top:${seamY}px;width:${IW}px">
-    <img class="lv-env2-img lv-env2-closed" id="lvEnvClosed" src="logos/env-closed.webp" alt="" style="left:${imgL}px;top:${closedTop}px;width:${IW}px">
+    <img class="lv-env2-img lv-env2-closed" id="lvEnvClosed" src="logos/env-body-noflap.webp" alt="" style="left:${imgL}px;top:${closedTop}px;width:${IW}px">
+    <div class="lv-env2-flapwrap" id="lvEnvFlap" style="left:${imgL}px;top:${foldTop}px;width:${IW}px;height:${flapH}px">
+      <div class="lv-env2-flap3d" id="lvEnvFlap3d">
+        <img class="f-front" src="logos/env-flap-front.webp" alt="">
+        <img class="f-back" src="logos/env-flap-back.webp" alt="">
+      </div>
+    </div>
     <div class="lv-env2-label" id="lvEnvLabel" style="left:${L+W/2}px;top:${Math.round(T+W*0.56)+20}px;width:${Math.round(W*0.405)}px">
       <span class="lv-env2-chip">${esc(day)}</span>
       <p class="lv-env2-count">${esc(count(c.all,"letter","letters"))}</p>
@@ -3989,8 +4007,10 @@ function maybeShowMorningEnvelope(){
 
   const ready=()=>document.body.classList.add("lv-env-ready");
   { const c=document.getElementById("lvEnvClosed"); if(c.complete && c.naturalWidth) ready(); else { c.onload=ready; c.onerror=ready; } }
-  const veil=document.getElementById("lvEnvVeil"), closed=document.getElementById("lvEnvClosed"), body=document.getElementById("lvEnvBody"),
-        flap=document.getElementById("lvEnvFlap"), label=document.getElementById("lvEnvLabel"), seal=document.getElementById("lvEnvSeal");
+  const veil=document.getElementById("lvEnvVeil"), closed=document.getElementById("lvEnvClosed"),
+        flap=document.getElementById("lvEnvFlap"), label=document.getElementById("lvEnvLabel"), seal=document.getElementById("lvEnvSeal"),
+        hinge=document.getElementById("lvEnvFlap3d"),
+        faceF=flap.querySelector(".f-front"), faceB=flap.querySelector(".f-back");
   // The sheet and pile may be redrawn while the envelope is up, so they are
   // looked up fresh at each step rather than held from here.
   const sheet=()=>host.querySelector(".lv-paper");
@@ -3998,8 +4018,8 @@ function maybeShowMorningEnvelope(){
   let done=false;
   const mark=()=>{ try{ localStorage.setItem("macon.envelope", todayKey()); }catch{} };
   const cleanup=()=>{
-    [veil,closed,body,flap,label,seal,fade].forEach(n=>n && n.remove());
-    document.body.classList.remove("lv-ritual","lv-env-open","lv-env-out","lv-env-done","lv-env-ready");
+    [veil,closed,flap,label,seal,fade].forEach(n=>n && n.remove());
+    document.body.classList.remove("lv-ritual","lv-env-open","lv-env-out","lv-env-done","lv-env-ready","lv-env-flapback");
     document.documentElement.style.removeProperty("--env-sink");
     document.removeEventListener("keydown", onKey);
     // Anything that asked to redraw while the envelope was up is drawn now.
@@ -4020,21 +4040,30 @@ function maybeShowMorningEnvelope(){
       {transform:"translate(-50%,-50%) rotate(-22deg) scale(1.12)", opacity:1, offset:.35},
       {transform:"translate(-50%,-50%) rotate(-40deg) scale(.4)", opacity:0}
     ], {duration:380, easing:"ease-in", fill:"forwards"});
-    // 2. the flap opens and the sheet rises until only its top shows
+    // 2. the flap turns back on its fold: slow as the gum lets go, then freely,
+    //    settling a little past where it comes to rest. The sheet rises with it.
     setTimeout(()=>{
-      const E={duration:420, easing:"ease-in-out", fill:"forwards"};
-      closed.animate([{opacity:1},{opacity:0}], E);
+      hinge.animate([
+        {transform:"rotateX(0deg)", easing:"cubic-bezier(.7,0,.6,.35)"},
+        {transform:"rotateX(-24deg)", offset:.22, easing:"cubic-bezier(.2,.6,.3,1)"},
+        {transform:`rotateX(${OPEN-9}deg)`, offset:.84, easing:"ease-out"},
+        {transform:`rotateX(${OPEN}deg)`}
+      ], {duration:860, fill:"forwards"});
+      // the light leaves the outer face as it turns away, and finds the inner one
+      faceF.animate([{filter:"brightness(1)"},{filter:"brightness(.62)"}], {duration:430, easing:"ease-in", fill:"forwards"});
+      faceB.animate([{filter:"brightness(.66)"},{filter:"brightness(1)"}], {duration:430, delay:430, easing:"ease-out", fill:"forwards"});
       label.animate([{opacity:1},{opacity:0}], {duration:260, fill:"forwards"});
-      flap.animate([{opacity:0, transform:"translateY(18px)"},{opacity:1, transform:"translateY(0)"}], {duration:480, easing:"cubic-bezier(.2,.8,.2,1)", fill:"forwards"});
       document.body.classList.add("lv-env-open");
-    }, 180);
+    }, 200);
+    // the flap drops behind the letter as it passes upright
+    setTimeout(()=>document.body.classList.add("lv-env-flapback"), 560);
     // 3. the envelope slides down off the page, and the rest of the letter is there
     setTimeout(()=>{
-      const away=innerHeight-flapTop+40, E={duration:840, easing:"cubic-bezier(.55,0,.8,.2)", fill:"forwards"};
-      body.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
+      const away=innerHeight-(foldTop-FL)+40, E={duration:840, easing:"cubic-bezier(.55,0,.8,.2)", fill:"forwards"};
+      closed.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
       flap.animate([{transform:"translateY(0)"},{transform:`translateY(${away}px)`}], E);
       fade.classList.add("gone");
-    }, 1000);
+    }, 1140);
     // 4. the room comes back into focus and the pile settles in under the letter
     setTimeout(()=>{
       veil.classList.add("clear");
@@ -4046,10 +4075,10 @@ function maybeShowMorningEnvelope(){
         g.style.transition="none"; g.style.transform=`${g.dataset.t} translateY(26px) scale(.985)`;
         void g.offsetWidth; g.style.transition=""; g.classList.add("lv-settling"); g.style.transform=g.dataset.t;
       });
-    }, 1800);
+    }, 1940);
     // 5. the post and the desk's buttons arrive last
-    setTimeout(()=>{ document.body.classList.add("lv-env-done","lv-desk-in"); }, 2400);
-    setTimeout(cleanup, 3100);
+    setTimeout(()=>{ document.body.classList.add("lv-env-done","lv-desk-in"); }, 2540);
+    setTimeout(cleanup, 3240);
   };
 }
 function renderLetters(){
