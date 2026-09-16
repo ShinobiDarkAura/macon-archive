@@ -153,13 +153,17 @@
   .lv-reader,.lv-tag,.lv-topleft,.lv-progress,.lv-pile-tabs,#viewToggle,.chat-fab{transition:opacity .55s ease}
   /* On any load the two surfaces wait until the letters have settled. */
   body.view-letters:not(.lv-desk-in) :is(.lv-reader,.lv-tag){opacity:0;pointer-events:none}
+  /* The tabs come in after everything else, once the sheet has stopped moving. */
+  body.view-letters:not(.lv-tabs-in) .lv-pile-tabs{opacity:0;pointer-events:none}
   body.lv-ritual:not(.lv-env-done) :is(.lv-reader,.lv-tag,.lv-topleft,.lv-progress,.lv-pile-tabs,#viewToggle,.chat-fab){opacity:0;pointer-events:none}
   /* The sheet stays unseen until the envelope photograph has actually painted;
      before that the sealed envelope is not there to hide it. */
   body.lv-ritual:not(.lv-env-ready) .lv-paper{visibility:hidden}
   /* The envelope runs off the bottom of the page; it fades into the room instead of ending at the edge. */
-  .lv-env2-fade{position:fixed;left:0;right:0;bottom:0;height:24vh;z-index:335;pointer-events:none;
-    background:linear-gradient(to bottom,rgba(244,240,231,0),#F4F0E7 80%);transition:opacity .5s ease}
+  .lv-env2-fade{position:fixed;left:0;right:0;bottom:0;height:12vh;z-index:335;pointer-events:none;
+    background:linear-gradient(to bottom,rgba(244,240,231,0),#F4F0E7 80%);transition:opacity .5s ease;
+    transform:translateY(100%);animation:lvFadeUp .85s cubic-bezier(.2,.8,.2,1) .1s forwards}
+  @keyframes lvFadeUp{ to{ transform:none } }
   .lv-env2-fade.gone{opacity:0}
   .lv-env2-veil{position:fixed;inset:0;z-index:300;box-sizing:border-box;
     background:rgba(244,240,231,.5);backdrop-filter:blur(7px) saturate(.92);-webkit-backdrop-filter:blur(7px) saturate(.92);
@@ -2547,7 +2551,7 @@ let letterSignoff="Alex";
 let letterComposing=false, letterComposeItem=null;
 let letterFilingOpen=false;
 let letterNoEnter=false;
-let letterTypeIn=false;
+let letterTypeIn=false, letterFirstTyped=false;
 let letterGhostPrev=[];
 let letterCardH=0;
 let letterDataReady=false;
@@ -4025,6 +4029,7 @@ function maybeShowMorningEnvelope(){
     // Anything that asked to redraw while the envelope was up is drawn now.
     if(_renderAfterRitual){ _renderAfterRitual=false; renderLetters(); }
     placeLetterTopbar();
+    setTimeout(()=>{ placeLetterTopbar(); document.body.classList.add("lv-tabs-in"); }, 200);
   };
   const onKey=e=>{ if(e.key==="Escape" && !done){ done=true; mark(); cleanup(); document.body.classList.add("lv-desk-in"); } };
   document.addEventListener("keydown", onKey);
@@ -4121,12 +4126,19 @@ function renderLetters(){
     host.querySelectorAll("[data-skip]").forEach(b=>b.onclick=()=>unskipLetter(b.dataset.skip));
     return;
   }
-  letterToneIdx=0; letterVaultOpen=false; letterTypeIn=!envelopeDue();
+  // The letter is written out once, when the pile is first drawn and there is
+  // no envelope. After the envelope, and on every later redraw of the same
+  // pile, it arrives already written and then stays put.
+  letterToneIdx=0; letterVaultOpen=false;
+  letterTypeIn = !envelopeDue() && !_envShown && !letterFirstTyped;
+  if(letterTypeIn) letterFirstTyped=true;
   renderCurrentLetter();
   maybeShowMorningEnvelope();
   // Without an envelope, the surfaces arrive once the sheet has settled in.
-  if(!document.body.classList.contains("lv-ritual") && !document.body.classList.contains("lv-desk-in"))
+  if(!document.body.classList.contains("lv-ritual") && !document.body.classList.contains("lv-desk-in")){
     setTimeout(()=>document.body.classList.add("lv-desk-in"), 900);
+    setTimeout(()=>{ placeLetterTopbar(); document.body.classList.add("lv-tabs-in"); }, 1500);
+  }
 }
 
 /* Every letter the queue recommends carries the specific reason it is there.
