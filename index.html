@@ -633,7 +633,8 @@
     box-shadow:0 -1px 1px rgba(24,17,8,.12);transition:margin-top .15s,background .15s,color .15s}
   .lv-pile-tab:hover{margin-top:1px;line-height:29px;color:#4A443A}
   /* The chosen tab is the sheet: its colour and its paper, so the two read as one piece. */
-  .lv-pile-tab.on{margin-top:0;line-height:30px;background:#FFFEFC;color:#26221C;box-shadow:none}
+  .lv-pile-tab.on{margin-top:0;line-height:30px;background:#FFFEFC;color:#26221C;z-index:3;
+    box-shadow:0 1px 1px rgba(24,17,8,.22),0 2px 4px rgba(24,17,8,.18)}   /* the sheet's own shadow, cast onto its neighbours */
   .lv-pile-tab.on::after{content:"";position:absolute;inset:0;background:url("logos/letter-paper.webp") center/600px;
     mix-blend-mode:multiply;opacity:.55;pointer-events:none}
   /* A dot per letter today, grouped by kind. */
