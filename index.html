@@ -434,7 +434,9 @@
   /* Changing letters is not an entrance: replaying it made the sheet jump and
      dragged the pinned card and badge with it. */
   .lv-paper.lv-noenter{animation:none}
-  .lv-paper.lv-noenter ~ .lv-ghost{animation:none}
+  /* The ghosts sit before the sheet in the markup, so they are reached from the
+     scene, not as its siblings. */
+  .lv-scene.lv-noenter .lv-ghost{animation:none}
   /* ghosts animate opacity only: a transform keyframe with fill "both" would
      pin transform:none and erase their tilt for good */
   @keyframes lvGhostIn{ from{opacity:0} to{opacity:1} }
@@ -691,25 +693,29 @@
     letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:0 0 12px}
   :is(.lv-reader,.lv-tag) .rd-ctx-meta b{font-weight:600}
   :is(.lv-reader,.lv-tag) .rd-pri-high{color:#C0392B} :is(.lv-reader,.lv-tag) .rd-pri-medium{color:#B8935F} :is(.lv-reader,.lv-tag) .rd-pri-low{color:#6E9A5A}
-  :is(.lv-reader,.lv-tag) .rd-ctx-name{font-family:"TAY Birdie",var(--serif-soul);font-weight:400;font-size:32px;line-height:1;letter-spacing:-.03em;
-    color:var(--ink-1);margin:0 0 14px;text-wrap:balance}
+  :is(.lv-reader,.lv-tag) .rd-ctx-name{font-family:"TAY Birdie",var(--serif-soul);font-weight:400;font-size:32px;line-height:.94;letter-spacing:-.05em;
+    color:var(--ink-1);margin:0 0 22px;text-wrap:balance}
   :is(.lv-reader,.lv-tag) .rd-ctx-why{font-family:var(--sans);font-size:13px;line-height:1.5;font-weight:400;color:var(--ink-2);margin:0 0 12px}
   :is(.lv-reader,.lv-tag) .rd-ctx-note{background:#fff;border-radius:9px;padding:14px;box-shadow:0 1px 2px rgba(24,17,8,.26)}
   :is(.lv-reader,.lv-tag) .rd-ctx-note span{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--ink-3);margin:0 0 6px}
   :is(.lv-reader,.lv-tag) .rd-ctx-note textarea,:is(.lv-reader,.lv-tag) .rd-ctx-note p{display:block;width:100%;border:none;background:transparent;resize:none;
     font-family:var(--sans);font-size:15px;line-height:1.6;color:var(--ink-2);margin:0;padding:0;overflow:hidden;box-sizing:border-box}
+  :is(.lv-reader,.lv-tag) .rd-ctx-note textarea[hidden]{display:none}
   :is(.lv-reader,.lv-tag) .rd-ctx-note textarea:focus{outline:none}
   .rd-note-read{cursor:text;flex:1}
-  .rd-note-sum{font-family:var(--sans);font-size:13.5px;line-height:1.5;color:var(--ink-1);margin:0 0 8px}
-  .rd-note-pts{margin:0;padding:0 0 0 16px;font-family:var(--sans);font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .rd-note-sum{font-family:var(--sans);font-size:13.5px;font-weight:600;line-height:1.5;color:var(--ink-1);
+    margin:0 0 10px;padding:0 0 10px;border-bottom:1px solid var(--rl)}
+  .rd-note-pts{margin:0;padding:0;list-style:none;font-family:var(--sans);font-size:13.5px;line-height:1.5;color:var(--ink-2)}
   /* What they own, when there is little else to say about them. */
   .rd-buys{margin:14px 0 0;padding:0;list-style:none;border-top:1px dashed var(--rl)}
   .rd-buys li{display:flex;align-items:center;gap:12px;padding:10px 8px;margin:0 -8px;border-bottom:1px dashed var(--rl)}
   .rd-buys img{width:44px;height:44px;border-radius:8px;object-fit:cover;flex:0 0 auto;background:#EFE9DC}
   .rd-buys b{display:block;font-family:var(--sans);font-size:13.5px;font-weight:500;color:var(--ink-1);line-height:1.3}
   .rd-buys small{display:block;font-family:var(--sans);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-top:2px}
-  .rd-note-pts li{margin:0 0 4px}
+  .rd-note-pts li{margin:0;padding:8px 0;border-bottom:1px solid var(--rl)}
+  .rd-note-pts li:last-child{border-bottom:none;padding-bottom:0}
+  .rd-note-wait{font-family:var(--sans);font-size:13.5px;color:var(--ink-3);margin:0}
   .rd-note-empty{font-family:var(--sans);font-size:13px;color:var(--ink-3);margin:0}
   :is(.lv-reader,.lv-tag) .rd-ctx-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
   :is(.lv-reader,.lv-tag) .rd-ctx-act button,:is(.lv-reader,.lv-tag) .rd-ctx-act a{font-family:var(--sans);font-size:12px;color:var(--ink-2);background:transparent;
@@ -3484,6 +3490,60 @@ function wireLetterKeys(){
    What the post-it used to hold now heads the post box's main pane: what kind
    of letter it is and how pressing, the piece and when, who, why it is in the
    pile, the working note, and filing what they said. */
+/* Anyone with a thread gets a note: where it stands, then the few facts that
+   change what happens next. Written once per thread by the letter-writer and
+   kept, so opening the same letter again costs nothing. Where the studio has
+   written its own note, that is what gets condensed. */
+const _tnote=new Map(), _tnotePending=new Set();
+function tnoteKey(email, t, own){
+  const last = t && t.msgs && t.msgs.length ? t.msgs[t.msgs.length-1].at : 0;
+  return `${String(email||"").toLowerCase()}|${last}|${String(own||"").length}`;
+}
+function tnoteStore(){ try{ return JSON.parse(localStorage.getItem("macon.tnote")||"{}"); }catch{ return {}; } }
+function threadNoteFor(email, t, own){
+  const k=tnoteKey(email,t,own);
+  if(_tnote.has(k)) return _tnote.get(k);
+  const kept=tnoteStore()[k];
+  if(kept){ _tnote.set(k,kept); return kept; }
+  return null;
+}
+function noteBlockHTML(n){
+  if(!n) return "";
+  return (n.lead?`<p class="rd-note-sum">${esc(n.lead)}</p>`:"")
+    + ((n.points||[]).length?`<ul class="rd-note-pts">${n.points.map(v=>`<li>${esc(v)}</li>`).join("")}</ul>`:"");
+}
+async function loadThreadNote(x, t){
+  if(!x || !t || !t.msgs || !t.msgs.length) return;
+  const d=x.d||{}, q=x.q||null;
+  const email=String(d.email||t.email||"").toLowerCase();
+  const own=q?(q.note||""):"";
+  if(!email) return;
+  const k=tnoteKey(email,t,own);
+  if(_tnote.has(k) || _tnotePending.has(k) || tnoteStore()[k]) return;
+  _tnotePending.add(k);
+  try{
+    const { data:{ session } }=await sb.auth.getSession(); if(!session) return;
+    const mine=m=>/ma[\u00e7c]on/i.test(m.from||"") || MAILBOXES.some(b=>String(m.from||"").toLowerCase().includes(boxLabel(b)));
+    const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/letter-writer`, {
+      method:"POST",
+      headers:{ Authorization:"Bearer "+session.access_token, apikey:CONFIG.SUPABASE_ANON_KEY, "Content-Type":"application/json" },
+      body:JSON.stringify({ mode:"note", note:own, name:d.name||t.name||"", email, city:d.city||"", kind:x.kind||"",
+        piece:(D().emailCtx?D().emailCtx(d).piece:"")||(q?q.subject:"")||"",
+        messages:(t.msgs||[]).map(m=>({ from:m.from, at:m.at, mine:mine(m), body:m.body })) })
+    });
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok || (!j.lead && !(j.points||[]).length)) return;
+    const n={ lead:j.lead||"", points:j.points||[] };
+    _tnote.set(k,n);
+    try{ const st=tnoteStore(); st[k]=n; localStorage.setItem("macon.tnote", JSON.stringify(st)); }catch{}
+    renderReader();
+  }catch(e){ /* the typed note, or what they said, still shows */ }
+  finally{ _tnotePending.delete(k); }
+}
+function noteForCurrent(){
+  const x=letterQueue[letterIdx], t=readerThread;
+  if(x && t && t.msgs && t.msgs.length) loadThreadNote(x, t);
+}
 /* A note reads as its first sentence, then the rest as points. */
 function noteHTML(text){
   const t=String(text||"").replace(/\s+/g," ").trim();
@@ -3512,10 +3572,20 @@ function letterContextHTML(x){
   const when=String(facts[1]||"").match(/[A-Z][a-z]{2}\s+\d{1,2},?\s*(\d{4})/);
   const meta=[facts[0]||"", when ? when[0].replace(/\s+\d{1,2},?\s*/, " ") : ""].filter(Boolean).join(" · ");
   const quote=letterQuoteText(x);
+  // The condensed note comes from their thread when there is one. Until it
+  // lands, an enquiry shows what the studio typed and a collector what they said.
+  const mail=String(d.email||(q&&q.email)||"").toLowerCase();
+  const thread = readerThread && String(readerThread.email||"").toLowerCase()===mail && (readerThread.msgs||[]).length ? readerThread : null;
+  const tn = thread ? threadNoteFor(mail, thread, kind==="custom"?(q.note||""):"") : null;
+  const waiting = thread && !tn && gmailReady();
+  const said = quote && !/^(asked|yes|no)$/i.test(quote.trim()) ? quote : "";
   const note = kind==="custom"
-    ? `<div class="rd-ctx-note"><span>Notes</span><div class="rd-note-read" id="lvNoteRead" title="Click to edit">${noteHTML(q.note||"")}</div><textarea id="lvNote" rows="1" placeholder="What happened, and what you owe them next" hidden>${esc(q.note||"")}</textarea></div>`
-    : (quote && !/^(asked|yes|no)$/i.test(quote.trim()) ? `<div class="rd-ctx-note"><span>What they said</span>${noteHTML(quote)}${purchasesHTML(d)}</div>`
-             : `<div class="rd-ctx-note"><span>Their pieces</span>${purchasesHTML(d)}</div>`);
+    ? `<div class="rd-ctx-note"><span>Notes</span><div class="rd-note-read" id="lvNoteRead" title="Click to edit">${tn?noteBlockHTML(tn):noteHTML(q.note||"")}</div><textarea id="lvNote" rows="1" placeholder="What happened, and what you owe them next" hidden>${esc(q.note||"")}</textarea></div>`
+    : (tn || waiting || said
+        ? `<div class="rd-ctx-note"><span>${tn||waiting?"Notes":"What they said"}</span>${
+            tn ? noteBlockHTML(tn) : waiting ? `<p class="rd-note-wait">Reading the thread\u2026</p>` : noteHTML(said)
+          }${purchasesHTML(d)}</div>`
+        : `<div class="rd-ctx-note"><span>Their pieces</span>${purchasesHTML(d)}</div>`);
   const act = kind==="custom" ? "" : (letterFilingOpen ? `
     <form class="lv-file rd-ctx-file" id="lvFile">
       <label>What they said
@@ -3592,7 +3662,7 @@ async function loadThreadFor(email, name){
   if(!email || !gmailReady()){ readerMode="letter"; readerThread=null; renderReader(); return; }
   readerMode="thread";
   readerOpenMsgs.clear(); readerThreadOpen=false;
-  if(_threads.has(email)){ readerThread=_threads.get(email); renderReader(); return; }
+  if(_threads.has(email)){ readerThread=_threads.get(email); renderReader(); noteForCurrent(); return; }
   readerThread={email, name, loading:true}; renderReader();
   try{
     const q=encodeURIComponent(`from:${email} OR to:${email}`);
@@ -3618,6 +3688,7 @@ async function loadThreadFor(email, name){
   }catch(e){ readerThread={email, name, msgs:[], err:e.message}; }
   if(readerThread.email===email) _threads.set(email, readerThread);
   renderReader();
+  noteForCurrent();
 }
 // The header is permanent: title, unread count, refresh and the two folders.
 /* ---------- the post box: width and split ----------
@@ -4027,7 +4098,7 @@ function maybeShowMorningEnvelope(){
     document.documentElement.style.removeProperty("--env-sink");
     document.removeEventListener("keydown", onKey);
     // Anything that asked to redraw while the envelope was up is drawn now.
-    if(_renderAfterRitual){ _renderAfterRitual=false; renderLetters(); }
+    if(_renderAfterRitual){ _renderAfterRitual=false; letterNoEnter=true; renderLetters(); }
     placeLetterTopbar();
     setTimeout(()=>{ placeLetterTopbar(); document.body.classList.add("lv-tabs-in"); }, 200);
   };
@@ -4328,7 +4399,7 @@ function renderCurrentLetter(){
   })();
 
   host.innerHTML = `
-    <div class="lv-scene">
+    <div class="lv-scene${letterNoEnter?" lv-noenter":""}">
       <div class="lv-mailbar" id="lvMailbar"></div>
       <div class="lv-topbar" id="lvTopbar"></div>
       <div class="lv-topleft">

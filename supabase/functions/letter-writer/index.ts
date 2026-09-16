@@ -8,6 +8,8 @@
 //   -> { subject, body }
 //   POST /letter-writer   { mode: "intent", to, subject, body }
 //   -> { expects_reply, reason, follow_up_days }
+//   POST /letter-writer   { mode: "note", messages[], note }
+//   -> { lead, points[] }
 //
 // Secrets: ANTHROPIC_API_KEY
 
@@ -79,6 +81,25 @@ time-sensitive decision, 7 for an ordinary question, 14 for something that needs
 
 Reply with JSON only: {"expects_reply": true or false, "reason": "...", "follow_up_days": 0}`;
 
+const NOTE = `You keep the studio's record of a person. Read their conversation and write the
+shortest note that tells whoever picks this up next what they actually need to know.
+
+Rules:
+- A lead line saying where this stands right now. At most 12 words.
+- Then at most three points, each a single fact that changes what the studio does
+  next: something promised, something owed, a date to act on, a constraint, or a
+  preference worth remembering. At most 14 words each.
+- Leave out pleasantries, thanks, anything the studio already said, and anything
+  that would not change a decision. Fewer points is better than padding.
+- Keep any date that matters, written the way the thread writes it.
+- Never invent. If the thread says little, return one point, or none at all.
+- Plain words, no em dashes, no heading words like "Update:".
+
+If the studio has already written its own note, treat it as the most reliable
+account and condense that, using the thread only to fill gaps.
+
+Reply with JSON only: {"lead": "...", "points": ["...", "..."]}`;
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (req.method !== "POST") return new Response("POST only", { status: 405, headers: cors });
@@ -130,6 +151,33 @@ Deno.serve(async (req) => {
       b.kind === "custom" ? "This is an open commission enquiry, not a past customer."
         : "This is someone who has bought from the studio before.",
     ].filter(Boolean).join("\n");
+
+    if (b.mode === "note") {
+      const own = String(b.note || "").trim().slice(0, 1200);
+      const r = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: MODEL, max_tokens: 400, system: NOTE,
+          messages: [{ role: "user", content:
+            `${facts}\n\n${own ? `The studio's own note:\n${own}\n\n` : ""}`
+            + `The conversation so far, oldest first:\n\n${transcript}` }],
+        }),
+      });
+      const j = await r.json();
+      if (!r.ok) return json({ error: j?.error?.message || `claude ${r.status}` }, r.status);
+      const text = (j.content || []).map((c: { text?: string }) => c.text || "").join("");
+      const m = text.match(/\{[\s\S]*\}/);
+      if (!m) return json({ error: "unparseable" }, 502);
+      let out: { lead?: unknown; points?: unknown };
+      try { out = JSON.parse(m[0]); } catch { return json({ error: "unparseable" }, 502); }
+      const tidy = (v: unknown) => String(v || "").replace(/\s*[—–]\s*/g, ", ").replace(/\s+/g, " ").trim();
+      const lead = tidy(out.lead).slice(0, 110);
+      const points = (Array.isArray(out.points) ? out.points : [])
+        .map(tidy).filter(Boolean).slice(0, 3).map((v: string) => v.slice(0, 130));
+      if (!lead && !points.length) return json({ error: "incomplete" }, 502);
+      return json({ lead, points });
+    }
 
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
