@@ -2844,6 +2844,12 @@ function placeLetterTopbar(){
     requestAnimationFrame(()=>requestAnimationFrame(()=>placeLetterTopbar()));
   }
   const p=paper.getBoundingClientRect(), h=host.getBoundingClientRect();
+  // The tag's top sits level with the post box's, whatever their heights.
+  const tagEl=host.querySelector(".lv-tag"), rdEl=host.querySelector(".lv-reader"), scene=host.querySelector(".lv-scene");
+  if(tagEl && rdEl && scene){
+    const rr=rdEl.getBoundingClientRect(), sr=scene.getBoundingClientRect();
+    tagEl.style.alignSelf="start"; tagEl.style.marginTop=Math.max(0, rr.top-sr.top)+"px";
+  }
   // The tabs are cards behind the sheet: as tall as it, standing TAB_RISE clear
   // of its top edge. The progress strip sits in the top bar.
   const TAB_RISE=30;
@@ -3737,6 +3743,7 @@ function renderReader(){
   const el=document.getElementById("rdScroll"); if(!el) return;
   if(!el._hint){ el._hint=true; el.addEventListener("scroll", readerScrollHint, {passive:true}); }
   requestAnimationFrame(readerScrollHint); setTimeout(readerScrollHint, 500);
+  setTimeout(placeLetterTopbar, 460);   // once the post box has eased to its new height, line the tag up with it
   renderReaderTop();
   document.getElementById("lvReader").className = "lv-reader rd-"+readerStyle;
   const cur = document.body.classList.contains("view-letters") && !letterComposing ? letterQueue[letterIdx] : null;
