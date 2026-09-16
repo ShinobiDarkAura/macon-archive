@@ -716,7 +716,6 @@
   .rd-note-pts li{margin:0;padding:20px 0;border-bottom:1px solid var(--rl)}
   .rd-note-pts li:first-child{padding-top:0}
   .rd-note-pts li:last-child{border-bottom:none;padding-bottom:0}
-  :is(.lv-reader,.lv-tag) .rd-ctx-note p.rd-note-wait{font-family:var(--sans);font-size:13.5px;color:var(--ink-3);margin:0}
   :is(.lv-reader,.lv-tag) .rd-ctx-note p.rd-note-empty{font-family:var(--sans);font-size:13px;color:var(--ink-3);margin:0}
   :is(.lv-reader,.lv-tag) .rd-ctx-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
   :is(.lv-reader,.lv-tag) .rd-ctx-act button,:is(.lv-reader,.lv-tag) .rd-ctx-act a{font-family:var(--sans);font-size:12px;color:var(--ink-2);background:transparent;
@@ -3490,6 +3489,10 @@ function wireLetterKeys(){
    kept, so opening the same letter again costs nothing. Where the studio has
    written its own note, that is what gets condensed. */
 const _tnote=new Map(), _tnotePending=new Set();
+/* One reading of who a letter is to and what the studio has already written
+   about them, so the note is filed and looked for under the same key. */
+function letterMail(x){ const d=x.d||{}, q=x.q; return String(d.email||(q&&q.email)||"").toLowerCase(); }
+function letterOwnNote(x){ return x.kind==="custom" && x.q ? (x.q.note||"") : ""; }
 function tnoteKey(email, t, own){
   const last = t && t.msgs && t.msgs.length ? t.msgs[t.msgs.length-1].at : 0;
   return `${String(email||"").toLowerCase()}|${last}|${String(own||"").length}`;
@@ -3497,7 +3500,7 @@ function tnoteKey(email, t, own){
 function tnoteStore(){ try{ return JSON.parse(localStorage.getItem("macon.tnote")||"{}"); }catch{ return {}; } }
 function threadNoteFor(email, t, own){
   const k=tnoteKey(email,t,own);
-  if(_tnote.has(k)) return _tnote.get(k);
+  if(_tnote.has(k)) return _tnote.get(k) || null;   // false: asked for, not given
   const kept=tnoteStore()[k];
   if(kept){ _tnote.set(k,kept); return kept; }
   return null;
@@ -3510,8 +3513,8 @@ function noteBlockHTML(n){
 async function loadThreadNote(x, t){
   if(!x || !t || !t.msgs || !t.msgs.length) return;
   const d=x.d||{}, q=x.q||null;
-  const email=String(d.email||t.email||"").toLowerCase();
-  const own=q?(q.note||""):"";
+  const email=letterMail(x)||String(t.email||"").toLowerCase();
+  const own=letterOwnNote(x);
   if(!email) return;
   const k=tnoteKey(email,t,own);
   if(_tnote.has(k) || _tnotePending.has(k) || tnoteStore()[k]) return;
@@ -3527,12 +3530,14 @@ async function loadThreadNote(x, t){
         messages:(t.msgs||[]).map(m=>({ from:m.from, at:m.at, mine:mine(m), body:m.body })) })
     });
     const j=await r.json().catch(()=>({}));
-    if(!r.ok || (!j.lead && !(j.points||[]).length)) return;
+    // A note that cannot be written is recorded as such, so the letter falls
+    // back to what it had instead of asking again on every redraw.
+    if(!r.ok || (!j.lead && !(j.points||[]).length)){ _tnote.set(k,false); renderReader(); return; }
     const n={ lead:j.lead||"", points:j.points||[] };
     _tnote.set(k,n);
     try{ const st=tnoteStore(); st[k]=n; localStorage.setItem("macon.tnote", JSON.stringify(st)); }catch{}
     renderReader();
-  }catch(e){ /* the typed note, or what they said, still shows */ }
+  }catch(e){ _tnote.set(k,false); renderReader(); }
   finally{ _tnotePending.delete(k); }
 }
 function noteForCurrent(){
@@ -3569,16 +3574,15 @@ function letterContextHTML(x){
   const quote=letterQuoteText(x);
   // The condensed note comes from their thread when there is one. Until it
   // lands, an enquiry shows what the studio typed and a collector what they said.
-  const mail=String(d.email||(q&&q.email)||"").toLowerCase();
+  const mail=letterMail(x);
   const thread = readerThread && String(readerThread.email||"").toLowerCase()===mail && (readerThread.msgs||[]).length ? readerThread : null;
-  const tn = thread ? threadNoteFor(mail, thread, kind==="custom"?(q.note||""):"") : null;
-  const waiting = thread && !tn && gmailReady();
+  const tn = thread ? threadNoteFor(mail, thread, letterOwnNote(x)) : null;
   const said = quote && !/^(asked|yes|no)$/i.test(quote.trim()) ? quote : "";
   const note = kind==="custom"
     ? `<div class="rd-ctx-note"><span>Notes</span><div class="rd-note-read" id="lvNoteRead" title="Click to edit">${tn?noteBlockHTML(tn):noteHTML(q.note||"")}</div><textarea id="lvNote" rows="1" placeholder="What happened, and what you owe them next" hidden>${esc(q.note||"")}</textarea></div>`
-    : (tn || waiting || said
-        ? `<div class="rd-ctx-note"><span>${tn||waiting?"Notes":"What they said"}</span>${
-            tn ? noteBlockHTML(tn) : waiting ? `<p class="rd-note-wait">Reading the thread\u2026</p>` : noteHTML(said)
+    : (tn || said
+        ? `<div class="rd-ctx-note"><span>${tn?"Notes":"What they said"}</span>${
+            tn ? noteBlockHTML(tn) : noteHTML(said)
           }${purchasesHTML(d)}</div>`
         : `<div class="rd-ctx-note"><span>Their pieces</span>${purchasesHTML(d)}</div>`);
   const act = kind==="custom" ? "" : (letterFilingOpen ? `
