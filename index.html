@@ -126,8 +126,6 @@
     padding:48px 40px;box-sizing:border-box;gap:22px;overflow:hidden;
     background:
       radial-gradient(ellipse at 50% 16%, rgba(255,255,255,.66), rgba(233,227,213,.28) 60%, rgba(202,190,167,.30) 100%),
-      repeating-linear-gradient(92deg, rgba(170,148,110,.038) 0 2px, rgba(255,255,255,0) 2px 8px),
-      repeating-linear-gradient(92deg, rgba(140,116,78,.026) 0 1px, rgba(255,255,255,0) 1px 27px),
       linear-gradient(178deg,#F4F0E7,#EBE7DA)}
   .lv-empty{font-family:var(--serif-soul);font-style:italic;font-size:22px;color:#a89d89;text-align:center;max-width:460px}
   /* The cleared desk: centred on the whole page, not the letter column. */
@@ -190,12 +188,10 @@
   /* Turned about its centre, so the fold edge at the foot of the inner face
      lands on the hinge and the paper reads the right way up. */
   .lv-env2-flap3d .f-back{transform:rotateX(180deg)}
-  /* The sticker is put on by hand once the envelope has landed. */
-  .lv-env2-label{position:fixed;z-index:325;opacity:0;transform:translateX(-50%) rotate(-1deg);
+  .lv-env2-label{position:fixed;z-index:325;transform:translateX(-50%) rotate(-1deg);
     background:#FBF6EA;padding:34px;text-align:center;box-sizing:border-box;
     box-shadow:0 1px 0 rgba(40,26,8,.2),0 2px 1px rgba(40,26,8,.1)}
   /* A chamfered hairline, 10px in: the red shape with the paper laid back over it a pixel smaller. */
-  .lv-env2-label.stuck{opacity:1}
   .lv-env2-label::before,.lv-env2-label::after{content:"";position:absolute;pointer-events:none;
     clip-path:polygon(var(--c) 0,calc(100% - var(--c)) 0,100% var(--c),100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,var(--c) 100%,0 calc(100% - var(--c)),0 var(--c))}
   .lv-env2-label::before{inset:10px;--c:9px;background:rgba(168,58,40,.6)}
@@ -474,7 +470,7 @@
   /* The post is a small, quiet surface floating in the right column, the way
      it began: the letters are the point, and the mail sits beside them. All
      the reading, planning and sending underneath is unchanged. */
-  .lv-tag{grid-column:1;grid-row:1;justify-self:center;align-self:center;width:340px;min-height:336px;max-height:88%;overflow-y:auto;
+  .lv-tag{grid-column:1;grid-row:1;justify-self:center;align-self:center;width:340px;min-height:420px;max-height:min(567px,84vh);overflow-y:auto;
     box-sizing:border-box;padding:22px 24px 26px;border-radius:16px;scrollbar-width:none;display:flex;flex-direction:column;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
     background:rgba(255,255,255,.72);box-shadow:0 1px 1px rgba(24,17,8,.06)}
@@ -486,7 +482,7 @@
   .lv-tag .rd-ctx-note textarea{flex:1;min-height:120px}
   .lv-tag .rd-ctx-name span{display:block}
   .lv-tag .rd-ctx-note textarea{margin:0}
-  .lv-reader{grid-column:3;grid-row:1;justify-self:center;align-self:center;width:340px;min-height:336px;max-height:min(454px,88%);position:relative;
+  .lv-reader{grid-column:3;grid-row:1;justify-self:center;align-self:center;width:340px;min-height:420px;max-height:min(567px,84vh);position:relative;
     overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;border-radius:16px;
     --ink-1:#26221C;--ink-2:#5D564A;--ink-3:#9A9280;--rl:#E2DCCC;
     background:rgba(255,255,255,.44);box-shadow:0 1px 1px rgba(24,17,8,.06)}
@@ -707,15 +703,25 @@
   :is(.lv-reader,.lv-tag) .rd-ctx-note p.rd-note-sum{font-family:var(--sans);font-size:13.5px;font-weight:600;line-height:1.5;
     color:var(--ink-1);margin:0 0 22px;padding:0 0 22px;border-bottom:1px solid var(--rl)}
   .rd-note-pts{margin:0;padding:0;list-style:none;font-family:var(--sans);font-size:13.5px;line-height:1.5;color:var(--ink-2)}
-  /* What they own, when there is little else to say about them. */
-  .rd-buys{margin:14px 0 0;padding:0;list-style:none;border-top:1px dashed var(--rl)}
-  .rd-buys li{display:flex;align-items:center;gap:12px;padding:10px 8px;margin:0 -8px;border-bottom:1px dashed var(--rl)}
-  .rd-buys img{width:44px;height:44px;border-radius:8px;object-fit:cover;flex:0 0 auto;background:#EFE9DC}
-  .rd-buys b{display:block;font-family:var(--sans);font-size:13.5px;font-weight:500;color:var(--ink-1);line-height:1.3}
-  .rd-buys small{display:block;font-family:var(--sans);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-top:2px}
-  .rd-note-pts li{margin:0;padding:20px 0;border-bottom:1px solid var(--rl)}
-  .rd-note-pts li:first-child{padding-top:0}
-  .rd-note-pts li:last-child{border-bottom:none;padding-bottom:0}
+  /* What they own, what it cost and when: a white block of its own, which is
+     separation enough without a rule above it. */
+  .rd-buys{width:100%;margin:16px 0 0;border-collapse:separate;border-spacing:0}
+  .rd-buys td{background:#fff;padding:9px 6px;vertical-align:middle;
+    font-family:var(--sans);font-size:13px;line-height:1.3;color:var(--ink-1)}
+  .rd-buys td.b-img{width:40px;padding-left:10px}
+  .rd-buys img{width:38px;height:38px;border-radius:7px;object-fit:cover;display:block;background:#EFE9DC}
+  .rd-buys td.b-name{font-weight:500}
+  .rd-buys td.b-price{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+  .rd-buys td.b-when{text-align:right;white-space:nowrap;padding-right:10px;
+    font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3)}
+  .rd-buys tr:first-child td:first-child{border-top-left-radius:8px}
+  .rd-buys tr:first-child td:last-child{border-top-right-radius:8px}
+  .rd-buys tr:last-child td:first-child{border-bottom-left-radius:8px}
+  .rd-buys tr:last-child td:last-child{border-bottom-right-radius:8px}
+  /* One rule to a note: it divides where things stand from what follows.
+     The points themselves are held apart by space alone. */
+  .rd-note-pts li{margin:0 0 15px;padding:0;border:none}
+  .rd-note-pts li:last-child{margin-bottom:0}
   :is(.lv-reader,.lv-tag) .rd-ctx-note p.rd-note-empty{font-family:var(--sans);font-size:13px;color:var(--ink-3);margin:0}
   :is(.lv-reader,.lv-tag) .rd-ctx-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
   :is(.lv-reader,.lv-tag) .rd-ctx-act button,:is(.lv-reader,.lv-tag) .rd-ctx-act a{font-family:var(--sans);font-size:12px;color:var(--ink-2);background:transparent;
@@ -1866,8 +1872,15 @@ function renderDash(){
 
 /* ---------- Follow-up cultivation ---------- */
 function daysSince(str){ const t=Date.parse(str); return isNaN(t)?null:Math.floor((Date.now()-t)/86400000); }
-function fmtDate(str){ const t=Date.parse(str); if(isNaN(t)) return str||""; const d=new Date(t);
-  return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); }
+/* A bare date carries no time zone. Parsed as UTC and shown locally it slips
+   back a day, which is how a purchase made on the 22nd came to read as the
+   21st, so a bare date is read exactly as it is written. */
+function fmtDate(str){
+  const ymd=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(str||"").trim());
+  const d = ymd ? new Date(+ymd[1], +ymd[2]-1, +ymd[3]) : new Date(Date.parse(str));
+  if(isNaN(d.getTime())) return str||"";
+  return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+}
 function firstName(n){ return (n||"").trim().split(/\s+/)[0]||"there"; }
 function firstPiece(p){ return ((p||"").split(",")[0]||"").trim().replace(/\s*[×x]\d+$/,""); }
 /* Kept in step with functions/followup-digest/index.ts. A story ask belongs to a
@@ -3552,15 +3565,46 @@ function noteHTML(text){
   const first=sents.shift().trim(), rest=sents.map(v=>v.trim()).filter(Boolean);
   return `<p class="rd-note-sum">${esc(first)}</p>`+(rest.length?`<ul class="rd-note-pts">${rest.map(v=>`<li>${esc(v)}</li>`).join("")}</ul>`:"");
 }
-/* Each piece a collector owns, with its picture: a row per piece, "×2" kept. */
+/* What a collector has bought. The invoices carry the real line items, each
+   with its own price and the date it was issued; where there is no invoice on
+   file the record still knows the pieces and when they last bought. */
+let _invLoading=false;
+function needInvoices(){
+  if(!synced || !sb || invoices.length || _invLoading) return;
+  _invLoading=true;
+  Promise.resolve(loadInvoices()).then(()=>{ _invLoading=false; if(invoices.length) renderReader(); })
+    .catch(()=>{ _invLoading=false; });
+}
+function pieceRows(d){
+  const mail=String(d.email||"").toLowerCase(), out=[];
+  if(mail) (invoices||[]).forEach(inv=>{
+    if(String(inv.bill_email||"").toLowerCase()!==mail) return;
+    (Array.isArray(inv.items)?inv.items:[]).forEach(it=>{
+      const name=String(it.desc||"").trim(); if(!name) return;
+      const qty=Math.max(1, Number(it.qty)||1), unit=Number(it.unit)||0;
+      out.push({ name, qty, price:unit*qty, when:inv.issued_on||"" });
+    });
+  });
+  if(out.length) return out.sort((a,b)=>String(b.when).localeCompare(String(a.when)));
+  return String(d.pieces||"").split(",").map(v=>v.trim()).filter(Boolean).map(p=>{
+    const m=p.match(/^(.*?)\s*[×x](\d+)$/);
+    return { name:m?m[1].trim():p, qty:m?Number(m[2]):1, price:null, when:d.last_buy||"" };
+  });
+}
 function purchasesHTML(d){
-  const list=String(d.pieces||"").split(",").map(v=>v.trim()).filter(Boolean);
-  if(!list.length) return "";
-  const when=d.last_buy ? fmtDate(d.last_buy) : "";
-  return `<ul class="rd-buys">${list.map(p=>{
-    const m=p.match(/^(.*?)\s*[×x](\d+)$/), name=m?m[1].trim():p, n=m?Number(m[2]):1, slug=pieceSlug(name);
-    return `<li><img src="${pieceImg(name)}" alt="" loading="lazy" data-slug="${esc(slug)}" onerror="if(!this.dataset.fb){this.dataset.fb=1;PIECE_404.add(this.dataset.slug);this.src='pieces/custom.jpeg'}"><div><b>${esc(name)}${n>1?` ×${n}`:""}</b>${when?`<small>${esc(when)}</small>`:""}</div></li>`;
-  }).join("")}</ul>`;
+  needInvoices();
+  const rows=pieceRows(d);
+  if(!rows.length) return "";
+  const money=v=>"$"+Math.round(v).toLocaleString("en-US");
+  return `<table class="rd-buys"><tbody>${rows.map(r=>{
+    const slug=pieceSlug(r.name);
+    return `<tr>
+      <td class="b-img"><img src="${pieceImg(r.name)}" alt="" loading="lazy" data-slug="${esc(slug)}" onerror="if(!this.dataset.fb){this.dataset.fb=1;PIECE_404.add(this.dataset.slug);this.src='pieces/custom.jpeg'}"></td>
+      <td class="b-name">${esc(r.name)}${r.qty>1?` \u00d7${r.qty}`:""}</td>
+      <td class="b-price">${r.price!=null?esc(money(r.price)):""}</td>
+      <td class="b-when">${r.when?esc(fmtDate(r.when)):""}</td>
+    </tr>`;
+  }).join("")}</tbody></table>`;
 }
 function letterContextHTML(x){
   const {d,q,kind}=x;
@@ -3875,9 +3919,13 @@ function renderReader(){
           </div>
           <div class="rd-body">${r.html}</div>${tail}</article>`;
     };
-    const shown = readerThreadOpen ? t.msgs : t.msgs.slice(-1);
+    // Folded, it shows the last thing THEY wrote. Our own reply is the one
+    // thing the studio does not need reminding of.
+    let pick=n-1;
+    for(let i=n-1;i>=0;i--){ if(!isUs(t.msgs[i])){ pick=i; break; } }
+    const shown = readerThreadOpen ? t.msgs : [t.msgs[pick]];
     const fold = n>1 ? `<button class="rd-fold${readerThreadOpen?" open":""}" data-fold><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>${readerThreadOpen ? "Latest only" : `${n-1} earlier`}</button>` : "";
-    return `<div class="rd-sub">${n} message${n>1?"s":""} with ${esc(t.name||t.email)}</div>${fold}${shown.map((m,k)=>msg(m, readerThreadOpen?k:n-1)).join("")}`;
+    return `<div class="rd-sub">${n} message${n>1?"s":""} with ${esc(t.name||t.email)}</div>${fold}${shown.map((m,k)=>msg(m, readerThreadOpen?k:pick)).join("")}`;
   };
   const wireThread=()=>{
     const f=el.querySelector("[data-fold]"); if(f) f.onclick=()=>{ readerThreadOpen=!readerThreadOpen; renderReader(); };
@@ -4107,25 +4155,11 @@ function maybeShowMorningEnvelope(){
     if(matchMedia("(prefers-reduced-motion: reduce)").matches){ ready(); return; }
     const from=innerHeight-closedTop+30;
     let last=null;
-    [closed,flap,seal].forEach(el=>{ if(el) last=el.animate(
+    [closed,flap,label,seal].forEach(el=>{ if(el) last=el.animate(
       [{translate:`0 ${from}px`},{translate:"0 0"}],
       {duration:900, easing:"cubic-bezier(.16,.84,.26,1)", fill:"none"}); });
-    last ? last.finished.then(land, land) : land();
+    last ? last.finished.then(ready, ready) : ready();
   };
-  // Pressed on once the envelope is down: it comes in a little large and a
-  // little crooked, presses flat, and gives back a touch.
-  const stick=()=>{
-    if(!label) return;
-    label.classList.add("stuck");
-    if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    label.animate([
-      {opacity:0, translate:"0 -26px", rotate:"7deg", scale:1.18},
-      {opacity:1, offset:.3},
-      {translate:"0 0", rotate:"-.7deg", scale:.972, offset:.64, easing:"cubic-bezier(.2,.9,.3,1)"},
-      {translate:"0 0", rotate:"0deg", scale:1}
-    ], {duration:560, delay:130, easing:"cubic-bezier(.3,.75,.2,1)", fill:"backwards"});
-  };
-  const land=()=>{ ready(); stick(); };
   { const c=closed; if(c.complete && c.naturalWidth) slideIn(); else { c.onload=slideIn; c.onerror=slideIn; } }
   let done=false;
   const mark=()=>{ try{ localStorage.setItem("macon.envelope", todayKey()); }catch{} };
@@ -4540,7 +4574,7 @@ function renderCurrentLetter(){
         : "Could not write from the thread: "+e.message);
     }
   };
-  host.querySelectorAll(".lv-pile-tab[data-idx], .lv-prog-dot[data-idx]").forEach(b=>b.onclick=()=>letterJump(+b.dataset.idx));
+  host.querySelectorAll(".lv-pile-tab[data-idx], .lv-prog-dot[data-idx]").forEach(b=>b.onclick=()=>{ tabTick(); letterJump(+b.dataset.idx); });
   const moreTab=host.querySelector(".lv-pile-more");
   if(moreTab) moreTab.onclick=()=>{ readerFolder="upcoming"; renderReader(); };
   wireLetterKeys();
@@ -4659,6 +4693,30 @@ function whoosh(){
     src.connect(bp).connect(g).connect(ctx.destination);
     src.start(); src.stop(ctx.currentTime+dur);
     src.onended=()=>ctx.close();
+  }catch{}
+}
+/* Choosing a tab sounds like a card being tapped: a short knock with a little
+   body under it. Synthesised, like the whoosh, so there is no file to ship. */
+function tabTick(){
+  try{
+    ensureAudio(); if(!audioCtx) return;
+    if(audioCtx.state==="suspended") audioCtx.resume();
+    const t=audioCtx.currentTime;
+    const buf=audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate*0.05), audioCtx.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length, 7);
+    const src=audioCtx.createBufferSource(); src.buffer=buf;
+    const bp=audioCtx.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=2100; bp.Q.value=1.4;
+    const gn=audioCtx.createGain();
+    gn.gain.setValueAtTime(0.05, t); gn.gain.exponentialRampToValueAtTime(0.0001, t+0.05);
+    src.connect(bp).connect(gn).connect(audioCtx.destination);
+    src.start(t); src.stop(t+0.06);
+    // the card landing on the pile under it
+    const o=audioCtx.createOscillator(), og=audioCtx.createGain();
+    o.type="sine"; o.frequency.setValueAtTime(196, t); o.frequency.exponentialRampToValueAtTime(128, t+0.06);
+    og.gain.setValueAtTime(0.045, t); og.gain.exponentialRampToValueAtTime(0.0001, t+0.09);
+    o.connect(og).connect(audioCtx.destination);
+    o.start(t); o.stop(t+0.1);
   }catch{}
 }
 function playSendAnimation(onDone){
