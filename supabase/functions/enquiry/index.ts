@@ -41,6 +41,7 @@ async function sendMail(to: string[], subject: string, html: string, replyTo?: s
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({ from, to, subject, html, ...(replyTo ? { reply_to: replyTo } : {}) }),
   });
+  if (!r.ok) console.error("resend refused the email:", r.status, await r.text());
   return r.ok;
 }
 
