@@ -8,7 +8,8 @@
 //   ENQUIRY_WEBHOOK_SECRET   shared secret; the URL must carry ?secret=<value>
 //   RESEND_API_KEY           optional: turns on the two emails below
 //   ENQUIRY_FROM             sender, e.g. "Studio Maçon <hello@studiomacon.co>" (domain verified in Resend)
-//   ENQUIRY_NOTIFY           comma-separated inboxes told about each enquiry, e.g. "hello@studiomacon.co"
+//   ENQUIRY_NOTIFY           comma-separated inboxes told about each enquiry:
+//                            "hello@studiomacon.co,alex@studiomacon.co,hannah@studiomacon.co"
 //   ENQUIRY_ORIGINS          comma-separated sites allowed to post from a browser, e.g.
 //                            "https://studiomacon.co,https://www.studiomacon.co,http://localhost:3470"
 //
