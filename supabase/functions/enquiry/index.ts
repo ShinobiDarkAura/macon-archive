@@ -72,7 +72,7 @@ async function notify(kind: string, name: string, email: string, subject: string
       ? "Thanks for reaching out! We've got your commission request and will write back as soon as we can with next steps. If there's anything else you need, feel free to reply directly to this email."
       : "Thanks for reaching out! We've got your message and will write back as soon as we can. If there's anything else you need, feel free to reply directly to this email.";
     await sendMail([email], "We've got your message",
-      `<p>${first ? "Hey " + esc(first) + "," : "Hey,"}</p><p>${body}</p><p>Quite sincerely,<br>Alex-Bot 🤖<br><a href="https://studiomacon.co">studiomacon.co</a></p>`);
+      `<p>${first ? "Dear " + esc(first) + "," : "Dear friend,"}</p><p>${body}</p><p><i>Quite sincerely,</i><br>Alex-Bot 🤖<br><br><a href="https://studiomacon.co">studiomacon.co</a></p>`);
   }
 }
 
