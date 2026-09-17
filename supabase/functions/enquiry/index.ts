@@ -44,6 +44,10 @@ async function sendMail(to: string[], subject: string, html: string, replyTo?: s
     body: JSON.stringify({ from, to, subject, html, ...(replyTo ? { reply_to: replyTo } : {}),
       ...(attachments && attachments.length ? { attachments } : {}) }),
   });
+  if (r.status === 429) {                       // Resend allows two sends a second; the studio copy goes first
+    await new Promise((f) => setTimeout(f, 1200));
+    return sendMail(to, subject, html, replyTo, attachments);
+  }
   if (!r.ok) console.error("resend refused the email:", r.status, await r.text());
   return r.ok;
 }
@@ -65,7 +69,7 @@ async function notify(kind: string, name: string, email: string, subject: string
       ? "Thanks for reaching out! We've got your commission request and will write back as soon as we can with next steps. If there's anything else you need, feel free to reply directly to this email."
       : "Thanks for reaching out! We've got your message and will write back as soon as we can. If there's anything else you need, feel free to reply directly to this email.";
     await sendMail([email], "We've got your message",
-      `<p>${first ? "Hey " + esc(first) + "," : "Hey,"}</p><p>${body}</p><p>Alex-Bot<br><a href="https://studiomacon.co">studiomacon.co</a></p>`);
+      `<p>${first ? "Hey " + esc(first) + "," : "Hey,"}</p><p>${body}</p><p>Quite sincerely,<br>Alex-Bot 🤖<br><a href="https://studiomacon.co">studiomacon.co</a></p>`);
   }
 }
 
