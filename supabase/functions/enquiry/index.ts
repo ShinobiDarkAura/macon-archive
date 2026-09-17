@@ -64,7 +64,10 @@ async function notify(kind: string, name: string, email: string, subject: string
     (photos && photos.length ? `<p style="font-size:14px;color:#777">${photos.length} photo${photos.length > 1 ? "s" : ""} attached.</p>` : ""),
     email || undefined, photos);
   if (email) {
-    const first = (name || "").split(" ")[0];
+    // an address the sender never typed a name into makes a poor greeting
+    const local = email.split("@")[0].toLowerCase();
+    const looksLikeAddress = !name || name.toLowerCase().replace(/[^a-z0-9+._-]/g, "") === local;
+    const first = looksLikeAddress ? "" : name.split(" ")[0];
     const body = kind === "commission"
       ? "Thanks for reaching out! We've got your commission request and will write back as soon as we can with next steps. If there's anything else you need, feel free to reply directly to this email."
       : "Thanks for reaching out! We've got your message and will write back as soon as we can. If there's anything else you need, feel free to reply directly to this email.";
