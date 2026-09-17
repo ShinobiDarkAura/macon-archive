@@ -60,7 +60,7 @@ async function notify(kind: string, name: string, email: string, subject: string
       ? "Your commission request has reached the studio. We'll read it closely and write back within a few days with next steps."
       : "Your message has reached the studio. We read everything, and we'll write back soon.";
     await sendMail([email], kind === "commission" ? "Your commission request — Studio Maçon" : "We've got your message — Studio Maçon",
-      `<p>${first ? "Dear " + esc(first) + "," : "Hello,"}</p><p>${body}</p><p>Studio Maçon<br><a href="https://studiomacon.co">studiomacon.co</a></p>`);
+      `<p>${first ? "Dear " + esc(first) + "," : "Hello,"}</p><p>${body}</p><p>Hannah + Alex<br>Studio Maçon<br><a href="https://studiomacon.co">studiomacon.co</a></p>`);
   }
 }
 
