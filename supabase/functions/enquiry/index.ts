@@ -62,10 +62,10 @@ async function notify(kind: string, name: string, email: string, subject: string
   if (email) {
     const first = (name || "").split(" ")[0];
     const body = kind === "commission"
-      ? "Your commission request has reached the studio. We'll read it closely and write back within a few days with next steps."
-      : "Your message has reached the studio. We read everything, and we'll write back soon.";
-    await sendMail([email], kind === "commission" ? "Your commission request — Studio Maçon" : "We've got your message — Studio Maçon",
-      `<p>${first ? "Dear " + esc(first) + "," : "Hello,"}</p><p>${body}</p><p>Hannah + Alex<br>Studio Maçon<br><a href="https://studiomacon.co">studiomacon.co</a></p>`);
+      ? "Thanks for reaching out! We've got your commission request and will write back as soon as we can with next steps. If there's anything else you need, feel free to reply directly to this email."
+      : "Thanks for reaching out! We've got your message and will write back as soon as we can. If there's anything else you need, feel free to reply directly to this email.";
+    await sendMail([email], "We've got your message",
+      `<p>${first ? "Hey " + esc(first) + "," : "Hey,"}</p><p>${body}</p><p>Alex-Bot<br><a href="https://studiomacon.co">studiomacon.co</a></p>`);
   }
 }
 
