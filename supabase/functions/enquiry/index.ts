@@ -32,28 +32,33 @@ const ok = (body: Rec, status = 200) =>
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
-async function sendMail(to: string[], subject: string, html: string, replyTo?: string) {
+type Attachment = { filename: string; content: string };
+
+async function sendMail(to: string[], subject: string, html: string, replyTo?: string, attachments?: Attachment[]) {
   const key = Deno.env.get("RESEND_API_KEY");
   const from = Deno.env.get("ENQUIRY_FROM");
   if (!key || !from || !to.length) return false;
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to, subject, html, ...(replyTo ? { reply_to: replyTo } : {}) }),
+    body: JSON.stringify({ from, to, subject, html, ...(replyTo ? { reply_to: replyTo } : {}),
+      ...(attachments && attachments.length ? { attachments } : {}) }),
   });
   if (!r.ok) console.error("resend refused the email:", r.status, await r.text());
   return r.ok;
 }
 
 // The two emails every enquiry sends: a copy to the studio, a short thank-you to the sender.
-async function notify(kind: string, name: string, email: string, subject: string, message: string, details: Rec) {
+async function notify(kind: string, name: string, email: string, subject: string, message: string, details: Rec, photos?: Attachment[]) {
   const inbox = (Deno.env.get("ENQUIRY_NOTIFY") || "").split(",").map((s) => s.trim()).filter(Boolean);
   const rows = Object.entries(details || {}).filter(([, v]) => v !== "" && v != null)
-    .map(([k, v]) => `<tr><td style="padding:2px 12px 2px 0;color:#777">${esc(k)}</td><td>${esc(String(v))}</td></tr>`).join("");
+    .map(([k, v]) => `<tr><td style="padding:2px 12px 2px 0;color:#777;font-size:11px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;vertical-align:top">${esc(k)}</td><td style="vertical-align:top">${esc(String(v))}</td></tr>`).join("");
   const label = kind === "commission" ? "Commission request" : "Message";
   await sendMail(inbox, `${label} from ${name || email}: ${subject}`,
     `<p><b>${esc(name || "")}</b> &lt;${esc(email || "")}&gt;</p><p>${esc(message || "").replace(/\n/g, "<br>")}</p>` +
-    (rows ? `<table style="font-size:14px">${rows}</table>` : ""), email || undefined);
+    (rows ? `<table style="font-size:14px">${rows}</table>` : "") +
+    (photos && photos.length ? `<p style="font-size:14px;color:#777">${photos.length} photo${photos.length > 1 ? "s" : ""} attached.</p>` : ""),
+    email || undefined, photos);
   if (email) {
     const first = (name || "").split(" ")[0];
     const body = kind === "commission"
@@ -62,6 +67,23 @@ async function notify(kind: string, name: string, email: string, subject: string
     await sendMail([email], kind === "commission" ? "Your commission request — Studio Maçon" : "We've got your message — Studio Maçon",
       `<p>${first ? "Dear " + esc(first) + "," : "Hello,"}</p><p>${body}</p><p>Hannah + Alex<br>Studio Maçon<br><a href="https://studiomacon.co">studiomacon.co</a></p>`);
   }
+}
+
+// Reference photos arrive as base64 already shrunk by the browser. Anything oversized,
+// mistyped or beyond the first six is dropped rather than risking a refused send.
+function readPhotos(raw: unknown): Attachment[] {
+  if (!Array.isArray(raw)) return [];
+  const out: Attachment[] = [];
+  let bytes = 0;
+  for (const p of raw.slice(0, 6)) {
+    const content = typeof p?.content === "string" ? p.content.replace(/^data:[^,]*,/, "") : "";
+    if (!content || !/^[A-Za-z0-9+/=]+$/.test(content)) continue;
+    bytes += content.length * 0.75;
+    if (bytes > 12_000_000) break;                       // Resend refuses much beyond this
+    const name = String(p?.filename || "photo").replace(/[^\w.\-]/g, "").slice(0, 60) || "photo";
+    out.push({ filename: /\.\w{2,5}$/.test(name) ? name : name + ".jpg", content });
+  }
+  return out;
 }
 
 // Depth-first search for the first value whose key matches, so a form field
@@ -106,6 +128,7 @@ Deno.serve(async (req) => {
   if (typeof payload.company === "string" && payload.company.trim()) return ok({ status: "ok" });   // honeypot: bots fill hidden fields
   const kind = payload.form === "commission" ? "commission" : "contact";
   const details: Rec = payload.details && typeof payload.details === "object" ? payload.details : {};
+  const photos = readPhotos(payload.photos);
 
   const name = findBy(payload, [/^name$/i, /full.?name/i, /first.?name/i, /contact.?name/i, /^from$/i]);
   let email = findBy(payload, [/e-?mail/i, /^from$/i]);
@@ -136,7 +159,7 @@ Deno.serve(async (req) => {
         method: "PATCH", headers: H,
         body: JSON.stringify({ note, status: "open" }),   // back on the list
       });
-      await notify(kind, name, email, subject, message, details);
+      await notify(kind, name, email, subject, message, details, photos);
       return ok({ status: "appended", id: rows[0].id, email });
     }
   }
@@ -155,6 +178,6 @@ Deno.serve(async (req) => {
   if (!ins.ok) return ok({ error: "insert failed: " + (await ins.text()) }, 502);
   const [row] = await ins.json();
 
-  await notify(kind, name, email, subject, message, details);
+  await notify(kind, name, email, subject, message, details, photos);
   return ok({ status: "created", id: row?.id, name: row?.name, email: row?.email, subject: row?.subject });
 });
