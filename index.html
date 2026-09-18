@@ -337,7 +337,7 @@
     box-shadow:0 1px 1px rgba(16,19,19,.22),0 2px 4px rgba(16,19,19,.18);
     padding:44px 48px 0;box-sizing:border-box;position:relative;overflow:hidden;z-index:3;
     display:flex;flex-direction:column}
-  .lv-paper::before{content:"";position:absolute;inset:14px;border:1px solid rgba(140,106,71,.12);pointer-events:none}
+  .lv-paper::before{content:"";position:absolute;inset:14px;border:1px solid rgba(98,106,104,.12);pointer-events:none}
   /* A faint cotton tooth over the sheet, blended in so the paper stays white. */
   .lv-paper::after{content:"";position:absolute;inset:0;background:url("logos/letter-paper.webp") center/600px;
     mix-blend-mode:multiply;opacity:.55;pointer-events:none;z-index:0}
@@ -2013,12 +2013,59 @@ function draftEmail(d, tone, kind, q, signoff){
    makes it impossible for a click to lose someone. */
 
 const INQ_STALE_DAYS = 7;      // a followed-up thread goes quiet this long, it resurfaces
-let inquiries = [];
+let inquiries = [], ignoredEnquiries = [];
+
+/* Enquiries that are not really enquiries never become letters, sit in the
+   drawer or reach the day's list. They stay in the database, untouched; they
+   are only left out here. Something is left out when:
+     - it was sent by the studio itself, testing the form. The studio's private
+       addresses are held only as SHA-256 hashes, because this page is public,
+       and a "+tag" alias counts as the address it hangs off;
+     - it came through the website form with no address to answer;
+     - nothing at all was written;
+     - it is short and plainly a test ("test", "testing", "please ignore").
+   A letter the studio started itself is kept however little it says, unless
+   it was written to the studio's own address, which is a test of sending. */
+const OWN_DOMAINS_PLAIN = ["studiomacon.co"];
+const OWN_HASHES = new Set([
+  "f87b488f0549cc55978cfb3d8403adc20329653cf6007b0bfcb607dedf77866a",   // a personal address
+  "5e0befc4571f78822157800541a1d8f6a18f20e6d8423a1edc4d50088763babe",   // a personal domain
+]);
+const _ownSeen = new Map();
+async function sha256hex(t){
+  const buf=await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t));
+  return [...new Uint8Array(buf)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+async function fromTheStudio(email){
+  const e=String(email||"").trim().toLowerCase();
+  if(!e.includes("@")) return false;
+  if(_ownSeen.has(e)) return _ownSeen.get(e);
+  const [local, domain]=e.split("@"), base=local.split("+")[0]+"@"+domain;
+  let own=OWN_DOMAINS_PLAIN.includes(domain);
+  if(!own && window.crypto && crypto.subtle){
+    try{ own = OWN_HASHES.has(await sha256hex(base)) || OWN_HASHES.has(await sha256hex(domain)); }catch(err){}
+  }
+  _ownSeen.set(e, own); return own;
+}
+async function whyNotAnEnquiry(q){
+  // the name is checked too: a row can carry the address there and nowhere else
+  const studio = await fromTheStudio(q.email) || await fromTheStudio(q.name);
+  if(q.source==="composed") return studio ? "written to the studio" : "";
+  if(studio) return "sent by the studio";
+  if(!String(q.email||"").trim() && /^website (contact|commission)$/i.test(q.source||"")) return "no address to answer";
+  const text=[q.subject, q.note].map(v=>String(v||"").trim()).filter(Boolean).join(" ");
+  if(!text) return "nothing written";
+  if(text.length<=60 && /\b(test(ing)?|please ignore|ignore this|asdf|lorem ipsum)\b/i.test(text)) return "a test";
+  return "";
+}
 
 async function loadInquiries(){
   if(!(synced&&sb)) return;
   const { data:rows, error } = await sb.from("inquiries").select("*").order("first_seen",{ascending:true});
-  if(!error) inquiries = rows||[];
+  if(error) return;
+  const all=rows||[], why=await Promise.all(all.map(whyNotAnEnquiry));
+  inquiries = all.filter((q,k)=>!why[k]);
+  ignoredEnquiries = all.map((q,k)=>why[k] ? {id:q.id, name:q.name, first_seen:q.first_seen, why:why[k]} : null).filter(Boolean);
 }
 function inqState(q){
   if(q.status==="closed") return "closed";
