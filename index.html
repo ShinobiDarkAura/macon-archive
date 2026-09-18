@@ -406,6 +406,7 @@
   .lv-empty-skipped{margin-top:26px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
   .lv-empty-skipped span{font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.18em;
     text-transform:uppercase;color:#686E6D;width:100%}
+  .lv-empty-skipped button small{display:block;font-size:10.5px;color:#686E6D;margin-top:2px;letter-spacing:.02em}
   .lv-empty-skipped button{font-family:var(--sans);font-size:12.5px;color:#686E6D;background:transparent;
     border:1px solid var(--rule);border-radius:999px;padding:5px 12px;cursor:pointer}
   .lv-empty-skipped button:hover{border-color:var(--accent);color:var(--accent-deep)}
@@ -421,6 +422,25 @@
   .lv-skip{font-family:var(--sans);font-size:13.75px;color:#686E6D;background:transparent;border:none;cursor:pointer;
     padding:8.8px 4.4px}
   .lv-skip:hover{color:var(--ink)}
+  .ask-wrap{position:fixed;inset:0;z-index:950;background:rgba(20,24,23,.28);display:flex;align-items:center;justify-content:center;padding:16px}
+  .ask{width:min(380px,100%);background:#FEFEFE;border-radius:14px;padding:22px 22px 18px;box-shadow:0 14px 48px rgba(0,0,0,.2);
+    font-family:var(--sans);display:flex;flex-direction:column;gap:14px}
+  .ask h3{margin:0;font-family:var(--serif-soul);font-weight:400;font-size:22px;color:var(--ink)}
+  .ask label{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--ink)}
+  .ask label span{color:#686E6D;font-size:11.5px}
+  .ask input{font:inherit;font-size:14px;padding:10px 12px;border:1px solid #D5D8D8;border-radius:9px;background:#fff;color:var(--ink)}
+  .ask input:focus{outline:2px solid #C04722;outline-offset:1px;border-color:transparent}
+  .ask-row{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
+  .ask-row button{font:inherit;font-size:13.5px;min-height:38px;padding:0 16px;border-radius:9px;cursor:pointer;border:1px solid #D5D8D8;background:#fff;color:var(--ink)}
+  .ask-row .ask-go{background:#1F2322;color:#fff;border-color:#1F2322}
+  /* One of us has this letter open already. */
+  .lv-pile-tab.shared::before{content:"";position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:#C04722}
+  .lv-shared{position:absolute;top:14px;right:20px;z-index:4;font-family:var(--sans);font-size:11px;letter-spacing:.04em;color:#A83E1E;
+    background:#FFF4EF;border-radius:999px;padding:4px 10px}
+  .trade-chip{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;background:#EDE7DA;color:#6B5A36;
+    font-size:10px;letter-spacing:.06em;text-transform:uppercase;vertical-align:1px}
+  .rec-notes{margin:0 28px 6px;padding:10px 14px;border-radius:10px;background:#F4F5F4;font-family:var(--sans);font-size:12.5px;line-height:1.5;color:var(--ink)}
+  .rec-notes p{margin:4px 0}
   #toast{position:fixed;left:50%;bottom:24px;z-index:900;transform:translate(-50%,16px);opacity:0;pointer-events:none;
     display:flex;align-items:center;gap:16px;padding:11px 12px 11px 18px;border-radius:12px;
     background:#1F2322;color:#F4F5F4;font-family:var(--sans);font-size:13.5px;box-shadow:0 6px 24px rgba(0,0,0,.18);
@@ -1837,6 +1857,7 @@ async function startSynced(){
   sb.channel("done-rt").on("postgres_changes",{event:"*",schema:"public",table:"letters_done"},
     ()=>loadDone().then(redrawPile)).subscribe();
   initChat();
+  startPresence();
 }
 /* Redraw the pile for a change that came from elsewhere. Not while someone is
    writing in the letter, though: the redraw would take their words with it, so
@@ -1856,12 +1877,14 @@ function redrawPile(){
   }
   renderLetters();
 }
+let mergedAway=[];
 async function refresh(){
   if(!synced){ data=local.load(); renderAll(); return; }
   const { data:rows, error } = await sb.from("collectors").select("*").order("acc");
   if(error){ setSync("local","Sync error — check setup"); return; }
   // A collector folded into another stays in the table, so the merge can be
   // undone, but is not a person of its own anywhere in the app.
+  mergedAway = (rows || []).filter(r=>r.merged_into);
   data = (rows || []).filter(r=>!r.merged_into); renderAll();
 }
 async function persist(rec, isNew){
@@ -2158,14 +2181,41 @@ async function inqSet(id, patch){
 function inqFollowUp(id){
   return inqSet(id, { status:"followed", last_touched:new Date().toLocaleDateString("en-CA") });
 }
+/* A few fields asked for in the page itself, not the browser's prompt boxes.
+   Resolves to the values, or null if it was cancelled. Enter continues, Escape
+   cancels, and a field marked required must be filled. */
+function askFields(title, fields, action="Continue"){
+  return new Promise(resolve=>{
+    const wrap=document.createElement("div");
+    wrap.className="ask-wrap";
+    wrap.innerHTML=`<form class="ask" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+      <h3>${esc(title)}</h3>
+      ${fields.map((f,k)=>`<label>${esc(f.label)}${f.required?"":` <span>optional</span>`}
+        <input name="${esc(f.key)}" type="${f.type||"text"}" ${f.required?"required":""} autocomplete="off" ${k===0?"autofocus":""} value="${esc(f.value||"")}"></label>`).join("")}
+      <div class="ask-row"><button type="button" class="ask-cancel">Cancel</button><button type="submit" class="ask-go">${esc(action)}</button></div>
+    </form>`;
+    document.body.appendChild(wrap);
+    const form=wrap.querySelector("form"), done=v=>{ wrap.remove(); document.removeEventListener("keydown", onKey, true); resolve(v); };
+    const onKey=e=>{ if(e.key==="Escape"){ e.stopPropagation(); done(null); } };
+    document.addEventListener("keydown", onKey, true);
+    wrap.addEventListener("mousedown", e=>{ if(e.target===wrap) done(null); });
+    wrap.querySelector(".ask-cancel").onclick=()=>done(null);
+    form.onsubmit=e=>{ e.preventDefault(); const v={}; fields.forEach(f=>v[f.key]=String(form.elements[f.key].value||"").trim()); done(v); };
+    setTimeout(()=>{ const first=form.querySelector("input"); if(first) first.focus(); }, 30);
+  });
+}
 async function inqAdd(){
-  const name = prompt("Who wrote in?"); if(!name) return;
-  const subject = prompt("What did they ask for?") || "";
-  const email = prompt("Email address (optional)") || "";
-  if(!(synced&&sb)) return;
-  const { error } = await sb.from("inquiries").insert({ name, subject, email, source:"website" });
-  if(error){ alert("Could not add: "+error.message); return; }
+  const v=await askFields("Log an enquiry", [
+    { key:"name", label:"Who wrote in?", required:true },
+    { key:"subject", label:"What did they ask for?" },
+    { key:"email", label:"Their email address", type:"email" }], "Log it");
+  if(!v) return;
+  if(!(synced&&sb)){ toast("Sign in to log an enquiry."); return; }
+  const { error } = await sb.from("inquiries").insert({ name:v.name, subject:v.subject, email:v.email, source:"website" });
+  if(error){ toast("That enquiry did not save: "+error.message); return; }
   await loadInquiries(); renderDrawer(); if(tab==="enquiries") renderEnquiries();
+  if(document.body.classList.contains("view-letters")) renderLetters();
+  toast(`${v.name}: enquiry logged.`);
 }
 
 
@@ -2263,7 +2313,7 @@ function renderLedger(){
       <div class="avatar"><img src="${pieceImg(d.pieces)}" alt="" loading="lazy" data-slug="${pieceSlug(d.pieces)}" onerror="if(!this.dataset.fb){this.dataset.fb=1;PIECE_404.add(this.dataset.slug);this.src='pieces/custom.jpeg'}"></div>
       <div class="who">
         <div class="nm">${esc(d.name||"—")}<button class="fav ${d.first_look?'on':''}" data-i="${i}" title="VIP"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.4l2.55 5.6 6.1.6-4.6 4.15 1.3 6L12 16.6 6.65 19.75l1.3-6L3.35 9.6l6.1-.6z"/></svg></button></div>
-        <div class="sub">${esc(d.email||d.acc||"")}</div>
+        <div class="sub">${esc(d.email||d.acc||"")}${d.trade?`<span class="trade-chip" title="Bought at trade terms. No collector letters.">Trade</span>`:""}</div>
       </div>
       <div class="cell pieces">${esc(capPieces(d.pieces))}</div>
       <div class="cell loc">${esc(d.location||"")}</div>
@@ -2518,7 +2568,7 @@ function renderDrawer(){
     return `<div class="fcard${x.priority==="High"?" important":""}" data-i="${x.i}" data-kind="${x.kind}" data-q="${esc(x.q?x.q.id:"")}" role="button" tabindex="0" title="Draft email">${x.priority==="High"?'<span class="fimp" title="Needs attention"></span>':''}
       <div class="fav-av"><img src="${src}" alt="" loading="lazy" data-slug="${slug}" onerror="if(!this.dataset.fb){this.dataset.fb=1;PIECE_404.add(this.dataset.slug);this.src='pieces/custom.jpeg'}"></div>
       <div class="fcard-body">
-        <button class="donechip" data-i="${x.i}" data-q="${esc(x.q?x.q.id:"")}" title="Mark contacted"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
+        <button class="donechip" data-i="${x.i}" data-q="${esc(x.q?x.q.id:"")}" title="Mark as written to"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
         <div class="fcard-top">
           <div class="ftitle">
             <div class="fn t-${followKey(d, x.kind)}">${esc(x.kind==="custom"?"Enquiry":clientType(d))}</div>
@@ -2618,7 +2668,7 @@ function openDraft(i, kind, qid){
       </div>
     </div>
     <div class="card-actions">
-      <button class="btn ghost" id="dDone" title="Mark contacted" style="width:46px;font-size:15px;padding:0">✓</button>
+      <button class="btn ghost" id="dDone" title="Mark as written to" style="width:46px;font-size:15px;padding:0">✓</button>
       <div>
         <button class="btn ghost" id="dClose">Close</button>
         <button class="btn" id="dMail">Open in Mail</button>
@@ -2698,12 +2748,15 @@ const letterPulled=new Map();
 // yet for a tone to draw on), and never touches the queue or its badge — this
 // is work you chose to do, not work that was waiting on you.
 async function composeBlankLetter(){
-  const name=prompt("What is the name of the person you're writing to?"); if(!name) return;
-  const email=prompt("What is their email address?")||"";
-  if(!(synced&&sb)){ alert("Sign in first — a composed letter is saved as a real enquiry."); return; }
+  const v=await askFields("Write to someone new", [
+    { key:"name", label:"Who are you writing to?", required:true },
+    { key:"email", label:"Their email address", type:"email" }], "Start the letter");
+  if(!v) return;
+  const { name, email }=v;
+  if(!(synced&&sb)){ toast("Sign in to write a new letter. It is kept as an enquiry so it is not lost."); return; }
   const { data:row, error } = await sb.from("inquiries")
     .insert({ name, email, subject:"", source:"composed", status:"open" }).select().single();
-  if(error){ alert("Could not start this letter: "+error.message); return; }
+  if(error){ toast("Could not start this letter: "+error.message); return; }
   inquiries.push(row);
   letterComposeItem = { d:inqAsD(row), q:row, kind:"custom", i:-1, days:0, priority:"High", state:"attention" };
   letterComposing = true;
@@ -3116,8 +3169,8 @@ let readerMode="post", readerThread=null, readerFolder="letter"; const _threads=
 // The archive tab: a search, and the person whose thread is open there.
 let readerArchiveQ="", readerArchive=null, readerThreadOpen=false;
 const readerOpenMsgs=new Set();
-// Three drawer treatments to try in place. Kept in localStorage so the choice
-// survives a reload while it is being judged.
+// The post box has one look now, "quiet"; the class it sets is all that is left
+// of the treatments once tried side by side.
 const readerStyle="quiet";
 let readerConnected=null, _statusPending=false, readerShowBulk=false;
 const gmailReady=()=>!!(sb&&synced);
@@ -3489,7 +3542,7 @@ function toast(msg, undo){
   clearTimeout(el._t);
   el.innerHTML=`<span>${esc(msg)}</span>${undo?`<button type="button">Undo</button>`:""}`;
   if(undo) el.querySelector("button").onclick=()=>{ el.classList.remove("on"); clearTimeout(el._t); undo(); };
-  requestAnimationFrame(()=>el.classList.add("on"));
+  el.classList.remove("on"); void el.offsetWidth; el.classList.add("on");   // restarts the fade, no frame needed
   el._t=setTimeout(()=>el.classList.remove("on"), undo?7000:5000);
 }
 /* Undo for noteDone: the letter no longer counts as dealt with today. */
@@ -3609,14 +3662,28 @@ function openLetterPalette(){
   [["Today", letterQueue.slice()], ["This week", planItems(1,8)], ["This month", planItems(8,31)]].forEach(([label, items])=>
     items.forEach(x=>{ const k=letterKey(x); if(seen.has(k)) return; seen.add(k);
       rows.push({ x, label, name:cleanName((x.d&&x.d.name)||(x.q&&x.q.name)||"Someone"), kind:letterContext(x).kindLabel }); }));
+  // Beyond the month: everyone waiting on a reply (choosing one brings their
+  // letter back), every other collector, and the enquiries already closed.
+  // Anyone not on the desk opens in Classic.
+  skippedItems().forEach(({x,by})=>{ const k=letterKey(x); if(seen.has(k)) return; seen.add(k);
+    rows.push({ label:"Waiting on them", name:cleanName((x.d&&x.d.name)||(x.q&&x.q.name)||"Someone"),
+      kind: by ? `Cleared by ${by}` : "Cleared until they write", go:()=>unskipLetter(k) }); });
+  const onDesk=new Set(rows.map(r=>r.name.toLowerCase()));
+  (data||[]).forEach((d,i)=>{ const nm=cleanName(d.name||d.email||""); if(!nm || onDesk.has(nm.toLowerCase())) return;
+    rows.push({ label:"Everyone else", name:nm,
+      kind: d.trade ? "Trade buyer, no letters" : `Collector, $${Math.round(num(d.ltv)).toLocaleString("en-US")}`,
+      go:()=>{ setView("classic"); setTimeout(()=>showForm(i), 380); } }); });
+  (inquiries||[]).filter(q=>q.status==="closed" && q.source!=="composed").forEach(q=>{
+    rows.push({ label:"Closed enquiries", name:cleanName(q.name||q.email||"Someone"), kind:(q.outcome||q.subject||"Closed").slice(0,60),
+      go:()=>{ setView("classic"); setTimeout(()=>{ tab="enquiries"; try{ localStorage.setItem("macon_tab",tab); }catch{} applyTab(); renderEnquiries(); }, 380); } }); });
   document.body.insertAdjacentHTML("beforeend", `<div class="lv-pal-veil" id="lvPalette"><div class="lv-pal" role="dialog" aria-label="Jump to a letter">
-    <input class="lv-pal-in" id="lvPalIn" placeholder="Jump to someone" autocomplete="off" spellcheck="false">
+    <input class="lv-pal-in" id="lvPalIn" placeholder="Find anyone, on the desk or in the archive" autocomplete="off" spellcheck="false">
     <div class="lv-pal-list" id="lvPalList"></div>
     <p class="lv-pal-foot">J and K move through today's letters</p></div></div>`);
   const veil=document.getElementById("lvPalette"), input=document.getElementById("lvPalIn"), list=document.getElementById("lvPalList");
   let sel=0, shown=rows;
   const close=()=>veil.remove();
-  const pick=k=>{ const r=shown[k]; close(); if(r) openFollowUp(r.x); };
+  const pick=k=>{ const r=shown[k]; close(); if(!r) return; if(r.go) r.go(); else openFollowUp(r.x); };
   const draw=()=>{
     const q=input.value.trim().toLowerCase();
     shown = q ? rows.filter(r=>r.name.toLowerCase().includes(q) || r.kind.toLowerCase().includes(q)) : rows;
@@ -3625,7 +3692,7 @@ function openLetterPalette(){
     list.innerHTML = shown.length ? shown.map((r,k)=>{
       const head = r.label!==last ? `<p class="lv-pal-head">${esc(r.label)}</p>` : ""; last=r.label;
       return `${head}<button class="lv-pal-row${k===sel?" on":""}" data-k="${k}"><span>${esc(r.name)}</span><em>${esc(r.kind)}</em></button>`;
-    }).join("") : `<p class="lv-pal-empty">No one by that name in the next month.</p>`;
+    }).join("") : `<p class="lv-pal-empty">No one by that name, on the desk or in the archive.</p>`;
     list.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>pick(+b.dataset.k));
     const on=list.querySelector(".on"); if(on) on.scrollIntoView({block:"nearest"});
   };
@@ -3646,7 +3713,7 @@ function wireLetterKeys(){
     if(!document.body.classList.contains("view-letters")) return;
     if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==="k"){ e.preventDefault(); openLetterPalette(); return; }
     const t=e.target, typing=t && (t.tagName==="INPUT" || t.tagName==="TEXTAREA" || t.isContentEditable);
-    if(typing || e.metaKey || e.ctrlKey || e.altKey || document.getElementById("lvPalette") || document.body.classList.contains("lv-ritual")) return;
+    if(typing || e.metaKey || e.ctrlKey || e.altKey || document.getElementById("lvPalette") || document.querySelector(".ask-wrap") || document.body.classList.contains("lv-ritual")) return;
     if(e.key==="j" || e.key==="J"){ e.preventDefault(); letterNavigate(1); }
     else if(e.key==="k" || e.key==="K"){ e.preventDefault(); letterNavigate(-1); }
   });
@@ -3961,6 +4028,8 @@ function skipLetter(x){
     skipped_at:new Date().toISOString() };
   // Shown as skipped straight away; the write catches up.
   skippedRows=skippedRows||{}; skippedRows[k]=row;
+  // Offline there is no table to write to; the clearing holds for the session.
+  if(!(synced&&sb)) return;
   // Who skipped it comes from the session: the chat's myEmail is private to
   // its own closure, and reaching for it here threw before the queue moved.
   sb.auth.getSession().then(({data})=>{
@@ -3968,15 +4037,18 @@ function skipLetter(x){
     return sb.from("skipped_letters").upsert(row);
   }).then(r=>{ if(r && r.error) console.warn("skip", r.error.message); });
 }
+/* The first name of whichever of us did something, from the address stored. */
+function keeperName(email){ const l=String(email||"").split("@")[0].toLowerCase(); return l ? l.charAt(0).toUpperCase()+l.slice(1) : ""; }
 function skippedItems(){
   const m=skippedMap();
   return followUps().filter(x=>m[letterKey(x)] && clearedFor(x))
-    .map(x=>({ x, at:Date.parse(m[letterKey(x)].skipped_at)||Date.now() }))
+    .map(x=>{ const r=m[letterKey(x)]; return { x, at:Date.parse(r.skipped_at)||Date.now(),
+      by: /@studiomacon\.co$/i.test(r.skipped_by||"") ? keeperName(r.skipped_by) : "" }; })
     .sort((a,b)=>b.at-a.at);
 }
 function unskipLetter(k){
   if(skippedRows) delete skippedRows[k];
-  sb.from("skipped_letters").delete().eq("key",k).then(({error})=>{ if(error) console.warn("unskip", error.message); });
+  if(synced&&sb) sb.from("skipped_letters").delete().eq("key",k).then(({error})=>{ if(error) console.warn("unskip", error.message); });
   renderLetters();
   const i=letterQueue.findIndex(x=>letterKey(x)===k);
   if(i>=0){ letterIdx=i; letterNoEnter=true; letterTypeIn=true; renderCurrentLetter(); }
@@ -4125,19 +4197,6 @@ function renderReader(){
     return;
   }
   if(readerFolder==="upcoming"){ renderPlanList(el); return; }
-  if(readerFolder==="postponed"){
-    const items=skippedItems();
-    el.innerHTML = items.length ? `<div class="lv-reader-list">${items.map(({x,at})=>{
-      const nm=(x.d&&x.d.name)||(x.q&&x.q.name)||"Someone";
-      const what=(x.q&&x.q.subject)||(x.d&&x.d.pieces)||"";
-      return `<button class="lv-reader-row" data-skip="${esc(letterKey(x))}">
-        <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(cleanName(nm))}</span><span class="lv-reader-ago">${esc(mailDate(at))}</span></div>
-        ${what?`<div class="lv-reader-row-subj">${esc(what)}</div>`:""}
-        <div class="lv-reader-row-snip">Cleared until they write. Click to bring it back now.</div></button>`;
-    }).join("")}</div>` : `<p class="lv-reader-note">Nothing is waiting on anyone.</p>`;
-    el.querySelectorAll("[data-skip]").forEach(b=>b.onclick=()=>unskipLetter(b.dataset.skip));
-    return;
-  }
   if(readerFolder==="archive"){
     // Closed enquiries, searchable, each opening its thread here.
     if(readerArchive){
@@ -4229,8 +4288,11 @@ function doneMarkup(put, when){
       <p class="lv-done-date">${esc(day)}</p>
       <h2 class="lv-done-title">The desk is clear</h2>
       <p class="lv-done-sub">Every letter due today is written, or waiting on them to write first. Come back when someone is due, or open Classic to browse everyone.</p>
-      ${put.length?`<div class="lv-empty-skipped"><span>Waiting on them</span>${put.map(({x})=>
-        `<button data-skip="${esc(letterKey(x))}">${esc(cleanName((x.d&&x.d.name)||(x.q&&x.q.name)||"Someone"))}</button>`).join("")}</div>`:""}
+      ${put.length?`<div class="lv-empty-skipped"><span>Waiting on them</span>${put.map(({x,by,at})=>{
+        const when=new Date(at).toLocaleDateString("en-US",{weekday:"short", month:"short", day:"numeric"});
+        const who=cleanName((x.d&&x.d.name)||(x.q&&x.q.name)||"Someone");
+        return `<button data-skip="${esc(letterKey(x))}" title="Cleared ${by?"by "+esc(by)+", ":""}${esc(when)}. Click to bring the letter back.">${esc(who)}${by?`<small>${esc(by)}, ${esc(when)}</small>`:""}</button>`;
+      }).join("")}</div>`:""}
     </div>
   </div>`;
 }
@@ -4665,6 +4727,7 @@ function renderCurrentLetter(){
       <div class="lv-topbar" id="lvTopbar"></div>
       <div class="lv-topleft">
         <button class="lv-new" id="lvNew" title="Write to someone new">+ New letter</button>
+        <button class="lv-new" id="lvLogEnq" title="Record an enquiry that came in by phone, Instagram or in person">+ Log enquiry</button>
         <button class="lv-new lv-todo" id="lvTodo" title="Today at the Bureau" aria-label="Today's checklist"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg></button>
       </div>
       ${ghosts}
@@ -4705,6 +4768,7 @@ function renderCurrentLetter(){
     const fl=host.querySelector("#lvFromLine"); if(fl) fl.textContent = fromLabel();
   };
   host.querySelector("#lvNew").onclick=composeBlankLetter;
+  { const le=host.querySelector("#lvLogEnq"); if(le) le.onclick=inqAdd; }
   const todo=host.querySelector("#lvTodo"); if(todo) todo.onclick=()=>{ if(window._briefToggle) window._briefToggle(); };
   const toIn=host.querySelector("#lvTo");
   if(toIn && !toIn.value) setTimeout(()=>toIn.focus(), 60);
@@ -4851,6 +4915,55 @@ function renderCurrentLetter(){
     letterTypeIn=false;
     typeOut(bodyEl, autosizeBody);
   }
+  trackLetter();
+}
+
+/* Which letter each of us has open, so the two of us never answer the same
+   person twice. Supabase presence carries it. That channel can be joined by
+   anyone holding the site's public key, so what travels is a hash of the
+   letter, never the customer's address: only the two of us can match it. */
+let deskPresence=null, othersOn=new Map();       // letter hash -> first names
+const _letterHash=new Map();
+async function hashOfLetter(key){
+  if(!_letterHash.has(key)) _letterHash.set(key, (await rulesReady).sha256hex("macon-desk:"+key));
+  return _letterHash.get(key);
+}
+function startPresence(){
+  if(!(synced&&sb) || deskPresence) return;
+  sb.auth.getSession().then(({data})=>{
+    const me=data && data.session && data.session.user.email; if(!me) return;
+    deskPresence=sb.channel("desk-presence", { config:{ presence:{ key:me } } });
+    deskPresence.on("presence", { event:"sync" }, ()=>{
+      othersOn=new Map();
+      for(const [who, metas] of Object.entries(deskPresence.presenceState())){
+        if(who===me) continue;
+        for(const m of metas){ if(!m.letter) continue; const a=othersOn.get(m.letter)||[]; if(!a.includes(keeperName(who))) a.push(keeperName(who)); othersOn.set(m.letter, a); }
+      }
+      markPresence();
+    }).subscribe(st=>{ if(st==="SUBSCRIBED") trackLetter(); });
+  });
+}
+async function trackLetter(){
+  if(!deskPresence) return;
+  const x=letterQueue[letterIdx], onDesk=document.body.classList.contains("view-letters") && !letterComposing;
+  const letter = x && onDesk ? await hashOfLetter(letterKey(x)) : null;
+  try{ await deskPresence.track({ letter }); }catch(e){}
+  markPresence();
+}
+async function markPresence(){
+  const tabs=[...document.querySelectorAll(".lv-pile-tab[data-idx]")];
+  for(const b of tabs){
+    const x=letterQueue[+b.dataset.idx]; if(!x) continue;
+    const who=othersOn.get(await hashOfLetter(letterKey(x)));
+    b.classList.toggle("shared", !!who);
+    if(who) b.setAttribute("data-who", `${who.join(" and ")} has this open`); else b.removeAttribute("data-who");
+  }
+  const x=letterQueue[letterIdx], paper=document.querySelector(".lv-paper");
+  const who = x ? othersOn.get(await hashOfLetter(letterKey(x))) : null;
+  let el=document.getElementById("lvShared");
+  if(!who || !paper){ if(el) el.remove(); return; }
+  if(!el){ el=document.createElement("div"); el.id="lvShared"; el.className="lv-shared"; paper.appendChild(el); }
+  el.textContent=`${who.join(" and ")} has this letter open too`;
 }
 
 function setView(v){
@@ -5721,6 +5834,11 @@ function showForm(i){
       <h2>${isNew?"New Entry":"Edit"}</h2>
       <div class="acc-line">${isNew?("New collector · "+new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})):((fmtMoney(d.ltv)||"$0")+" · "+countPieces(d.pieces)+" "+(countPieces(d.pieces)===1?"piece":"pieces")+(d.first_look?" · VIP":""))}</div>
     </div>
+    ${!isNew && (d.trade || (d.alt_emails||[]).length || mergedAway.some(m=>m.merged_into===d.acc)) ? `<div class="rec-notes">
+      ${d.trade?`<p><b>Trade buyer.</b> Bought at trade terms, so no story asks or catch-ups. Set "Trade buyer?" to No below if that is wrong.</p>`:""}
+      ${(d.alt_emails||[]).length?`<p><b>Also writes from</b> ${(d.alt_emails||[]).map(esc).join(", ")}. Orders and mail from these count as theirs.</p>`:""}
+      ${mergedAway.filter(m=>m.merged_into===d.acc).map(m=>`<p><b>Includes ${esc(m.acc)}</b> (${esc(m.name||m.email||"")}), a second record for the same person, folded in here. It is kept, not deleted.</p>`).join("")}
+    </div>` : ""}
     <div class="form-grid">
       <div class="fg full"><label>Name</label><input id="f_name" value="${F('name')}"></div>
       <div class="fg"><label>Email</label><input id="f_email" value="${F('email')}"></div>
