@@ -18,7 +18,8 @@
 - **Backend:** Supabase (Postgres + RLS + Realtime + Edge Functions)
 - **Edge Functions** (Deno/TypeScript, deployed via Supabase CLI at `~/.local/bin/supabase`):
   - `calendar-ticker` — proxies iCloud .ics feed, expands RRULE recurrences, returns 7-day-back/45-day-ahead JSON
-  - `wix-order` — receives Wix "order placed" webhooks, upserts collectors idempotently
+  - `shopify-order` — receives Shopify "Order payment" webhooks (signed; set SHOPIFY_WEBHOOK_SECRET), same path as below
+  - `wix-order` — receives Wix "order placed" webhooks, upserts collectors idempotently. Both read their payload and hand it to `_shared/orders.ts`
   - `followup-digest` — weekly emailed digest of due follow-ups via Resend API (scheduled via pg_cron)
 - **Supabase CLI:** v2.105.0, installed as binary at `~/.local/bin/supabase` (brew failed on macOS 26 due to CLT incompatibility)
 
@@ -150,7 +151,9 @@ body { transition: padding-right .28s ease; padding-right: 440px; }
 | Main app | `/Users/aco/Documents/git/macon-archive/index.html` |
 | Schema | `/Users/aco/Documents/git/macon-archive/schema.sql` |
 | calendar-ticker | `/Users/aco/Documents/git/macon-archive/supabase/functions/calendar-ticker/index.ts` |
+| shopify-order | `/Users/aco/Documents/git/macon-archive/supabase/functions/shopify-order/index.ts` |
 | wix-order | `/Users/aco/Documents/git/macon-archive/supabase/functions/wix-order/index.ts` |
+| shared order path | `/Users/aco/Documents/git/macon-archive/supabase/functions/_shared/orders.ts` |
 | followup-digest | `/Users/aco/Documents/git/macon-archive/supabase/functions/followup-digest/index.ts` |
 | Wix webhook README | `/Users/aco/Documents/git/macon-archive/supabase/README-wix-webhook.md` |
 | Follow-up README | `/Users/aco/Documents/git/macon-archive/supabase/README-followups.md` |

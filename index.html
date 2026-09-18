@@ -4893,7 +4893,7 @@ function markContacted(i){
 
 /* ================= Invoice maker =================
    Three independent sequences (R/W/C) allocated server-side by new_invoice().
-   Retail invoices are written by the Wix webhook and are read-only here; the
+   Retail invoices are written by the order webhooks (Wix, Shopify) and are read-only here; the
    keepers only ever hand-fill wholesale and custom.
    PDF is generated with pdf-lib, which embeds OTF/CFF outlines directly, so the
    text in the file is real selectable text in the studio's own faces. */
