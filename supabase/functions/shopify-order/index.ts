@@ -8,7 +8,7 @@
 //
 // Set up in Shopify admin, no app or API token needed:
 //   Settings → Notifications → Webhooks → Create webhook
-//     Event: Order payment   Format: JSON   API version: 2025-07
+//     Event: Order payment   Format: JSON   API version: 2026-07 (created 18 Sep 2026)
 //     URL:   https://berdrzxjoejirbhdgjer.supabase.co/functions/v1/shopify-order
 //   That page shows "Your webhooks will be signed with <key>". Store it:
 //     supabase secrets set SHOPIFY_WEBHOOK_SECRET=<key>
