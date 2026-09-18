@@ -6349,7 +6349,9 @@ function ordersFromCSV(text){
     test:col("Test"),
   };
   if(c.email<0) return { shop, orders:[], problem:"No email column found. Is this an orders export from Wix, Big Cartel or Shopify?" };
-  const cell=(row,i)=>i>=0?String(row[i]??"").trim():"";
+  // Wix wraps postcodes (and sometimes phones) in quotes, or starts them with
+  // an apostrophe, so spreadsheets keep their leading zeros. Neither is data.
+  const cell=(row,i)=>i>=0?String(row[i]??"").trim().replace(/^'(?=.)/,"").replace(/^"(.*)"$/,"$1").trim():"";
   const amt=v=>{ const n=parseFloat(String(v??"").replace(/[^0-9.\-]/g,"")); return isNaN(n)?null:n; };
   const day=v=>{ const t=String(v||"").trim(); if(/^\d{4}-\d{2}-\d{2}/.test(t)) return t.slice(0,10);
     const ms=Date.parse(t); if(isNaN(ms)) return ""; const d=new Date(ms);
