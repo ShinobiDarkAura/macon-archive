@@ -7,6 +7,7 @@
 // a retail invoice.
 
 import { matchPerson, surname, type Person } from "./identity.ts";
+import { enquiryVerdict, isTradeOrder, type Enquiry } from "./settle.ts";
 
 type Rec = Record<string, any>;
 
@@ -17,6 +18,7 @@ export type Order = {
   street: string; postcode: string; city: string; country: string;
   total: number; items: string[]; lines: InvoiceLine[];
   date: string;            // YYYY-MM-DD
+  ref?: string;            // how a person names it: "#10123", "#1001"
 };
 
 export function tallyPieces(existing: string, newItems: string[]): string {
@@ -94,21 +96,23 @@ export async function applyOrder(o: Order, SUPABASE_URL: string, SERVICE_KEY: st
     const inv = await fetch(`${SUPABASE_URL}/rest/v1/invoices?order_ref=eq.${encodeURIComponent(orderId)}&select=id`, { headers: H });
     const needInvoice = o.lines.length > 0 && inv.ok && (await inv.json()).length === 0;
     const needPieces = items.length > 0 && !String(existing.pieces || "").trim();
-    if (!needInvoice && !needPieces) return [200, { status: "already in the archive", acc: existing.acc, orderId }];
+    const after = await settleAfter(o, existing, SUPABASE_URL, H, write);
+    if (!needInvoice && !needPieces) return [200, { status: "already in the archive", acc: existing.acc, orderId, ...after }];
     if (write) {
       if (needPieces) await fetch(`${SUPABASE_URL}/rest/v1/collectors?acc=eq.${encodeURIComponent(existing.acc)}`, {
         method: "PATCH", headers: H, body: JSON.stringify({ pieces: tallyPieces("", items) }) });
       if (needInvoice) await writeInvoice(o, SUPABASE_URL, H);
     }
     return [200, { status: write ? "repaired" : "would repair", acc: existing.acc, orderId,
-      filled: [needInvoice ? "invoice" : "", needPieces ? "pieces" : ""].filter(Boolean) }];
+      filled: [needInvoice ? "invoice" : "", needPieces ? "pieces" : ""].filter(Boolean), ...after }];
   }
   // An earlier import of their whole history already counted this one.
   if (opts.onlyIfNewer && existing && dayOf(existing.last_buy) && dayOf(existing.last_buy) >= date)
     return [200, { status: "already counted", acc: existing.acc, orderId, last_buy: dayOf(existing.last_buy) }];
   if (!write) return [200, {
     status: existing ? (matched ? "would match" : "would add") : (possible ? "would create, possibly " + possible.acc : "would create"),
-    acc: existing?.acc ?? null, name: existing?.name ?? name, email, total, orderId, ...(matched ? { why: matched } : {}) }];
+    acc: existing?.acc ?? null, name: existing?.name ?? name, email, total, orderId, ...(matched ? { why: matched } : {}),
+    ...(await settleAfter(o, existing, SUPABASE_URL, H, false)) }];
 
   const money = (v: any) => { const n = parseFloat(String(v ?? "").replace(/[^0-9.\-]/g, "")); return isNaN(n) ? 0 : n; };
   let rec: Rec;
@@ -148,6 +152,7 @@ export async function applyOrder(o: Order, SUPABASE_URL: string, SERVICE_KEY: st
       first_look: total > 1000,
       first_buy: date, last_buy: date,
       address: street || null, postcode: postcode || null,
+      trade: isTradeOrder(items),
       // Nothing proves it, but it may well be someone we know: say who, and let
       // a person decide rather than merging on a guess.
       notes: possible
@@ -166,10 +171,11 @@ export async function applyOrder(o: Order, SUPABASE_URL: string, SERVICE_KEY: st
   }
 
   if (o.lines.length) await writeInvoice(o, SUPABASE_URL, H);
+  const after = await settleAfter(o, existing ?? rec, SUPABASE_URL, H, true);
 
   return [200, {
     status: existing ? (matched ? "matched" : "updated") : (possible ? "created, possibly " + possible.acc : "created"),
-    acc: rec.acc ?? existing?.acc, email, total, items: items.length, orderId, ...(matched ? { why: matched } : {}),
+    acc: rec.acc ?? existing?.acc, email, total, items: items.length, orderId, ...(matched ? { why: matched } : {}), ...after,
   }];
 }
 
@@ -190,4 +196,43 @@ async function writeInvoice(o: Order, SUPABASE_URL: string, H: Record<string, st
     // Logged, never thrown: an invoice must never cost us the collector update.
     if (!r.ok) console.error("invoice not written", o.orderId, r.status, await r.text());
   } catch (e) { console.error("invoice not written", o.orderId, String(e)); }
+}
+
+/** What this order settles: a trade buyer is marked as one, and an open
+ *  enquiry from the same person is closed when the order answers it, or noted
+ *  when they bought something else. Safe to run again for the same order. */
+async function settleAfter(o: Order, person: Rec | undefined, SUPABASE_URL: string, H: Record<string, string>, write: boolean) {
+  const out: Rec = {};
+  const label = o.ref || (o.orderId && !o.orderId.includes(":") ? "#" + o.orderId : "a shop order");
+  const what = [...new Set(o.items)].join(", ") || "an order";
+  if (isTradeOrder(o.items)) out.trade = true;          // reported whether new or not
+  if (person?.acc && isTradeOrder(o.items) && !person.trade) {
+    if (write) await fetch(`${SUPABASE_URL}/rest/v1/collectors?acc=eq.${encodeURIComponent(person.acc)}`, {
+      method: "PATCH", headers: H, body: JSON.stringify({ trade: true }) });
+  }
+  const emails = [...new Set([o.email, person?.email, ...(person?.alt_emails || [])]
+    .map((e) => String(e || "").trim().toLowerCase()).filter(Boolean))];
+  if (!emails.length) return out;
+  const list = encodeURIComponent(`(${emails.map((e) => `"${e.replace(/"/g, "")}"`).join(",")})`);
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/inquiries?email=in.${list}&status=neq.closed` +
+    `&select=id,name,status,source,subject,note,first_seen`, { headers: H });
+  const enquiries: (Enquiry & { name?: string })[] = r.ok ? await r.json() : [];
+  const settled: Rec[] = [];
+  for (const q of enquiries) {
+    const v = enquiryVerdict(q, o.items, o.date);
+    if (v === "converted") {
+      settled.push({ enquiry: q.name || q.subject, closed: true });
+      if (write) await fetch(`${SUPABASE_URL}/rest/v1/inquiries?id=eq.${encodeURIComponent(q.id)}`, {
+        method: "PATCH", headers: H, body: JSON.stringify({ status: "closed", last_touched: o.date,
+          outcome: `Became an order: ${what} (${label}, $${Math.round(o.total).toLocaleString("en-US")}, ${o.date}).` }) });
+    } else if (v === "bought-else") {
+      const line = `[${o.date}] Bought ${what} (${label}).`;
+      if (String(q.note || "").includes(`(${label})`)) continue;               // already noted
+      settled.push({ enquiry: q.name || q.subject, noted: true });
+      if (write) await fetch(`${SUPABASE_URL}/rest/v1/inquiries?id=eq.${encodeURIComponent(q.id)}`, {
+        method: "PATCH", headers: H, body: JSON.stringify({ note: (q.note ? q.note + "\n\n" : "") + line }) });
+    }
+  }
+  if (settled.length) out.enquiries = settled;
+  return out;
 }

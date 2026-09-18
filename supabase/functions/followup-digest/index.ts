@@ -58,6 +58,7 @@ const STORY_WINDOW = 120;
 const PATRON_LTV = 600;
 
 function isDue(d: Rec): boolean {
+  if (d.trade) return false;                     // trade buyers are not written to as collectors
   const days = daysSince(d.last_buy);
   if (days == null) return false;
   if (days < leadTime(firstPiece(d.pieces)) + 14) return false;
@@ -72,6 +73,7 @@ function isDue(d: Rec): boolean {
 // Reconnects follow value, not just the VIP flag: the patrons above PATRON_LTV
 // are half of all revenue, and they are the ones worth never losing touch with.
 function isReconnectDue(d: Rec): boolean {
+  if (d.trade) return false;
   if (!d.first_look && num(d.ltv) < PATRON_LTV) return false;
   if (isDue(d)) return false;
   const last = d.last_contact ? daysSince(d.last_contact) : daysSince(d.last_buy);

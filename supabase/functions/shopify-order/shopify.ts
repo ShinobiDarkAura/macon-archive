@@ -41,6 +41,7 @@ export function readOrder(o: Rec) {
   if (discount > 0) lines.push({ desc: "Discount", qty: 1, unit: -discount });
   return {
     orderId: o.id != null ? `shopify:${o.id}` : "",
+    ref: String(o.name || (o.order_number != null ? "#" + o.order_number : "")),
     email, name,
     phone: String(ship.phone || bill.phone || cust.phone || o.phone || "").replace(/[^0-9+]/g, ""),
     street: String(ship.address1 || bill.address1 || "").trim(),

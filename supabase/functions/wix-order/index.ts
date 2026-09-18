@@ -126,7 +126,7 @@ Deno.serve(async (req) => {
   ]) ?? "").trim();
 
   const [status, body] = await applyOrder({
-    orderId, email, name, phone, street, postcode, city, country,
+    orderId, ref: orderId ? "#" + orderId : "", email, name, phone, street, postcode, city, country,
     total, items, lines: invLines, date,
   }, SUPABASE_URL, SERVICE_KEY);
   return ok(body, status);

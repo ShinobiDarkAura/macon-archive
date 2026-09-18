@@ -1714,7 +1714,7 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
 const STORE = "macon_archive_v1";
 const SIG_ORDER = {High:0, Med:1, Low:2, "":3};
 const COLS = ["acc","name","email","first_contact","pieces","ltv","gift_self","first_buy",
-  "last_buy","why","lives","details","signal","first_look","last_contact","story","notes","location","phone","photos","instagram"];
+  "last_buy","why","lives","details","signal","first_look","last_contact","story","notes","location","phone","photos","instagram","trade"];
 const PRODUCTS = ["Ren","Pip","Rebi","Ori","Zuma","Ibi","Milo","Yael","Eleph",
   "Caldera Arc","Sietch Ring","Lunar Canyon","Zuma Ring","Eclipse Ring","Meridian Egg","Ida's Wonder Horn","Starship Key"];
 // Typical make + ship time per piece, in days. The first story ask fires lead_time + 14 (settle)
@@ -1922,6 +1922,8 @@ function lastContactOf(rec){
   return t ? new Date(t).toISOString().slice(0,10) : "";
 }
 function isDue(d){
+  // A trade buyer (wholesale, a stockist) is not written to as a collector.
+  if(d.trade) return false;
   const days=daysSince(d.last_buy);
   if(days==null) return false;
   if(days < leadTime(firstPiece(d.pieces)) + 14) return false;   // make + ship, then settle
@@ -1932,6 +1934,7 @@ function isDue(d){
   return true;
 }
 function isReconnectDue(d){
+  if(d.trade) return false;
   // follows value, not just the VIP flag: the patrons above PATRON_LTV are half
   // of all revenue and are the ones worth never losing touch with
   if(!d.first_look && num(d.ltv) < PATRON_LTV) return false;
@@ -5630,6 +5633,7 @@ function showForm(i){
       <div class="fg"><label>Last Purchase</label><input id="f_last_buy" value="${F('last_buy')}" placeholder="2026-06-01"></div>
       <div class="fg full"><label>Pieces Owned</label><div class="pbuild" id="pbuild"></div></div>
       <div class="fg"><label>VIP?</label><select id="f_first_look">${opt(['Yes','No'], d.first_look?'Yes':'No')}</select></div>
+      <div class="fg"><label>Trade buyer?</label><select id="f_trade" title="Bought at trade terms. Trade buyers get no collector letters.">${opt(['No','Yes'], d.trade?'Yes':'No')}</select></div>
       <div class="fg"><label>Story Usable?</label><select id="f_story">${opt(['Asked','Yes','No'],d.story)}</select></div>
       <div class="fg full"><label>Story Photos</label>
         <div class="photos" id="photoZone"></div>
@@ -5686,7 +5690,7 @@ function showForm(i){
     const g=id=>host.querySelector("#"+id).value.trim();
     const rec={...d, acc:d.acc, id:d.id, name:g("f_name"), email:g("f_email"), phone:g("f_phone"),
       location:g("f_location"), ltv:g("f_ltv"), last_buy:g("f_last_buy"),
-      pieces:readPieces(), first_look:g("f_first_look")==="Yes", story:g("f_story"), notes:g("f_notes"),
+      pieces:readPieces(), first_look:g("f_first_look")==="Yes", trade:g("f_trade")==="Yes", story:g("f_story"), notes:g("f_notes"),
       instagram:igHandle(g("f_instagram")), photos:JSON.stringify(formPhotos)};
     persist(rec, isNew); closeScrim();
   };
@@ -6368,7 +6372,7 @@ function ordersFromCSV(text){
     }
     const orderId = shopify ? (o.id ? "shopify:"+o.id : "shopify-name:"+o.num)
                   : bigcartel ? (o.num ? "bigcartel:"+o.num : "") : (o.num ? String(o.num).replace(/^#/,"") : "");
-    orders.push({ orderId, email:o.email, name:o.name, phone:o.phone, street:o.street, postcode:o.postcode,
+    orders.push({ orderId, ref:o.num?(String(o.num).startsWith("#")?o.num:"#"+o.num):"", email:o.email, name:o.name, phone:o.phone, street:o.street, postcode:o.postcode,
                   city:o.city, country:o.country, total:o.total, items:o.items, lines, date:o.date });
   }
   return { shop, orders, skipped, problem: orders.length ? "" : "No paid orders found in that CSV." };
