@@ -1799,14 +1799,34 @@ async function startSynced(){
   Promise.allSettled([loadInquiries(), loadSkipped(), loadDone()]).then(()=>{ letterDataReady=true; renderDrawer(); renderLetters(); if(tab==="enquiries") renderEnquiries(); });
   loadLetterFonts();
   sb.channel("todos-rt").on("postgres_changes",{event:"*",schema:"public",table:"bureau_todos"},()=>loadTodoDone()).subscribe();
-  sb.channel("inq-rt").on("postgres_changes",{event:"*",schema:"public",table:"inquiries"},()=>loadInquiries().then(()=>{ renderDrawer(); if(tab==="enquiries") renderEnquiries(); })).subscribe();
+  // An enquiry closed elsewhere (by the other keeper, or by an order that
+  // answered it) leaves the pile here too, not only the drawer.
+  sb.channel("inq-rt").on("postgres_changes",{event:"*",schema:"public",table:"inquiries"},()=>loadInquiries().then(()=>{ renderDrawer(); if(tab==="enquiries") renderEnquiries(); redrawPile(); })).subscribe();
   // One of us skipping a letter takes it off the other's pile too.
   sb.channel("skip-rt").on("postgres_changes",{event:"*",schema:"public",table:"skipped_letters"},
-    ()=>loadSkipped().then(()=>{ if(document.body.classList.contains("view-letters")) renderLetters(); })).subscribe();
+    ()=>loadSkipped().then(redrawPile)).subscribe();
   // A letter one of us sends ticks off on the other's desk too.
   sb.channel("done-rt").on("postgres_changes",{event:"*",schema:"public",table:"letters_done"},
-    ()=>loadDone().then(()=>{ if(document.body.classList.contains("view-letters")) renderLetters(); })).subscribe();
+    ()=>loadDone().then(redrawPile)).subscribe();
   initChat();
+}
+/* Redraw the pile for a change that came from elsewhere. Not while someone is
+   writing in the letter, though: the redraw would take their words with it, so
+   it waits until they step out of the sheet. */
+function redrawPile(){
+  if(!document.body.classList.contains("view-letters")) return;
+  const a=document.activeElement;
+  if(a && a.closest && a.closest(".lv-paper")){
+    if(redrawPile.waiting) return;
+    redrawPile.waiting=true;
+    document.addEventListener("focusout", function later(e){
+      if(!(e.target && e.target.closest && e.target.closest(".lv-paper"))) return;
+      document.removeEventListener("focusout", later); redrawPile.waiting=false;
+      setTimeout(redrawPile, 0);            // still inside the sheet? it waits again
+    });
+    return;
+  }
+  renderLetters();
 }
 async function refresh(){
   if(!synced){ data=local.load(); renderAll(); return; }
