@@ -42,6 +42,9 @@ Deno.serve(async (req) => {
 
   const order = readOrder(o);
   if (!order.email) return ok({ error: "no buyer email in order", id: o.id }, 422);
+  // Shopify's "Send test notification" posts a sample order addressed to
+  // example.com, a domain reserved for exactly this and never a real buyer.
+  if (/@([a-z0-9-]+\.)*example\.(com|net|org)$/.test(order.email)) return ok({ status: "sample order ignored", email: order.email });
   const [status, body] = await applyOrder(order, SUPABASE_URL, SERVICE_KEY);
   return ok(body, status);
 });
