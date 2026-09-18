@@ -25,6 +25,9 @@
 // duplicated, and those are flagged in README-followups.md.
 import { collectorDraft, enquiryDraft } from "../_shared/drafts.js";
 import { keeperEmail, sameSecret } from "../_shared/keepers.ts";
+// Shared with the Letters desk, so the digest and the pile agree on who is a
+// real enquiry and on one letter per person.
+import { onePerPerson, personKeys, primaryEmails, whyNotAnEnquiry } from "../_shared/rules.js";
 
 // --- keep these in sync with index.html ---
 const LEAD_DEFAULT = 21;
@@ -151,23 +154,53 @@ Deno.serve(async (req) => {
     headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` },
   });
   if (!res.ok) return new Response("Fetch failed: " + (await res.text()), { status: 502 });
-  const data: Rec[] = await res.json();
+  // A record folded into another is not a person of its own.
+  const everyone: Rec[] = await res.json();
+  const data: Rec[] = everyone.filter((d) => !d.merged_into);
+  const primary = primaryEmails(everyone);
 
   // Open enquiries, with the same needs-attention rule the app uses
   const iq = await fetch(`${SUPABASE_URL}/rest/v1/inquiries?select=*`, {
     headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` },
   });
-  const inquiries: Rec[] = iq.ok ? await iq.json() : [];
+  // Without the enquiries the digest cannot say nothing is pressing: say so.
+  if (!iq.ok) return new Response("Fetch failed (enquiries): " + (await iq.text()), { status: 502 });
+  const allInquiries: Rec[] = await iq.json();
+  const why = await Promise.all(allInquiries.map((q) => whyNotAnEnquiry(q)));
+  const inquiries = allInquiries.filter((_q, k) => !why[k]);
+  // "Cleared until they write": off the digest as it is off the pile. A website
+  // enquiry that wrote in again since the clearing comes back.
+  const sk = await fetch(`${SUPABASE_URL}/rest/v1/skipped_letters?select=key,skipped_at`, {
+    headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` },
+  });
+  const cleared = new Map<string, number>((sk.ok ? await sk.json() : []).map((r: Rec) => [r.key, Date.parse(r.skipped_at) || 0]));
+  const isCleared = (item: Rec) => personKeys(item, everyone, primary).some((k) => {
+    if (!cleared.has(k)) return false;
+    const day = new Date(cleared.get(k)!).toISOString().slice(0, 10);
+    const wrote = [...String(item.q?.note || "").matchAll(/\[(\d{4}-\d{2}-\d{2})\] wrote in again/g)].some((m) => m[1] >= day);
+    return !wrote;
+  });
   const INQ_STALE = 7;
+  // The same needs-attention rule as the pile (index.html inqState). The
+  // desk also reads Gmail; what it learns there it writes to last_touched,
+  // which is what this reads.
   const inqState = (q: Rec) => {
     if (q.status === "closed") return "closed";
-    if (q.status === "open") return "attention";
+    if (q.source === "composed")
+      return (q.status !== "open" && q.follow_up_on && Date.parse(q.follow_up_on) <= Date.now()) ? "attention" : "followed";
+    if (q.status === "open") {
+      if (q.last_touched && q.first_seen && String(q.last_touched) >= String(q.first_seen))
+        return (daysSince(q.last_touched) ?? 0) >= INQ_STALE ? "attention" : "followed";
+      return "attention";
+    }
     const d = daysSince(q.last_touched) ?? daysSince(q.first_seen) ?? 0;
     return d >= INQ_STALE ? "attention" : "followed";
   };
+  // The pile keeps three months of enquiries; older ones are the ledger's.
   const waiting = inquiries
     .filter((q) => inqState(q) === "attention")
     .map((q) => ({ q, days: (daysSince(q.last_touched) ?? daysSince(q.first_seen) ?? 0) }))
+    .filter((x) => x.days <= 90 && !isCleared(x))
     .sort((a, b) => b.days - a.days);
 
   // The letter to send, chosen by where the thread actually is. Prepared drafts
@@ -194,9 +227,17 @@ Deno.serve(async (req) => {
   const recon: Card[] = data.filter(isReconnectDue)
     .map((d) => ({ d, kind: "Patron gone quiet", days: (d.last_contact ? daysSince(d.last_contact) : daysSince(d.last_buy))!, pri: "High", draft: collectorDraft(d, "reconnect").body }));
 
-  // Patrons first, then the most overdue, then by what they are worth.
-  const ranked = recon.concat(due).sort((a, b) =>
-    order[a.pri] - order[b.pri] || b.days - a.days || num(b.d.ltv) - num(a.d.ltv));
+  // Patrons first, then the most overdue, then by what they are worth. The same
+  // windows as the pile (story asks to 90 days, catch-ups to 180), nobody who
+  // was cleared until they write, and one letter per person: someone with an
+  // enquiry waiting gets that, not a collector letter as well.
+  const byEnquiry = new Set(waiting.map((x) => x.q));
+  const ranked = onePerPerson(
+    [...waiting.map((x) => ({ q: x.q })),
+     ...recon.concat(due)
+       .filter((x) => x.days <= (x.kind === "Story ask" ? 90 : 180) && !isCleared(x))
+       .sort((a, b) => order[a.pri] - order[b.pri] || b.days - a.days || num(b.d.ltv) - num(a.d.ltv))],
+    primary).filter((x: Rec) => !byEnquiry.has(x.q)) as Card[];
   const items = ranked.slice(0, CAP);
   const overflow = ranked.length - items.length;
 

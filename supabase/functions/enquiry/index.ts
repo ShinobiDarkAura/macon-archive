@@ -143,6 +143,7 @@ Deno.serve(async (req) => {
     const m = JSON.stringify(payload).match(EMAIL_RE);   // last resort: anywhere in the body
     email = m ? m[0] : "";
   }
+  email = email.trim().toLowerCase();                   // one form of every address, so lookups match
   const message = findBy(payload, [/message/i, /body/i, /comment/i, /enquiry/i, /inquiry/i, /details/i, /note/i]);
   const subjectRaw = findBy(payload, [/subject/i, /topic/i, /interested/i, /piece/i, /request/i]);
 
@@ -156,8 +157,12 @@ Deno.serve(async (req) => {
 
   // One record per person: a second enquiry appends rather than duplicating.
   if (email) {
+    // Their most recent enquiry, never a letter the studio started to them: a
+    // "composed" row does not come back to the pile when someone writes in, so
+    // appending to it would leave their message unseen.
     const dup = await fetch(
-      `${SUPABASE_URL}/rest/v1/inquiries?email=eq.${encodeURIComponent(email)}&select=id,note`, { headers: H });
+      `${SUPABASE_URL}/rest/v1/inquiries?email=eq.${encodeURIComponent(email)}&or=(source.is.null,source.neq.composed)` +
+      `&select=id,note&order=first_seen.desc&limit=1`, { headers: H });
     const rows: Rec[] = dup.ok ? await dup.json() : [];
     if (rows.length) {
       const today = new Date().toISOString().slice(0, 10);

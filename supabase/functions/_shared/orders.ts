@@ -67,7 +67,9 @@ export async function applyOrder(o: Order, SUPABASE_URL: string, SERVICE_KEY: st
 
   // Find the collector: by this address, or by one of the other addresses on
   // their record. A record folded into another stands for that other one.
-  const orClause = encodeURIComponent(`(email.ilike.${email},alt_emails.cs.{${email}})`);
+  // Emails are stored lowercase (a trigger sees to it), so this is an exact
+  // match; a pattern match would let "_" in an address stand for any letter.
+  const orClause = encodeURIComponent(`(email.eq.${email},alt_emails.cs.{${email}})`);
   const find = await fetch(`${SUPABASE_URL}/rest/v1/collectors?or=${orClause}&select=*`, { headers: H });
   if (!find.ok) return [502, { error: "lookup failed: " + (await find.text()) }];
   let existing: Rec | undefined = (await find.json())[0];
@@ -114,6 +116,21 @@ export async function applyOrder(o: Order, SUPABASE_URL: string, SERVICE_KEY: st
     acc: existing?.acc ?? null, name: existing?.name ?? name, email, total, orderId, ...(matched ? { why: matched } : {}),
     ...(await settleAfter(o, existing, SUPABASE_URL, H, false)) }];
 
+  // Claim the order before any money moves. processed_orders is keyed by the
+  // order, so a second delivery of it, however close behind the first, is
+  // turned away here by the database rather than counted twice.
+  if (orderId) {
+    const claim = await fetch(`${SUPABASE_URL}/rest/v1/processed_orders`, {
+      method: "POST", headers: { ...H, Prefer: "return=minimal" },
+      body: JSON.stringify({ id: orderId, email, total, applied_at: new Date().toISOString() }),
+    });
+    if (claim.status === 409) return [200, { status: "duplicate ignored", orderId }];
+    if (!claim.ok) return [502, { error: "could not claim the order: " + (await claim.text()) }];
+  }
+  // If what follows fails, give the claim back so the shop's retry can apply it.
+  const unclaim = async () => { if (orderId) await fetch(
+    `${SUPABASE_URL}/rest/v1/processed_orders?id=eq.${encodeURIComponent(orderId)}`, { method: "DELETE", headers: H }); };
+
   const money = (v: any) => { const n = parseFloat(String(v ?? "").replace(/[^0-9.\-]/g, "")); return isNaN(n) ? 0 : n; };
   let rec: Rec;
   if (existing) {
@@ -136,14 +153,17 @@ export async function applyOrder(o: Order, SUPABASE_URL: string, SERVICE_KEY: st
     const upd = await fetch(`${SUPABASE_URL}/rest/v1/collectors?acc=eq.${encodeURIComponent(existing.acc)}`, {
       method: "PATCH", headers: H, body: JSON.stringify(rec),
     });
-    if (!upd.ok) return [502, { error: "update failed: " + (await upd.text()) }];
+    if (!upd.ok) { const e = await upd.text(); await unclaim(); return [502, { error: "update failed: " + e }]; }
   } else {
     // next M-xxx account number
-    const accs = await fetch(`${SUPABASE_URL}/rest/v1/collectors?select=acc`, { headers: H });
-    let max = 0;
-    if (accs.ok) for (const r of await accs.json()) { const m = /M-(\d+)/.exec(r.acc || ""); if (m) max = Math.max(max, +m[1]); }
+    const nextAcc = async () => {
+      const accs = await fetch(`${SUPABASE_URL}/rest/v1/collectors?select=acc`, { headers: H });
+      let max = 0;
+      if (accs.ok) for (const r of await accs.json()) { const m = /M-(\d+)/.exec(r.acc || ""); if (m) max = Math.max(max, +m[1]); }
+      return "M-" + String(max + 1).padStart(3, "0");
+    };
     rec = {
-      acc: "M-" + String(max + 1).padStart(3, "0"),
+      acc: await nextAcc(),
       email, name, phone,
       pieces: tallyPieces("", items),
       ltv: Math.round(total * 100) / 100,
@@ -159,16 +179,16 @@ export async function applyOrder(o: Order, SUPABASE_URL: string, SERVICE_KEY: st
         ? `Possibly the same person as ${possible.acc} (${possible.name}): same surname and town, first names fit. Merge them if so.`
         : null,
     };
-    const ins = await fetch(`${SUPABASE_URL}/rest/v1/collectors`, { method: "POST", headers: H, body: JSON.stringify(rec) });
-    if (!ins.ok) return [502, { error: "insert failed: " + (await ins.text()) }];
+    // Account numbers are unique in the table. If another new buyer took this
+    // one a moment ago, the insert is refused; take the next and try again.
+    let ins = await fetch(`${SUPABASE_URL}/rest/v1/collectors`, { method: "POST", headers: H, body: JSON.stringify(rec) });
+    for (let tries = 0; ins.status === 409 && tries < 4; tries++) {
+      rec.acc = await nextAcc();
+      ins = await fetch(`${SUPABASE_URL}/rest/v1/collectors`, { method: "POST", headers: H, body: JSON.stringify(rec) });
+    }
+    if (!ins.ok) { const e = await ins.text(); await unclaim(); return [502, { error: "insert failed: " + e }]; }
   }
 
-  if (orderId) {
-    await fetch(`${SUPABASE_URL}/rest/v1/processed_orders`, {
-      method: "POST", headers: { ...H, Prefer: "resolution=ignore-duplicates" },
-      body: JSON.stringify({ id: orderId, email, total, applied_at: new Date().toISOString() }),
-    });
-  }
 
   if (o.lines.length) await writeInvoice(o, SUPABASE_URL, H);
   const after = await settleAfter(o, existing ?? rec, SUPABASE_URL, H, true);
