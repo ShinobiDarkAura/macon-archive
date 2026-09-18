@@ -6295,7 +6295,132 @@ function parseCSV(text){
   if(field.length||row.length){row.push(field);rows.push(row);}
   return rows;
 }
+/* A shop's orders export (Wix, Big Cartel or Shopify), read into one entry per
+   order: who bought, where it went, each piece with its price, and the total.
+   The rows are only read here; what they do to the archive is decided by the
+   same code the live order webhooks use (functions/import-orders). */
+function ordersFromCSV(text){
+  const rows=parseCSV(text).filter(r=>r.length>1);
+  if(rows.length<2) return { shop:"", orders:[], problem:"That CSV looks empty." };
+  const head=rows[0].map(h=>h.trim().toLowerCase());
+  const col=(...names)=>{ for(const n of names){ const i=head.indexOf(n.toLowerCase()); if(i>=0) return i; } return -1; };
+  const shopify=col("Lineitem name")>=0, bigcartel=!shopify && col("Buyer email")>=0;
+  const shop=shopify?"Shopify":bigcartel?"Big Cartel":"Wix";
+  const c={
+    email:col("Contact email","Email","Buyer email","Customer email"),
+    id:shopify?col("Id"):-1,
+    order:col("Order number","Order #","Number","Name","Order"),
+    item:col("Lineitem name","Item","Item name","Product name","Product"),
+    qty:col("Lineitem quantity","Qty","Quantity","Item quantity"),
+    price:col("Lineitem price","Price","Item price","Unit price"),
+    total:col("Total","Order total","Total price","Net amount"),
+    date:col("Created at","Date created","Paid at","Order date","Date"),
+    name:col("Billing Name","Billing name","Recipient name","Shipping Name","Buyer name","Customer name"),
+    city:col("Shipping City","Delivery city","Billing City"),
+    country:col("Shipping Country","Delivery country","Billing Country"),
+    zip:col("Shipping Zip","Delivery zip/postal code","Delivery zip code","Delivery postal code","Billing Zip","Billing zip/postal code"),
+    street:col("Shipping Address1","Shipping Street","Delivery address","Delivery street","Billing Address1"),
+    phone:col("Shipping Phone","Billing Phone","Phone","Billing phone","Recipient phone"),
+    paid:col("Financial Status","Payment status","Payment Status"),
+    test:col("Test"),
+  };
+  if(c.email<0) return { shop, orders:[], problem:"No email column found. Is this an orders export from Wix, Big Cartel or Shopify?" };
+  const cell=(row,i)=>i>=0?String(row[i]??"").trim():"";
+  const amt=v=>{ const n=parseFloat(String(v??"").replace(/[^0-9.\-]/g,"")); return isNaN(n)?null:n; };
+  const day=v=>{ const t=String(v||"").trim(); if(/^\d{4}-\d{2}-\d{2}/.test(t)) return t.slice(0,10);
+    const ms=Date.parse(t); if(isNaN(ms)) return ""; const d=new Date(ms);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; };
+  const byKey=new Map(); let skipped=0;
+  for(let r=1;r<rows.length;r++){
+    const row=rows[r], email=cell(row,c.email).toLowerCase(), num=cell(row,c.order);
+    const key=num || (email+"|"+cell(row,c.date)); if(!key || key==="|") continue;
+    let o=byKey.get(key);
+    if(!o){ o={ num, email, name:"", phone:"", street:"", postcode:"", city:"", country:"", date:"",
+                total:null, items:[], lines:[], priced:true, status:"", test:false, id:cell(row,c.id) }; byKey.set(key,o); }
+    const fill=(k,v)=>{ if(!o[k] && v) o[k]=v; };
+    fill("email",email); fill("name",cell(row,c.name)); fill("street",cell(row,c.street)); fill("postcode",cell(row,c.zip));
+    fill("city",cell(row,c.city)); fill("country",cell(row,c.country)); fill("date",day(cell(row,c.date)));
+    fill("phone",cell(row,c.phone).replace(/[^0-9+]/g,"")); fill("status",cell(row,c.paid)); fill("id",cell(row,c.id));
+    if(/^true$/i.test(cell(row,c.test))) o.test=true;
+    // the order's total is on its first row (Shopify) or repeated on every row (Wix)
+    if(o.total==null) o.total=amt(cell(row,c.total));
+    const item=cell(row,c.item);
+    if(item){
+      const q=Math.max(1, parseInt(cell(row,c.qty),10)||1), unit=amt(cell(row,c.price));
+      for(let k=0;k<q;k++) o.items.push(item);
+      if(unit==null) o.priced=false;
+      o.lines.push({ desc:item, qty:q, unit:unit??0 });
+    }
+  }
+  const orders=[];
+  for(const o of byKey.values()){
+    // Unpaid, refunded, voided, cancelled and test orders are not purchases.
+    if(o.test || /^(not|un)|refund|void|cancel|pending/i.test(o.status)){ skipped++; continue; }
+    if(!o.email || !o.date || o.total==null || o.total<0){ skipped++; continue; }
+    let lines=o.lines;
+    if(!lines.length || !o.priced){
+      lines=[{ desc:`Order ${o.num||""}${o.items.length?": "+[...new Set(o.items)].join(", "):""}`.trim(), qty:1, unit:o.total }];
+    } else {
+      // Shipping, tax and discounts are rarely their own rows: whatever the
+      // pieces do not account for becomes one line, so the invoice adds up.
+      const rest=Math.round((o.total-lines.reduce((s,l)=>s+l.qty*l.unit,0))*100)/100;
+      if(Math.abs(rest)>=0.01) lines=lines.concat([{ desc:rest>0?"Shipping, tax and fees":"Discount", qty:1, unit:rest }]);
+    }
+    const orderId = shopify ? (o.id ? "shopify:"+o.id : "shopify-name:"+o.num)
+                  : bigcartel ? (o.num ? "bigcartel:"+o.num : "") : (o.num ? String(o.num).replace(/^#/,"") : "");
+    orders.push({ orderId, email:o.email, name:o.name, phone:o.phone, street:o.street, postcode:o.postcode,
+                  city:o.city, country:o.country, total:o.total, items:o.items, lines, date:o.date });
+  }
+  return { shop, orders, skipped, problem: orders.length ? "" : "No paid orders found in that CSV." };
+}
+
+/* In the signed-in archive an import is shown before it is done, and done
+   through the same path as the live order webhooks. It adds; it never
+   overwrites totals, forgets a merge, or counts an order twice. */
 async function importOrdersCSV(text){
+  if(!synced) return importOrdersCSVLocal(text);
+  const { shop, orders, skipped, problem }=ordersFromCSV(text);
+  if(!orders.length){ alert(problem); return; }
+  const { data:{ session } }=await sb.auth.getSession();
+  if(!session){ alert("Sign in to import orders."); return; }
+  const call=async dryRun=>{
+    const r=await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/import-orders`, { method:"POST",
+      headers:{ Authorization:"Bearer "+session.access_token, apikey:CONFIG.SUPABASE_ANON_KEY, "Content-Type":"application/json" },
+      body:JSON.stringify({ orders, dryRun }) });
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(j.error||("HTTP "+r.status));
+    return j.results||[];
+  };
+  const money=v=>"$"+Math.round(Number(v)||0).toLocaleString("en-US");
+  const when=d=>{ const t=Date.parse(d+"T12:00:00"); return isNaN(t)?d:new Date(t).toLocaleDateString("en-US",{month:"short",day:"numeric"}); };
+  const who=r=>`${r.name||r.email||"Someone"} ${money(r.total)} (${when(r.date)})`;
+  const group=(res,test)=>res.filter(r=>test.test(r.status||""));
+  const list=(rs,max=10)=>rs.slice(0,max).map(r=>"   "+who(r)).join("\n")+(rs.length>max?`\n   and ${rs.length-max} more`:"");
+  const summary=(res,verb)=>{
+    const add=group(res,/^(would add|would match|updated|matched)/), make=group(res,/^(would create|created)/),
+          fix=group(res,/^(repaired|would repair)/), have=group(res,/^(already|duplicate)/), bad=group(res,/^(unreadable|failed)/);
+    return [
+      add.length ? `${add.length} ${add.length>1?"orders":"order"} ${verb} to collectors you already have:\n${list(add)}` : "",
+      make.length ? `${make.length} new ${make.length>1?"collectors":"collector"}${verb==="will be added"?" will be made":" made"}:\n${list(make)}` : "",
+      fix.length ? `${fix.length} ${fix.length>1?"orders":"order"} the archive already had, now with the pieces or invoice it was missing:\n${list(fix)}` : "",
+      have.length ? `${have.length} already in the archive, left exactly as they are.` : "",
+      skipped ? `${skipped} unpaid, refunded, cancelled or test ${skipped>1?"orders":"order"} ignored.` : "",
+      bad.length ? `${bad.length} could not be read:\n${list(bad)}` : "",
+    ].filter(Boolean).join("\n\n");
+  };
+  let preview;
+  try{ preview=await call(true); }catch(err){ alert("Could not read the import: "+err.message); return; }
+  const changes=preview.filter(r=>/^(would|repaired)/.test(r.status||""));
+  if(!changes.length){ alert(`Nothing to import from this ${shop} export.\n\n`+summary(preview,"will be added")); return; }
+  if(!confirm(`From this ${shop} export:\n\n`+summary(preview,"will be added")+"\n\nNothing already in the archive is changed or counted twice. Go ahead?")) return;
+  let done;
+  try{ done=await call(false); }catch(err){ alert("The import stopped: "+err.message+"\n\nWhatever went in is safe to import again; nothing is counted twice."); return; }
+  await refresh(); page=1; renderLedger();
+  alert(`Imported from ${shop}.\n\n`+summary(done,"added"));
+}
+
+/* The offline sandbox (no Supabase) keeps the original whole-history import. */
+async function importOrdersCSVLocal(text){
   const rows=parseCSV(text).filter(r=>r.length>1);
   if(rows.length<2){ alert("That CSV looks empty."); return; }
   const head=rows[0].map(h=>h.trim());

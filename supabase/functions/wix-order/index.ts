@@ -66,19 +66,34 @@ Deno.serve(async (req) => {
   const total = moneyToNumber(pick(order, [
     "priceSummary.total", "totals.total", "paymentTotal", "total", "totalPrice", "amount",
   ]));
-  const rawItems = pick(order, ["lineItems", "items", "catalogItems"]) || [];
+  const rawItems = pick(order, ["lineItems", "items", "catalogItems", "line_items", "products"]) || [];
+  // Wix has named a line item's product several ways across its APIs and
+  // automation payloads; the first that holds text wins.
+  const itemName = (li: Rec) => {
+    const v = pick(li, ["productName.original", "productName.translated", "itemName", "productName",
+      "name.original", "name", "title", "description", "catalogItemName"]);
+    return typeof v === "string" ? v.trim() : "";
+  };
   const items: string[] = (Array.isArray(rawItems) ? rawItems : []).flatMap((li: Rec) => {
-    const nm = String(li?.productName?.original ?? li?.productName ?? li?.name ?? li?.title ?? "").trim();
+    const nm = itemName(li);
     const qty = parseInt(String(li?.quantity ?? 1), 10) || 1;
     return nm ? Array(qty).fill(nm) : [];
   });
   // Invoice lines keep quantity and unit price, unlike `items` above which
   // flattens to repeated names for the collector's pieces column.
   const invLines = (Array.isArray(rawItems) ? rawItems : []).map((li: Rec) => ({
-    desc: String(li?.productName?.original ?? li?.productName ?? li?.name ?? li?.title ?? "").trim(),
+    desc: itemName(li),
     qty: parseInt(String(li?.quantity ?? 1), 10) || 1,
-    unit: moneyToNumber(pick(li, ["price.amount", "price", "priceData.price", "unitPrice", "priceData.discountedPrice"])),
+    unit: moneyToNumber(pick(li, ["price.amount", "price.value", "price", "priceData.price", "unitPrice",
+      "priceData.discountedPrice", "priceBeforeDiscounts.amount", "fullPrice.amount"])),
   })).filter((l) => l.desc);
+  // Chelsea Sonksen's and Joshua King's orders arrived with no pieces and no
+  // invoice: nothing above matched. Say so in the function log, with the shape
+  // Wix actually sent, so it is seen and fixed rather than lost quietly.
+  if (!items.length) console.warn("wix-order: no line items read", JSON.stringify({
+    orderKeys: Object.keys(order || {}),
+    firstItemKeys: Array.isArray(rawItems) && rawItems[0] ? Object.keys(rawItems[0]) : null,
+  }));
   const shipping = moneyToNumber(pick(order, ["priceSummary.shipping", "totals.shipping", "shippingInfo.cost.price"]));
   const taxAmt = moneyToNumber(pick(order, ["priceSummary.tax", "totals.tax"]));
   if (shipping > 0) invLines.push({ desc: "Shipping", qty: 1, unit: shipping });

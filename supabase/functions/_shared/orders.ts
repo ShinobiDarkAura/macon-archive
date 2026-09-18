@@ -30,15 +30,37 @@ export function tallyPieces(existing: string, newItems: string[]): string {
   return [...tally.entries()].map(([k, v]) => (v > 1 ? `${k} ×${v}` : k)).join(", ");
 }
 
-/** Apply one order to the archive. Returns [status, body] for the webhook to send back. */
-export async function applyOrder(o: Order, SUPABASE_URL: string, SERVICE_KEY: string): Promise<[number, Rec]> {
+export type ApplyOptions = {
+  /** Work out what would happen and write nothing. */
+  dryRun?: boolean;
+  /** For imports: an order no later than the buyer's last recorded purchase
+   *  was already counted, by an earlier import of their whole history. */
+  onlyIfNewer?: boolean;
+  /** For imports: an order a webhook already applied gets the invoice, and the
+   *  pieces if the record has none, that the webhook could not read. The money
+   *  is never counted twice. */
+  repair?: boolean;
+};
+
+const dayOf = (v: unknown) => {
+  const s = String(v ?? "").trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+  const t = Date.parse(s);
+  return isNaN(t) ? "" : new Date(t).toISOString().slice(0, 10);
+};
+
+/** Apply one order to the archive. Returns [status, body] for the caller to send back. */
+export async function applyOrder(o: Order, SUPABASE_URL: string, SERVICE_KEY: string, opts: ApplyOptions = {}): Promise<[number, Rec]> {
   const { orderId, email, name, phone, street, postcode, city, country, total, items, date } = o;
   const H = { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" };
+  const write = !opts.dryRun;
 
   // Idempotency: skip orders we've already applied (webhook retries, duplicate automations)
+  let processed = false;
   if (orderId) {
     const dup = await fetch(`${SUPABASE_URL}/rest/v1/processed_orders?id=eq.${encodeURIComponent(orderId)}&select=id`, { headers: H });
-    if (dup.ok && (await dup.json()).length) return [200, { status: "duplicate ignored", orderId }];
+    processed = dup.ok && (await dup.json()).length > 0;
+    if (processed && !opts.repair) return [200, { status: "duplicate ignored", orderId }];
   }
 
   // Find the collector: by this address, or by one of the other addresses on
@@ -65,6 +87,28 @@ export async function applyOrder(o: Order, SUPABASE_URL: string, SERVICE_KEY: st
       if (full.ok) { existing = (await full.json())[0]; matched = m.why; }
     } else if (m?.kind === "possible") possible = m.person as Rec;
   }
+
+  // Already applied by a webhook: only fill in what it could not read.
+  if (processed) {
+    if (!existing) return [200, { status: "already in the archive", orderId }];
+    const inv = await fetch(`${SUPABASE_URL}/rest/v1/invoices?order_ref=eq.${encodeURIComponent(orderId)}&select=id`, { headers: H });
+    const needInvoice = o.lines.length > 0 && inv.ok && (await inv.json()).length === 0;
+    const needPieces = items.length > 0 && !String(existing.pieces || "").trim();
+    if (!needInvoice && !needPieces) return [200, { status: "already in the archive", acc: existing.acc, orderId }];
+    if (write) {
+      if (needPieces) await fetch(`${SUPABASE_URL}/rest/v1/collectors?acc=eq.${encodeURIComponent(existing.acc)}`, {
+        method: "PATCH", headers: H, body: JSON.stringify({ pieces: tallyPieces("", items) }) });
+      if (needInvoice) await writeInvoice(o, SUPABASE_URL, H);
+    }
+    return [200, { status: write ? "repaired" : "would repair", acc: existing.acc, orderId,
+      filled: [needInvoice ? "invoice" : "", needPieces ? "pieces" : ""].filter(Boolean) }];
+  }
+  // An earlier import of their whole history already counted this one.
+  if (opts.onlyIfNewer && existing && dayOf(existing.last_buy) && dayOf(existing.last_buy) >= date)
+    return [200, { status: "already counted", acc: existing.acc, orderId, last_buy: dayOf(existing.last_buy) }];
+  if (!write) return [200, {
+    status: existing ? (matched ? "would match" : "would add") : (possible ? "would create, possibly " + possible.acc : "would create"),
+    acc: existing?.acc ?? null, name: existing?.name ?? name, email, total, orderId, ...(matched ? { why: matched } : {}) }];
 
   const money = (v: any) => { const n = parseFloat(String(v ?? "").replace(/[^0-9.\-]/g, "")); return isNaN(n) ? 0 : n; };
   let rec: Rec;
@@ -121,25 +165,29 @@ export async function applyOrder(o: Order, SUPABASE_URL: string, SERVICE_KEY: st
     });
   }
 
-  // Retail invoice, written silently. Tax and shipping ride as line items rather
-  // than percentages so the printed total can never disagree with what the shop
-  // actually charged. The unique index on order_ref makes retries harmless.
-  if (o.lines.length) {
-    try {
-      await fetch(`${SUPABASE_URL}/rest/v1/rpc/new_invoice`, {
-        method: "POST", headers: H,
-        body: JSON.stringify({ p: {
-          kind: "retail", issued_on: date, bill_to: name || email, bill_email: email,
-          bill_addr: [city, country].filter(Boolean).join(", "),
-          items: o.lines, discount_pct: 0, tax_pct: 0,
-          order_ref: orderId || null,
-        } }),
-      });
-    } catch (_e) { /* an invoice must never cost us the collector update */ }
-  }
+  if (o.lines.length) await writeInvoice(o, SUPABASE_URL, H);
 
   return [200, {
     status: existing ? (matched ? "matched" : "updated") : (possible ? "created, possibly " + possible.acc : "created"),
     acc: rec.acc ?? existing?.acc, email, total, items: items.length, orderId, ...(matched ? { why: matched } : {}),
   }];
+}
+
+// Retail invoice, written silently. Tax and shipping ride as line items rather
+// than percentages so the printed total can never disagree with what the shop
+// actually charged. The unique index on order_ref makes retries harmless.
+async function writeInvoice(o: Order, SUPABASE_URL: string, H: Record<string, string>) {
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/new_invoice`, {
+      method: "POST", headers: H,
+      body: JSON.stringify({ p: {
+        kind: "retail", issued_on: o.date, bill_to: o.name || o.email, bill_email: o.email,
+        bill_addr: [o.street, o.city, o.postcode, o.country].filter(Boolean).join(", "),
+        items: o.lines, discount_pct: 0, tax_pct: 0,
+        order_ref: o.orderId || null,
+      } }),
+    });
+    // Logged, never thrown: an invoice must never cost us the collector update.
+    if (!r.ok) console.error("invoice not written", o.orderId, r.status, await r.text());
+  } catch (e) { console.error("invoice not written", o.orderId, String(e)); }
 }
