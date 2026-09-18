@@ -1,6 +1,9 @@
 // Maçon Archive — calendar ticker proxy
 // Fetches the private Apple Calendar (iCloud) public-share .ics feed and returns
-// a window of events (each tagged with its date) as JSON, CORS open for the app.
+// a window of events (each tagged with its date) as JSON, to signed-in keepers.
+// Event titles name people ("Respond Rami"), so it is not public.
+//
+// DEPLOY WITH --no-verify-jwt: the keeper check below replaces the gateway's.
 //
 // Setup (Supabase Dashboard):
 //   1. Edge Functions → Deploy new function → name: calendar-ticker → paste this file.
@@ -8,12 +11,16 @@
 //        ICS_URL = https://p##-caldav.icloud.com/published/2/...   (your webcal:// URL with webcal:// swapped for https://)
 //   3. Function settings → disable "Enforce JWT verification" (the feed is read-only and contains only event titles/times).
 
+import { keeperEmail } from "../_shared/keepers.ts";
+
 Deno.serve(async (req) => {
   const cors = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "authorization, content-type",
   };
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  if (!(await keeperEmail(req)))
+    return new Response(JSON.stringify({ error: "keepers only" }), { status: 401, headers: { ...cors, "content-type": "application/json" } });
 
   const icsUrl = Deno.env.get("ICS_URL");
   if (!icsUrl) {

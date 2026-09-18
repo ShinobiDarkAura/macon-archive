@@ -1784,7 +1784,7 @@ async function boot(){
     sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
     const { data:{ session } } = await sb.auth.getSession();
     if(session) startSynced(); else showGate();
-    sb.auth.onAuthStateChange((_e, s)=>{ if(s) startSynced(); else showGate(); });
+    sb.auth.onAuthStateChange((_e, s)=>{ if(s){ startSynced(); if(typeof loadTicker==="function") loadTicker(); } else showGate(); });
   } else {
     data = local.load(); synced=false; setSync("local","Local mode"); renderAll();
   }
@@ -6173,7 +6173,10 @@ async function loadTicker(){
   try{ const c=JSON.parse(localStorage.getItem("macon_ticker")||"null");
        if(c && c.date===new Date().toLocaleDateString("en-CA")) renderTicker(c.events); }catch(e){}
   try{
-    const r=await fetch(CONFIG.TICKER_URL); if(!r.ok) return;
+    // The calendar names people, so it answers signed-in keepers only.
+    if(typeof sb==="undefined" || !sb) return;
+    const { data:{ session } }=await sb.auth.getSession(); if(!session) return;
+    const r=await fetch(CONFIG.TICKER_URL, { headers:{ Authorization:"Bearer "+session.access_token } }); if(!r.ok) return;
     const j=await r.json();
     localStorage.setItem("macon_ticker", JSON.stringify(j));
     renderTicker(j.events);

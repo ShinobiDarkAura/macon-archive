@@ -24,6 +24,7 @@
 // from the same path, so a wording fix lands in both. Only the timing rules below are still
 // duplicated, and those are flagged in README-followups.md.
 import { collectorDraft, enquiryDraft } from "../_shared/drafts.js";
+import { keeperEmail, sameSecret } from "../_shared/keepers.ts";
 
 // --- keep these in sync with index.html ---
 const LEAD_DEFAULT = 21;
@@ -92,7 +93,7 @@ const esc = (s: string) =>
 // which sends as the studio's own address rather than a third-party relay.
 const CORS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-digest-key",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
 };
 
@@ -109,6 +110,11 @@ function textResponse(body: string, status: number) {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
+  // The digest is the customer list with private notes. Only the studio's own
+  // weekly task (which sends DIGEST_KEY in x-digest-key) or a signed-in keeper
+  // may read it; the publishable key the site ships with proves nothing.
+  if (!sameSecret(req.headers.get("x-digest-key"), Deno.env.get("DIGEST_KEY") || "") && !(await keeperEmail(req)))
+    return textResponse(JSON.stringify({ error: "not allowed" }), 401);
 
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
   const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;

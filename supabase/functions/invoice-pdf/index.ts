@@ -6,10 +6,15 @@
 // no licence terms at all. The four TrueType files live in a private Storage
 // bucket that only the service role can read.
 //
-// POST { invoice } -> application/pdf
+// POST { invoice } -> application/pdf, for signed-in keepers only: it embeds
+// the licensed faces, so it is not a public PDF service.
+//
+// DEPLOY WITH --no-verify-jwt: the keeper check below replaces the gateway's,
+// which accepts the public publishable key.
 
 import { PDFDocument, rgb, degrees } from "https://esm.sh/pdf-lib@1.17.1";
 import fontkit from "https://esm.sh/@pdf-lib/fontkit@1.1.1";
+import { keeperEmail } from "../_shared/keepers.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -284,6 +289,8 @@ Deno.serve(async (req) => {
   };
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (req.method !== "POST") return new Response("POST an invoice", { status: 405, headers: cors });
+  if (!(await keeperEmail(req)))
+    return new Response(JSON.stringify({ error: "keepers only" }), { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
 
   try {
     const t0 = performance.now();
