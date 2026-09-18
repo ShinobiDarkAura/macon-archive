@@ -82,13 +82,13 @@
   .daybrief .db-rule{border:none;border-top:1px solid #DDDFDF;margin:8px 0 24px}
   .daybrief ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;width:100%}
   .daybrief li{position:relative;display:flex;gap:13px;align-items:baseline;width:100%;font-family:var(--sans);font-size:13px;color:var(--ink);line-height:1.35;cursor:pointer;padding-right:24px;transition:color .15s}
-  .daybrief li .db-check{position:absolute;right:0;top:50%;transform:translateY(-50%);opacity:0;color:#979D9C;transition:opacity .15s;pointer-events:none}
-  .daybrief li .db-go{position:absolute;right:24px;top:50%;transform:translateY(-50%);opacity:0;color:#979D9C;transition:opacity .15s,color .12s;cursor:pointer;border:none;background:transparent;padding:2px;line-height:0;display:flex}
+  .daybrief li .db-check{position:absolute;right:0;top:50%;transform:translateY(-50%);opacity:0;color:#686E6D;transition:opacity .15s;pointer-events:none}
+  .daybrief li .db-go{position:absolute;right:24px;top:50%;transform:translateY(-50%);opacity:0;color:#686E6D;transition:opacity .15s,color .12s;cursor:pointer;border:none;background:transparent;padding:2px;line-height:0;display:flex}
   .daybrief li:hover .db-go{opacity:1}
   .daybrief li .db-go:hover{color:var(--ink)}
   .daybrief li.has-go{padding-right:46px}
   .daybrief li:hover .db-check{opacity:1}
-  .daybrief li.done{color:#979D9C}
+  .daybrief li.done{color:#686E6D}
   .daybrief li.done .db-text{text-decoration:line-through;text-decoration-thickness:.75px}
   .daybrief li.done .db-time{color:#B2B7B6}
   .daybrief li.done .db-check{opacity:1;color:#4f7d57}
@@ -96,12 +96,12 @@
   .daybrief li .db-text{flex:1;min-width:0}
   .daybrief .db-kicker-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
   .daybrief .db-kicker-row .db-kicker{margin-bottom:0}
-  .daybrief .db-nav{flex:0 0 auto;border:none;background:transparent;color:#A8ADAC;font-size:15px;line-height:1;cursor:pointer;padding:2px 5px;border-radius:6px;font-family:var(--sans);transition:color .15s,background .15s}
+  .daybrief .db-nav{flex:0 0 auto;border:none;background:transparent;color:#686E6D;font-size:15px;line-height:1;cursor:pointer;padding:2px 5px;border-radius:6px;font-family:var(--sans);transition:color .15s,background .15s}
   .daybrief .db-nav:hover{color:var(--ink);background:rgba(0,0,0,.05)}
   .daybrief .db-main{width:100%}
-  .daybrief .db-clear{font-family:var(--serif-soul);font-style:italic;font-size:13px;color:#A8ADAC}
+  .daybrief .db-clear{font-family:var(--serif-soul);font-style:italic;font-size:13px;color:#686E6D}
   .daybrief .db-ahead{width:100%;margin-top:20px;padding-top:16px;border-top:1px solid #DDDFDF}
-  .daybrief .db-ahead-h{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#A8ADAC;margin-bottom:11px}
+  .daybrief .db-ahead-h{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#686E6D;margin-bottom:11px}
   .daybrief .db-ahead-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;width:100%}
   .daybrief .db-ahead-list li{position:relative;display:flex;gap:13px;align-items:baseline;width:100%;font-family:var(--sans);font-size:13px;color:var(--ink);line-height:1.35;cursor:default;padding-right:0}
 
@@ -113,7 +113,7 @@
   #viewToggle{position:fixed;top:16px;left:16px;z-index:70;display:flex;gap:2px;
     background:rgba(36,40,39,.06);border-radius:999px;padding:3px;backdrop-filter:blur(6px)}
   #viewToggle button{border:none;background:transparent;cursor:pointer;padding:7px 14px;border-radius:999px;
-    font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:400;color:#808584;transition:.15s}
+    font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:400;color:#686E6D;transition:.15s}
   #viewToggle button:hover{color:var(--ink)}
   #viewToggle button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(28,32,31,.14)}
   body.view-letters{padding-right:0}
@@ -130,16 +130,16 @@
     background:
       radial-gradient(ellipse at 50% 16%, rgba(255,255,255,.66), rgba(226,228,227,.28) 60%, rgba(188,192,192,.30) 100%),
       linear-gradient(178deg,#EFF1F0,#E6E7E7)}
-  .lv-empty{font-family:var(--serif-soul);font-style:italic;font-size:22px;color:#9AA09F;text-align:center;max-width:460px}
+  .lv-empty{font-family:var(--serif-soul);font-style:italic;font-size:22px;color:#686E6D;text-align:center;max-width:460px}
   /* The cleared desk: centred on the whole page, not the letter column. */
   .lv-done{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
   .lv-done-art{position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);width:min(1180px,92vw);
     opacity:.2;pointer-events:none;user-select:none}
   .lv-done-copy{position:relative;text-align:center;max-width:520px;padding:0 24px;margin-top:8vh}
-  .lv-done-date{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#A8ADAC;margin:0 0 16px}
+  .lv-done-date{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#686E6D;margin:0 0 16px}
   .lv-done-title{font-family:"TAY Rosemary",var(--serif-soul);font-weight:400;font-size:clamp(44px,6vw,78px);
     letter-spacing:.03em;line-height:1;color:rgba(32,36,35,.4);margin:0}
-  .lv-done-sub{font-family:"Public Sans",var(--sans);font-size:15px;line-height:1.6;color:#9AA09F;margin:20px auto 0;max-width:400px}
+  .lv-done-sub{font-family:"Public Sans",var(--sans);font-size:15px;line-height:1.6;color:#686E6D;margin:20px auto 0;max-width:400px}
   /* The morning envelope: a manila catalogue envelope holding the real letter.
      The sheet itself rises out of it, so the envelope is built as separate
      layers on the page (back, front, flap, seal) with the sheet lifted between
@@ -171,8 +171,8 @@
   .lv-env2-caption{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;white-space:nowrap}
   .lv-env2-veil p{margin:0;transition:opacity .3s ease}
   .lv-env2-veil.opening p{opacity:0}
-  .lv-env2-date{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#6E7473}
-  .lv-env2-hint{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9AA09F}
+  .lv-env2-date{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#686E6D}
+  .lv-env2-hint{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#686E6D}
   /* The envelope is photographed (generated through Codex, cut out with its
      shadow kept). The flap was cut away from the closed shot, so the body has a
      real triangular hole with the envelope's inside behind it, and the flap is
@@ -201,7 +201,7 @@
   .lv-env2-label::after{inset:11px;--c:8.3px;background:#F6F6F6}
   .lv-env2-label>*{position:relative;z-index:1}
   .lv-env2-chip{display:inline-block;font-family:"Public Sans",var(--sans);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
-    color:#6E7473;border:1px solid rgba(90,70,40,.34);border-radius:999px;padding:4px 11px;margin:0 0 14px;white-space:nowrap}
+    color:#686E6D;border:1px solid rgba(90,70,40,.34);border-radius:999px;padding:4px 11px;margin:0 0 14px;white-space:nowrap}
   .lv-env2-count{font-family:"Knickerbocker",var(--serif-soul);font-size:39px;line-height:1;text-transform:uppercase;color:#222625;margin:0 0 10px}
   .lv-env2-parts{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0}
   .lv-env2-pill{font-family:"Public Sans",var(--sans);font-size:10.5px;letter-spacing:.06em;line-height:1;color:#616766;
@@ -234,13 +234,13 @@
   .lv-mailbar button{font-family:var(--sans);font-size:11px;letter-spacing:.04em;cursor:pointer;
     border-radius:999px;padding:6px 14px;transition:.15s}
   .lv-mb-connect{color:#fff;background:var(--accent-grad);border:none;box-shadow:0 3px 10px rgba(189,84,64,.28)}
-  .lv-mb-reconnect{color:#9AA09F;background:rgba(255,255,255,.72);border:1px solid var(--rule)}
+  .lv-mb-reconnect{color:#686E6D;background:rgba(255,255,255,.72);border:1px solid var(--rule)}
   .lv-mb-reconnect:hover{color:var(--accent-deep);border-color:var(--accent)}
   .lv-topleft{position:fixed;top:56px;left:16px;z-index:70;display:flex;gap:8px;align-items:center}
   .lv-todo{width:30px;padding:0;display:flex;align-items:center;justify-content:center}
   .lv-todo svg{width:14px;height:14px;display:block;flex:0 0 auto}
   .lv-new{height:30px;padding:0 14px;border-radius:999px;
-    border:1px solid var(--rule);background:transparent;color:#7C8281;cursor:pointer;
+    border:1px solid var(--rule);background:transparent;color:#686E6D;cursor:pointer;
     font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
   .lv-new:hover{color:var(--ink);border-color:#9AA09F;background:transparent}
   .lv-badge{min-width:38px;height:38px;padding:0 10px;border-radius:999px;background:var(--accent-grad);color:#fff;
@@ -280,7 +280,7 @@
     width:400px;padding:38px 28px 38px;box-sizing:border-box;background:#FCF0A8}
   .lv-cnr{position:static;margin:0 0 38px;display:flex;justify-content:space-between;gap:12px;
     font-family:"Gabriele Dark","Gabriele Light",var(--serif-soul);font-size:12px;letter-spacing:.14em;
-    text-transform:uppercase;color:#8E9493;line-height:1.35;align-items:flex-start}
+    text-transform:uppercase;color:#686E6D;line-height:1.35;align-items:flex-start}
   .lv-cnr span{max-width:48%;display:block}
   .lv-cnr i{display:block;font-style:normal;line-height:1.5;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -297,7 +297,7 @@
   .lv-aftercare{padding-bottom:0}
   .lv-ctx-kind,.lv-ctx-pri{font-family:"Public Sans",var(--sans);font-size:11px;font-weight:700;
     letter-spacing:.12em;text-transform:uppercase;background:none;padding:0;border-radius:0}
-  .lv-ctx-kind{color:#7D8382}
+  .lv-ctx-kind{color:#686E6D}
   .lv-pri-high{color:#C0392B}
   .lv-pri-medium{color:#B8935F}
   .lv-pri-low{color:#6E9A5A}
@@ -309,22 +309,22 @@
   .lv-aftercare{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:8px}
   .lv-file-open,.lv-call{font-family:"Public Sans",var(--sans);font-size:11.5px;letter-spacing:.04em;
     background:transparent;border:1px solid var(--rule);border-radius:999px;padding:5px 12px;
-    color:#7C8281;cursor:pointer;text-decoration:none;text-transform:none}
+    color:#686E6D;cursor:pointer;text-decoration:none;text-transform:none}
   .lv-file-open:hover,.lv-call:hover{border-color:var(--accent);color:var(--accent-deep)}
   .lv-file{display:flex;flex-direction:column;gap:9px;margin-top:16px;padding-top:14px;border-top:1px solid var(--rule)}
   .lv-file label{display:flex;flex-direction:column;gap:3px;font-family:"Public Sans",var(--sans);
-    font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#9AA09F}
+    font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#686E6D}
   .lv-file textarea,.lv-file input{font-family:"Public Sans",var(--sans);font-size:13px;line-height:1.5;
     color:var(--ink);background:rgba(255,255,255,.6);border:1px solid var(--rule);border-radius:3px;
     padding:7px 9px;resize:vertical;text-transform:none;letter-spacing:0;width:100%;box-sizing:border-box}
   .lv-file textarea:focus,.lv-file input:focus{outline:none;border-color:var(--accent)}
   .lv-file-seg{display:flex;gap:6px}
   .lv-file-seg button{font-family:"Public Sans",var(--sans);font-size:11px;letter-spacing:.06em;
-    border:1px solid var(--rule);background:transparent;color:#7C8281;border-radius:999px;padding:4px 14px;cursor:pointer}
+    border:1px solid var(--rule);background:transparent;color:#686E6D;border-radius:999px;padding:4px 14px;cursor:pointer}
   .lv-file-seg button.on{background:var(--accent-grad);color:#fff;border-color:transparent}
   .lv-file-act{display:flex;gap:8px;justify-content:flex-end;margin-top:2px}
   .lv-file-act button{font-family:"Public Sans",var(--sans);font-size:12px;border-radius:6px;padding:6px 13px;cursor:pointer}
-  #lvFileCancel{background:transparent;border:none;color:#9AA09F}
+  #lvFileCancel{background:transparent;border:none;color:#686E6D}
   #lvFileSave{background:var(--accent-grad);color:#fff;border:none}
   .lv-reason{font-family:"Public Sans",var(--sans);font-size:16.5px;line-height:1.55;font-weight:700;color:#000;margin:16px 0 0}
   .lv-quote,.lv-quote-edit{display:block;width:100%;margin:0;padding:0;border:none;background:transparent;
@@ -348,17 +348,17 @@
      was falling back to a different, mismatched font for just those
      characters — the "two sizes of caps" was that fallback, not a CSS bug */
   .lv-to{font-family:"Public Sans",var(--sans);font-weight:400;font-size:10px;letter-spacing:.18em;
-    color:#8C9291;margin-bottom:0;text-transform:uppercase;
+    color:#686E6D;margin-bottom:0;text-transform:uppercase;
     display:flex;align-items:baseline;justify-content:flex-start;gap:16px}
   .lv-draft{position:absolute;left:0;right:0;top:0;z-index:5;background:#ECEDED;border-bottom:1px solid #E4D4B0;
     font-family:var(--sans);font-size:12px;color:#5D6362;padding:8px 14px;display:flex;align-items:center;gap:8px;
     text-transform:none;letter-spacing:0}
   .lv-draft button{font:inherit;background:transparent;border:none;color:var(--accent-deep);cursor:pointer;
     text-decoration:underline;text-underline-offset:2px;padding:0}
-  .lv-draft button[data-x]{color:#9AA09F;margin-left:auto}
+  .lv-draft button[data-x]{color:#686E6D;margin-left:auto}
   .lv-to-lab{color:#B7BBBA;flex:0 0 auto}
   .lv-to-l{display:flex;align-items:baseline;gap:7px;min-width:0;flex:1}
-  .lv-to-in{font:inherit;line-height:1.25;letter-spacing:inherit;text-transform:inherit;color:#8C9291;
+  .lv-to-in{font:inherit;line-height:1.25;letter-spacing:inherit;text-transform:inherit;color:#686E6D;
     background:transparent;border:none;padding:0 0 3px;
     height:auto;min-width:0;flex:0 1 auto;width:auto;max-width:100%}
   /* Chrome paints its own pale blue behind a field it has filled, and it
@@ -405,37 +405,45 @@
   }
   .lv-empty-skipped{margin-top:26px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
   .lv-empty-skipped span{font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.18em;
-    text-transform:uppercase;color:#A8ADAC;width:100%}
-  .lv-empty-skipped button{font-family:var(--sans);font-size:12.5px;color:#7C8281;background:transparent;
+    text-transform:uppercase;color:#686E6D;width:100%}
+  .lv-empty-skipped button{font-family:var(--sans);font-size:12.5px;color:#686E6D;background:transparent;
     border:1px solid var(--rule);border-radius:999px;padding:5px 12px;cursor:pointer}
   .lv-empty-skipped button:hover{border-color:var(--accent);color:var(--accent-deep)}
   .lv-tonerow{display:flex;justify-content:flex-end;gap:8px;flex:0 0 auto;padding-bottom:14px}
   .lv-tone[disabled]{opacity:.4;cursor:default}
   .lv-tone[data-busy]{color:var(--ink)}
-  .lv-tone{font-size:11.5px;letter-spacing:.1em;color:#9AA09F;
+  .lv-tone{font-size:11.5px;letter-spacing:.1em;color:#686E6D;
     background:transparent;border:1px solid var(--rule);border-radius:999px;padding:6.5px 14px;cursor:pointer}
   .lv-tone:hover{border-color:#9AA09F;color:var(--ink)}
   .lv-fromline{font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.18em;color:#B7BBBA;
     white-space:nowrap;text-transform:uppercase;margin:0 0 10px;line-height:1.25}
   .lv-fromline::before{content:none}
-  .lv-skip{font-family:var(--sans);font-size:13.75px;color:#9AA09F;background:transparent;border:none;cursor:pointer;
+  .lv-skip{font-family:var(--sans);font-size:13.75px;color:#686E6D;background:transparent;border:none;cursor:pointer;
     padding:8.8px 4.4px}
   .lv-skip:hover{color:var(--ink)}
+  #toast{position:fixed;left:50%;bottom:24px;z-index:900;transform:translate(-50%,16px);opacity:0;pointer-events:none;
+    display:flex;align-items:center;gap:16px;padding:11px 12px 11px 18px;border-radius:12px;
+    background:#1F2322;color:#F4F5F4;font-family:var(--sans);font-size:13.5px;box-shadow:0 6px 24px rgba(0,0,0,.18);
+    transition:opacity .2s ease,transform .2s ease}
+  #toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+  #toast button{font:inherit;font-weight:600;color:#fff;background:rgba(255,255,255,.12);border:none;border-radius:8px;
+    padding:7px 12px;min-height:32px;cursor:pointer}
+  #toast button:hover{background:rgba(255,255,255,.2)}
   .lv-close{width:34px;height:34px;border-radius:50%;border:1px solid var(--rule);background:transparent;
-    color:#9AA09F;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;
+    color:#686E6D;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;
     transition:background .15s,color .15s,border-color .15s}
   .lv-close svg{width:17px;height:17px}
   .lv-close:hover{background:#181B1B;border-color:#181B1B;color:#fff}
   .lv-close.done{background:#5C9A57;border-color:#5C9A57;color:#fff;animation:lvTick .45s cubic-bezier(.2,.8,.2,1)}
   @keyframes lvTick{0%{transform:scale(.7)}60%{transform:scale(1.14)}100%{transform:scale(1)}}
-  .lv-send{font-family:var(--sans);font-size:14.3px;letter-spacing:.02em;font-weight:500;color:#9AA09F;
+  .lv-send{font-family:var(--sans);font-size:14.3px;letter-spacing:.02em;font-weight:500;color:#686E6D;
     background:transparent;border:1px solid var(--rule);border-radius:8px;padding:11px 24px;cursor:pointer;
     display:inline-flex;align-items:center;transition:background .15s,color .15s,border-color .15s}
   .lv-send::after{content:"\2192";display:inline-block;max-width:0;opacity:0;margin-left:0;overflow:hidden;
     transform:translateX(-4px);transition:max-width .2s ease,opacity .2s ease,margin-left .2s ease,transform .2s ease}
   .lv-send:hover{background:#181B1B;border-color:#181B1B;color:#fff}
   .lv-send:hover::after{max-width:1.2em;opacity:1;margin-left:8px;transform:none}
-  .lv-send:disabled{opacity:.5;cursor:default;background:transparent;color:#9AA09F;border-color:var(--rule)}
+  .lv-send:disabled{opacity:.5;cursor:default;background:transparent;color:#686E6D;border-color:var(--rule)}
 
   /* Motion: the paper enters with a small settle rather than popping in, and
      Mark closed gets its own send-off — a checkmark, then the sheet slides
@@ -487,7 +495,7 @@
      the reading, planning and sending underneath is unchanged. */
   .lv-tag{grid-column:1;grid-row:1;justify-self:center;align-self:center;width:340px;min-height:420px;max-height:min(567px,84vh);overflow-y:auto;
     box-sizing:border-box;padding:22px 24px 26px;border-radius:16px;scrollbar-width:none;display:flex;flex-direction:column;
-    --ink-1:#202423;--ink-2:#535857;--ink-3:#8E9493;--rl:#DADDDC;
+    --ink-1:#202423;--ink-2:#535857;--ink-3:#686E6D;--rl:#DADDDC;
     background:rgba(255,255,255,.72);box-shadow:0 1px 1px rgba(16,19,19,.06)}
   .lv-tag::-webkit-scrollbar{display:none}
   .lv-tag:empty{display:none}
@@ -499,7 +507,7 @@
   .lv-tag .rd-ctx-note textarea{margin:0}
   .lv-reader{grid-column:3;grid-row:1;justify-self:center;align-self:center;width:340px;min-height:420px;max-height:min(567px,84vh);position:relative;
     overflow:hidden;box-sizing:border-box;padding:0;display:flex;flex-direction:column;border-radius:16px;
-    --ink-1:#202423;--ink-2:#535857;--ink-3:#8E9493;--rl:#DADDDC;
+    --ink-1:#202423;--ink-2:#535857;--ink-3:#686E6D;--rl:#DADDDC;
     background:rgba(255,255,255,.44);box-shadow:0 1px 1px rgba(16,19,19,.06)}
   .lv-reader{scrollbar-width:none;-ms-overflow-style:none}
   .lv-reader::-webkit-scrollbar{width:0;height:0;display:none}
@@ -660,7 +668,7 @@
   /* The name sits in the middle of the 30px that shows above the sheet (25px
      once the tab's 5px drop is taken off), so line-height carries the centring. */
   .lv-pile-tab{pointer-events:auto;position:relative;z-index:2;flex:0 1 auto;min-width:0;max-width:140px;margin-top:5px;padding:0 14px;border:none;border-radius:6px 6px 0 0;
-    display:flex;align-items:flex-start;justify-content:center;cursor:pointer;background:#E8EAEA;color:#7F8584;
+    display:flex;align-items:flex-start;justify-content:center;cursor:pointer;background:#E8EAEA;color:#686E6D;
     font-family:"Public Sans",var(--sans);font-size:13px;line-height:25px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;
     box-shadow:0 -1px 1px rgba(16,19,19,.12);transition:margin-top .15s,background .15s,color .15s}
   .lv-pile-tab:hover{margin-top:1px;line-height:29px;color:#414645}
@@ -672,7 +680,7 @@
   /* A dot per letter today, grouped by kind. */
   .lv-progress{position:absolute;z-index:4;display:flex;gap:20px;align-items:center;white-space:nowrap;transform:translateX(-50%)}
   .lv-prog-group{display:flex;align-items:center;gap:5px}
-  .lv-prog-group em{font-style:normal;font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#9AA09F;margin-right:4px}
+  .lv-prog-group em{font-style:normal;font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#686E6D;margin-right:4px}
   .lv-prog-dot{width:9px;height:9px;padding:0;border-radius:50%;border:1.5px solid #A8ADAC;background:transparent;cursor:pointer}
   .lv-prog-dot.done{background:#7F8584;border-color:#7F8584;cursor:default}
   .lv-prog-dot.on{border-color:#202423;box-shadow:0 0 0 2px rgba(32,36,35,.12)}
@@ -685,13 +693,13 @@
     padding:16px 18px;font-family:"Public Sans",var(--sans);font-size:16px;color:#202423}
   .lv-pal-in:focus{outline:none}
   .lv-pal-list{max-height:52vh;overflow-y:auto;padding:6px 0}
-  .lv-pal-head{margin:10px 18px 4px;font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#9AA09F}
+  .lv-pal-head{margin:10px 18px 4px;font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#686E6D}
   .lv-pal-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;width:100%;padding:9px 18px;border:none;background:transparent;
     cursor:pointer;text-align:left;font-family:"Public Sans",var(--sans);font-size:14.5px;color:#202423}
-  .lv-pal-row em{font-style:normal;font-size:12px;color:#8E9493}
+  .lv-pal-row em{font-style:normal;font-size:12px;color:#686E6D}
   .lv-pal-row.on{background:#EBEDEC}
-  .lv-pal-empty{margin:18px;font-family:"Public Sans",var(--sans);font-size:14px;color:#8E9493}
-  .lv-pal-foot{margin:0;padding:10px 18px;border-top:1px solid #DADDDC;font-family:"Public Sans",var(--sans);font-size:11px;color:#9AA09F}
+  .lv-pal-empty{margin:18px;font-family:"Public Sans",var(--sans);font-size:14px;color:#686E6D}
+  .lv-pal-foot{margin:0;padding:10px 18px;border-top:1px solid #DADDDC;font-family:"Public Sans",var(--sans);font-size:11px;color:#686E6D}
   .rd-fold{display:flex;align-items:center;gap:6px;margin:0 0 10px;padding:4px 0;border:none;background:transparent;cursor:pointer;
     font-family:var(--sans);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
   .rd-fold svg{transition:transform .2s} .rd-fold.open svg{transform:rotate(180deg)}
@@ -774,23 +782,33 @@
   /* chevrons sit just off the paper's own edges, in its grid cell */
   /* Straddling the sheet's own edges: half on the paper, half off it. */
   .lv-chev{position:absolute;z-index:8;width:38px;height:38px;padding:0;
-    border:1px solid rgba(120,102,70,.22);border-radius:50%;background:#FEFEFE;color:#7F8584;cursor:pointer;
+    border:1px solid rgba(120,102,70,.22);border-radius:50%;background:#FEFEFE;color:#686E6D;cursor:pointer;
     display:flex;align-items:center;justify-content:center;
     box-shadow:0 2px 7px rgba(21,24,24,.18);transition:color .15s,opacity .15s,box-shadow .15s}
   .lv-chev svg{width:17px;height:17px;display:block}
   .lv-chev:hover{color:var(--ink);box-shadow:0 3px 10px rgba(21,24,24,.24)}
   .lv-chev:disabled{opacity:.25;cursor:default;box-shadow:none}
 
+  /* On a tablet the desk stacks rather than losing its sides: the letter on
+     top, the person and their mail beneath it, and the page scrolls. The tabs
+     stay, since without a keyboard they are the way from letter to letter. */
   @media(max-width:1100px){ .lv-paper{padding:36px 28px 0} .lv-subj{font-size:24px} .lv-body{font-size:14px}
-    .lv-scene{grid-template-columns:1fr;justify-items:center} .lv-label{display:none} .lv-ghost{display:none} .lv-chev{display:none} .lv-reader{display:none} .lv-tag{display:none}
-    .lv-pile-tabs,.lv-progress{display:none}
-    .lv-paper,.lv-ghost{height:92%}
-    body.view-letters .letters-view{padding-right:40px} }
+    html:has(body.view-letters),body.view-letters{height:auto;overflow-y:auto}
+    body.view-letters .letters-view{height:auto;min-height:100vh;overflow:visible;padding:96px 20px 48px}
+    .lv-scene{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto;column-gap:20px;row-gap:28px;align-items:start;flex:none}
+    .lv-paper{grid-column:1 / -1;grid-row:1;justify-self:center;align-self:start;width:min(600px,100%);height:auto;aspect-ratio:auto;min-height:62vh;margin-bottom:0}
+    .lv-ghost,.lv-label,.lv-chev{display:none}
+    .lv-tag{grid-column:1;grid-row:2;justify-self:end;align-self:start;width:100%;max-width:400px}
+    .lv-reader{grid-column:2;grid-row:2;justify-self:start;align-self:start;width:100%;max-width:400px} }
+  @media(max-width:760px){
+    .lv-scene{grid-template-columns:minmax(0,1fr)}
+    .lv-tag{grid-column:1;grid-row:2;justify-self:center}
+    .lv-reader{grid-column:1;grid-row:3;justify-self:center} }
 
   /* ===== Studio Line — keeper chat ===== */
   .diag-fab{display:none} body.diag .diag-fab{display:block}
   .diag-fab{position:fixed;right:24px;bottom:24px;width:32px;height:32px;border-radius:50%;border:1px solid var(--rule);
-    background:rgba(255,255,255,.7);color:#9AA09F;font-family:var(--sans);font-size:14px;cursor:pointer;z-index:60}
+    background:rgba(255,255,255,.7);color:#686E6D;font-family:var(--sans);font-size:14px;cursor:pointer;z-index:60}
   .diag-fab:hover{color:var(--ink)}
   .chat-fab{position:fixed;left:24px;bottom:24px;width:45px;height:45px;border-radius:50%;border:none;cursor:pointer;z-index:60;
     background:var(--accent-grad);
@@ -822,10 +840,10 @@
   .chat-head .ch-av{width:34px;height:34px;border-radius:50%;flex:0 0 auto;background:#BEC2C1 var(--av-other) center/cover no-repeat}
   .chat-head .ch-meta{flex:1 1 auto;min-width:0}
   .chat-head .ch-name{font-family:"Louize",Georgia,serif;font-weight:400;font-size:21px;color:var(--ink);line-height:1.1}
-  .chat-head .ch-status{display:flex;align-items:center;gap:6px;font-family:var(--sans);font-size:11px;letter-spacing:.01em;color:#8C9291;margin-top:1px}
+  .chat-head .ch-status{display:flex;align-items:center;gap:6px;font-family:var(--sans);font-size:11px;letter-spacing:.01em;color:#686E6D;margin-top:1px}
   .chat-head .ch-dot{width:7px;height:7px;border-radius:50%;background:#B7BBBB;transition:background .25s,box-shadow .25s}
   .chat-head.online .ch-dot{background:#5b9e6a;box-shadow:0 0 0 3px rgba(91,158,106,.2)}
-  .chat-head .ch-close{flex:0 0 auto;border:none;background:transparent;color:#A8ADAC;font-size:20px;line-height:1;cursor:pointer;padding:4px 6px;border-radius:8px;transition:color .15s,background .15s}
+  .chat-head .ch-close{flex:0 0 auto;border:none;background:transparent;color:#686E6D;font-size:20px;line-height:1;cursor:pointer;padding:4px 6px;border-radius:8px;transition:color .15s,background .15s}
   .chat-head .ch-close:hover{color:var(--ink);background:rgba(0,0,0,.05)}
 
   .chat-thread{flex:1 1 auto;overflow-y:auto;padding:16px 16px 6px;display:flex;flex-direction:column;gap:8px;
@@ -833,7 +851,7 @@
   .chat-thread::-webkit-scrollbar{width:7px}
   .chat-thread::-webkit-scrollbar-thumb{background:rgba(36,40,39,.16);border-radius:99px}
 
-  .chat-day{align-self:center;display:flex;align-items:center;gap:10px;margin:8px 0 4px;color:#9BA1A0;font-family:var(--sans);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase}
+  .chat-day{align-self:center;display:flex;align-items:center;gap:10px;margin:8px 0 4px;color:#686E6D;font-family:var(--sans);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase}
   .chat-day::before,.chat-day::after{content:"";display:block;width:34px;height:1px;background:rgba(36,40,39,.14)}
 
   .msg{max-width:86%;display:flex;align-items:flex-end;gap:7px;animation:msgIn .22s ease}
@@ -846,7 +864,7 @@
   .msg.me{align-self:flex-end;flex-direction:row-reverse}
   .msg.me .msg-col{align-items:flex-end}
   .msg .bub{padding:8px 12px;border-radius:15px;font-family:var(--sans);font-size:13.5px;line-height:1.4;word-wrap:break-word;white-space:pre-wrap}
-  .msg .stamp{font-family:var(--sans);font-size:10px;letter-spacing:.01em;color:#A6ABAA;padding:0 4px}
+  .msg .stamp{font-family:var(--sans);font-size:10px;letter-spacing:.01em;color:#686E6D;padding:0 4px}
   .msg.them .bub{background:#fff;color:var(--ink);border:1px solid rgba(36,40,39,.07);border-bottom-left-radius:5px;box-shadow:0 2px 7px rgba(28,32,31,.06)}
   .msg.me .bub{background:var(--accent-grad);color:#F1F2F1;border-bottom-right-radius:5px;box-shadow:0 3px 9px rgba(111,82,53,.28)}
   .msg.me .stamp{color:#ACB1B0}
@@ -854,7 +872,7 @@
   .msg.me.is-seen .seen{display:block}
   @keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-  .chat-typing{display:none;align-items:center;gap:7px;padding:2px 16px 6px;font-family:var(--sans);font-size:11.5px;color:#8C9291}
+  .chat-typing{display:none;align-items:center;gap:7px;padding:2px 16px 6px;font-family:var(--sans);font-size:11.5px;color:#686E6D}
   body.chat-typing-on .chat-typing{display:flex}
   .chat-typing .tdots{display:inline-flex;gap:3px}
   .chat-typing .tdots i{width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:.5;animation:tbounce 1.1s infinite}
@@ -868,8 +886,8 @@
   .chat-inputwrap{position:relative;flex:1 1 auto;display:flex}
   .chat-compose textarea{flex:1 1 auto;box-sizing:border-box;resize:none;border:none;border-radius:13px;background:#F7F7F7;color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.35;min-height:42px;height:42px;padding:11px 64px 6px 12px;max-height:100px;outline:none}
   .chat-compose textarea:focus{outline:none;box-shadow:none}
-  .chat-compose textarea::placeholder{color:#A6ABAA;font-style:normal}
-  .chat-send,.chat-emoji{position:absolute;bottom:13px;width:16px;height:16px;padding:0;border:none;background:transparent;cursor:pointer;color:#919695;display:flex;align-items:center;justify-content:center;transition:transform .15s,opacity .15s,color .15s}
+  .chat-compose textarea::placeholder{color:#686E6D;font-style:normal}
+  .chat-send,.chat-emoji{position:absolute;bottom:13px;width:16px;height:16px;padding:0;border:none;background:transparent;cursor:pointer;color:#686E6D;display:flex;align-items:center;justify-content:center;transition:transform .15s,opacity .15s,color .15s}
   .chat-send{right:12px}
   .chat-emoji{right:36px}
   .chat-send:hover,.chat-emoji:hover{transform:scale(1.1);color:var(--bronze-deep)}
@@ -890,7 +908,7 @@
   .chat-toast .ct-body{flex:1;min-width:0}
   .chat-toast .ct-name{font-family:"Louize",Georgia,serif;font-size:15px;color:var(--ink);line-height:1.1;margin-bottom:3px}
   .chat-toast .ct-msg{font-family:var(--sans);font-size:13px;line-height:1.4;color:#646A69;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .chat-toast .ct-x{position:absolute;top:8px;right:9px;width:22px;height:22px;border:none;background:transparent;color:#A6ABAA;cursor:pointer;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:background .15s,color .15s}
+  .chat-toast .ct-x{position:absolute;top:8px;right:9px;width:22px;height:22px;border:none;background:transparent;color:#686E6D;cursor:pointer;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:background .15s,color .15s}
   .chat-toast .ct-x:hover{background:rgba(36,40,39,.06);color:var(--ink)}
   .daybrief .db-ahead-list .db-text{flex:1;min-width:0}
   .daybrief .db-x{position:absolute;top:10px;right:12px;width:28px;height:28px;border:none;background:transparent;color:var(--slate);
@@ -943,7 +961,7 @@
   .stat::after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:86%;height:1px;background:rgba(205,208,208,.55)}
   .stat .num{font-family:"Louize",Georgia,serif;font-size:32px;font-weight:400;color:#2E3232;line-height:1;transition:color .6s ease}
   .stat .num.changed{color:#000}
-  .stat .lbl{font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.12em;color:#8D9392;margin-top:5px;white-space:nowrap;line-height:1.2;max-width:none}
+  .stat .lbl{font-variant-caps:all-small-caps;text-transform:none;font-size:10pt;font-weight:600;letter-spacing:.12em;color:#686E6D;margin-top:5px;white-space:nowrap;line-height:1.2;max-width:none}
   @media(max-width:820px){
     /* dash keeps its fixed-width centered grid + dividers at every screen width */
   }
@@ -961,10 +979,10 @@
   .progress-card .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width 1s cubic-bezier(.2,.8,.2,1);position:relative;z-index:1}
   .progress-card .bar .bar-prospect{position:absolute;inset:0 auto 0 0;background:rgba(198,92,70,.42);z-index:0;transition:width 1s cubic-bezier(.2,.8,.2,1)}
   .pc-funnel{display:flex;align-items:center;justify-content:flex-start;gap:7px;margin-top:9px;
-    font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#A0A5A4;white-space:nowrap}
+    font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#686E6D;white-space:nowrap}
   .pc-funnel i{font-style:normal;font-weight:700;color:#ADB2B1}
   
-    .copyright{position:fixed;left:40px;width:calc(30vw - 156px);bottom:49px;z-index:31;text-align:center;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#A0A5A4;transition:width .28s ease}
+    .copyright{position:fixed;left:40px;width:calc(30vw - 156px);bottom:49px;z-index:31;text-align:center;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#686E6D;transition:width .28s ease}
   body.drawer-collapsed .progress-card{width:calc(21vw - 28px);left:calc(4.5vw + 39.3px)}
   body.drawer-collapsed .copyright{width:calc(30vw - 29.4px)}
   @media(max-width:820px){.progress-card{left:50%;transform:translateX(-50%);width:min(685px,calc(100% - 40px))}.copyright{display:none}}
@@ -989,7 +1007,7 @@
   textarea{padding:9px 12px}
   input:focus,select:focus,textarea:focus{border-color:var(--accent)}
   input.search{width:100%;border:1px solid #E1E3E2;border-radius:8px}
-  input.search::placeholder{font-family:var(--sans);font-style:normal;font-size:15px;color:#A1A6A5}
+  input.search::placeholder{font-family:var(--sans);font-style:normal;font-size:15px;color:#686E6D}
   .filters{display:flex;gap:6px}
   .chip{height:40px;display:inline-flex;align-items:center;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:0 16px;border:1px solid var(--rule);
         background:transparent;color:var(--slate);cursor:pointer;transition:.15s}
@@ -1062,7 +1080,7 @@
   .avatar img{width:100%;height:100%;object-fit:cover;display:block;filter:none;opacity:1}
   .entry:hover .avatar img{filter:none;opacity:1}
   .entry:hover .who .nm{color:var(--ink)}
-  .entry:hover .who .sub{color:#7E8483}
+  .entry:hover .who .sub{color:#686E6D}
   .entry:hover .cell{color:var(--ink)}
   .entry:hover .cell.loc,.entry:hover .cell.pieces{color:#666C6B}
   .ledger.compact .avatar{width:32px;height:32px;font-size:12px}
@@ -1072,9 +1090,9 @@
   .entry .who .sub{font-size:12px;color:#B3B8B7;margin-top:-2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ledger.compact .who .sub{margin-top:-4px}
   .entry .cell{font-size:13px;color:var(--slate);font-style:normal;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .entry .cell.loc{font-family:var(--sans);font-size:12px;color:#9EA4A3;font-weight:400}
-  .entry .cell.pieces{font-family:var(--sans);font-size:12px;color:#9EA4A3;font-weight:400}
-  .entry .cell.purchased{text-align:right;justify-self:end;font-family:var(--sans);font-size:12px;color:#9EA4A3;font-weight:400}
+  .entry .cell.loc{font-family:var(--sans);font-size:12px;color:#686E6D;font-weight:400}
+  .entry .cell.pieces{font-family:var(--sans);font-size:12px;color:#686E6D;font-weight:400}
+  .entry .cell.purchased{text-align:right;justify-self:end;font-family:var(--sans);font-size:12px;color:#686E6D;font-weight:400}
   .entry .right{justify-self:end;text-align:right}
   .entry .right.ltv{font-family:var(--sans);font-size:12px;color:#000;font-weight:500;justify-self:end;text-align:right}
   .entry .fu{justify-self:center;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:none;
@@ -1130,7 +1148,7 @@
   /* ---------- Ledger / Provenance tabs ---------- */
   .tabsbar{text-transform:none}
   .toolbar .tabs{display:inline-flex;height:40px;flex:0 0 auto;border:1px solid #E1E3E2;border-radius:8px;overflow:hidden;background:transparent}
-  .toolbar .tabs button{width:40px;height:100%;display:flex;align-items:center;justify-content:center;border:none;border-right:1px solid #E1E3E2;background:transparent;color:#999F9E;cursor:pointer;padding:0;transition:color .15s,background .15s}
+  .toolbar .tabs button{width:40px;height:100%;display:flex;align-items:center;justify-content:center;border:none;border-right:1px solid #E1E3E2;background:transparent;color:#686E6D;cursor:pointer;padding:0;transition:color .15s,background .15s}
   .toolbar .tabs button:last-of-type{border-right:none}
   .toolbar .tabs button:hover{color:var(--ink)}
   .toolbar .tabs button.on{color:var(--accent);background:var(--row-alt)}
@@ -1163,7 +1181,7 @@
   .story-txt h3{font-family:"Louize",Georgia,serif;font-weight:400;font-size:42px;line-height:1.02;margin:0;color:var(--ink)}
   .story-txt .quote{font-family:var(--serif-soul);font-style:italic;font-size:21px;line-height:1.5;color:var(--ink);
     margin:26px 0 0;padding-left:18px;border-left:2px solid var(--seal)}
-  .story-txt .meta{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#9DA3A2;margin-top:26px}
+  .story-txt .meta{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#686E6D;margin-top:26px}
   .prov-empty{max-width:520px;margin:90px auto;text-align:center;font-family:var(--serif-soul);font-style:italic;
     font-size:19px;color:var(--slate);line-height:1.6}
   @media(max-width:860px){
@@ -1183,7 +1201,7 @@
   /* bottom fade so cards dissolve into the drawer bg */
   .drawer::after{content:"";position:absolute;left:0;right:0;bottom:0;height:96px;pointer-events:none;z-index:3;background:linear-gradient(to top,var(--row-alt) 12%,transparent)}
   /* floating ghost collapse button, top-right of the drawer */
-  .drawer-x{position:absolute;top:14px;right:14px;width:30px;height:30px;border:none;border-radius:50%;background:transparent;color:#919695;cursor:pointer;font-size:19px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:6;transition:background .15s,color .15s}
+  .drawer-x{position:absolute;top:14px;right:14px;width:30px;height:30px;border:none;border-radius:50%;background:transparent;color:#686E6D;cursor:pointer;font-size:19px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:6;transition:background .15s,color .15s}
   .drawer-x:hover{background:rgba(36,40,39,.06);color:var(--ink)}
   .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:22px 24px 16px;position:relative;z-index:2;background:transparent;box-shadow:0 10px 16px -10px rgba(35,39,38,.28)}
   .drawer-title{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#636968}
@@ -1191,7 +1209,7 @@
   .dt-badge{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:0;color:#fff;background:var(--accent-grad);border-radius:999px;
         min-width:24px;height:22px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 9px rgba(217,106,44,.5)}
   .dt-badge.zero{display:none}
-  .drawer-close{width:30px;height:30px;border:none;background:transparent;color:#919695;cursor:pointer;font-size:18px;transition:.15s}
+  .drawer-close{width:30px;height:30px;border:none;background:transparent;color:#686E6D;cursor:pointer;font-size:18px;transition:.15s}
   .drawer-close:hover{color:var(--ink)}
   .drawer-body{flex:1;overflow:auto;padding:24px 24px 124px;display:flex;flex-direction:column;gap:24px}
   /* ---------- Enquiries tab ---------- */
@@ -1199,7 +1217,7 @@
   .enq-top{display:flex;align-items:center;gap:10px;margin:6px 0 18px}
   .enq-seg{display:flex;gap:2px;background:rgba(36,40,39,.05);border-radius:9px;padding:3px}
   .enq-seg button{border:none;background:transparent;cursor:pointer;padding:7px 14px;border-radius:6px;
-    font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#808584;transition:.15s}
+    font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#686E6D;transition:.15s}
   .enq-seg button:hover{color:var(--ink)}
   .enq-seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(28,32,31,.10)}
   .enq-seg .n{opacity:.5;margin-left:5px}
@@ -1210,7 +1228,7 @@
     background:#fff;border:1px solid rgba(36,40,39,.08);border-radius:12px;padding:14px 16px;transition:.15s}
   .enq-row:hover{box-shadow:0 4px 16px rgba(28,32,31,.08)}
   .enq-who{font-family:var(--sans);font-size:15px;color:var(--ink)}
-  .enq-sub{font-family:var(--mono);font-size:11px;color:#919695;margin-top:3px}
+  .enq-sub{font-family:var(--mono);font-size:11px;color:#686E6D;margin-top:3px}
   .enq-note{font-family:var(--sans);font-size:13px;line-height:1.5;color:var(--slate);
     background:transparent;border:1px solid transparent;border-radius:7px;padding:7px 8px;resize:vertical;
     min-height:56px;width:100%}
@@ -1218,41 +1236,41 @@
   .enq-note:focus{background:#FCFCFC;border-color:rgba(36,40,39,.34);outline:none}
   .enq-stat{display:flex;flex-direction:column;gap:3px}
   .enq-stat button{border:1px solid transparent;background:rgba(36,40,39,.04);cursor:pointer;padding:6px;border-radius:6px;
-    font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#808584;transition:.15s}
+    font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#686E6D;transition:.15s}
   .enq-stat button:hover{color:var(--ink)}
   .enq-stat button.on{background:var(--notes,#C04722);border-color:transparent;color:#fff}
-  .enq-when{font-family:var(--mono);font-size:10.5px;color:#919695;line-height:1.7}
+  .enq-when{font-family:var(--mono);font-size:10.5px;color:#686E6D;line-height:1.7}
   .enq-when b{display:block;color:var(--ink);font-weight:400}
   .enq-act{display:flex;gap:6px;margin-top:8px}
   .enq-act button{border:1px solid var(--rule);background:transparent;border-radius:6px;padding:5px 9px;cursor:pointer;
     font-family:var(--sans);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
   .enq-act button:hover{background:#000;border-color:#000;color:var(--paper)}
-  .enq-empty{color:#919695;font-family:var(--serif-soul);font-style:italic;font-size:16px;padding:44px 0;text-align:center}
+  .enq-empty{color:#686E6D;font-family:var(--serif-soul);font-style:italic;font-size:16px;padding:44px 0;text-align:center}
   @media(max-width:900px){ .enq-row{grid-template-columns:1fr;gap:10px} }
   .dfilter{display:flex;gap:2px;background:rgba(36,40,39,.05);border-radius:8px;padding:2px;margin-bottom:4px}
   .dfilter button{flex:1;border:none;background:transparent;cursor:pointer;padding:6px 4px;border-radius:6px;
-    font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#808584;transition:.15s}
+    font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#686E6D;transition:.15s}
   .dfilter button:hover{color:var(--ink)}
   .dfilter button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(28,32,31,.10)}
   .dfilter .n{opacity:.55;margin-left:4px}
   .dadd{border:1px dashed rgba(36,40,39,.22);background:transparent;border-radius:8px;padding:8px;cursor:pointer;
-    font-family:var(--sans);font-size:12px;color:#808584;width:100%}
+    font-family:var(--sans);font-size:12px;color:#686E6D;width:100%}
   .dadd:hover{color:var(--ink);border-color:rgba(36,40,39,.4)}
   .dstatus{display:flex;gap:2px;background:rgba(36,40,39,.05);border-radius:7px;padding:2px;margin:-6px 0 16px}
   .dstatus button{flex:1;border:none;background:transparent;cursor:pointer;padding:6px;border-radius:5px;
-    font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#808584}
+    font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#686E6D}
   .dstatus button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(28,32,31,.10)}
   .dnote-edit{width:100%;font-family:var(--sans);font-size:13px;line-height:1.45;color:var(--slate);
     background:transparent;border:1px solid transparent;border-radius:7px;padding:8px;resize:vertical;min-height:64px}
   .dnote-edit:hover{border-color:rgba(36,40,39,.14)}
   .dnote-edit:focus{background:#fff;border-color:rgba(36,40,39,.34);outline:none}
-  .drawer-empty{color:#919695;font-family:var(--serif-soul);font-style:italic;font-size:15px;text-align:center;margin-top:30px}
+  .drawer-empty{color:#686E6D;font-family:var(--serif-soul);font-style:italic;font-size:15px;text-align:center;margin-top:30px}
   .fgroup{display:flex;flex-direction:column;gap:10px}
   .fgroup-top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:10px;padding-top:6px}
   .fgroup-titles{min-width:0}
   .fgroup-over{font-family:var(--sans);font-variant-caps:all-small-caps;text-transform:none;font-size:13.5px;font-weight:600;letter-spacing:.16em;color:#B1B5B4;margin-bottom:13px}
   .fgroup-pri{font-family:"Louize",Georgia,serif;font-size:22pt;font-weight:400;letter-spacing:0;color:#000;line-height:1.0}
-  .fgroup-mark{flex:0 0 auto;display:inline-flex;align-items:center;border:1px solid rgba(36,40,39,.12);background:none;padding:6px 10px;border-radius:6px;font-family:var(--sans);text-transform:none;font-size:12px;font-weight:400;letter-spacing:normal;color:#8F9594;cursor:pointer;transition:color .15s,border-color .15s;white-space:nowrap;line-height:1}
+  .fgroup-mark{flex:0 0 auto;display:inline-flex;align-items:center;border:1px solid rgba(36,40,39,.12);background:none;padding:6px 10px;border-radius:6px;font-family:var(--sans);text-transform:none;font-size:12px;font-weight:400;letter-spacing:normal;color:#686E6D;cursor:pointer;transition:color .15s,border-color .15s;white-space:nowrap;line-height:1}
   .fgroup-mark:hover{color:#000;border-color:#000}
   .fcard{display:flex;flex-direction:row;gap:0;flex:0 0 auto;border:1px solid rgba(36,40,39,.06);border-radius:12px;background:#fff;box-shadow:0 4px 14px rgba(28,32,31,.10);position:relative;cursor:pointer;
     transition:box-shadow .18s ease,transform .2s ease}
@@ -1268,18 +1286,18 @@
   .fcard .fav-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .fcard .ftitle{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
   .fcard .fn{align-self:flex-start;display:inline-flex;align-items:center;padding:3px 9px 4px;border-radius:999px;background:#E7E9E8;
-    font-family:var(--sans);font-variant-caps:all-small-caps;font-size:8.5pt;font-weight:500;letter-spacing:.08em;line-height:1.1;color:#858B8A;
+    font-family:var(--sans);font-variant-caps:all-small-caps;font-size:8.5pt;font-weight:500;letter-spacing:.08em;line-height:1.1;color:#686E6D;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
   .fn.t-vip{background:#EAEBEB;color:#9a7838}
   .fn.t-reconnect{background:#dde9f5;color:#4a6d92}
   .fn.t-repeat{background:#e1efd6;color:#5d7e47}
   .fn.t-gift{background:#E6E8E8;color:#a8624a}
   .fn.t-value{background:#E7E8E8;color:#8a7338}
-  .fn.t-first{background:#E7E9E8;color:#717776}
+  .fn.t-first{background:#E7E9E8;color:#686E6D}
   .fn.t-custom{background:#DFE2E1;color:#a2543a}
-  .fcard .fsum{font-family:var(--sans);font-size:13px;line-height:1.45;color:#919796;margin-top:2px}
-  .fcard .fmeta{font-family:var(--sans);font-size:11.5px;letter-spacing:.02em;color:#9DA2A2;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .fcard .fmeta .fmeta-dim{color:#9DA2A2}
+  .fcard .fsum{font-family:var(--sans);font-size:13px;line-height:1.45;color:#686E6D;margin-top:2px}
+  .fcard .fmeta{font-family:var(--sans);font-size:11.5px;letter-spacing:.02em;color:#686E6D;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fcard .fmeta .fmeta-dim{color:#686E6D}
   .fcard .ftype{font-family:"Louize",Georgia,serif;font-size:20pt;line-height:1.15;color:#242827;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .daychip{position:absolute;top:14px;right:43px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;padding:0;color:#fff;border:none;font-family:var(--sans);font-size:12px;font-weight:700;line-height:1;z-index:3;background:#3a6ea5}
   .fcard.important{background:#fff}
@@ -1288,7 +1306,7 @@
   .fdraft{color:var(--notes,#C04722);font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase}
   .fimp{position:absolute;top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;background:var(--accent-grad);z-index:6;box-shadow:0 0 0 2.5px #fff,0 1px 4px rgba(198,92,70,.45)}
   .donechip{position:absolute;top:14px;right:16px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;
-    border:none;background:rgba(36,40,39,.06);color:#8F9594;line-height:1;cursor:pointer;z-index:3;
+    border:none;background:rgba(36,40,39,.06);color:#686E6D;line-height:1;cursor:pointer;z-index:3;
     transition:background .18s ease,color .18s ease}
   .donechip svg{width:19px;height:19px}
   .donechip:hover{background:#4f7d57;color:#fff}
@@ -1346,7 +1364,7 @@
   .dwho-ig:hover{color:var(--ink)}
   .dwho-note{font-family:var(--sans);font-size:13px;line-height:1.45;color:var(--slate);margin:8px 0 0;white-space:pre-wrap}
   .ig-wrap{display:flex;align-items:center;position:relative}
-  .ig-wrap .ig-at{position:absolute;left:13px;color:#9EA4A3;font-size:14px;pointer-events:none}
+  .ig-wrap .ig-at{position:absolute;left:13px;color:#686E6D;font-size:14px;pointer-events:none}
   .ig-wrap input{padding-left:25px;padding-right:34px;width:100%}
   .ig-wrap .ig-open{position:absolute;right:12px;color:#3a7bd5;display:flex;line-height:0;text-decoration:none}
   .ig-wrap .ig-open:hover{color:#2c63ad}
@@ -1365,7 +1383,7 @@
   .ivs-seg .seg-thumb{position:absolute;top:3px;bottom:3px;left:0;border-radius:999px;background:var(--notes,#C04722);
     transition:transform .26s cubic-bezier(.2,.8,.2,1),width .26s cubic-bezier(.2,.8,.2,1)}
   .ivs-seg button{position:relative;z-index:1;border:none;background:transparent;cursor:pointer;padding:0 18px;height:30px;
-    font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#717776;transition:color .2s}
+    font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#686E6D;transition:color .2s}
   .ivs-seg button.on{color:#fff}
   /* the archive is summoned, not permanent */
   .ivs-body{grid-template-columns:410px minmax(0,1fr) 0}
@@ -1376,7 +1394,7 @@
   /* where the foot note sits on the sheet */
   .note-pos{display:inline-flex;gap:2px;margin-top:7px;background:rgba(36,40,39,.05);border-radius:7px;padding:2px}
   .note-pos button{border:none;background:transparent;cursor:pointer;padding:5px 12px;border-radius:5px;
-    font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:#808584;transition:.15s}
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:#686E6D;transition:.15s}
   .note-pos button:hover{color:var(--ink)}
   .note-pos button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(28,32,31,.10)}
   .ivs-h1{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#636968}
@@ -1389,17 +1407,17 @@
   .ivs-sheet{position:relative;flex:0 0 auto;border-radius:6px;box-shadow:0 8px 30px rgba(21,24,24,.18);background:#fff}
   .ivs-sheet canvas{display:block;border-radius:6px;width:100%;height:auto}
   .ivs-pending{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;
-    letter-spacing:.14em;text-transform:uppercase;color:#919695;opacity:0;transition:opacity .2s}
+    letter-spacing:.14em;text-transform:uppercase;color:#686E6D;opacity:0;transition:opacity .2s}
   .ivs-pending.on{opacity:1}
   .ivs-arc{overflow:auto;border-left:1px solid rgba(36,40,39,.10);padding:16px 14px;display:grid;gap:8px;align-content:start}
   .ivs-arc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
-  .ivs-arc-head .t{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#919695}
+  .ivs-arc-head .t{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#686E6D}
   .ivs-card{border:1px solid rgba(36,40,39,.09);background:#fff;border-radius:10px;padding:10px 12px;cursor:pointer;transition:.15s}
   .ivs-card:hover{box-shadow:0 4px 14px rgba(28,32,31,.10);transform:translateY(-1px)}
   .ivs-card.on{border-color:var(--notes,#C04722)}
   .ivs-card .n{font-family:var(--mono);font-size:11px;color:var(--notes,#C04722)}
   .ivs-card .w{font-family:var(--sans);font-size:13px;color:var(--ink);margin:2px 0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .ivs-card .f{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:#919695}
+  .ivs-card .f{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:#686E6D}
   .ivs-grid{position:absolute;inset:0;background:var(--row-alt,#F1F2F2);display:none;flex-direction:column;padding:18px 22px}
   .ivs-grid.on{display:flex}
   .ivs-gtop{display:flex;align-items:center;gap:10px;margin-bottom:14px}
@@ -1408,7 +1426,7 @@
   .ivs-gtop select{font-family:var(--sans);font-size:12.5px;padding:8px 10px;border:1px solid rgba(36,40,39,.16);border-radius:8px;background:#fff}
   .ivs-gwrap{flex:1;overflow:auto}
   .ivs-gcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
-  .ivs-empty{color:#919695;font-family:var(--serif-soul);font-style:italic;font-size:15px;padding:30px 0}
+  .ivs-empty{color:#686E6D;font-family:var(--serif-soul);font-style:italic;font-size:15px;padding:30px 0}
   /* the archive narrows before it ever disappears */
   /* the third column only exists once the archive is open, at any width */
   @media(max-width:1320px){
@@ -1424,10 +1442,10 @@
   .inv-form{display:grid;gap:14px}
   .inv-kinds{display:flex;gap:8px}
   .inv-kinds button{flex:1;height:36px;border:1px solid rgba(36,40,39,.18);background:transparent;border-radius:8px;cursor:pointer;
-    font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#717776;transition:.15s}
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#686E6D;transition:.15s}
   .inv-kinds button.on{background:var(--notes,#C04722);border-color:transparent;color:#fff}
   .inv-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .inv-form label,.ivs-form label{display:block;font-family:var(--sans);font-size:11.5px;color:#808584;margin-bottom:4px}
+  .inv-form label,.ivs-form label{display:block;font-family:var(--sans);font-size:11.5px;color:#686E6D;margin-bottom:4px}
   .inv-form input,.inv-form textarea,.ivs-form input,.ivs-form textarea{width:100%;box-sizing:border-box;font-family:var(--sans);font-size:13.5px;padding:8px 10px;
     border:1px solid rgba(36,40,39,.16);border-radius:7px;background:#fff;color:var(--ink)}
   .inv-lines{display:grid;gap:7px}
@@ -1437,22 +1455,22 @@
   .li-qty{display:flex;align-items:center;padding:0 3px 0 9px;font-family:var(--mono);font-size:12.5px;color:var(--ink);
     background:rgba(36,40,39,.045);white-space:nowrap;user-select:none}
   .li-steps{display:flex;flex-direction:column;justify-content:center;background:rgba(36,40,39,.045);padding-right:6px;gap:1px}
-  .li-steps button{width:14px;height:12px;border:none;background:transparent;cursor:pointer;color:#808584;
+  .li-steps button{width:14px;height:12px;border:none;background:transparent;cursor:pointer;color:#686E6D;
     font-size:8px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center}
   .li-steps button:hover{color:var(--ink)}
   .li-main .dsc{border:none;border-radius:0;height:100%;padding-left:9px}
   .li-price{display:flex;align-items:center;border:1px solid rgba(36,40,39,.16);border-radius:7px;background:#fff;height:36px;overflow:hidden}
   .li-price:focus-within{border-color:rgba(36,40,39,.34)}
-  .li-price .cur{padding:0 1px 0 6px;font-family:var(--mono);font-size:11.5px;color:#808584}
+  .li-price .cur{padding:0 1px 0 6px;font-family:var(--mono);font-size:11.5px;color:#686E6D}
   .li-price .unit{border:none;border-radius:0;height:100%;padding:0 5px 0 1px;font-family:var(--mono);font-size:11.5px}
   .inv-qty{display:flex;align-items:center;border:1px solid rgba(36,40,39,.16);border-radius:7px;background:#fff;overflow:hidden;height:35px}
-  .inv-qty button{width:26px;height:100%;border:none;background:transparent;cursor:pointer;color:#808584;font-size:15px;line-height:1}
+  .inv-qty button{width:26px;height:100%;border:none;background:transparent;cursor:pointer;color:#686E6D;font-size:15px;line-height:1}
   .inv-qty button:hover{background:rgba(36,40,39,.06);color:var(--ink)}
   .inv-qty input{border:none;text-align:center;padding:0;font-family:var(--mono);font-size:13px;width:100%}
   .inv-del{border:none;background:transparent;color:#C0C4C3;cursor:pointer;font-size:17px;line-height:1}
   .inv-del:hover{color:var(--notes,#C04722)}
   .inv-addline{justify-self:start;border:1px dashed rgba(36,40,39,.22);background:transparent;border-radius:7px;padding:6px 12px;
-    cursor:pointer;font-family:var(--sans);font-size:12px;color:#808584}
+    cursor:pointer;font-family:var(--sans);font-size:12px;color:#686E6D}
   .inv-addline:hover{color:var(--ink);border-color:rgba(36,40,39,.4)}
   .inv-totals{border-top:1px solid rgba(36,40,39,.12);padding-top:12px;display:grid;gap:6px}
   .inv-row{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:12.5px;color:#636968}
@@ -1462,16 +1480,16 @@
     background:rgba(36,40,39,.055);border-radius:8px}
   .inv-row .pct{width:46px;text-align:right;font-family:var(--mono);font-size:12.5px;padding:3px 6px;
     border:1px solid rgba(36,40,39,.16);border-radius:5px;background:#fff}
-  .ivs-win .ivs-form .note-f{background:#fff;border-color:transparent;color:#808584;font-style:italic}
+  .ivs-win .ivs-form .note-f{background:#fff;border-color:transparent;color:#686E6D;font-style:italic}
   .ivs-form .note-f:hover{border-color:rgba(36,40,39,.16);background:#fff}
   .ivs-form .note-f:focus{border-color:rgba(36,40,39,.34);background:#fff;color:var(--ink);font-style:normal}
-  .inv-num{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#919695}
+  .inv-num{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#686E6D}
   .inv-list{display:grid;gap:2px;max-height:320px;overflow:auto}
   .inv-item{display:grid;grid-template-columns:74px 1fr 92px 88px;gap:10px;align-items:center;padding:9px 10px;border-radius:7px;cursor:pointer}
   .inv-item:hover{background:rgba(36,40,39,.045)}
   .inv-item .n{font-family:var(--mono);font-size:11.5px;color:var(--notes,#C04722)}
   .inv-item .w{font-family:var(--sans);font-size:13px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .inv-item .d,.inv-item .t{font-family:var(--mono);font-size:11.5px;color:#808584;text-align:right}
+  .inv-item .d,.inv-item .t{font-family:var(--mono);font-size:11.5px;color:#686E6D;text-align:right}
   /* fields read as writing on paper rather than boxes (declared after the shared rule) */
   .ivs-win .ivs-form input{border-color:transparent;background:#fff}
   .ivs-win .ivs-form input:hover{border-color:rgba(36,40,39,.12)}
@@ -1487,9 +1505,9 @@
   .dtips li{font-family:var(--sans);font-size:12.6px;line-height:1.5;color:var(--slate);margin-bottom:5px}
   .dtips li:last-child{margin-bottom:0}
   .dtips li b{color:var(--ink);font-weight:600}
-  .dchip{display:inline-flex;align-items:center;border:.75px solid #979D9C;color:#979D9C;border-radius:999px;padding:2px 12px;font-family:var(--sans);font-size:7pt;letter-spacing:.12em;text-transform:uppercase;background:transparent;white-space:nowrap}
+  .dchip{display:inline-flex;align-items:center;border:.75px solid #979D9C;color:#686E6D;border-radius:999px;padding:2px 12px;font-family:var(--sans);font-size:7pt;letter-spacing:.12em;text-transform:uppercase;background:transparent;white-space:nowrap}
   .dfield{position:relative}
-  .dfield .dcopy{position:absolute;top:10px;right:8px;border:none;background:none;cursor:pointer;color:#919796;line-height:1;padding:2px;transition:color .15s;display:flex}
+  .dfield .dcopy{position:absolute;top:10px;right:8px;border:none;background:none;cursor:pointer;color:#686E6D;line-height:1;padding:2px;transition:color .15s;display:flex}
   .dfield .dcopy:hover{color:#000}
 
   /* ---------- Edit form ---------- */
@@ -1518,7 +1536,7 @@
   .thumb-x{position:absolute;top:0;right:0;width:18px;height:18px;border:none;background:rgba(36,40,39,.72);color:#fff;cursor:pointer;font-size:12px;line-height:18px;padding:0}
   .foot{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:21px 0 13px;
         border-top:1px solid var(--rule);background:var(--paper);
-        font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#A0A5A4}
+        font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#686E6D}
   .foot-inner{max-width:none;margin:0;padding:0 40px;display:flex;justify-content:center;align-items:center}
 
   /* ---------- Sign-in gate ---------- */
@@ -1538,6 +1556,15 @@
     .entry .cell{display:none}
     .fields,.form-grid{grid-template-columns:1fr}
     .wordmark{font-size:38px}
+  }
+
+  /* Where keyboard focus is, on everything that can take it. */
+  :focus-visible{outline:2px solid #C04722;outline-offset:2px;border-radius:4px}
+  :focus:not(:focus-visible){outline:none}
+  /* Less motion when the system asks for it: every fade and slide is instant. */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;
+      transition-duration:.01ms !important;scroll-behavior:auto !important}
   }
 </style>
 </head>
@@ -1709,7 +1736,8 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script type="module">import * as D from "./supabase/functions/_shared/drafts.js"; window.MaconDrafts = D;</script>
+<script type="module">import * as D from "./supabase/functions/_shared/drafts.js"; window.MaconDrafts = D;
+import * as R from "./supabase/functions/_shared/rules.js"; window.MaconRules = R;</script>
 <script>
 const STORE = "macon_archive_v1";
 const SIG_ORDER = {High:0, Med:1, Low:2, "":3};
@@ -1914,7 +1942,14 @@ function renderDash(){
 }
 
 /* ---------- Follow-up cultivation ---------- */
-function daysSince(str){ const t=Date.parse(str); return isNaN(t)?null:Math.floor((Date.now()-t)/86400000); }
+/* A bare "2026-08-13" is a day, not UTC midnight: read as UTC it crossed the
+   21- and 90-day lines a day early west of Greenwich. "Aug 13, 2026" already
+   reads as local, so both forms now mean the same day. */
+function parseDay(str){
+  const t=String(str??"").trim(), m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(t);
+  return m ? new Date(+m[1], +m[2]-1, +m[3]).getTime() : Date.parse(t);
+}
+function daysSince(str){ const t=parseDay(str); return isNaN(t)?null:Math.floor((Date.now()-t)/86400000); }
 /* A bare date carries no time zone. Parsed as UTC and shown locally it slips
    back a day, which is how a purchase made on the 22nd came to read as the
    21st, so a bare date is read exactly as it is written. */
@@ -1933,11 +1968,21 @@ const STORY_WINDOW=120, PATRON_LTV=600;   // four months: past that a first ask 
 /* When we last wrote to someone: the app's own stamp, or the last message the
    studio sent them in Gmail, whichever is later. Follow-ups done in Gmail,
    which is most of them, no longer leave people on the pile. */
+/* Every address a person is known by: a collector's own and the ones on their
+   record from other purchases, or just the one given if they are not a
+   collector. Gmail is asked about all of them. */
+function addressesFor(email){
+  const e=String(email||"").trim().toLowerCase(); if(!e) return [];
+  const d=(data||[]).find(x=>String(x.email||"").toLowerCase()===e || (x.alt_emails||[]).some(a=>String(a).toLowerCase()===e));
+  return d ? [...new Set([d.email, ...(d.alt_emails||[])].map(a=>String(a||"").toLowerCase()).filter(Boolean))] : [e];
+}
+function gmailLatest(email, field){
+  if(typeof _lastMsg==="undefined") return 0;
+  return Math.max(0, ...addressesFor(email).map(a=>{ const g=_lastMsg.get(a); return g && g[field] ? g[field] : 0; }));
+}
 function lastContactOf(rec){
-  const email=String((rec&&rec.email)||"").toLowerCase();
-  const g = typeof _lastMsg!=="undefined" && email ? _lastMsg.get(email) : null;
-  const sent = g && g.sentAt ? g.sentAt : 0;
-  const own = rec && rec.last_contact ? Date.parse(rec.last_contact) : NaN;
+  const sent = gmailLatest(rec && rec.email, "sentAt");
+  const own = rec && rec.last_contact ? parseDay(rec.last_contact) : NaN;
   const t = Math.max(isNaN(own)?0:own, sent);
   return t ? new Date(t).toISOString().slice(0,10) : "";
 }
@@ -2067,38 +2112,10 @@ let inquiries = [], ignoredEnquiries = [];
      - it is short and plainly a test ("test", "testing", "please ignore").
    A letter the studio started itself is kept however little it says, unless
    it was written to the studio's own address, which is a test of sending. */
-const OWN_DOMAINS_PLAIN = ["studiomacon.co"];
-const OWN_HASHES = new Set([
-  "f87b488f0549cc55978cfb3d8403adc20329653cf6007b0bfcb607dedf77866a",   // a personal address
-  "5e0befc4571f78822157800541a1d8f6a18f20e6d8423a1edc4d50088763babe",   // a personal domain
-]);
-const _ownSeen = new Map();
-async function sha256hex(t){
-  const buf=await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t));
-  return [...new Uint8Array(buf)].map(x=>x.toString(16).padStart(2,"0")).join("");
-}
-async function fromTheStudio(email){
-  const e=String(email||"").trim().toLowerCase();
-  if(!e.includes("@")) return false;
-  if(_ownSeen.has(e)) return _ownSeen.get(e);
-  const [local, domain]=e.split("@"), base=local.split("+")[0]+"@"+domain;
-  let own=OWN_DOMAINS_PLAIN.includes(domain);
-  if(!own && window.crypto && crypto.subtle){
-    try{ own = OWN_HASHES.has(await sha256hex(base)) || OWN_HASHES.has(await sha256hex(domain)); }catch(err){}
-  }
-  _ownSeen.set(e, own); return own;
-}
-async function whyNotAnEnquiry(q){
-  // the name is checked too: a row can carry the address there and nowhere else
-  const studio = await fromTheStudio(q.email) || await fromTheStudio(q.name);
-  if(q.source==="composed") return studio ? "written to the studio" : "";
-  if(studio) return "sent by the studio";
-  if(!String(q.email||"").trim() && /^website (contact|commission)$/i.test(q.source||"")) return "no address to answer";
-  const text=[q.subject, q.note].map(v=>String(v||"").trim()).filter(Boolean).join(" ");
-  if(!text) return "nothing written";
-  if(text.length<=60 && /\b(test(ing)?|please ignore|ignore this|asdf|lorem ipsum)\b/i.test(text)) return "a test";
-  return "";
-}
+// Shared with the Monday digest (supabase/functions/_shared/rules.js), so the
+// two never disagree about who is a real enquiry.
+const rulesReady=new Promise(res=>{ const t=setInterval(()=>{ if(window.MaconRules){ clearInterval(t); res(window.MaconRules); } }, 20); });
+async function whyNotAnEnquiry(q){ return (await rulesReady).whyNotAnEnquiry(q); }
 
 async function loadInquiries(){
   if(!(synced&&sb)) return;
@@ -2130,7 +2147,12 @@ async function inqSet(id, patch){
   const q = inquiries.find(x=>x.id===id); if(!q) return;
   Object.assign(q, patch);
   renderDrawer(); if(tab==="enquiries") renderEnquiries();
-  if(synced&&sb){ try{ await sb.from("inquiries").update(patch).eq("id",id); }catch(e){} }
+  if(synced&&sb){
+    // The change shows at once; if it did not save, say so rather than let the
+    // screen claim something the database does not hold.
+    let error=null; try{ ({ error }=await sb.from("inquiries").update(patch).eq("id",id)); }catch(e){ error=e; }
+    if(error){ toast(`That change to ${q.name||"the enquiry"} did not save. Reload and try again.`); await loadInquiries(); renderDrawer(); }
+  }
 }
 // Following someone up stamps the date and moves them on. It never removes them.
 function inqFollowUp(id){
@@ -2172,12 +2194,12 @@ function followUps(){
   const story=data.map((d,i)=>({d,i})).filter(x=>isDue(x.d))
     .map(x=>({...x, kind:"story", days:daysSince(x.d.last_buy), priority:followPriority(x.d), ask:followAsk(x.d), state:"attention"}));
   const recon=data.map((d,i)=>({d,i})).filter(x=>isReconnectDue(x.d))
-    .map(x=>({...x, kind:"reconnect", days:(x.d.last_contact?daysSince(x.d.last_contact):daysSince(x.d.last_buy)), priority:"High", ask:"", state:"attention"}));
+    .map(x=>({...x, kind:"reconnect", days:(lastContactOf(x.d)?daysSince(lastContactOf(x.d)):daysSince(x.d.last_buy)), priority:"High", ask:"", state:"attention"}));
   // spoken to lately: not due, but still visible under Followed up rather than gone
   const RECENT=45;
   const warm=data.map((d,i)=>({d,i}))
-    .filter(x=>x.d.last_contact && daysSince(x.d.last_contact)<RECENT && !isDue(x.d) && !isReconnectDue(x.d))
-    .map(x=>({...x, kind:"story", days:daysSince(x.d.last_contact), priority:"Low", ask:"", state:"followed"}));
+    .filter(x=>lastContactOf(x.d) && daysSince(lastContactOf(x.d))<RECENT && !isDue(x.d) && !isReconnectDue(x.d))
+    .map(x=>({...x, kind:"story", days:daysSince(lastContactOf(x.d)), priority:"Low", ask:"", state:"followed"}));
   // open custom inquiries lead the drawer: live money, and the thread goes cold fastest
   const inq=inquiries.map(q=>({d:inqAsD(q), i:-1, q, kind:"custom",
     days:daysSince(q.last_touched||q.first_seen), priority:"High", ask:"", state:inqState(q)}));
@@ -3411,14 +3433,15 @@ async function letterFromThread(t, x){
 const DAY_MS=86400000;
 function startOfToday(){ const d=new Date(); d.setHours(0,0,0,0); return d.getTime(); }
 function storyDueOn(d){
-  const b=Date.parse(d.last_buy); if(isNaN(b) || d.story==="Yes") return null;
+  if(d.trade) return null;
+  const b=parseDay(d.last_buy); if(isNaN(b) || d.story==="Yes") return null;
   let due=b+(leadTime(firstPiece(d.pieces))+14)*DAY_MS;
-  const c=Date.parse(d.last_contact); if(!isNaN(c)) due=Math.max(due, c+21*DAY_MS);
+  const c=parseDay(lastContactOf(d)); if(!isNaN(c)) due=Math.max(due, c+21*DAY_MS);
   return due > b+STORY_WINDOW*DAY_MS ? null : due;
 }
 function reconnectDueOn(d){
-  if(!d.first_look && num(d.ltv) < PATRON_LTV) return null;
-  const base=Date.parse(d.last_contact||d.last_buy); return isNaN(base) ? null : base+90*DAY_MS;
+  if(d.trade || (!d.first_look && num(d.ltv) < PATRON_LTV)) return null;
+  const base=parseDay(lastContactOf(d)||d.last_buy); return isNaN(base) ? null : base+90*DAY_MS;
 }
 function enquiryDueOn(q){
   if(q.status==="closed") return null;
@@ -3459,6 +3482,26 @@ function todayDone(){
   if(synced && doneRows) return doneRows.filter(r=>r.day===todayKey()).map(r=>({ key:r.key, name:r.name, kind:r.kind }));
   try{ const v=JSON.parse(localStorage.getItem("macon.today")||"{}"); return v.date===todayKey() ? (v.done||[]) : []; }catch{ return []; }
 }
+/* A short line at the foot of the desk, with Undo when the action has one. */
+function toast(msg, undo){
+  let el=document.getElementById("toast");
+  if(!el){ el=document.createElement("div"); el.id="toast"; el.setAttribute("role","status"); el.setAttribute("aria-live","polite"); document.body.appendChild(el); }
+  clearTimeout(el._t);
+  el.innerHTML=`<span>${esc(msg)}</span>${undo?`<button type="button">Undo</button>`:""}`;
+  if(undo) el.querySelector("button").onclick=()=>{ el.classList.remove("on"); clearTimeout(el._t); undo(); };
+  requestAnimationFrame(()=>el.classList.add("on"));
+  el._t=setTimeout(()=>el.classList.remove("on"), undo?7000:5000);
+}
+/* Undo for noteDone: the letter no longer counts as dealt with today. */
+function undoDone(x){
+  const k=letterKey(x), day=todayKey();
+  if(synced && sb){
+    doneRows=(doneRows||[]).filter(r=>!(r.key===k && r.day===day));
+    sb.from("letters_done").delete().eq("key",k).eq("day",day).then(({error})=>{ if(error) console.warn("undo done", error.message); });
+    return;
+  }
+  try{ localStorage.setItem("macon.today", JSON.stringify({ date:todayKey(), done:todayDone().filter(e=>e.key!==k) })); }catch{}
+}
 function noteDone(x){
   const k=letterKey(x); letterPulled.delete(k);
   const name=cleanName((x.d&&x.d.name)||(x.q&&x.q.name)||""), day=todayKey();
@@ -3498,7 +3541,7 @@ function letterJump(i){
 const _lastMsg=new Map(), _lastPending=new Set(); let _lastRedrawPending=false;
 async function loadLastMessages(items){
   if(!gmailReady()) return;
-  const emails=[...new Set(items.map(x=>String((x.d&&x.d.email)||(x.q&&x.q.email)||"").toLowerCase())
+  const emails=[...new Set(items.flatMap(x=>addressesFor((x.d&&x.d.email)||(x.q&&x.q.email)||""))
     .filter(e=>e && !_lastMsg.has(e) && !_lastPending.has(e)))];
   if(!emails.length) return;
   emails.forEach(e=>_lastPending.add(e));
@@ -3514,7 +3557,30 @@ async function loadLastMessages(items){
     }
   }catch(e){ emails.forEach(e=>{ if(!_lastMsg.has(e)) _lastMsg.set(e, false); }); }
   finally{ emails.forEach(e=>_lastPending.delete(e)); }
+  keepGmailContact();
   if(isPlan(readerFolder)) renderReader();
+}
+/* What Gmail says about who the studio has written to is saved where the rest
+   of the studio can see it (the Monday digest cannot read Gmail): a
+   collector's last_contact and an enquiry's last_touched move forward to the
+   day of the studio's latest message to them. Only ever forward. */
+async function keepGmailContact(){
+  if(!(synced&&sb)) return;
+  const writes=[];
+  for(const d of data||[]){
+    const sent=gmailLatest(d.email,"sentAt"); if(!sent) continue;
+    const day=new Date(sent).toISOString().slice(0,10), own=parseDay(d.last_contact);
+    if(isNaN(own) || parseDay(day)>own){ d.last_contact=day; writes.push(sb.from("collectors").update({ last_contact:day }).eq("acc",d.acc)); }
+  }
+  for(const q of inquiries||[]){
+    if(q.status==="closed" || q.source==="composed") continue;
+    const sent=gmailLatest(q.email,"sentAt"); if(!sent) continue;
+    const day=new Date(sent).toISOString().slice(0,10), own=parseDay(q.last_touched);
+    if(parseDay(day) >= parseDay(q.first_seen) && (isNaN(own) || parseDay(day)>own)){ q.last_touched=day; writes.push(sb.from("inquiries").update({ last_touched:day }).eq("id",q.id)); }
+  }
+  const done=await Promise.allSettled(writes);
+  const failed=done.filter(r=>r.status==="rejected" || (r.value && r.value.error)).length;
+  if(failed) console.warn("keepGmailContact:", failed, "of", writes.length, "writes failed");
 }
 
 /* Today, This week, This month: who, what kind of follow-up, when, and the last
@@ -3801,7 +3867,8 @@ async function loadThreadFor(email, name){
   if(_threads.has(email)){ readerThread=_threads.get(email); renderReader(); noteForCurrent(); return; }
   readerThread={email, name, loading:true}; renderReader();
   try{
-    const q=encodeURIComponent(`from:${email} OR to:${email}`);
+    // every address they are known by, so a second address's mail is in the thread
+    const q=encodeURIComponent(addressesFor(email).map(a=>`from:${a} OR to:${a}`).join(" OR "));
     const boxes=(readerConnected&&readerConnected.length)?readerConnected:[];
     const perBox=await Promise.all(boxes.map(async box=>{
       try{
@@ -3865,18 +3932,21 @@ function skippedMap(){ return skippedRows||{}; }
    the website form. Nothing has to be remembered or undone. */
 function theyWroteSince(x, since){
   const d=x.d||{}, q=x.q;
-  const email=String(d.email||(q&&q.email)||"").toLowerCase();
-  const g = email && typeof _lastMsg!=="undefined" ? _lastMsg.get(email) : null;
-  if(g && g.at && g.at>since) return true;
-  // the website form leaves "[2026-09-18] wrote in again" in the enquiry's note
+  if(gmailLatest(d.email||(q&&q.email)||"", "at")>since) return true;
+  // The website form leaves "[2026-09-18] wrote in again" in the enquiry's
+  // note. Only the day is known, so writing in on the day it was cleared counts.
   const day=new Date(since).toISOString().slice(0,10);
   for(const m of String((q&&q.note)||"").matchAll(/\[(\d{4}-\d{2}-\d{2})\] wrote in again/g))
-    if(m[1]>day) return true;
+    if(m[1]>=day) return true;
   return false;
 }
+/* Cleared until they write, for the person rather than one letter: clearing
+   someone's enquiry also clears the collector letter that would otherwise take
+   its place, and the other way round. */
 function clearedFor(x){
-  const r=skippedMap()[letterKey(x)]; if(!r) return false;
-  return !theyWroteSince(x, Date.parse(r.skipped_at)||0);
+  const R=window.MaconRules, map=skippedMap();
+  const keys = R ? R.personKeys(x, data, R.primaryEmails(data)) : [letterKey(x)];
+  return keys.some(k=>map[k] && !theyWroteSince(x, Date.parse(map[k].skipped_at)||0));
 }
 async function loadSkipped(){
   const { data, error } = await sb.from("skipped_letters").select("key,name,subject,skipped_at");
@@ -4348,7 +4418,7 @@ function renderLetters(){
   if(synced && !letterDataReady) return;
   // The letter templates arrive as a module that loads on its own schedule;
   // drawing before it lands threw and left the view blank. Wait for it.
-  if(!window.MaconDrafts){ setTimeout(renderLetters, 40); return; }
+  if(!window.MaconDrafts || !window.MaconRules){ setTimeout(renderLetters, 40); return; }
   // Nothing is redrawn under the envelope; it would tear the sequence. Drawn when it goes.
   if(document.body.classList.contains("lv-ritual")){ _renderAfterRitual=true; return; }
   const keepKey = letterQueue[letterIdx] ? letterKey(letterQueue[letterIdx]) : "";
@@ -4608,10 +4678,12 @@ function renderCurrentLetter(){
         <button class="lv-signoff" id="lvSignoff" title="Click to change who signs">${esc(letterSignoff)}</button></div>
         ${composing?"":`<div class="lv-tonerow"><button class="lv-tone lv-overline" id="lvTone">Tone \u00b7 ${esc(toneName)}</button></div>`}
         <div class="lv-footer">
-          <button class="lv-close" id="lvClose" title="Mark closed" aria-label="Mark closed">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4.5 4.5L19 7"/></svg></button>
+          ${composing ? `<span></span>` : `<button class="lv-close" id="lvClose" title="${q?"Close this enquiry":"Mark as written to"}" aria-label="${q?"Close this enquiry":"Mark as written to"}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4.5 4.5L19 7"/></svg></button>`}
           <div class="lv-footer-right">
-            <button class="lv-skip" id="lvSkip" title="Off the pile until they write to you again">Clear until they write</button>
+            ${composing
+              ? `<button class="lv-skip" id="lvSkip" title="Leave this new letter without sending it">Discard</button>`
+              : `<button class="lv-skip" id="lvSkip" title="Off the pile until they write to you again">Clear until they write</button>`}
             <button class="lv-send" id="lvSend">Send</button>
           </div>
         </div>
@@ -4702,9 +4774,6 @@ function renderCurrentLetter(){
   const exitCompose=()=>{ letterComposing=false; letterComposeItem=null; renderLetters(); };
   if(composing){
     host.querySelector("#lvSkip").onclick=exitCompose;
-    host.querySelector("#lvClose").onclick=()=>{
-      playCloseAnimation(()=>{ inqSet(q.id,{status:"closed"}); exitCompose(); });
-    };
   } else {
     host.querySelector("#lvTone").onclick=ev=>{
       const btn=ev.currentTarget;
@@ -4718,15 +4787,20 @@ function renderCurrentLetter(){
       retypeInto(subjEl, sentenceSubject(r.subject), autosizeSubj);
       retypeInto(bodyEl, nextBody, autosizeBody, ()=>{ delete btn.dataset.busy; });
     };
+    const who=cleanName((d&&d.name)||(q&&q.name)||"them");
     host.querySelector("#lvSkip").onclick=()=>{
       // Off the pile until they write again, whatever its schedule says.
+      const k=letterKey(x);
       skipLetter(x);
       letterQueue.splice(letterIdx,1);
       if(letterIdx>=letterQueue.length) letterIdx=0;
       letterToneIdx=0; letterNoEnter=true; letterTypeIn=true;
       letterQueue.length ? renderCurrentLetter() : renderLetters();
+      toast(`${who}: cleared until they write.`, ()=>unskipLetter(k));
     };
     host.querySelector("#lvClose").onclick=()=>{
+      // What closing changes, kept so Undo can put it back exactly.
+      const was = q ? { status:q.status } : { last_contact:(data[i]||{}).last_contact ?? null };
       playCloseAnimation(()=>{
         noteDone(x);
         if(q) inqSet(q.id,{status:"closed"}); else markContacted(i);
@@ -4734,6 +4808,11 @@ function renderCurrentLetter(){
         if(letterIdx>=letterQueue.length) letterIdx=0;
         letterToneIdx=0;
         letterQueue.length ? renderCurrentLetter() : renderLetters();
+        toast(q ? `${who}: enquiry closed.` : `${who}: marked as written to.`, ()=>{
+          undoDone(x);
+          if(q) inqSet(q.id, was); else if(data[i]) persist({ ...data[i], last_contact:was.last_contact }, false);
+          setTimeout(()=>{ renderLetters(); const j=letterQueue.findIndex(y=>letterKey(y)===letterKey(x)); if(j>=0){ letterIdx=j; letterNoEnter=true; renderCurrentLetter(); } }, 60);
+        });
       });
     };
   }
