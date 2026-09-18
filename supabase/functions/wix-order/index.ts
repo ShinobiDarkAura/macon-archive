@@ -1,10 +1,19 @@
 // Maçon Archive — Wix order webhook
 // Receives "order placed" webhooks from a Wix Automation and upserts the collector:
-// new email -> new collector; existing email -> piece added, LTV incremented (once
-// per order), last_buy refreshed. See ../../README-wix-webhook.md for setup.
+// a known address, or a person proven to be someone we know (see identity.ts) ->
+// piece added, LTV incremented (once per order), last_buy refreshed; otherwise a
+// new collector. See ../../README-wix-webhook.md for setup.
 //
 // Secrets (supabase secrets set ...):
 //   WIX_WEBHOOK_SECRET   shared secret; the webhook URL must include ?secret=<value>
+//
+// DEPLOY WITH --no-verify-jwt:   supabase functions deploy wix-order --no-verify-jwt
+// Wix sends no login token, only the secret above, which this function checks
+// itself. Deployed without the flag, the gateway turns every order away before
+// this code runs, silently: that happened on 15 Aug 2026 and no order reached
+// the archive for a month.
+
+import { matchPerson, surname, type Person } from "./identity.ts";
 
 type Rec = Record<string, any>;
 
@@ -99,6 +108,18 @@ Deno.serve(async (req) => {
   const phone = String(pick(order, [
     "buyerInfo.phone", "billingInfo.contactDetails.phone", "billingInfo.phone",
   ]) ?? "").replace(/[^0-9+]/g, "");
+  // Kept because, with the surname, they are what proves two addresses are one person.
+  const street = String(pick(order, [
+    "shippingInfo.logistics.shippingDestination.address.addressLine1",
+    "shippingInfo.logistics.shippingDestination.address.addressLine",
+    "shippingInfo.shipmentDetails.address.addressLine1", "shippingInfo.shipmentDetails.address.addressLine",
+    "billingInfo.address.addressLine1", "billingInfo.address.addressLine", "shippingAddress.addressLine1",
+  ]) ?? "").trim();
+  const postcode = String(pick(order, [
+    "shippingInfo.logistics.shippingDestination.address.postalCode",
+    "shippingInfo.shipmentDetails.address.postalCode", "shippingInfo.shipmentDetails.address.zipCode",
+    "billingInfo.address.postalCode", "billingInfo.address.zipCode", "shippingAddress.postalCode",
+  ]) ?? "").trim();
 
   const H = { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" };
 
@@ -108,10 +129,30 @@ Deno.serve(async (req) => {
     if (dup.ok && (await dup.json()).length) return ok({ status: "duplicate ignored", orderId });
   }
 
-  // Find the collector by email (case-insensitive)
-  const find = await fetch(`${SUPABASE_URL}/rest/v1/collectors?email=ilike.${encodeURIComponent(email)}&select=*`, { headers: H });
+  // Find the collector: by this address, or by one of the other addresses on
+  // their record. A record folded into another stands for that other one.
+  const orClause = encodeURIComponent(`(email.ilike.${email},alt_emails.cs.{${email}})`);
+  const find = await fetch(`${SUPABASE_URL}/rest/v1/collectors?or=${orClause}&select=*`, { headers: H });
   if (!find.ok) return ok({ error: "lookup failed: " + (await find.text()) }, 502);
-  const existing: Rec | undefined = (await find.json())[0];
+  let existing: Rec | undefined = (await find.json())[0];
+  if (existing?.merged_into) {
+    const into = await fetch(`${SUPABASE_URL}/rest/v1/collectors?acc=eq.${encodeURIComponent(existing.merged_into)}&select=*`, { headers: H });
+    if (into.ok) existing = (await into.json())[0] || existing;
+  }
+  // An unfamiliar address may still be someone we know. Look among people with
+  // the same surname for proof (phone, or postcode with street or first name).
+  let matched = "", possible: Rec | undefined;
+  if (!existing && surname(name)) {
+    const cand = await fetch(
+      `${SUPABASE_URL}/rest/v1/collectors?name=ilike.${encodeURIComponent("*" + surname(name))}` +
+      `&select=acc,name,email,alt_emails,phone,postcode,address,location,merged_into`, { headers: H });
+    const people: Person[] = cand.ok ? await cand.json() : [];
+    const m = matchPerson({ name, phone, postcode, address: street, city }, people);
+    if (m?.kind === "verified") {
+      const full = await fetch(`${SUPABASE_URL}/rest/v1/collectors?acc=eq.${encodeURIComponent(m.person.acc)}&select=*`, { headers: H });
+      if (full.ok) { existing = (await full.json())[0]; matched = m.why; }
+    } else if (m?.kind === "possible") possible = m.person as Rec;
+  }
 
   let rec: Rec;
   if (existing) {
@@ -125,6 +166,11 @@ Deno.serve(async (req) => {
       phone: existing.phone || phone,
       name: existing.name || name,
       first_look: existing.first_look || ltv > 1000,
+      address: existing.address || street || null,
+      postcode: existing.postcode || postcode || null,
+      // bought from an address that is not yet on their record: keep it
+      alt_emails: email !== String(existing.email || "").toLowerCase()
+        ? [...new Set([...(existing.alt_emails || []), email])] : (existing.alt_emails || []),
     };
     const upd = await fetch(`${SUPABASE_URL}/rest/v1/collectors?acc=eq.${encodeURIComponent(existing.acc)}`, {
       method: "PATCH", headers: H, body: JSON.stringify(rec),
@@ -144,6 +190,12 @@ Deno.serve(async (req) => {
       gift_self: "Self", signal: "Med", story: "Asked",
       first_look: total > 1000,
       first_buy: date, last_buy: date,
+      address: street || null, postcode: postcode || null,
+      // Nothing proves it, but it may well be someone we know: say who, and let
+      // a person decide rather than merging on a guess.
+      notes: possible
+        ? `Possibly the same person as ${possible.acc} (${possible.name}): ${"same surname and town, first names fit"}. Merge them if so.`
+        : null,
     };
     const ins = await fetch(`${SUPABASE_URL}/rest/v1/collectors`, { method: "POST", headers: H, body: JSON.stringify(rec) });
     if (!ins.ok) return ok({ error: "insert failed: " + (await ins.text()) }, 502);
@@ -173,5 +225,8 @@ Deno.serve(async (req) => {
     } catch (_e) { /* an invoice must never cost us the collector update */ }
   }
 
-  return ok({ status: existing ? "updated" : "created", acc: rec.acc ?? existing?.acc, email, total, items: items.length, orderId });
+  return ok({
+    status: existing ? (matched ? "matched" : "updated") : (possible ? "created, possibly " + possible.acc : "created"),
+    acc: rec.acc ?? existing?.acc, email, total, items: items.length, orderId, ...(matched ? { why: matched } : {}),
+  });
 });

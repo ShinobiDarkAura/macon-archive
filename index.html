@@ -1812,7 +1812,9 @@ async function refresh(){
   if(!synced){ data=local.load(); renderAll(); return; }
   const { data:rows, error } = await sb.from("collectors").select("*").order("acc");
   if(error){ setSync("local","Sync error — check setup"); return; }
-  data = rows || []; renderAll();
+  // A collector folded into another stays in the table, so the merge can be
+  // undone, but is not a person of its own anywhere in the app.
+  data = (rows || []).filter(r=>!r.merged_into); renderAll();
 }
 async function persist(rec, isNew){
   if(num(rec.ltv)>1000) rec.first_look=true;
@@ -4345,6 +4347,15 @@ function renderLetters(){
     const score=f=>(f.patron?4:0)+(f.commissioner?2:0)+(f.window?1:0);
     return score(fb)-score(fa);
   });
+  // One letter per person. A collector with an open enquiry, or an enquiry
+  // from one of a collector's other addresses, is one person: the first in
+  // the order above is the one written, which puts a live enquiry first.
+  { const primary=new Map();
+    (data||[]).forEach(d=>{ const e=String(d.email||"").toLowerCase(); if(!e) return;
+      primary.set(e,e); (d.alt_emails||[]).forEach(a=>primary.set(String(a).toLowerCase(), e)); });
+    const who=x=>{ const e=String((x.d&&x.d.email)||(x.q&&x.q.email)||"").toLowerCase(); return e ? (primary.get(e)||e) : ""; };
+    const seen=new Set();
+    letterQueue=letterQueue.filter(x=>{ const k=who(x); if(!k) return true; if(seen.has(k)) return false; seen.add(k); return true; }); }
   // Follow-ups brought forward from later in the week or month stay on the pile.
   letterPulled.forEach((x,k)=>{ if(!letterQueue.some(y=>letterKey(y)===k)) letterQueue.unshift(x); });
   { const back=letterQueue.findIndex(y=>letterKey(y)===keepKey); if(back>=0) letterIdx=back; }
