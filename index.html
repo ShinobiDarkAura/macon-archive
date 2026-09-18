@@ -339,7 +339,7 @@
     display:flex;flex-direction:column}
   .lv-paper::before{content:"";position:absolute;inset:14px;border:1px solid rgba(98,106,104,.12);pointer-events:none}
   /* A faint cotton tooth over the sheet, blended in so the paper stays white. */
-  .lv-paper::after{content:"";position:absolute;inset:0;background:url("logos/letter-paper.webp") center/600px;
+  .lv-paper::after{content:"";position:absolute;inset:0;background:url("logos/letter-paper-neutral.webp") center/600px;
     mix-blend-mode:multiply;opacity:.55;pointer-events:none;z-index:0}
   .lv-stamp{position:absolute;left:-16px;bottom:10%;width:175px;height:auto;opacity:.92;
     transform:rotate(-12deg);pointer-events:none;mix-blend-mode:multiply;z-index:2}
@@ -391,6 +391,18 @@
   .lv-footer{flex:0 0 auto;min-height:70px;display:flex;align-items:center;gap:12px;
     border-top:1px solid rgba(220,223,222,.5);margin-top:8px;margin-bottom:12px}
   .lv-footer-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+  /* "Clear until they write" says exactly what it does, so it keeps its words
+     and stays on one line; on a narrow sheet the footer tightens around it. */
+  .lv-footer{container-type:inline-size}
+  .lv-skip{white-space:nowrap}
+  /* Scoped through the footer so they outrank the button's own rules, which
+     come later in the sheet. A container cannot style itself, so the gap it
+     holds stays; the group inside it closes up instead. */
+  @container (max-width:300px){
+    .lv-footer .lv-footer-right{gap:8px}
+    .lv-footer .lv-skip{font-size:12.5px;padding-left:2px;padding-right:2px}
+    .lv-footer .lv-send{padding-left:14px;padding-right:14px}
+  }
   .lv-empty-skipped{margin-top:26px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
   .lv-empty-skipped span{font-family:"Public Sans",var(--sans);font-size:10px;letter-spacing:.18em;
     text-transform:uppercase;color:#A8ADAC;width:100%}
@@ -655,7 +667,7 @@
   /* The chosen tab is the sheet: its colour and its paper, so the two read as one piece. */
   .lv-pile-tab.on{margin-top:0;line-height:30px;background:#FEFEFE;color:#202423;z-index:3;
     box-shadow:0 1px 1px rgba(16,19,19,.22),0 2px 4px rgba(16,19,19,.18)}   /* the sheet's own shadow, cast onto its neighbours */
-  .lv-pile-tab.on::after{content:"";position:absolute;inset:0;background:url("logos/letter-paper.webp") center/600px;
+  .lv-pile-tab.on::after{content:"";position:absolute;inset:0;background:url("logos/letter-paper-neutral.webp") center/600px;
     mix-blend-mode:multiply;opacity:.55;pointer-events:none}
   /* A dot per letter today, grouped by kind. */
   .lv-progress{position:absolute;z-index:4;display:flex;gap:20px;align-items:center;white-space:nowrap;transform:translateX(-50%)}
@@ -733,7 +745,11 @@
     border:1px solid var(--rl);border-radius:999px;padding:6px 13px;cursor:pointer;text-decoration:none}
   :is(.lv-reader,.lv-tag) .rd-ctx-act button:hover,:is(.lv-reader,.lv-tag) .rd-ctx-act a:hover{border-color:var(--ink-3);color:var(--ink-1)}
   :is(.lv-reader,.lv-tag) .rd-ctx-file{margin-top:14px}
-  .lv-reader .rd-load-inline{position:relative;height:240px}
+  /* While their mail loads, the walking figure takes the whole empty box and
+     sits in its middle. The box is padded 20px above and 48px below, so the
+     loader gives back the difference to centre on what you actually see. */
+  .rd-scroll:has(> .rd-load-inline){display:flex;flex-direction:column}
+  .lv-reader .rd-load-inline{position:relative;flex:1;min-height:210px;margin-bottom:-28px}
   .lv-reader .rd-m{margin-bottom:12px;font-family:var(--sans);background:rgba(255,255,255,.85);border-radius:8px;
     padding:16px 17px 17px;box-shadow:0 1px 2px rgba(16,19,19,.26)}
   .lv-reader .rd-m.rd-us{background:#fff;box-shadow:0 1px 2px rgba(16,19,19,.26)}
@@ -3387,7 +3403,7 @@ function enquiryDueOn(q){
 }
 // Follow-ups arriving from `from` days to `to` days after today.
 function planItems(from, to){
-  const start=startOfToday()+from*DAY_MS, end=startOfToday()+to*DAY_MS, put=skippedMap(), out=[];
+  const start=startOfToday()+from*DAY_MS, end=startOfToday()+to*DAY_MS, out=[];
   (data||[]).forEach((d,i)=>{
     const st=storyDueOn(d), rc=st==null ? reconnectDueOn(d) : null;
     const kind = st!=null ? "story" : (rc!=null ? "reconnect" : null), due = st!=null ? st : rc;
@@ -3399,7 +3415,7 @@ function planItems(from, to){
     if(due!=null && due>=start && due<end)
       out.push({ d:inqAsD(q), i:-1, q, kind:"custom", due, days:daysSince(q.last_touched||q.first_seen), priority:"High", ask:"", state:"upcoming" });
   });
-  return out.filter(x=>!put[letterKey(x)]).sort((a,b)=>a.due-b.due);
+  return out.filter(x=>!clearedFor(x)).sort((a,b)=>a.due-b.due);
 }
 function isPlan(f){ return f==="upcoming" || f==="letter"; }
 function planFor(folder){ return folder==="today" ? letterQueue.slice() : folder==="week" ? planItems(1,8) : planItems(8,31); }
@@ -3818,6 +3834,25 @@ function letterKey(x){
    the copy honest. */
 let skippedRows=null;
 function skippedMap(){ return skippedRows||{}; }
+/* Cleared until they write. The studio has decided this one waits on them: it
+   stays off the pile whatever its schedule says, and comes back by itself the
+   moment they write again after the day it was cleared, by email or through
+   the website form. Nothing has to be remembered or undone. */
+function theyWroteSince(x, since){
+  const d=x.d||{}, q=x.q;
+  const email=String(d.email||(q&&q.email)||"").toLowerCase();
+  const g = email && typeof _lastMsg!=="undefined" ? _lastMsg.get(email) : null;
+  if(g && g.at && g.at>since) return true;
+  // the website form leaves "[2026-09-18] wrote in again" in the enquiry's note
+  const day=new Date(since).toISOString().slice(0,10);
+  for(const m of String((q&&q.note)||"").matchAll(/\[(\d{4}-\d{2}-\d{2})\] wrote in again/g))
+    if(m[1]>day) return true;
+  return false;
+}
+function clearedFor(x){
+  const r=skippedMap()[letterKey(x)]; if(!r) return false;
+  return !theyWroteSince(x, Date.parse(r.skipped_at)||0);
+}
 async function loadSkipped(){
   const { data, error } = await sb.from("skipped_letters").select("key,name,subject,skipped_at");
   if(error) return;
@@ -3840,7 +3875,7 @@ function skipLetter(x){
 }
 function skippedItems(){
   const m=skippedMap();
-  return followUps().filter(x=>m[letterKey(x)])
+  return followUps().filter(x=>m[letterKey(x)] && clearedFor(x))
     .map(x=>({ x, at:Date.parse(m[letterKey(x)].skipped_at)||Date.now() }))
     .sort((a,b)=>b.at-a.at);
 }
@@ -4003,8 +4038,8 @@ function renderReader(){
       return `<button class="lv-reader-row" data-skip="${esc(letterKey(x))}">
         <div class="lv-reader-row-top"><span class="lv-reader-from">${esc(cleanName(nm))}</span><span class="lv-reader-ago">${esc(mailDate(at))}</span></div>
         ${what?`<div class="lv-reader-row-subj">${esc(what)}</div>`:""}
-        <div class="lv-reader-row-snip">Put aside. Click to pick it back up.</div></button>`;
-    }).join("")}</div>` : `<p class="lv-reader-note">Nothing postponed.</p>`;
+        <div class="lv-reader-row-snip">Cleared until they write. Click to bring it back now.</div></button>`;
+    }).join("")}</div>` : `<p class="lv-reader-note">Nothing is waiting on anyone.</p>`;
     el.querySelectorAll("[data-skip]").forEach(b=>b.onclick=()=>unskipLetter(b.dataset.skip));
     return;
   }
@@ -4098,8 +4133,8 @@ function doneMarkup(put, when){
     <div class="lv-done-copy">
       <p class="lv-done-date">${esc(day)}</p>
       <h2 class="lv-done-title">The desk is clear</h2>
-      <p class="lv-done-sub">Every letter due today is written or set aside. Come back when someone is due, or open Classic to browse everyone.</p>
-      ${put.length?`<div class="lv-empty-skipped"><span>Set aside</span>${put.map(({x})=>
+      <p class="lv-done-sub">Every letter due today is written, or waiting on them to write first. Come back when someone is due, or open Classic to browse everyone.</p>
+      ${put.length?`<div class="lv-empty-skipped"><span>Waiting on them</span>${put.map(({x})=>
         `<button data-skip="${esc(letterKey(x))}">${esc(cleanName((x.d&&x.d.name)||(x.q&&x.q.name)||"Someone"))}</button>`).join("")}</div>`:""}
     </div>
   </div>`;
@@ -4295,14 +4330,13 @@ function renderLetters(){
   const all=followUps();
   // The urgent, per-letter view stops at 3 months — anything older still
   // needs attention, but it belongs in Classic's drawer, not the front page.
-  const put=skippedMap();
   // Gmail's view of who we have written to arrives after the first draw; ask
   // for it for everyone in sight and redraw once when it comes.
   if(gmailReady()) loadLastMessages(all).then(()=>{ if(_lastRedrawPending){ _lastRedrawPending=false; renderLetters(); } });
   // Catch-ups only come due 90 days after contact, so the cap that keeps the
   // desk to three months measures them from when they came due, not from contact.
   letterQueue = all.filter(x=>(x.state||"attention")==="attention" && (x.days==null || x.days <= (x.kind==="reconnect" ? 180 : 90))
-    && !put[letterKey(x)] && letterReason(x));
+    && !clearedFor(x) && letterReason(x));
   // Enquiries still lead (live money), then the collectors most worth an hour:
   // patrons and past commissioners, and anyone inside the repeat window.
   letterQueue.sort((a,b)=>{
@@ -4543,7 +4577,7 @@ function renderCurrentLetter(){
           <button class="lv-close" id="lvClose" title="Mark closed" aria-label="Mark closed">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4.5 4.5L19 7"/></svg></button>
           <div class="lv-footer-right">
-            <button class="lv-skip" id="lvSkip">Skip for now</button>
+            <button class="lv-skip" id="lvSkip" title="Off the pile until they write to you again">Clear until they write</button>
             <button class="lv-send" id="lvSend">Send</button>
           </div>
         </div>
@@ -4651,7 +4685,7 @@ function renderCurrentLetter(){
       retypeInto(bodyEl, nextBody, autosizeBody, ()=>{ delete btn.dataset.busy; });
     };
     host.querySelector("#lvSkip").onclick=()=>{
-      // Out of the queue and into the third tab, rather than round again.
+      // Off the pile until they write again, whatever its schedule says.
       skipLetter(x);
       letterQueue.splice(letterIdx,1);
       if(letterIdx>=letterQueue.length) letterIdx=0;
