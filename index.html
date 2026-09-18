@@ -4152,7 +4152,7 @@ function envelopeCounts(q){
   return c;
 }
 let _envShown=false, _renderAfterRitual=false;
-["env-body-noflap","env-flap-front","env-flap-back","wax-seal"].forEach(n=>{ const i=new Image(); i.src="logos/"+n+".webp"; });
+["env-body-noflap-neutral","env-flap-front-neutral","env-flap-back-neutral","wax-seal"].forEach(n=>{ const i=new Image(); i.src="logos/"+n+".webp"; });
 function envelopeDue(){
   if(_envShown || letterComposing || !letterQueue.length) return false;
   if(!document.body.classList.contains("view-letters")) return false;
@@ -4211,11 +4211,11 @@ function maybeShowMorningEnvelope(){
     <div class="lv-env2-fade" id="lvEnvFade"></div>
     <div class="lv-env2-veil" id="lvEnvVeil" role="dialog" aria-label="Today's letters">
     </div>
-    <img class="lv-env2-img lv-env2-closed" id="lvEnvClosed" src="logos/env-body-noflap.webp" alt="" style="left:${imgL}px;top:${closedTop}px;width:${IW}px">
+    <img class="lv-env2-img lv-env2-closed" id="lvEnvClosed" src="logos/env-body-noflap-neutral.webp" alt="" style="left:${imgL}px;top:${closedTop}px;width:${IW}px">
     <div class="lv-env2-flapwrap" id="lvEnvFlap" style="left:${imgL}px;top:${foldTop}px;width:${IW}px;height:${flapH}px">
       <div class="lv-env2-flap3d" id="lvEnvFlap3d">
-        <img class="f-front" src="logos/env-flap-front.webp" alt="">
-        <img class="f-back" src="logos/env-flap-back.webp" alt="">
+        <img class="f-front" src="logos/env-flap-front-neutral.webp" alt="">
+        <img class="f-back" src="logos/env-flap-back-neutral.webp" alt="">
       </div>
     </div>
     <div class="lv-env2-label" id="lvEnvLabel" style="left:${L+W/2}px;top:${Math.round(T+W*0.56)+20}px;width:${Math.round(W*0.405)}px">
