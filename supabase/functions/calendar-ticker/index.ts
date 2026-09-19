@@ -11,7 +11,7 @@
 //        ICS_URL = https://p##-caldav.icloud.com/published/2/...   (your webcal:// URL with webcal:// swapped for https://)
 //   3. Function settings → disable "Enforce JWT verification" (the feed is read-only and contains only event titles/times).
 
-import { keeperEmail } from "../_shared/keepers.ts";
+import { keeperEmail, sameSecret } from "../_shared/keepers.ts";
 
 Deno.serve(async (req) => {
   const cors = {
@@ -19,6 +19,23 @@ Deno.serve(async (req) => {
     "Access-Control-Allow-Headers": "authorization, content-type",
   };
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  // A health check for the feed itself: counts only, never the calendar's
+  // address or what is in it. Answers to the digest key, so it can be checked
+  // without signing in when the ticker looks stuck.
+  if (new URL(req.url).searchParams.has("check") && sameSecret(req.headers.get("x-digest-key"), Deno.env.get("DIGEST_KEY") || "")) {
+    const url = Deno.env.get("ICS_URL");
+    if (!url) return new Response(JSON.stringify({ feed: "no ICS_URL set" }), { status: 200, headers: { ...cors, "content-type": "application/json" } });
+    try {
+      const r = await fetch(url.replace(/^webcal:/, "https:"));
+      const body = r.ok ? await r.text() : "";
+      const events = (body.match(/BEGIN:VEVENT/g) || []).length;
+      const stamps = [...body.matchAll(/DTSTART[^:]*:(\d{8})/g)].map((m) => m[1]).sort();
+      return new Response(JSON.stringify({ feed: r.status, bytes: body.length, events,
+        firstDate: stamps[0] || null, lastDate: stamps[stamps.length - 1] || null }), { status: 200, headers: { ...cors, "content-type": "application/json" } });
+    } catch (e) {
+      return new Response(JSON.stringify({ feed: "fetch failed", error: String(e) }), { status: 200, headers: { ...cors, "content-type": "application/json" } });
+    }
+  }
   if (!(await keeperEmail(req)))
     return new Response(JSON.stringify({ error: "keepers only" }), { status: 401, headers: { ...cors, "content-type": "application/json" } });
 

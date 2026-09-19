@@ -6158,21 +6158,6 @@ function openScrim(){ const host=document.getElementById("cardHost"); if(host&&!
 function closeScrim(){ document.getElementById("scrim").classList.remove("show"); }
 
 /* ---------- Bureau-generated to-dos ---------- */
-// A year of maker's letters — jumping-off themes, one per month. Edit freely.
-const BUREAU_LETTERS=[
-  {date:"2026-07-06", title:"Maker's Letter — The London Letters: what the Thames taught us"},
-  {date:"2026-08-03", title:"Maker's Letter — Where Objects Live: a photo essay from collectors' homes"},
-  {date:"2026-09-07", title:"Maker's Letter — The Foundry Letter: how a totem is cast"},
-  {date:"2026-10-05", title:"Maker's Letter — Patina: on bronze aging alongside you"},
-  {date:"2026-11-02", title:"Maker's Letter — The Gift Letter: choosing an artifact for someone else"},
-  {date:"2026-12-07", title:"Maker's Letter — Artifacts of Love: the year in the studio, a thank-you"},
-  {date:"2027-01-04", title:"Maker's Letter — Beginnings: first sketches of the new collection"},
-  {date:"2027-02-01", title:"Maker's Letter — Love Letters: pieces given, stories received"},
-  {date:"2027-03-01", title:"Maker's Letter — The Ephemeral Collection: objects that exist only once"},
-  {date:"2027-04-05", title:"Maker's Letter — Tools: the hands and instruments behind each piece"},
-  {date:"2027-05-03", title:"Maker's Letter — The Collector's Shelf: conversations with true collectors"},
-  {date:"2027-06-07", title:"Maker's Letter — One Year of the Bureau: the archive, by the numbers"},
-];
 const ORDER_TODO_CUTOFF="2026-06-10"; // orders entered after this date also surface as to-dos
 // Persistent completion: letters and follow-ups stay on the list, day after day,
 // until someone checks them off. Done ids: {"letter|2026-07-06":"2026-07-08", ...}
@@ -6231,14 +6216,6 @@ function itemsForOffset(offset, events){
   if(events) events.forEach(e=>{
     const ed=e.date||today;                       // older cached payloads had no date → treat as today
     if(ed===dayStr) out.push({id:"cal|"+ed+"|"+e.title, time:e.allDay?"ALL DAY":e.start, title:e.title, act:null});
-  });
-  BUREAU_LETTERS.forEach(t=>{
-    const id="letter|"+t.date; if(done[id]) return;
-    if(offset===0){
-      if(t.date<=today) out.push({id, time:t.date<today?new Date(Date.parse(t.date)+43200000).toLocaleDateString("en-US",{month:"short",day:"numeric"}).toUpperCase():"", title:t.title, act:{type:"compose"}});
-    } else if(t.date===dayStr){
-      out.push({id, time:"", title:t.title, act:{type:"compose"}});
-    }
   });
   // Enquiries waiting on a reply belong on the day's list, not only in the drawer
   if(offset===0) inquiries.forEach(q=>{
