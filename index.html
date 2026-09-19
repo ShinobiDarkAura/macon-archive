@@ -6215,7 +6215,10 @@ function itemsForOffset(offset, events){
   const out=[];
   if(events) events.forEach(e=>{
     const ed=e.date||today;                       // older cached payloads had no date → treat as today
-    if(ed===dayStr) out.push({id:"cal|"+ed+"|"+e.title, time:e.allDay?"ALL DAY":e.start, title:e.title, act:null});
+    // The time is part of what a calendar item is: two "Box carving" on one
+    // day are two things to do, and ticking one must not tick the other.
+    if(ed===dayStr) out.push({id:"cal|"+ed+"|"+(e.allDay?"ALL":(e.start||""))+"|"+String(e.title||"").trim(),
+      time:e.allDay?"ALL DAY":e.start, title:String(e.title||"").trim(), act:null});
   });
   // Enquiries waiting on a reply belong on the day's list, not only in the drawer
   if(offset===0) inquiries.forEach(q=>{

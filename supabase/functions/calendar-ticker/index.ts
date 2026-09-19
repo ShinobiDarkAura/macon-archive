@@ -13,49 +13,12 @@
 
 import { keeperEmail, sameSecret } from "../_shared/keepers.ts";
 
-Deno.serve(async (req) => {
-  const cors = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "authorization, content-type",
-  };
-  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
-  // A health check for the feed itself: counts only, never the calendar's
-  // address or what is in it. Answers to the digest key, so it can be checked
-  // without signing in when the ticker looks stuck.
-  if (new URL(req.url).searchParams.has("check") && sameSecret(req.headers.get("x-digest-key"), Deno.env.get("DIGEST_KEY") || "")) {
-    const url = Deno.env.get("ICS_URL");
-    if (!url) return new Response(JSON.stringify({ feed: "no ICS_URL set" }), { status: 200, headers: { ...cors, "content-type": "application/json" } });
-    try {
-      const r = await fetch(url.replace(/^webcal:/, "https:"));
-      const body = r.ok ? await r.text() : "";
-      const events = (body.match(/BEGIN:VEVENT/g) || []).length;
-      const stamps = [...body.matchAll(/DTSTART[^:]*:(\d{8})/g)].map((m) => m[1]).sort();
-      return new Response(JSON.stringify({ feed: r.status, bytes: body.length, events,
-        firstDate: stamps[0] || null, lastDate: stamps[stamps.length - 1] || null }), { status: 200, headers: { ...cors, "content-type": "application/json" } });
-    } catch (e) {
-      return new Response(JSON.stringify({ feed: "fetch failed", error: String(e) }), { status: 200, headers: { ...cors, "content-type": "application/json" } });
-    }
-  }
-  if (!(await keeperEmail(req)))
-    return new Response(JSON.stringify({ error: "keepers only" }), { status: 401, headers: { ...cors, "content-type": "application/json" } });
-
-  const icsUrl = Deno.env.get("ICS_URL");
-  if (!icsUrl) {
-    return new Response(JSON.stringify({ error: "ICS_URL secret not set" }), {
-      status: 500, headers: { ...cors, "content-type": "application/json" },
-    });
-  }
-
-  const res = await fetch(icsUrl.replace(/^webcal:/, "https:"));
-  if (!res.ok) {
-    return new Response(JSON.stringify({ error: "feed fetch failed: " + res.status }), {
-      status: 502, headers: { ...cors, "content-type": "application/json" },
-    });
-  }
-  const ics = await res.text();
-
-  // A window of days around today, in the calendar's display timezone.
-  const tz = Deno.env.get("TICKER_TZ") || "Europe/London";
+/* Reading the calendar: the window of days, every event in it, repeats
+   expanded, moved instances honoured, in the studio's own time zone.
+   Used by the ticker itself and by the ?check= health check, so what the
+   check reports is exactly what the desk is served. */
+function readFeed(ics: string, tz: string) {
+  // A window of days around today, in the studio's own time zone.
   const PAST_DAYS = 7, AHEAD_DAYS = 45;
   const now = new Date();
   const todayStr = now.toLocaleDateString("en-CA", { timeZone: tz }); // YYYY-MM-DD
@@ -67,16 +30,35 @@ Deno.serve(async (req) => {
   const ymdToUTC = (ymd: string) => { const [y, m, d] = ymd.split("-").map(Number); return Date.UTC(y, m - 1, d, 12); };
   const utcToYmd = (ts: number) => new Date(ts).toISOString().slice(0, 10);
 
+  /* A calendar time is written in some zone: the event's own TZID, UTC when it
+     ends in Z, or the calendar's. Read as if it were UTC (which is what the
+     runtime does with a bare string) a 5pm Los Angeles event became 1am the
+     next day in London, and moved to the wrong day. */
+  const zoneOffset = (ms: number, zone: string) => {
+    const d = new Date(ms);
+    const p = new Intl.DateTimeFormat("en-US", { timeZone: zone, hour12: false,
+      year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" })
+      .formatToParts(d).reduce((o: Record<string, string>, x) => (o[x.type] = x.value, o), {});
+    const asUTC = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second);
+    return asUTC - ms;
+  };
+  const instantOf = (raw: string, zone: string): number => {
+    const m = /^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2}))?(Z)?$/.exec(raw.trim());
+    if (!m) return NaN;
+    const [, y, mo, d, h = "12", mi = "00", se = "00", z] = m;
+    const naive = Date.UTC(+y, +mo - 1, +d, +h, +mi, +se);
+    if (z) return naive;                                  // already UTC
+    let ms = naive - zoneOffset(naive, zone);             // the zone's wall clock
+    ms = naive - zoneOffset(ms, zone);                    // settle across a DST edge
+    return ms;
+  };
+  const ymdIn = (ms: number) => new Date(ms).toLocaleDateString("en-CA", { timeZone: tz });
+
   // Helper: parse a DTSTART/RECURRENCE-ID raw value to a YYYY-MM-DD string.
-  const rawToYmd = (raw: string): string => {
-    if (!raw.includes("T")) {
-      // all-day: YYYYMMDD
-      return raw.slice(0, 4) + "-" + raw.slice(4, 6) + "-" + raw.slice(6, 8);
-    }
-    const when = raw.endsWith("Z")
-      ? new Date(raw.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/, "$1-$2-$3T$4:$5:$6Z"))
-      : new Date(raw.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/, "$1-$2-$3T$4:$5:$6"));
-    return when.toLocaleDateString("en-CA", { timeZone: tz });
+  const rawToYmd = (raw: string, zone = tz): string => {
+    if (!raw.includes("T")) return raw.slice(0, 4) + "-" + raw.slice(4, 6) + "-" + raw.slice(6, 8);   // all-day
+    const ms = instantOf(raw, zone);
+    return isNaN(ms) ? raw.slice(0, 4) + "-" + raw.slice(4, 6) + "-" + raw.slice(6, 8) : ymdIn(ms);
   };
 
   // --- Phase 1: collect all VEVENTs into an array ---
@@ -111,7 +93,7 @@ Deno.serve(async (req) => {
     const uid = c["UID"];
     const recId = c["RECURRENCE-ID"];
     if (!uid || !recId) continue;
-    const ymd = rawToYmd(recId);
+    const ymd = rawToYmd(recId, c["TZID"] || tz);
     if (!overrideMap.has(uid)) overrideMap.set(uid, new Set());
     overrideMap.get(uid)!.add(ymd);
   }
@@ -124,13 +106,16 @@ Deno.serve(async (req) => {
     if (allDay) {
       evDate0 = raw.slice(0, 4) + "-" + raw.slice(4, 6) + "-" + raw.slice(6, 8);
     } else {
-      const when = raw.endsWith("Z")
-        ? new Date(raw.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/, "$1-$2-$3T$4:$5:$6Z"))
-        : new Date(raw.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/, "$1-$2-$3T$4:$5:$6"));
+      const ms = instantOf(raw, c["TZID"] || tz);
+      if (isNaN(ms)) return;
+      const when = new Date(ms);
       evDate0 = when.toLocaleDateString("en-CA", { timeZone: tz });
       start = when.toLocaleTimeString("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit" });
     }
-    const title = c["SUMMARY"].replace(/\\,/g, ",").replace(/\\;/g, ";").replace(/\\n/g, " · ");
+    // A title is what it says, without the trailing spaces that made one event
+    // look like two on the day's list.
+    const title = c["SUMMARY"].replace(/\\,/g, ",").replace(/\\;/g, ";").replace(/\\n/g, " · ").replace(/\s+/g, " ").trim();
+    if (c["STATUS"] === "CANCELLED") return;
 
     // Exception dates (cancelled instances)
     const exSet = new Set<string>();
@@ -191,13 +176,89 @@ Deno.serve(async (req) => {
     }
   }
 
-  for (const c of vevents) finish(c, overrideMap.get(c["UID"] ?? "") ?? new Set());
+  /* A moved or edited instance of a repeating event is itself a VEVENT with a
+     RECURRENCE-ID. The series skips the date it replaces, but the replacement
+     must not: it used to skip its own date and vanish, which is why a changed
+     event only appeared after being deleted and added again. */
+  for (const c of vevents)
+    finish(c, c["RECURRENCE-ID"] ? new Set<string>() : (overrideMap.get(c["UID"] ?? "") ?? new Set<string>()));
+
+  // One entry per event: a feed can carry the same occurrence more than once.
+  const seenEv = new Set<string>();
+  const unique = events.filter((e) => { const k = `${e.date}|${e.start}|${e.title}`; if (seenEv.has(k)) return false; seenEv.add(k); return true; });
+  events.length = 0; events.push(...unique);
 
   events.sort((a, b) =>
     a.date.localeCompare(b.date) ||
     (a.allDay ? "" : a.start).localeCompare(b.allDay ? "" : b.start) ||
     a.title.localeCompare(b.title));
-  return new Response(JSON.stringify({ date: todayStr, events }), {
-    headers: { ...cors, "content-type": "application/json", "cache-control": "public, max-age=60" },
+  return { date: todayStr, events };
+}
+
+Deno.serve(async (req) => {
+  const cors = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "authorization, content-type",
+  };
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  // A health check for the feed itself: counts only, never the calendar's
+  // address or what is in it. Answers to the digest key, so it can be checked
+  // without signing in when the ticker looks stuck.
+  if (new URL(req.url).searchParams.has("check") && sameSecret(req.headers.get("x-digest-key"), Deno.env.get("DIGEST_KEY") || "")) {
+    const url = Deno.env.get("ICS_URL");
+    if (!url) return new Response(JSON.stringify({ feed: "no ICS_URL set" }), { status: 200, headers: { ...cors, "content-type": "application/json" } });
+    try {
+      const r = await fetch(url.replace(/^webcal:/, "https:"));
+      const body = r.ok ? await r.text() : "";
+      const events = (body.match(/BEGIN:VEVENT/g) || []).length;
+      const stamps = [...body.matchAll(/DTSTART[^:]*:(\d{8})/g)].map((m) => m[1]).sort();
+      const day = new URL(req.url).searchParams.get("day");     // YYYY-MM-DD, what the feed holds that day
+      const raw: string[] = [];
+      if (day) {
+        const ymd = day.replace(/-/g, "");
+        for (const block of body.split("BEGIN:VEVENT").slice(1)) {
+          const v = block.split("END:VEVENT")[0];
+          if (!v.includes(ymd) && !/RRULE/.test(v)) continue;
+          const line = (k: string) => (v.match(new RegExp("^" + k + "[^\\r\\n]*", "m")) || [])[0]?.trim() || "";
+          raw.push([line("SUMMARY"), line("DTSTART"), line("RRULE"), line("STATUS"), line("RECURRENCE-ID")].filter(Boolean).join("  ||  "));
+        }
+      }
+      return new Response(JSON.stringify({ feed: r.status, bytes: body.length, events,
+        firstDate: stamps[0] || null, lastDate: stamps[stamps.length - 1] || null,
+        calendarName: (body.match(/^X-WR-CALNAME:(.*)$/m) || [])[1]?.trim() || null,
+        feedTimezone: (body.match(/^X-WR-TIMEZONE:(.*)$/m) || [])[1]?.trim() || null,
+        tickerTimezone: Deno.env.get("TICKER_TZ") || "Europe/London (default)",
+        crlf: body.includes("\r\n"), folded: /\r?\n[ \t]/.test(body),
+        cancelled: (body.match(/STATUS:CANCELLED/g) || []).length,
+        day, onThatDay: raw.slice(0, 40),
+        asServed: day ? readFeed(body, Deno.env.get("TICKER_TZ") || "America/Los_Angeles").events.filter((e) => e.date === day) : undefined,
+      }), { status: 200, headers: { ...cors, "content-type": "application/json" } });
+    } catch (e) {
+      return new Response(JSON.stringify({ feed: "fetch failed", error: String(e) }), { status: 200, headers: { ...cors, "content-type": "application/json" } });
+    }
+  }
+  if (!(await keeperEmail(req)))
+    return new Response(JSON.stringify({ error: "keepers only" }), { status: 401, headers: { ...cors, "content-type": "application/json" } });
+
+  const icsUrl = Deno.env.get("ICS_URL");
+  if (!icsUrl) {
+    return new Response(JSON.stringify({ error: "ICS_URL secret not set" }), {
+      status: 500, headers: { ...cors, "content-type": "application/json" },
+    });
+  }
+
+  // Never a cached copy: a stale snapshot is what made a new event show up
+  // only after it was deleted and added again.
+  const res = await fetch(icsUrl.replace(/^webcal:/, "https:"), { cache: "no-store", headers: { "cache-control": "no-cache" } });
+  if (!res.ok) {
+    return new Response(JSON.stringify({ error: "feed fetch failed: " + res.status }), {
+      status: 502, headers: { ...cors, "content-type": "application/json" },
+    });
+  }
+  const ics = await res.text();
+  const tz = Deno.env.get("TICKER_TZ") || "America/Los_Angeles";   // where the studio is
+
+  return new Response(JSON.stringify(readFeed(ics, tz)), {
+    headers: { ...cors, "content-type": "application/json", "cache-control": "no-store" },
   });
 });
