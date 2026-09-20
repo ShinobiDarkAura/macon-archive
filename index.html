@@ -333,7 +333,7 @@
   .lv-quote-edit{resize:vertical;min-height:66px}
   .lv-quote-edit:focus{outline:none}
 
-  .lv-paper{grid-column:2;grid-row:1;align-self:end;margin-bottom:calc(3vh - 20px);height:min(92%, calc((100vw - 760px - 136px - 3vw) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
+  .lv-paper{grid-column:2;grid-row:1;align-self:center;margin-bottom:0;height:min(92%, calc((100vw - 760px - 136px - 3vw) * 1.2941));max-height:92%;aspect-ratio:8.5/11;width:auto;background:#FFFEFC;border-radius:2px;
     box-shadow:0 1px 1px rgba(16,19,19,.22),0 2px 4px rgba(16,19,19,.18);
     padding:44px 48px 0;box-sizing:border-box;position:relative;overflow:hidden;z-index:3;
     display:flex;flex-direction:column}
@@ -4146,6 +4146,10 @@ function renderReader(){
   requestAnimationFrame(()=>{
     if(tag) tag.style.height=""; if(_rd) _rd.style.height="";
     let h = Math.max(tag?tag.offsetHeight:0, _rd?_rd.offsetHeight:0);
+    // The sheet sets the ceiling: when the desk is short it is the two side
+    // surfaces that give way, never the letter.
+    const _pap=document.querySelector(".lv-paper");
+    if(_pap && _pap.offsetHeight) h=Math.min(h, _pap.offsetHeight);
     // Neither can stand taller than its own cap, and the cap is easier to try
     // on than to read: offer each the height and take back what it gives.
     if(_rd){ _rd.style.height=h+"px"; h=Math.min(h,_rd.offsetHeight); }
