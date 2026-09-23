@@ -54,3 +54,14 @@ export function readOrder(o: Rec) {
   };
 }
 
+// Shopify's "Send test notification" posts a fixed sample payload. Its address
+// is example.com on some topics and a made-up mailbox on others, so the fixed
+// ids it always carries are checked too: a rehearsal must never become a
+// collector, an order, or a lead.
+const SAMPLE_EMAILS = new Set(["example@email.com", "jon@doe.ca", "bob.norman@hostmail.com"]);
+const SAMPLE_IDS = new Set(["123123123", "820982911946154508", "1072503851", "450789469"]);
+export function isSample(email: string, ...ids: unknown[]): boolean {
+  const e = String(email || "").trim().toLowerCase();
+  if (/@([a-z0-9-]+\.)*example\.(com|net|org)$/.test(e) || SAMPLE_EMAILS.has(e)) return true;
+  return ids.some((i) => i != null && SAMPLE_IDS.has(String(i)));
+}

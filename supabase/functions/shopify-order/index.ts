@@ -18,7 +18,7 @@
 // checked here. Without the key set, every request is refused.
 
 import { applyOrder } from "../_shared/orders.ts";
-import { readOrder, signatureValid } from "./shopify.ts";
+import { isSample, readOrder, signatureValid } from "./shopify.ts";
 
 type Rec = Record<string, any>;
 const ok = (body: Rec, status = 200) =>
@@ -42,9 +42,18 @@ Deno.serve(async (req) => {
 
   const order = readOrder(o);
   if (!order.email) return ok({ error: "no buyer email in order", id: o.id }, 422);
-  // Shopify's "Send test notification" posts a sample order addressed to
-  // example.com, a domain reserved for exactly this and never a real buyer.
-  if (/@([a-z0-9-]+\.)*example\.(com|net|org)$/.test(order.email)) return ok({ status: "sample order ignored", email: order.email });
+  if (isSample(order.email, o.id, o.checkout_token)) return ok({ status: "sample order ignored", email: order.email });
   const [status, body] = await applyOrder(order, SUPABASE_URL, SERVICE_KEY);
+
+  // The checkout this order came out of is no longer one that was left: Shopify
+  // does not reliably say so itself, but every order carries its checkout's
+  // token, and that is the only dependable way a checkout is marked as bought.
+  if (o.checkout_token) {
+    await fetch(`${SUPABASE_URL}/rest/v1/checkouts?token=eq.${encodeURIComponent(String(o.checkout_token))}`, {
+      method: "PATCH",
+      headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify({ completed_at: o.processed_at || o.created_at || new Date().toISOString() }),
+    }).catch(() => {});                       // an order must never fail over its checkout
+  }
   return ok(body, status);
 });

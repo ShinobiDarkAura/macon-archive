@@ -11,7 +11,7 @@
 //
 // DEPLOY WITH --no-verify-jwt:  supabase functions deploy shopify-fulfillment --no-verify-jwt
 
-import { signatureValid } from "../shopify-order/shopify.ts";
+import { isSample, signatureValid } from "../shopify-order/shopify.ts";
 
 type Rec = Record<string, any>;
 const ok = (body: Rec, status = 200) =>
@@ -31,6 +31,7 @@ Deno.serve(async (req) => {
   let f: Rec;
   try { f = JSON.parse(raw); } catch { return ok({ error: "not json" }, 400); }
   if (f.status && f.status !== "success") return ok({ status: `fulfillment ${f.status}, not shipped`, id: f.id });
+  if (isSample("", f.id, f.order_id)) return ok({ status: "sample fulfillment ignored", id: f.id });
   const orderId = f.order_id != null ? `shopify:${f.order_id}` : "";
   if (!orderId) return ok({ error: "no order id" }, 422);
   const when = String(f.created_at || new Date().toISOString());

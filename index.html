@@ -1266,6 +1266,9 @@
     font-family:var(--sans);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
   .enq-act button:hover{background:#000;border-color:#000;color:var(--paper)}
   .enq-empty{color:#686E6D;font-family:var(--serif-soul);font-style:italic;font-size:16px;padding:44px 0;text-align:center}
+  /* A checkout row carries two columns, not an enquiry's four: who and what on
+     the left, the dates on the right, with no dead gutter between them. */
+  #checkouts .enq-row{grid-template-columns:minmax(0,1fr) 150px}
   @media(max-width:900px){ .enq-row{grid-template-columns:1fr;gap:10px} }
   .dfilter{display:flex;gap:2px;background:rgba(43,38,34,.05);border-radius:8px;padding:2px;margin-bottom:4px}
   .dfilter button{flex:1;border:none;background:transparent;cursor:pointer;padding:6px 4px;border-radius:6px;

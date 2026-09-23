@@ -1,5 +1,5 @@
-import { assertEquals } from "jsr:@std/assert@1";
-import { readOrder, signatureValid } from "./shopify.ts";
+import { assert, assertEquals } from "jsr:@std/assert@1";
+import { isSample, readOrder, signatureValid } from "./shopify.ts";
 
 // Trimmed from the shape Shopify posts for "Order payment" (API 2025-07).
 export const SAMPLE = {
@@ -42,4 +42,16 @@ Deno.test("only Shopify's own signature is accepted", async () => {
   assertEquals(await signatureValid(raw, good, "someone-else"), false);    // wrong key
   assertEquals(await signatureValid(raw, null, secret), false);            // unsigned
   assertEquals(await signatureValid(raw, good, ""), false);                // no key configured
+});
+
+Deno.test("a rehearsal is never a collector, an order or a lead", () => {
+  // Shopify's sample payloads, by address and by the fixed ids they carry.
+  assert(isSample("example@email.com"));                 // the checkout sample
+  assert(isSample("jon@doe.ca"));                        // the order sample
+  assert(isSample("someone@mail.example.com"));
+  assert(isSample("", "123123123"));                     // sample checkout token
+  assert(isSample("real@person.co", "820982911946154508"));
+  // A real buyer passes, and an id that merely looks long does not catch them.
+  assert(!isSample("alan@boardman.co", "6201234567890"));
+  assert(!isSample("someone@email.co.uk"));
 });

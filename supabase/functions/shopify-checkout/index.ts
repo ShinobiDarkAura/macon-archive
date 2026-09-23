@@ -12,7 +12,7 @@
 //
 // DEPLOY WITH --no-verify-jwt:  supabase functions deploy shopify-checkout --no-verify-jwt
 
-import { signatureValid } from "../shopify-order/shopify.ts";
+import { isSample, signatureValid } from "../shopify-order/shopify.ts";
 
 type Rec = Record<string, any>;
 const ok = (body: Rec, status = 200) =>
@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
   const email = String(c.email || cust.email || "").trim().toLowerCase();
   // A checkout with no email yet tells us nothing about who; wait for the update that has one.
   if (!token || !email) return ok({ status: "no email yet", token });
-  if (/@([a-z0-9-]+\.)*example\.(com|net|org)$/.test(email)) return ok({ status: "sample checkout ignored", email });
+  if (isSample(email, token, c.id)) return ok({ status: "sample checkout ignored", email });
 
   const lines: Rec[] = Array.isArray(c.line_items) ? c.line_items : [];
   const pieces = lines.map((li) => {
