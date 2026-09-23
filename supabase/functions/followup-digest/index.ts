@@ -64,7 +64,10 @@ function isDue(d: Rec): boolean {
   if (d.trade) return false;                     // trade buyers are not written to as collectors
   const days = daysSince(d.last_buy);
   if (days == null) return false;
-  if (days < leadTime(firstPiece(d.pieces)) + 14) return false;
+  // Once the piece has shipped, it has had two weeks with them from that day;
+  // before that, the make and shipping time is estimated from the piece.
+  const shipped = d.last_shipped && String(d.last_shipped) >= String(d.last_buy).slice(0, 10) ? daysSince(d.last_shipped) : null;
+  if (shipped != null ? shipped < 14 : days < leadTime(firstPiece(d.pieces)) + 14) return false;
   if (days > STORY_WINDOW) return false;
   if (d.story === "Yes") return false;
   if (d.last_contact) {

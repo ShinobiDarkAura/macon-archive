@@ -1669,6 +1669,7 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
       <div class="tabs" id="tabs">
         <button data-tab="ledger" class="on" title="Ledger"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="3.6" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="3.6" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="3.6" cy="18" r="1.2" fill="currentColor" stroke="none"/></svg></button>
         <button data-tab="enquiries" title="Enquiries"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18v14H3z"/><path d="m3 6 9 7 9-7"/></svg></button>
+        <button data-tab="checkouts" title="Nearly bought"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg></button>
         <button data-tab="provenance" title="Provenance"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></button>
         <span class="tab-ink" id="tabInk"></span>
       </div>
@@ -1684,6 +1685,7 @@ setTimeout(()=>document.body.classList.add("booted"),1400);</script>
     <div class="pager" id="pager"></div>
     </div>
     <section class="enquiries" id="enquiries" hidden></section>
+    <section class="enquiries" id="checkouts" hidden></section>
     <section class="provenance" id="provenance" hidden></section>
   </main>
 
@@ -1844,6 +1846,8 @@ async function startSynced(){
   loadTodoDone();
   // The queue filters on what has been set aside, so both have to be in hand
   // before it is drawn or a skipped letter flashes up and vanishes.
+  loadCheckouts().then(()=>{ if(tab==="checkouts") renderCheckouts(); });
+  sb.channel("chk-rt").on("postgres_changes",{event:"*",schema:"public",table:"checkouts"},()=>loadCheckouts().then(()=>{ if(tab==="checkouts") renderCheckouts(); })).subscribe();
   Promise.allSettled([loadInquiries(), loadSkipped(), loadDone()]).then(()=>{ letterDataReady=true; renderDrawer(); renderLetters(); if(tab==="enquiries") renderEnquiries(); });
   loadLetterFonts();
   sb.channel("todos-rt").on("postgres_changes",{event:"*",schema:"public",table:"bureau_todos"},()=>loadTodoDone()).subscribe();
@@ -2014,7 +2018,9 @@ function isDue(d){
   if(d.trade) return false;
   const days=daysSince(d.last_buy);
   if(days==null) return false;
-  if(days < leadTime(firstPiece(d.pieces)) + 14) return false;   // make + ship, then settle
+  // shipped: two weeks from the day it left the studio; not yet: make + ship estimated from the piece
+  const shipped = d.last_shipped && String(d.last_shipped) >= String(d.last_buy).slice(0,10) ? daysSince(d.last_shipped) : null;
+  if(shipped!=null ? shipped < 14 : days < leadTime(firstPiece(d.pieces)) + 14) return false;
   if(days > STORY_WINDOW) return false;          // too long ago to ask how it settled in
   if(d.story==="Yes") return false;              // story already captured
   { const lc=lastContactOf(d); if(lc){ const c=daysSince(lc);
@@ -2437,7 +2443,7 @@ function applyTab(){
   const tabsEl=document.getElementById("tabs");
   if(tabsEl) tabsEl.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
   positionTabInk();
-  const isProv=tab==="provenance", isEnq=tab==="enquiries", isLedger=!isProv&&!isEnq;
+  const isProv=tab==="provenance", isEnq=tab==="enquiries", isChk=tab==="checkouts", isLedger=!isProv&&!isEnq&&!isChk;
   const lh=document.getElementById("ledgerHead"), led=document.getElementById("ledger"),
         pg=document.getElementById("pager"), prov=document.getElementById("provenance"),
         enq=document.getElementById("enquiries"), seg=document.getElementById("viewSeg");
@@ -2445,8 +2451,9 @@ function applyTab(){
   if(lh) lh.hidden=!isLedger; if(led) led.hidden=!isLedger; if(pg) pg.hidden=!isLedger;
   if(prov) prov.hidden=!isProv;
   if(enq) enq.hidden=!isEnq;
+  const chk=document.getElementById("checkouts"); if(chk) chk.hidden=!isChk;
   if(seg) seg.style.display=isLedger?"":"none";
-  if(isProv) renderProvenance(); else if(isEnq) renderEnquiries(); else renderLedger();
+  if(isProv) renderProvenance(); else if(isEnq) renderEnquiries(); else if(isChk) renderCheckouts(); else renderLedger();
 }
 
 /* ---------- Enquiries tab ----------
@@ -2530,6 +2537,59 @@ function renderEnquiries(){
     });
   });
 }
+/* ---------- Nearly bought ----------
+   Everyone who reached Shopify's checkout and gave an email, from the
+   shopify-checkout webhook. Shopify's own reminder email already goes to the
+   ones who left; this is for the ones worth a personal note, a collector above
+   all. "Left" is a checkout still open an hour after it began. */
+let checkouts=[], chkFilter="left";
+async function loadCheckouts(){
+  try{ const { data, error } = await sb.from("checkouts").select("*").order("started_at",{ascending:false}).limit(500);
+    if(!error && data) checkouts=data; }catch(e){}
+}
+function chkState(c){
+  if(c.completed_at) return "bought";
+  return (Date.now()-(Date.parse(c.started_at)||0)) > 3600e3 ? "left" : "now";
+}
+function renderCheckouts(){
+  const host=document.getElementById("checkouts"); if(!host) return;
+  const byAcc=new Map((typeof data!=="undefined"&&Array.isArray(data)?data:[]).map(d=>[d.acc,d]));
+  const counts={left:0, now:0, bought:0, all:checkouts.length};
+  checkouts.forEach(c=>counts[chkState(c)]++);
+  const qy=String(query||"").trim().toLowerCase();
+  const rows=checkouts
+    .filter(c=>chkFilter==="all" || chkState(c)===chkFilter)
+    .filter(c=>!qy || [c.name,c.email,c.pieces].some(f=>String(f||"").toLowerCase().includes(qy)));
+  const FILTERS=[["left","Left without buying"],["now","In checkout now"],["bought","Bought"],["all","All"]];
+  const money=v=>v?"$"+Math.round(Number(v)).toLocaleString():"";
+  host.innerHTML = `
+    <div class="enq-top">
+      <div class="enq-seg" id="chkSeg">${FILTERS.map(([k,l])=>
+        `<button data-f="${k}" class="${chkFilter===k?"on":""}">${l}<span class="n">${counts[k]}</span></button>`).join("")}</div>
+    </div>
+    ${rows.length ? `<div class="enq-list">` + rows.map(c=>{
+      const col=c.acc?byAcc.get(c.acc):null;
+      return `<div class="enq-row">
+        <div>
+          <div class="enq-who">${esc(c.name||c.email)}${col?` <span class="enq-sub">· collector ${esc(c.acc)}${col.ltv?", "+money(col.ltv)+" so far":""}</span>`:""}</div>
+          <div class="enq-sub">${esc(c.pieces||"—")}${c.total?" · "+money(c.total):""}</div>
+          ${c.name?`<div class="enq-sub">${esc(c.email)}</div>`:""}
+          <div class="enq-act">
+            <button data-mail="${esc(c.email)}">Mail</button>
+            ${c.recovery_url&&!c.completed_at?`<a class="btn ghost" href="${esc(c.recovery_url)}" target="_blank" rel="noopener">Their checkout</a>`:""}
+          </div>
+        </div>
+        <div class="enq-when">
+          <b>${esc(fmtDate(c.started_at))}</b> reached checkout
+          ${c.completed_at?`<b style="margin-top:6px">${esc(fmtDate(c.completed_at))}</b> bought`:""}
+        </div>
+      </div>`;
+    }).join("") + `</div>`
+    : `<div class="enq-empty">${checkouts.length ? "Nothing here." : "No checkouts yet. They appear as soon as someone reaches checkout on the site."}</div>`}`;
+  host.querySelector("#chkSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{ chkFilter=b.dataset.f; renderCheckouts(); });
+  host.querySelectorAll("[data-mail]").forEach(b=>b.onclick=()=>{ window.location.href="mailto:"+encodeURIComponent(b.dataset.mail||""); });
+}
+
 /* ---------- Follow-up drawer + draft ---------- */
 let drawerFilter="attention";
 
@@ -6459,7 +6519,7 @@ document.getElementById("filterSel").onchange=e=>{ filterKey=e.target.value; pag
     paintArrows(); page=1; renderLedger();
   });
 })();
-document.getElementById("q").oninput=e=>{ query=e.target.value; page=1; if(tab==="provenance") renderProvenance(); else if(tab==="enquiries") renderEnquiries(); else renderLedger(); };
+document.getElementById("q").oninput=e=>{ query=e.target.value; page=1; if(tab==="provenance") renderProvenance(); else if(tab==="enquiries") renderEnquiries(); else if(tab==="checkouts") renderCheckouts(); else renderLedger(); };
 
 /* Ledger / Provenance tabs */
 (function(){ const tabsEl=document.getElementById("tabs"); if(!tabsEl) return;
@@ -6467,7 +6527,7 @@ document.getElementById("q").oninput=e=>{ query=e.target.value; page=1; if(tab==
     if(b.dataset.tab===tab) return;
     tab=b.dataset.tab; localStorage.setItem("macon_tab",tab);
     applyTab();
-    const tgt=document.getElementById(tab==="provenance"?"provenance":tab==="enquiries"?"enquiries":"ledger");
+    const tgt=document.getElementById(tab==="provenance"?"provenance":tab==="enquiries"?"enquiries":tab==="checkouts"?"checkouts":"ledger");
     if(tgt){ tgt.classList.add("switching"); requestAnimationFrame(()=>tgt.classList.remove("switching")); }
   });
   applyTab();
@@ -6730,7 +6790,7 @@ function download(name,content,type){
   const a=document.createElement("a"); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u);
 }
 
-function renderAll(){ renderDash(); if(tab==="provenance") renderProvenance(); else if(tab==="enquiries") renderEnquiries(); else renderLedger(); renderDrawer(); renderLetters(); }
+function renderAll(){ renderDash(); if(tab==="provenance") renderProvenance(); else if(tab==="enquiries") renderEnquiries(); else if(tab==="checkouts") renderCheckouts(); else renderLedger(); renderDrawer(); renderLetters(); }
 
 /* ---------- Drawer open/collapse ---------- */
 (function(){
