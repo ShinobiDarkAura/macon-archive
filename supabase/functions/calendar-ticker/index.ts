@@ -98,23 +98,33 @@ function readFeed(ics: string, tz: string) {
     overrideMap.get(uid)!.add(ymd);
   }
 
+  /* The studio's own weekly posts were written into the calendar while the
+     studio worked out of London, and still carry that zone. Read faithfully, a
+     13:00 post lands at 05:00 in Los Angeles and heads the day before anything
+     real. But these are the studio's own work, so their wall clock is the
+     studio's: 13:00 means 13:00 here, wherever the entry says. Re-entering them
+     in LA time gives the same answer, so this list can go once that is done.
+     A meeting with someone elsewhere keeps its own zone — it is their 13:00. */
+  const STUDIO_OWN = new Set(["object in life post", "process post", "meaning/story post", "newsletter"]);
+  const zoneFor = (title: string, tzid?: string) => STUDIO_OWN.has(title.toLowerCase()) ? tz : (tzid || tz);
+
   // --- Phase 3: emit events ---
   function finish(c: Record<string, string>, overriddenDates: Set<string>) {
     const raw = c["DTSTART"]; if (!raw || !c["SUMMARY"]) return;
+    // A title is what it says, without the trailing spaces that made one event
+    // look like two on the day's list.
+    const title = c["SUMMARY"].replace(/\\,/g, ",").replace(/\\;/g, ";").replace(/\\n/g, " · ").replace(/\s+/g, " ").trim();
     const allDay = !!c["ALLDAY"] || !raw.includes("T");
     let evDate0: string, start = "";
     if (allDay) {
       evDate0 = raw.slice(0, 4) + "-" + raw.slice(4, 6) + "-" + raw.slice(6, 8);
     } else {
-      const ms = instantOf(raw, c["TZID"] || tz);
+      const ms = instantOf(raw, zoneFor(title, c["TZID"]));
       if (isNaN(ms)) return;
       const when = new Date(ms);
       evDate0 = when.toLocaleDateString("en-CA", { timeZone: tz });
       start = when.toLocaleTimeString("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit" });
     }
-    // A title is what it says, without the trailing spaces that made one event
-    // look like two on the day's list.
-    const title = c["SUMMARY"].replace(/\\,/g, ",").replace(/\\;/g, ";").replace(/\\n/g, " · ").replace(/\s+/g, " ").trim();
     if (c["STATUS"] === "CANCELLED") return;
 
     // Exception dates (cancelled instances)
